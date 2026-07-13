@@ -628,6 +628,7 @@ const CALM_STRATS = {
 
 const I18N = {
   pt: {
+    appTitle:"Ilha do Foco", pageTitle:"Ilha do Foco — com a Kapi",
     appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil", logoutBtnLabel:"Sair",
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
@@ -683,6 +684,7 @@ const I18N = {
     }
   },
   it: {
+    appTitle:"Isola della Concentrazione", pageTitle:"Isola della Concentrazione — con Kapi",
     appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo", logoutBtnLabel:"Esci",
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
@@ -873,6 +875,7 @@ function renderAuthScreen() {
   const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   document.getElementById('authLangBtnPt').classList.toggle('active', state.lang === 'pt');
   document.getElementById('authLangBtnIt').classList.toggle('active', state.lang === 'it');
+  document.title = (I18N[state.lang] || I18N.pt).pageTitle;
 
   const title = document.getElementById('authTitle');
   const subtitle = document.getElementById('authSubtitle');
@@ -1186,6 +1189,7 @@ async function renderProfilesScreen(){
 function applyProfilesScreenI18n(){
   const t = I18N[state.lang] || I18N.pt;
   const ta = AUTH_I18N[state.lang] || AUTH_I18N.pt;
+  document.title = t.pageTitle;
   document.getElementById('profilesTitle').textContent = t.profilesTitle;
   document.getElementById('profilesSubtitle').textContent = t.profilesSubtitle;
   document.getElementById('labelName').textContent = t.labelName;
@@ -1235,6 +1239,8 @@ function applyGlobalI18n(){
   const t = L();
   document.getElementById('langBtnPt').classList.toggle('active', state.lang==='pt');
   document.getElementById('langBtnIt').classList.toggle('active', state.lang==='it');
+  document.getElementById('appTitle').textContent = t.appTitle;
+  document.title = t.pageTitle;
   document.getElementById('appTag').textContent = t.appTag;
   document.getElementById('seedsLabel').textContent = t.seedsLabel;
   document.getElementById('switchProfileBtn').textContent = t.switchProfile;

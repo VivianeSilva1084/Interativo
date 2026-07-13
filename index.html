@@ -662,7 +662,7 @@ const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termom
 const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let state = { lang:'pt', profileId:null, profile:null, familyId:null };
 
@@ -773,13 +773,13 @@ function handleForgotPassword() {
   renderAuthScreen();
 }
 
-supabase.auth.onAuthStateChange(async (event, session) => {
+sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
-    const { data: family, error } = await supabase.from('families').select('id').eq('auth_user_id', session.user.id).single();
+    const { data: family, error } = await sb.from('families').select('id').eq('auth_user_id', session.user.id).single();
     if (family) {
       state.familyId = family.id;
     } else {
-      const { data: newFamily, err } = await supabase.from('families').insert({ auth_user_id: session.user.id }).select('id').single();
+      const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id').single();
       if(newFamily) state.familyId = newFamily.id;
     }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -820,13 +820,13 @@ async function handleAuthSubmit() {
   
   let error = null;
   if (authMode === 'signup') {
-    const res = await supabase.auth.signUp({ email, password });
+    const res = await sb.auth.signUp({ email, password });
     error = res.error;
   } else if (authMode === 'login') {
-    const res = await supabase.auth.signInWithPassword({ email, password });
+    const res = await sb.auth.signInWithPassword({ email, password });
     error = res.error;
   } else if (authMode === 'reset') {
-    const res = await supabase.auth.resetPasswordForEmail(email);
+    const res = await sb.auth.resetPasswordForEmail(email);
     error = res.error;
     if(!error) {
       errEl.style.color = '#B8E8B0';
@@ -855,7 +855,7 @@ async function handleAuthSubmit() {
 async function handleLogout() {
   const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
   if(!confirm(t.logoutConfirm)) return;
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
   state.profileId = null;
   state.profile = null;
 }
@@ -869,7 +869,7 @@ function defaultProfileData(name, avatar, lang){
 async function loadProfilesList(){
   if(!state.familyId) return [];
   try{ 
-    const { data, error } = await supabase.from('child_profiles').select('*').eq('family_id', state.familyId).order('created_at', { ascending: true });
+    const { data, error } = await sb.from('child_profiles').select('*').eq('family_id', state.familyId).order('created_at', { ascending: true });
     if(error) throw error;
     return data || [];
   } catch(e){ 
@@ -882,7 +882,7 @@ async function saveProfilesList(list){
 }
 async function loadProfileData(id){
   try{ 
-    const { data, error } = await supabase.from('child_profiles').select('*').eq('id', id).single();
+    const { data, error } = await sb.from('child_profiles').select('*').eq('id', id).single();
     if(error) throw error;
     if(data) {
        return {
@@ -900,7 +900,7 @@ async function saveProfileData(){
   if(!state.profileId || !state.profile) return;
   try{ 
     const p = state.profile;
-    const { error } = await supabase.from('child_profiles').update({
+    const { error } = await sb.from('child_profiles').update({
       lang: p.lang,
       seeds: p.seeds,
       stars_by_game: p.starsByGame,
@@ -913,7 +913,7 @@ async function saveProfileData(){
 }
 async function deleteProfileData(id){
   try{ 
-    const { error } = await supabase.from('child_profiles').delete().eq('id', id);
+    const { error } = await sb.from('child_profiles').delete().eq('id', id);
     if(error) throw error;
   }catch(e){
     showError('Erro ao excluir perfil. Verifique a conexão.');
@@ -949,7 +949,7 @@ async function submitNewProfile(){
   btn.disabled = true;
   
   try {
-    const { data: newRow, error } = await supabase.from('child_profiles').insert({
+    const { data: newRow, error } = await sb.from('child_profiles').insert({
       family_id: state.familyId,
       name: name,
       avatar: avatar,

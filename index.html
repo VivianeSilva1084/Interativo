@@ -839,13 +839,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let state = { lang:'pt', profileId:null, profile:null, familyId:null, familyPinHash:null };
+let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null };
 
-let authLang = navigator.language.startsWith('it') ? 'it' : 'pt';
 let authMode = 'login'; // login, signup, reset
 
 function setAuthLang(l) {
-  authLang = l;
+  state.lang = l; // one language drives the whole app, from the login screen onward
   document.getElementById('authLangBtnPt').classList.toggle('active', l === 'pt');
   document.getElementById('authLangBtnIt').classList.toggle('active', l === 'it');
   renderAuthScreen();
@@ -861,7 +860,7 @@ function showError(msg) {
 }
 
 function getAuthErrorMsg(errCode) {
-  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   if (!errCode) return t.errorGeneric;
   if (errCode.includes('invalid_credentials')) return t.errorInvalidCredentials;
   if (errCode.includes('user_already_exists')) return t.errorEmailInUse;
@@ -871,8 +870,10 @@ function getAuthErrorMsg(errCode) {
 }
 
 function renderAuthScreen() {
-  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
-  
+  const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
+  document.getElementById('authLangBtnPt').classList.toggle('active', state.lang === 'pt');
+  document.getElementById('authLangBtnIt').classList.toggle('active', state.lang === 'it');
+
   const title = document.getElementById('authTitle');
   const subtitle = document.getElementById('authSubtitle');
   const btn = document.getElementById('authSubmitBtn');
@@ -890,10 +891,7 @@ function renderAuthScreen() {
   confirmLbl.textContent = t.confirmPasswordLabel;
   confirmInp.placeholder = t.confirmPasswordPlaceholder;
   document.getElementById('authPrivacyNote').textContent = t.privacyNote;
-  
-  // Logout button no painel
-  const logoutBtns = document.querySelectorAll('.logout-btn');
-  logoutBtns.forEach(b => b.textContent = t.logoutBtn);
+  document.getElementById('footerNote').textContent = (I18N[state.lang] || I18N.pt).footer;
 
   document.getElementById('authError').style.display = 'none';
 
@@ -971,7 +969,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
 });
 
 async function handleAuthSubmit() {
-  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   const confirmPassword = document.getElementById('authConfirmPassword').value;
@@ -1030,7 +1028,7 @@ async function handleAuthSubmit() {
 }
 
 async function handleLogout() {
-  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   if(!confirm(t.logoutConfirm)) return;
   flushSessionLog(); // persist whatever round is in progress while the session is still valid
   clearTimeout(window._semTimer); clearTimeout(window._semTimer2);
@@ -1186,7 +1184,8 @@ async function renderProfilesScreen(){
   applyProfilesScreenI18n();
 }
 function applyProfilesScreenI18n(){
-  const t = I18N[authLang] || I18N.pt;
+  const t = I18N[state.lang] || I18N.pt;
+  const ta = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   document.getElementById('profilesTitle').textContent = t.profilesTitle;
   document.getElementById('profilesSubtitle').textContent = t.profilesSubtitle;
   document.getElementById('labelName').textContent = t.labelName;
@@ -1195,6 +1194,8 @@ function applyProfilesScreenI18n(){
   document.getElementById('labelLang').textContent = t.labelLang;
   document.getElementById('createProfileBtn').textContent = t.createProfileBtn;
   document.getElementById('addProfileToggleBtn').textContent = t.addProfileBtn;
+  document.querySelectorAll('.logout-btn').forEach(b => b.textContent = ta.logoutBtn);
+  document.getElementById('footerNote').textContent = t.footer;
 }
 async function selectProfile(id){
   const data = await loadProfileData(id);

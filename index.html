@@ -50,8 +50,17 @@
   .mascot-wrap{ display:flex; flex-direction:column; align-items:center; margin: 6px 0 26px; }
   .mascot-float{ animation: float 4s ease-in-out infinite; }
   @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  .speech{ background: var(--cream); color:var(--ink); font-weight:800; padding:10px 18px; border-radius: 18px; margin-top:8px; box-shadow: var(--shadow); font-size:15px; max-width: 380px; text-align:center; position:relative; }
+  .speech{ background: var(--cream); color:var(--ink); font-weight:800; padding:10px 18px; border-radius: 18px; margin-top:8px; box-shadow: var(--shadow); font-size:15px; max-width: 380px; text-align:center; position:relative; display:flex; align-items:center; gap:8px; }
   .speech:after{ content:""; position:absolute; top:-8px; left:50%; transform:translateX(-50%); border-width:0 8px 8px 8px; border-style:solid; border-color: transparent transparent var(--cream) transparent; }
+  .speech-text{ flex:1; }
+
+  .tts-btn{ background: rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.3); color:var(--cream); width:32px; height:32px; min-width:32px; border-radius:50%; cursor:pointer; font-size:15px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; line-height:1; transition: transform .1s, background .1s; }
+  .tts-btn:hover{ background: rgba(255,255,255,.28); transform: scale(1.08); }
+  .tts-btn:active{ transform: scale(.95); }
+  .tts-btn-light{ background: rgba(11,61,46,.08); border:2px solid rgba(11,61,46,.18); color:var(--ink); }
+  .tts-btn-light:hover{ background: rgba(11,61,46,.16); }
+  .tts-icon{ position:absolute; font-size:15px; cursor:pointer; opacity:.7; line-height:1; }
+  .tts-icon:hover{ opacity:1; }
 
   .grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:18px; }
   .tile{ background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 20px 18px; cursor:pointer; position:relative; text-align:left; transition: transform .15s ease, border-color .15s ease, background .15s ease; display:flex; flex-direction:column; gap:8px; }
@@ -68,8 +77,10 @@
   .back-btn{ background: rgba(255,255,255,.1); color:var(--cream); border:2px solid rgba(255,255,255,.2); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer; font-size:14px; }
   .back-btn:hover{ background: rgba(255,255,255,.2); }
   .game-title{ font-size:22px; margin:0; color:var(--sand); }
-  .game-instructions{ background: rgba(255,255,255,.08); border-left:4px solid var(--papaya); padding:12px 16px; border-radius:12px; font-size:14.5px; font-weight:700; margin-bottom:18px; color:var(--cream); }
+  .game-instructions{ background: rgba(255,255,255,.08); border-left:4px solid var(--papaya); padding:12px 16px; border-radius:12px; font-size:14.5px; font-weight:700; margin-bottom:18px; color:var(--cream); display:flex; align-items:center; gap:12px; }
+  .game-instructions .instr-text{ flex:1; }
   .feedback-banner{ text-align:center; font-weight:800; font-size:17px; padding:14px; border-radius:16px; margin: 14px 0; display:none; }
+  .feedback-banner .tts-btn{ margin-left:8px; vertical-align:middle; }
   .feedback-banner.show{ display:block; }
   .feedback-banner.good{ background: rgba(124,197,118,.2); color:#B8E8B0; border:2px solid var(--success); }
   .feedback-banner.gentle{ background: rgba(255,255,255,.08); color: var(--sand); border:2px solid rgba(240,200,120,.4); }
@@ -106,11 +117,13 @@
   .answer-slot{ width:110px; height:110px; border-radius:18px; border:3px dashed rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-size:34px; color: rgba(255,255,255,.4); }
   .answer-slot.filled{ border-style:solid; background:var(--cream); color:var(--ink); }
 
-  .chat-bubble{ background: var(--cream); color:var(--ink); border-radius:20px 20px 20px 4px; padding:16px 20px; font-weight:700; font-size:16px; max-width:480px; box-shadow: var(--shadow); text-align:left; }
+  .chat-bubble{ background: var(--cream); color:var(--ink); border-radius:20px 20px 20px 4px; padding:16px 20px; font-weight:700; font-size:16px; max-width:480px; box-shadow: var(--shadow); text-align:left; display:flex; align-items:center; gap:10px; }
+  .chat-bubble .speech-text{ flex:1; }
   .reply-options{ display:flex; flex-direction:column; gap:10px; width:min(480px,90vw); }
-  .reply-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); color:var(--cream); padding:13px 18px; border-radius:16px; text-align:left; cursor:pointer; font-weight:700; font-size:14.5px; }
+  .reply-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); color:var(--cream); padding:13px 18px; padding-right:42px; border-radius:16px; text-align:left; cursor:pointer; font-weight:700; font-size:14.5px; position:relative; }
   .reply-btn:hover{ border-color: var(--sand); background: rgba(255,255,255,.14); }
   .reply-hint{ display:block; font-weight:600; font-size:12px; opacity:.65; margin-top:3px; }
+  .reply-btn .tts-icon{ top:50%; right:12px; transform:translateY(-50%); }
   .turn-indicator{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color: var(--lilac); }
   .turn-dot{ width:10px; height:10px; border-radius:50%; background: var(--lilac); animation: pulse 1.2s infinite; }
   @keyframes pulse{ 0%,100%{opacity:.4} 50%{opacity:1} }
@@ -123,11 +136,13 @@
   .timer-bar-wrap{ width:min(460px,90vw); height:12px; background: rgba(255,255,255,.12); border-radius:999px; overflow:hidden; }
   .timer-bar{ height:100%; background: var(--papaya); width:100%; transition: width 1s linear; }
 
-  .scenario-box{ background: rgba(255,255,255,.08); border-radius:18px; padding:18px 22px; font-size:16px; font-weight:700; max-width:520px; text-align:center; }
+  .scenario-box{ background: rgba(255,255,255,.08); border-radius:18px; padding:18px 22px; font-size:16px; font-weight:700; max-width:520px; text-align:center; display:flex; align-items:center; gap:10px; }
+  .scenario-box .instr-text{ flex:1; }
   .emo-options, .calm-options{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-  .emo-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); border-radius:16px; padding:14px 12px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--cream); font-size:12.5px; font-weight:800; width:92px; }
+  .emo-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); border-radius:16px; padding:14px 12px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--cream); font-size:12.5px; font-weight:800; width:92px; position:relative; }
   .emo-btn .e{ font-size:30px; }
   .emo-btn:hover, .emo-btn.selected{ border-color: var(--sand); background: rgba(255,255,255,.16); }
+  .emo-btn .tts-icon{ top:6px; right:8px; font-size:13px; }
   .breathe-circle{ width:90px; height:90px; border-radius:50%; background: radial-gradient(circle at 35% 30%, #a8e79f, var(--success)); margin: 10px auto; animation: breathe 4s ease-in-out infinite; }
   @keyframes breathe{ 0%,100%{ transform:scale(.8);} 50%{ transform:scale(1.15);} }
   .thermo-progress{ font-size:12.5px; font-weight:800; color:var(--lilac); }
@@ -173,6 +188,38 @@
   .logout-btn { background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2); color: var(--cream); padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: 13px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
   .logout-btn:hover { background: rgba(255,255,255,.2); border-color: var(--sand); }
   .global-error { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--berry); color: white; padding: 12px 24px; border-radius: 999px; font-weight: 800; box-shadow: var(--shadow); z-index: 9999; display: none; }
+
+  /* ---------- PARENTS AREA ---------- */
+  .parents-gate{ max-width:360px; margin:10px auto; text-align:center; }
+  .parents-gate h3{ color:var(--sand); font-size:20px; margin:0 0 6px; }
+  .parents-gate p{ color:var(--cream); opacity:.85; font-size:14px; margin:0 0 18px; }
+  .parents-gate label{ display:block; font-weight:800; font-size:13.5px; color:var(--sand); margin-bottom:6px; text-align:left; }
+  .pin-input{ width:100%; padding:12px 14px; border-radius:12px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:var(--cream); font-size:20px; font-weight:800; letter-spacing:10px; text-align:center; margin-bottom:16px; }
+  .parents-gate .big-cta{ width:100%; margin-top:4px; }
+  .parents-gate .auth-toggle{ margin-top:14px; }
+  #parentsSetupBlock .auth-error, #parentsEnterBlock .auth-error{ margin-bottom:14px; }
+
+  .parents-summary{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-bottom:22px; }
+  .parents-stat{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12); border-radius:16px; padding:12px 20px; text-align:center; min-width:120px; }
+  .parents-stat .v{ display:block; font-size:20px; font-weight:800; color:var(--sand); }
+  .parents-stat .l{ display:block; font-size:12px; font-weight:700; color:var(--lilac); margin-top:2px; }
+
+  .parents-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
+  .parents-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; }
+  .parents-card-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+  .parents-card-head .emoji{ font-size:22px; }
+  .parents-card-head .title{ font-weight:800; color:var(--cream); font-size:14.5px; flex:1; }
+  .parents-card-head .diff-tag{ font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--bg-deep); background:var(--sand); padding:3px 10px; border-radius:999px; }
+
+  .trend-chart-wrap{ position:relative; width:100%; aspect-ratio: 280 / 84; }
+  .trend-chart{ width:100%; height:100%; display:block; overflow:visible; }
+  .trend-grid{ stroke: rgba(255,255,255,.14); stroke-width:1; }
+  .trend-line{ fill:none; stroke:var(--papaya); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .trend-dot{ fill:var(--papaya); stroke:var(--bg-deep); stroke-width:2; cursor:pointer; }
+  .trend-dot:hover, .trend-dot:focus{ fill:var(--sand); outline:none; }
+  .chart-tip{ position:absolute; transform:translate(-50%,-135%); background:var(--cream); color:var(--ink); font-size:11px; font-weight:800; padding:5px 9px; border-radius:8px; white-space:nowrap; box-shadow:var(--shadow); pointer-events:none; display:none; z-index:5; }
+  .chart-empty{ color: var(--lilac); font-size:13px; font-weight:700; text-align:center; padding:14px 0; }
+  .parents-recent{ list-style:none; margin:10px 0 0; padding:0; font-size:12px; color: var(--cream); opacity:.85; display:flex; flex-direction:column; gap:3px; }
 </style>
 </head>
 <body>
@@ -188,6 +235,7 @@
       </div>
       <div class="seeds">🌰 <span id="seedCount">0</span> <span id="seedsLabel">sementes de foco</span></div>
       <div class="profile-chip"><span class="av" id="chipAvatar">🦫</span><span id="chipName">—</span></div>
+      <button class="icon-btn" id="parentsAreaBtn" onclick="openParents()">🔒 <span id="parentsAreaBtnLabel"></span></button>
       <button class="icon-btn" id="switchProfileBtn" onclick="goProfiles()">Trocar perfil</button>
     </div>
   </div>
@@ -322,7 +370,7 @@
         <div class="story-cards" id="storyCards"></div>
         <div class="answer-row" id="storyAnswer"></div>
         <div class="feedback-banner" id="storyFeedback"></div>
-        <button class="big-cta secondary" id="storyResetBtn" style="display:none"></button>
+        <button class="big-cta secondary" id="storyResetBtn" style="display:none" onclick="storyInit()"></button>
       </div>
     </div>
   </div>
@@ -385,6 +433,41 @@
           <div class="calm-options" id="calmOptions"></div>
         </div>
         <div class="feedback-banner" id="thermoFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ÁREA DOS PAIS ===================== -->
+  <div class="screen" id="screen-parents">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="parentsTitle"></h2></div>
+
+      <div id="parentsGate" class="parents-gate">
+        <h3 id="parentsGateTitle"></h3>
+        <p id="parentsGateSubtitle"></p>
+
+        <div id="parentsSetupBlock" style="display:none;">
+          <label id="parentsPinLabel"></label>
+          <input type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" class="pin-input" id="parentsPinInput">
+          <label id="parentsPinConfirmLabel"></label>
+          <input type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" class="pin-input" id="parentsPinConfirmInput" onkeydown="if(event.key==='Enter') parentsSavePin()">
+          <div class="auth-error" id="parentsPinError"></div>
+          <button class="big-cta" id="parentsSavePinBtn" onclick="parentsSavePin()"></button>
+        </div>
+
+        <div id="parentsEnterBlock" style="display:none;">
+          <label id="parentsPinLabelEnter"></label>
+          <input type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" class="pin-input" id="parentsPinInputEnter" onkeydown="if(event.key==='Enter') parentsCheckPin()">
+          <div class="auth-error" id="parentsPinErrorEnter"></div>
+          <button class="big-cta" id="parentsUnlockBtn" onclick="parentsCheckPin()"></button>
+          <button class="auth-toggle" id="parentsForgotBtn" onclick="parentsForgotPin()"></button>
+        </div>
+        <button class="auth-toggle" id="parentsCancelForgotBtn" onclick="parentsCancelForgot()" style="display:none;"></button>
+      </div>
+
+      <div id="parentsDashboard" style="display:none;">
+        <div id="parentsChildTabs" class="diff-row"></div>
+        <div id="parentsDashboardBody"></div>
       </div>
     </div>
   </div>
@@ -523,7 +606,19 @@ const I18N = {
     thermo:{ title:"🌈 Termômetro das Emoções", instr:"Lê a situação, escolhe como você acha que se sentiria, e uma forma de se acalmar.",
       step1:"Como você acha que se sentiria?", step2:"O que pode ajudar a se acalmar?",
       feedback:(e,l)=>`Ótima escolha! Sentir <b>${e}</b> é normal, e "${l}" pode ajudar bastante. 💛`,
-      breathing:"Inspira... e solta o ar bem devagar...", progress:(i,t)=>`Situação ${i} de ${t}`, next:"Próxima situação" }
+      breathing:"Inspira... e solta o ar bem devagar...", progress:(i,t)=>`Situação ${i} de ${t}`, next:"Próxima situação" },
+    parents:{
+      areaTitle:"Área dos pais",
+      gateSetTitle:"Crie um PIN de 4 dígitos", gateSetSubtitle:"Esse PIN protege a área dos pais. Guarde em um lugar que só vocês lembram.",
+      gateEnterTitle:"Área dos pais", gateEnterSubtitle:"Digite o PIN de 4 dígitos para continuar.",
+      pinLabel:"PIN (4 números)", pinConfirmLabel:"Confirme o PIN",
+      savePinBtn:"Salvar PIN", unlockBtn:"Entrar", forgotPin:"Esqueci o PIN",
+      errPinLength:"O PIN precisa ter 4 números.", errPinMismatch:"Os PINs digitados não são iguais.",
+      errPinWrong:"PIN incorreto. Tente de novo.", errGeneric:"Algo deu errado. Verifique a conexão e tente de novo.",
+      noChildren:"Crie um perfil de criança primeiro para ver a evolução aqui.",
+      statsSeeds:"Sementes de foco", statsSessions:"Sessões jogadas", statsLast:"Última vez que jogou", never:"Ainda não jogou",
+      noSessions:"Ainda não jogou esse jogo.", chartAriaLabel:"Gráfico de estrelas ao longo do tempo"
+    }
   },
   it: {
     appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo",
@@ -560,7 +655,19 @@ const I18N = {
     thermo:{ title:"🌈 Il Termometro delle Emozioni", instr:"Leggi la situazione, scegli come pensi che ti sentiresti, e un modo per calmarti.",
       step1:"Come pensi che ti sentiresti?", step2:"Cosa può aiutare a calmarti?",
       feedback:(e,l)=>`Ottima scelta! Sentirsi <b>${e}</b> è normale, e "${l}" può aiutare molto. 💛`,
-      breathing:"Inspira... ed espira lentamente...", progress:(i,t)=>`Situazione ${i} di ${t}`, next:"Prossima situazione" }
+      breathing:"Inspira... ed espira lentamente...", progress:(i,t)=>`Situazione ${i} di ${t}`, next:"Prossima situazione" },
+    parents:{
+      areaTitle:"Area genitori",
+      gateSetTitle:"Crea un PIN di 4 cifre", gateSetSubtitle:"Questo PIN protegge l'area genitori. Conservalo in un posto che solo voi ricordate.",
+      gateEnterTitle:"Area genitori", gateEnterSubtitle:"Inserisci il PIN di 4 cifre per continuare.",
+      pinLabel:"PIN (4 numeri)", pinConfirmLabel:"Conferma il PIN",
+      savePinBtn:"Salva PIN", unlockBtn:"Entra", forgotPin:"Ho dimenticato il PIN",
+      errPinLength:"Il PIN deve avere 4 numeri.", errPinMismatch:"I PIN inseriti non coincidono.",
+      errPinWrong:"PIN errato. Riprova.", errGeneric:"Qualcosa è andato storto. Controlla la connessione e riprova.",
+      noChildren:"Crea prima un profilo bambino per vedere l'evoluzione qui.",
+      statsSeeds:"Semi della concentrazione", statsSessions:"Sessioni giocate", statsLast:"Ultima volta che ha giocato", never:"Non ha ancora giocato",
+      noSessions:"Non ha ancora giocato a questo gioco.", chartAriaLabel:"Grafico delle stelle nel tempo"
+    }
   }
 };
 
@@ -664,7 +771,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let state = { lang:'pt', profileId:null, profile:null, familyId:null };
+let state = { lang:'pt', profileId:null, profile:null, familyId:null, familyPinHash:null };
 
 let authLang = navigator.language.startsWith('it') ? 'it' : 'pt';
 let authMode = 'login'; // login, signup, reset
@@ -775,18 +882,20 @@ function handleForgotPassword() {
 
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
-    const { data: family, error } = await sb.from('families').select('id').eq('auth_user_id', session.user.id).single();
+    const { data: family, error } = await sb.from('families').select('id, parent_pin_hash').eq('auth_user_id', session.user.id).single();
     if (family) {
       state.familyId = family.id;
+      state.familyPinHash = family.parent_pin_hash || null;
     } else {
-      const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id').single();
-      if(newFamily) state.familyId = newFamily.id;
+      const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id, parent_pin_hash').single();
+      if(newFamily){ state.familyId = newFamily.id; state.familyPinHash = newFamily.parent_pin_hash || null; }
     }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-profiles').classList.add('active');
     renderProfilesScreen();
   } else {
     state.familyId = null;
+    state.familyPinHash = null;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-auth').classList.add('active');
     renderAuthScreen(); // Atualiza idiomas
@@ -1047,6 +1156,7 @@ function applyGlobalI18n(){
   document.getElementById('appTag').textContent = t.appTag;
   document.getElementById('seedsLabel').textContent = t.seedsLabel;
   document.getElementById('switchProfileBtn').textContent = t.switchProfile;
+  document.getElementById('parentsAreaBtnLabel').textContent = t.parents.areaTitle;
   document.getElementById('footerNote').textContent = t.footer;
   document.querySelectorAll('.backLabel').forEach(el=>el.textContent = t.backLabel);
   if(state.profile){
@@ -1056,7 +1166,61 @@ function applyGlobalI18n(){
   }
 }
 
-function say(text){ document.getElementById('mascotSpeech').textContent = text; }
+function speak(text){
+  if(!('speechSynthesis' in window) || !text) return;
+  const clean = String(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g,' ').trim();
+  if(!clean) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = state.lang === 'it' ? 'it-IT' : 'pt-BR';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+function makeTtsBtn(text, light){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'tts-btn' + (light ? ' tts-btn-light' : '');
+  btn.setAttribute('aria-label', 'Ouvir');
+  btn.textContent = '🔊';
+  btn.onclick = (e)=>{ e.stopPropagation(); speak(text); };
+  return btn;
+}
+function makeTtsIcon(text){
+  const span = document.createElement('span');
+  span.className = 'tts-icon';
+  span.setAttribute('role', 'button');
+  span.setAttribute('aria-label', 'Ouvir');
+  span.textContent = '🔊';
+  span.onclick = (e)=>{ e.stopPropagation(); speak(text); };
+  return span;
+}
+function setInstructions(id, text){
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.className = 'instr-text';
+  span.textContent = text;
+  el.appendChild(span);
+  el.appendChild(makeTtsBtn(text));
+}
+function setChatBubble(text){
+  const el = document.getElementById('chatBubble');
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.className = 'speech-text';
+  span.textContent = text;
+  el.appendChild(span);
+  el.appendChild(makeTtsBtn(text, true));
+}
+function say(text){
+  const el = document.getElementById('mascotSpeech');
+  el.innerHTML = '';
+  const span = document.createElement('span');
+  span.className = 'speech-text';
+  span.textContent = text;
+  el.appendChild(span);
+  el.appendChild(makeTtsBtn(text, true));
+}
 function blinkMascot(){
   const l = document.getElementById('eyeL'), r = document.getElementById('eyeR');
   if(!l||!r) return;
@@ -1074,6 +1238,7 @@ function setStars(gameKey, count){
   state.profile.starsByGame[gameKey] = Math.max(state.profile.starsByGame[gameKey], count);
   saveProfileData();
   renderHubTileStars();
+  sessionDirty[gameKey] = true;
 }
 function setDifficulty(gameKey, level){
   state.profile.difficultyByGame[gameKey] = level;
@@ -1126,9 +1291,13 @@ function renderDiffRow(containerId, gameKey, onChange){
 }
 
 function openGame(key){
+  flushSessionLog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+key).classList.add('active');
   window.scrollTo({top:0, behavior:'smooth'});
+  currentGameKey = key;
+  sessionSeedsStart[key] = state.profile.seeds;
+  sessionDirty[key] = false;
   if(key==='semaforo') semInit();
   if(key==='memoria') simonInit();
   if(key==='historia') storyInit();
@@ -1137,6 +1306,7 @@ function openGame(key){
   if(key==='termometro') thermoInit();
 }
 function goHub(){
+  flushSessionLog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-hub').classList.add('active');
   applyGlobalI18n();
@@ -1150,6 +1320,7 @@ function showFeedback(id, text, good){
   const el = document.getElementById(id);
   el.innerHTML = text;
   el.className = 'feedback-banner show ' + (good ? 'good' : 'gentle');
+  el.appendChild(makeTtsBtn(el.textContent));
 }
 function hideFeedback(id){ document.getElementById(id).className = 'feedback-banner'; }
 
@@ -1158,7 +1329,7 @@ let sem = { round:0, hits:0, total:5, canGo:false, cfg:null };
 function semInit(){
   const t = L();
   document.getElementById('semTitle').textContent = t.sem.title;
-  document.getElementById('semInstructions').textContent = t.sem.instr;
+  setInstructions('semInstructions', t.sem.instr);
   document.getElementById('semStartBtn').textContent = t.startBtn;
   document.getElementById('semPreStart').style.display = 'flex';
   document.getElementById('semPlayArea').style.display = 'none';
@@ -1217,7 +1388,7 @@ let simon = { sequence:[], input:[], level:1, playing:false, cfg:null };
 function simonInit(){
   const t = L();
   document.getElementById('memTitle').textContent = t.mem.title;
-  document.getElementById('memInstructions').textContent = t.mem.instr;
+  setInstructions('memInstructions', t.mem.instr);
   document.getElementById('memStartBtn').textContent = t.startBtn;
   document.getElementById('memPreStart').style.display = 'flex';
   document.getElementById('memPlayArea').style.display = 'none';
@@ -1257,6 +1428,7 @@ function simonInput(padIndex){
   simon.input.push(padIndex);
   const idx = simon.input.length - 1;
   if(simon.input[idx] !== simon.sequence[idx]){
+    simon.playing = true;
     showFeedback('simonFeedback', t.mem.wrong, false);
     const stars = simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.7) ? 3 : simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.4) ? 2 : simon.level-1>=1?1:0;
     setStars('memoria', stars);
@@ -1264,6 +1436,7 @@ function simonInput(padIndex){
     return;
   }
   if(simon.input.length === simon.sequence.length){
+    simon.playing = true;
     if(simon.level >= simon.cfg.maxLevel){
       showFeedback('simonFeedback', t.mem.mastery, true);
       setStars('memoria', 3); addSeeds(10); say(t.mascotGood);
@@ -1287,7 +1460,7 @@ function storyInit(){
   document.getElementById('storyPreStart').style.display = 'flex';
   document.getElementById('storyPlayArea').style.display = 'none';
   document.getElementById('storyResetBtn').style.display = 'none';
-  document.getElementById('storyInstructions').textContent = t.story.instr('...');
+  setInstructions('storyInstructions', t.story.instr('...'));
   hideFeedback('storyFeedback');
   renderDiffRow('storyDiffRow', 'historia');
 }
@@ -1300,7 +1473,7 @@ function storyStart(){
   story.correct = pick.cards.slice(0, cfg.len);
   story.answer = [];
   story.shuffled = [...story.correct].sort(()=>Math.random()-0.5);
-  document.getElementById('storyInstructions').textContent = t.story.instr(pick.title);
+  setInstructions('storyInstructions', t.story.instr(pick.title));
   document.getElementById('storyPreStart').style.display = 'none';
   document.getElementById('storyPlayArea').style.display = 'flex';
   document.getElementById('storyResetBtn').style.display = 'none';
@@ -1358,7 +1531,7 @@ let chat = { step:0, correctCount:0, turns:[] };
 function chatInit(){
   const t = L();
   document.getElementById('chatTitle').textContent = t.chat.title;
-  document.getElementById('chatInstructions').textContent = t.chat.instr;
+  setInstructions('chatInstructions', t.chat.instr);
   document.getElementById('chatStartBtn').textContent = t.startBtn;
   document.getElementById('chatPreStart').style.display = 'flex';
   document.getElementById('chatPlayArea').style.display = 'none';
@@ -1381,7 +1554,7 @@ function renderChatStep(){
   document.getElementById('turnIndicator').style.display = 'none';
   if(chat.step >= chat.turns.length){ chatEnd(); return; }
   const s = chat.turns[chat.step];
-  document.getElementById('chatBubble').textContent = s.line;
+  setChatBubble(s.line);
   const optWrap = document.getElementById('replyOptions');
   optWrap.innerHTML = '';
   const shuffled = [...s.options].sort(()=>Math.random()-0.5);
@@ -1390,6 +1563,7 @@ function renderChatStep(){
     btn.className = 'reply-btn';
     btn.innerHTML = opt.text + (chat.showHint && opt.hint ? `<span class="reply-hint">${opt.hint}</span>` : '');
     btn.onclick = ()=>chatPick(opt.ok);
+    btn.appendChild(makeTtsIcon(opt.text));
     optWrap.appendChild(btn);
   });
 }
@@ -1403,7 +1577,7 @@ function chatPick(ok){
 }
 function chatEnd(){
   const t = L();
-  document.getElementById('chatBubble').textContent = t.chat.closing;
+  setChatBubble(t.chat.closing);
   document.getElementById('replyOptions').innerHTML = '';
   document.getElementById('turnIndicator').style.display = 'none';
   const ratio = chat.correctCount/chat.turns.length;
@@ -1418,7 +1592,7 @@ let hunt = { found:0, target:6, timeLeft:20, timerId:null, cfg:null };
 function huntInit(){
   const t = L();
   document.getElementById('huntTitle').textContent = t.hunt.title;
-  document.getElementById('huntInstructions').textContent = t.hunt.instr;
+  setInstructions('huntInstructions', t.hunt.instr);
   document.getElementById('huntStartBtn').textContent = t.startBtn;
   document.getElementById('huntAgainBtn').textContent = t.playAgainBtn;
   document.getElementById('huntPreStart').style.display = 'flex';
@@ -1501,7 +1675,7 @@ let thermo = { rounds:[], step:0, emo:null, total:0 };
 function thermoInit(){
   const t = L();
   document.getElementById('thermoTitle').textContent = t.thermo.title;
-  document.getElementById('thermoInstructions').textContent = t.thermo.instr;
+  setInstructions('thermoInstructions', t.thermo.instr);
   document.getElementById('thermoStartBtn').textContent = t.startBtn;
   document.getElementById('thermoPreStart').style.display = 'flex';
   document.getElementById('thermoPlayArea').style.display = 'none';
@@ -1525,7 +1699,7 @@ function thermoRenderRound(){
     return;
   }
   document.getElementById('thermoProgress').textContent = t.thermo.progress(thermo.step+1, thermo.total);
-  document.getElementById('scenarioBox').textContent = thermo.rounds[thermo.step];
+  setInstructions('scenarioBox', thermo.rounds[thermo.step]);
   document.getElementById('thermoStep1').style.display = 'block';
   document.getElementById('thermoStep2').style.display = 'none';
   document.getElementById('thermoStep1Label').textContent = t.thermo.step1;
@@ -1543,6 +1717,7 @@ function thermoRenderRound(){
       thermo.emo = opt.label;
       setTimeout(thermoStep2, 500);
     };
+    btn.appendChild(makeTtsIcon(opt.label));
     emoWrap.appendChild(btn);
   });
 }
@@ -1556,6 +1731,7 @@ function thermoStep2(){
     btn.className = 'emo-btn';
     btn.innerHTML = `<span class="e">${opt.e}</span>${opt.label}`;
     btn.onclick = ()=>thermoPickCalm(opt, btn);
+    btn.appendChild(makeTtsIcon(opt.label));
     calmWrap.appendChild(btn);
   });
 }
@@ -1580,6 +1756,278 @@ function thermoPickCalm(opt, btn){
       thermoRenderRound();
     }
   }, isLast ? 1800 : 2200);
+}
+
+/* ========================= SESSION LOGGING (for parents area) ========================= */
+let currentGameKey = null;
+let sessionDirty = {};
+let sessionSeedsStart = {};
+
+function flushSessionLog(){
+  if(currentGameKey && sessionDirty[currentGameKey]) logSession(currentGameKey);
+  currentGameKey = null;
+}
+async function logSession(gameKey){
+  sessionDirty[gameKey] = false;
+  if(!state.profileId || !state.familyId || !state.profile) return;
+  const stars = state.profile.starsByGame[gameKey] || 0;
+  const difficulty = getDifficulty(gameKey);
+  const startSeeds = sessionSeedsStart[gameKey] ?? state.profile.seeds;
+  const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
+  try{
+    const { error } = await sb.from('game_sessions').insert({
+      family_id: state.familyId,
+      profile_id: state.profileId,
+      game_key: gameKey,
+      difficulty,
+      stars,
+      seeds_earned: seedsEarned
+    });
+    if(error) throw error;
+  }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
+}
+
+/* ========================= PARENTS AREA ========================= */
+let parentsForcedSetup = false;
+let parentsChildren = [];
+let parentsActiveChildId = null;
+
+async function sha256Hex(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function hashPin(pin){ return sha256Hex('ilhadofoco:' + state.familyId + ':' + pin); }
+
+function openParents(){
+  flushSessionLog();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-parents').classList.add('active');
+  document.getElementById('parentsTitle').textContent = '🔒 ' + L().parents.areaTitle;
+  parentsForcedSetup = false;
+  document.getElementById('parentsGate').style.display = 'block';
+  document.getElementById('parentsDashboard').style.display = 'none';
+  parentsRenderGate();
+}
+function parentsRenderGate(){
+  const t = L();
+  const isSetup = !state.familyPinHash || parentsForcedSetup;
+  document.getElementById('parentsSetupBlock').style.display = isSetup ? 'block' : 'none';
+  document.getElementById('parentsEnterBlock').style.display = isSetup ? 'none' : 'block';
+  document.getElementById('parentsCancelForgotBtn').style.display = parentsForcedSetup ? 'inline-block' : 'none';
+  document.getElementById('parentsGateTitle').textContent = isSetup ? t.parents.gateSetTitle : t.parents.gateEnterTitle;
+  document.getElementById('parentsGateSubtitle').textContent = isSetup ? t.parents.gateSetSubtitle : t.parents.gateEnterSubtitle;
+  document.getElementById('parentsPinLabel').textContent = t.parents.pinLabel;
+  document.getElementById('parentsPinConfirmLabel').textContent = t.parents.pinConfirmLabel;
+  document.getElementById('parentsPinLabelEnter').textContent = t.parents.pinLabel;
+  document.getElementById('parentsSavePinBtn').textContent = t.parents.savePinBtn;
+  document.getElementById('parentsUnlockBtn').textContent = t.parents.unlockBtn;
+  document.getElementById('parentsForgotBtn').textContent = t.parents.forgotPin;
+  document.getElementById('parentsCancelForgotBtn').textContent = t.backLabel;
+  document.getElementById('parentsPinInput').value = '';
+  document.getElementById('parentsPinConfirmInput').value = '';
+  document.getElementById('parentsPinInputEnter').value = '';
+  document.getElementById('parentsPinError').style.display = 'none';
+  document.getElementById('parentsPinErrorEnter').style.display = 'none';
+}
+function parentsForgotPin(){
+  parentsForcedSetup = true;
+  parentsRenderGate();
+}
+function parentsCancelForgot(){
+  parentsForcedSetup = false;
+  parentsRenderGate();
+}
+async function parentsSavePin(){
+  const t = L();
+  const errEl = document.getElementById('parentsPinError');
+  const pin = document.getElementById('parentsPinInput').value.trim();
+  const confirmPin = document.getElementById('parentsPinConfirmInput').value.trim();
+  if(!/^\d{4}$/.test(pin)){ errEl.textContent = t.parents.errPinLength; errEl.style.display = 'block'; return; }
+  if(pin !== confirmPin){ errEl.textContent = t.parents.errPinMismatch; errEl.style.display = 'block'; return; }
+  try{
+    const hash = await hashPin(pin);
+    const { error } = await sb.from('families').update({ parent_pin_hash: hash }).eq('id', state.familyId);
+    if(error) throw error;
+    state.familyPinHash = hash;
+    parentsForcedSetup = false;
+    await parentsOpenDashboard();
+  }catch(e){
+    errEl.textContent = t.parents.errGeneric;
+    errEl.style.display = 'block';
+  }
+}
+async function parentsCheckPin(){
+  const t = L();
+  const errEl = document.getElementById('parentsPinErrorEnter');
+  const pin = document.getElementById('parentsPinInputEnter').value.trim();
+  if(!/^\d{4}$/.test(pin)){ errEl.textContent = t.parents.errPinLength; errEl.style.display = 'block'; return; }
+  const hash = await hashPin(pin);
+  if(hash === state.familyPinHash){
+    await parentsOpenDashboard();
+  } else {
+    errEl.textContent = t.parents.errPinWrong;
+    errEl.style.display = 'block';
+    document.getElementById('parentsPinInputEnter').value = '';
+  }
+}
+
+async function loadSessions(profileId){
+  try{
+    const { data, error } = await sb.from('game_sessions').select('*').eq('profile_id', profileId).order('played_at', { ascending:true });
+    if(error) throw error;
+    return data || [];
+  }catch(e){ return []; }
+}
+function getChildDifficulty(child, key){ return (child.difficulty_by_game && child.difficulty_by_game[key]) || 'medio'; }
+
+async function parentsOpenDashboard(){
+  document.getElementById('parentsGate').style.display = 'none';
+  document.getElementById('parentsDashboard').style.display = 'block';
+  parentsChildren = await loadProfilesList();
+  const tabsWrap = document.getElementById('parentsChildTabs');
+  const body = document.getElementById('parentsDashboardBody');
+  if(!parentsChildren.length){
+    tabsWrap.innerHTML = '';
+    body.innerHTML = '';
+    const p = document.createElement('p');
+    p.className = 'chart-empty';
+    p.textContent = L().parents.noChildren;
+    body.appendChild(p);
+    return;
+  }
+  if(!parentsChildren.some(c=>c.id === parentsActiveChildId)) parentsActiveChildId = parentsChildren[0].id;
+  renderParentsChildTabs();
+  await renderParentsDashboardBody();
+}
+function renderParentsChildTabs(){
+  const wrap = document.getElementById('parentsChildTabs');
+  wrap.innerHTML = '';
+  if(parentsChildren.length < 2) return;
+  parentsChildren.forEach(c=>{
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn' + (c.id === parentsActiveChildId ? ' selected' : '');
+    btn.textContent = `${c.avatar} ${c.name}`;
+    btn.onclick = async ()=>{
+      parentsActiveChildId = c.id;
+      renderParentsChildTabs();
+      await renderParentsDashboardBody();
+    };
+    wrap.appendChild(btn);
+  });
+}
+async function renderParentsDashboardBody(){
+  const t = L();
+  const body = document.getElementById('parentsDashboardBody');
+  body.innerHTML = '';
+  const child = parentsChildren.find(c=>c.id === parentsActiveChildId);
+  if(!child) return;
+  const sessions = await loadSessions(child.id);
+  const locale = state.lang === 'it' ? 'it-IT' : 'pt-BR';
+
+  const summary = document.createElement('div');
+  summary.className = 'parents-summary';
+  const lastPlayed = sessions.length ? new Date(sessions[sessions.length-1].played_at).toLocaleDateString(locale) : t.parents.never;
+  summary.innerHTML = `
+    <div class="parents-stat"><span class="v">🌰 ${child.seeds || 0}</span><span class="l">${t.parents.statsSeeds}</span></div>
+    <div class="parents-stat"><span class="v">${sessions.length}</span><span class="l">${t.parents.statsSessions}</span></div>
+    <div class="parents-stat"><span class="v">${lastPlayed}</span><span class="l">${t.parents.statsLast}</span></div>`;
+  body.appendChild(summary);
+
+  const grid = document.createElement('div');
+  grid.className = 'parents-grid';
+  GAME_KEYS.forEach(key=>{
+    const gameSessions = sessions.filter(s=>s.game_key === key);
+    const tile = t.tiles[key];
+    const card = document.createElement('div');
+    card.className = 'parents-card';
+    const head = document.createElement('div');
+    head.className = 'parents-card-head';
+    head.innerHTML = `<span class="emoji">${tile.emoji}</span><span class="title">${tile.title}</span><span class="diff-tag">${t.diff[getChildDifficulty(child, key)]}</span>`;
+    card.appendChild(head);
+    const chartWrap = document.createElement('div');
+    chartWrap.className = 'trend-chart-wrap';
+    card.appendChild(chartWrap);
+    renderTrendChart(chartWrap, gameSessions);
+    if(gameSessions.length){
+      const list = document.createElement('ul');
+      list.className = 'parents-recent';
+      gameSessions.slice(-3).reverse().forEach(s=>{
+        const li = document.createElement('li');
+        const d = new Date(s.played_at).toLocaleDateString(locale);
+        li.textContent = `${d} — ${'⭐'.repeat(s.stars)}${'☆'.repeat(3-s.stars)} — ${t.diff[s.difficulty] || s.difficulty}`;
+        list.appendChild(li);
+      });
+      card.appendChild(list);
+    }
+    grid.appendChild(card);
+  });
+  body.appendChild(grid);
+}
+
+function renderTrendChart(container, sessions){
+  container.innerHTML = '';
+  const t = L();
+  if(!sessions.length){
+    const p = document.createElement('p');
+    p.className = 'chart-empty';
+    p.textContent = t.parents.noSessions;
+    container.appendChild(p);
+    return;
+  }
+  const pts = sessions.slice(-12);
+  const W = 280, H = 84, padX = 14, padY = 14;
+  const stepX = pts.length > 1 ? (W - padX*2) / (pts.length - 1) : 0;
+  const yFor = (stars) => H - padY - (stars/3) * (H - padY*2);
+  const locale = state.lang === 'it' ? 'it-IT' : 'pt-BR';
+
+  const tip = document.createElement('div');
+  tip.className = 'chart-tip';
+  container.appendChild(tip);
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('class', 'trend-chart');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', t.parents.chartAriaLabel);
+
+  [0,1,2,3].forEach(v=>{
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', padX); line.setAttribute('x2', W - padX);
+    line.setAttribute('y1', yFor(v)); line.setAttribute('y2', yFor(v));
+    line.setAttribute('class', 'trend-grid');
+    svg.appendChild(line);
+  });
+
+  const linePoints = pts.map((s,i)=> `${padX + i*stepX},${yFor(s.stars)}`).join(' ');
+  const polyline = document.createElementNS(svgNS, 'polyline');
+  polyline.setAttribute('points', linePoints);
+  polyline.setAttribute('class', 'trend-line');
+  svg.appendChild(polyline);
+
+  pts.forEach((s,i)=>{
+    const cx = padX + i*stepX, cy = yFor(s.stars);
+    const c = document.createElementNS(svgNS, 'circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', 4);
+    c.setAttribute('class', 'trend-dot');
+    c.setAttribute('tabindex', '0');
+    const dateStr = new Date(s.played_at).toLocaleDateString(locale, { day:'2-digit', month:'2-digit' });
+    const label = `${dateStr} · ${'⭐'.repeat(s.stars)}${'☆'.repeat(3-s.stars)} · ${t.diff[s.difficulty] || s.difficulty}`;
+    const show = ()=>{
+      tip.textContent = label;
+      tip.style.left = (cx/W*100) + '%';
+      tip.style.top = (cy/H*100) + '%';
+      tip.style.display = 'block';
+    };
+    const hide = ()=>{ tip.style.display = 'none'; };
+    c.addEventListener('mouseenter', show);
+    c.addEventListener('mouseleave', hide);
+    c.addEventListener('focus', show);
+    c.addEventListener('blur', hide);
+    svg.appendChild(c);
+  });
+
+  container.appendChild(svg);
 }
 
 /* ========================= AMBIENT + INIT ========================= */

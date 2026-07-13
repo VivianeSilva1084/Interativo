@@ -220,6 +220,22 @@
   .chart-tip{ position:absolute; transform:translate(-50%,-135%); background:var(--cream); color:var(--ink); font-size:11px; font-weight:800; padding:5px 9px; border-radius:8px; white-space:nowrap; box-shadow:var(--shadow); pointer-events:none; display:none; z-index:5; }
   .chart-empty{ color: var(--lilac); font-size:13px; font-weight:700; text-align:center; padding:14px 0; }
   .parents-recent{ list-style:none; margin:10px 0 0; padding:0; font-size:12px; color: var(--cream); opacity:.85; display:flex; flex-direction:column; gap:3px; }
+
+  /* ---------- STICKER ALBUM ---------- */
+  .album-summary{ text-align:center; font-weight:800; color:var(--sand); margin-bottom:16px; font-size:15px; }
+  .album-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(108px,1fr)); gap:14px; }
+  .sticker-card{ aspect-ratio:1; border-radius:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:10px; text-align:center; border:3px solid; transition: transform .12s ease; }
+  .sticker-card.unlocked{ background: var(--cream); }
+  .sticker-card.locked{ background: rgba(255,255,255,.06); cursor:pointer; }
+  .sticker-card.locked:hover{ transform: translateY(-3px); }
+  .sticker-card .sticker-emoji{ font-size:36px; }
+  .sticker-card .sticker-emoji.locked-emoji{ filter: grayscale(1) brightness(.55); opacity:.6; }
+  .sticker-card .sticker-name{ font-weight:800; font-size:12px; color:var(--ink); }
+  .sticker-card .sticker-price{ font-weight:800; font-size:12.5px; color:var(--sand); }
+  .sticker-card.tier-bronze{ border-color:#BE8C5D; }
+  .sticker-card.tier-silver{ border-color:#C7CDD6; }
+  .sticker-card.tier-gold{ border-color:var(--sand); }
+  .sticker-card.tier-legendary{ border-color:var(--papaya); box-shadow: 0 0 16px rgba(242,112,60,.5); }
 </style>
 </head>
 <body>
@@ -235,8 +251,10 @@
       </div>
       <div class="seeds">🌰 <span id="seedCount">0</span> <span id="seedsLabel">sementes de foco</span></div>
       <div class="profile-chip"><span class="av" id="chipAvatar">🦫</span><span id="chipName">—</span></div>
+      <button class="icon-btn" id="albumBtn" onclick="openAlbum()">🖼️ <span id="albumBtnLabel"></span></button>
       <button class="icon-btn" id="parentsAreaBtn" onclick="openParents()">🔒 <span id="parentsAreaBtnLabel"></span></button>
       <button class="icon-btn" id="switchProfileBtn" onclick="goProfiles()">Trocar perfil</button>
+      <button class="icon-btn" id="headerLogoutBtn" onclick="handleLogout()">🚪 <span id="headerLogoutBtnLabel"></span></button>
     </div>
   </div>
 
@@ -425,7 +443,7 @@
         <div class="thermo-progress" id="thermoProgress"></div>
         <div class="scenario-box" id="scenarioBox"></div>
         <div id="thermoStep1">
-          <p style="font-weight:800;color:var(--sand);margin-bottom:8px;" id="thermoStep1Label"></p>
+          <p style="font-weight:800;color:var(--sand);margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;" id="thermoStep1Label"></p>
           <div class="emo-options" id="emoOptions"></div>
         </div>
         <div id="thermoStep2" style="display:none;">
@@ -434,6 +452,17 @@
         </div>
         <div class="feedback-banner" id="thermoFeedback"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ===================== ÁLBUM DE FIGURINHAS ===================== -->
+  <div class="screen" id="screen-album">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="albumTitle"></h2></div>
+      <div class="game-instructions" id="albumInstructions"></div>
+      <div class="album-summary" id="albumSummary"></div>
+      <div class="album-grid" id="albumGrid"></div>
+      <div class="feedback-banner" id="albumFeedback"></div>
     </div>
   </div>
 
@@ -481,6 +510,27 @@
    I18N CONTENT
    ============================================================ */
 const AVATARS = ['🦫','🐢','🦥','🐸','🦔','🐨'];
+
+const STICKERS = [
+  { id:'parrot',    emoji:'🦜', tier:'bronze',    price:10,  name:{pt:'Papagaio',     it:'Pappagallo'} },
+  { id:'butterfly', emoji:'🦋', tier:'bronze',    price:10,  name:{pt:'Borboleta',    it:'Farfalla'} },
+  { id:'bee',       emoji:'🐝', tier:'bronze',    price:15,  name:{pt:'Abelha',       it:'Ape'} },
+  { id:'lizard',    emoji:'🦎', tier:'bronze',    price:15,  name:{pt:'Lagartixa',    it:'Lucertola'} },
+  { id:'snail',     emoji:'🐌', tier:'bronze',    price:15,  name:{pt:'Caracol',      it:'Lumaca'} },
+  { id:'duck',      emoji:'🦆', tier:'bronze',    price:20,  name:{pt:'Pato',         it:'Anatra'} },
+  { id:'pufferfish',emoji:'🐡', tier:'bronze',    price:20,  name:{pt:'Baiacu',       it:'Pesce palla'} },
+  { id:'fish',      emoji:'🐠', tier:'silver',    price:25,  name:{pt:'Peixinho',     it:'Pesciolino'} },
+  { id:'crab',      emoji:'🦀', tier:'silver',    price:25,  name:{pt:'Caranguejo',   it:'Granchio'} },
+  { id:'octopus',   emoji:'🐙', tier:'silver',    price:30,  name:{pt:'Polvo',        it:'Polpo'} },
+  { id:'flamingo',  emoji:'🦩', tier:'silver',    price:35,  name:{pt:'Flamingo',     it:'Fenicottero'} },
+  { id:'monkey',    emoji:'🐒', tier:'silver',    price:40,  name:{pt:'Macaco',       it:'Scimmia'} },
+  { id:'otter',     emoji:'🦦', tier:'silver',    price:45,  name:{pt:'Lontra',       it:'Lontra'} },
+  { id:'owl',       emoji:'🦉', tier:'gold',      price:55,  name:{pt:'Coruja',       it:'Gufo'} },
+  { id:'dolphin',   emoji:'🐬', tier:'gold',      price:65,  name:{pt:'Golfinho',     it:'Delfino'} },
+  { id:'peacock',   emoji:'🦚', tier:'gold',      price:75,  name:{pt:'Pavão',        it:'Pavone'} },
+  { id:'whale',     emoji:'🐳', tier:'gold',      price:90,  name:{pt:'Baleia',       it:'Balena'} },
+  { id:'kapi',      emoji:'🦫', tier:'legendary', price:150, name:{pt:'Kapi Dourada', it:'Kapi Dorata'} }
+];
 
 const STORY_BANK = {
   pt: [
@@ -572,7 +622,7 @@ const CALM_STRATS = {
 
 const I18N = {
   pt: {
-    appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil",
+    appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil", logoutBtnLabel:"Sair",
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
     createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
@@ -618,10 +668,16 @@ const I18N = {
       noChildren:"Crie um perfil de criança primeiro para ver a evolução aqui.",
       statsSeeds:"Sementes de foco", statsSessions:"Sessões jogadas", statsLast:"Última vez que jogou", never:"Ainda não jogou",
       noSessions:"Ainda não jogou esse jogo.", chartAriaLabel:"Gráfico de estrelas ao longo do tempo"
+    },
+    album:{
+      title:"Álbum", instr:"Toca numa figurinha bloqueada para desbloquear com suas sementes de foco!",
+      progress:(n,t)=>`${n} de ${t} figurinhas coletadas`,
+      notEnough:(n)=>`Faltam ${n} sementes para essa figurinha. Continue jogando! 🌰`,
+      unlocked:(name,emoji)=>`Você desbloqueou ${name}! ${emoji}✨`
     }
   },
   it: {
-    appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo",
+    appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo", logoutBtnLabel:"Esci",
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
     createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
@@ -667,6 +723,12 @@ const I18N = {
       noChildren:"Crea prima un profilo bambino per vedere l'evoluzione qui.",
       statsSeeds:"Semi della concentrazione", statsSessions:"Sessioni giocate", statsLast:"Ultima volta che ha giocato", never:"Non ha ancora giocato",
       noSessions:"Non ha ancora giocato a questo gioco.", chartAriaLabel:"Grafico delle stelle nel tempo"
+    },
+    album:{
+      title:"Album", instr:"Tocca una figurina bloccata per sbloccarla con i tuoi semi della concentrazione!",
+      progress:(n,t)=>`${n} di ${t} figurine raccolte`,
+      notEnough:(n)=>`Mancano ${n} semi per questa figurina. Continua a giocare! 🌰`,
+      unlocked:(name,emoji)=>`Hai sbloccato ${name}! ${emoji}✨`
     }
   }
 };
@@ -964,15 +1026,25 @@ async function handleAuthSubmit() {
 async function handleLogout() {
   const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
   if(!confirm(t.logoutConfirm)) return;
+  flushSessionLog(); // persist whatever round is in progress while the session is still valid
+  clearTimeout(window._semTimer); clearTimeout(window._semTimer2);
+  clearInterval(window._huntTimer);
   await sb.auth.signOut();
   state.profileId = null;
   state.profile = null;
+  document.getElementById('hubHeader').style.display = 'none';
+  currentGameKey = null;
+  sessionDirty = {};
+  sessionSeedsStart = {};
+  parentsChildren = [];
+  parentsActiveChildId = null;
+  parentsForcedSetup = false;
 }
 
 function defaultProfileData(name, avatar, lang){
   const diffByGame = {}; GAME_KEYS.forEach(k=>diffByGame[k]='medio');
   const starsByGame = {}; GAME_KEYS.forEach(k=>starsByGame[k]=0);
-  return { name, avatar, lang, seeds:0, starsByGame, difficultyByGame:diffByGame };
+  return { name, avatar, lang, seeds:0, starsByGame, difficultyByGame:diffByGame, unlockedStickers:[] };
 }
 
 async function loadProfilesList(){
@@ -996,7 +1068,8 @@ async function loadProfileData(id){
     if(data) {
        return {
          name: data.name, avatar: data.avatar, lang: data.lang,
-         seeds: data.seeds, starsByGame: data.stars_by_game, difficultyByGame: data.difficulty_by_game
+         seeds: data.seeds, starsByGame: data.stars_by_game, difficultyByGame: data.difficulty_by_game,
+         unlockedStickers: data.unlocked_stickers || []
        };
     }
     return null; 
@@ -1013,7 +1086,8 @@ async function saveProfileData(){
       lang: p.lang,
       seeds: p.seeds,
       stars_by_game: p.starsByGame,
-      difficulty_by_game: p.difficultyByGame
+      difficulty_by_game: p.difficultyByGame,
+      unlocked_stickers: p.unlockedStickers || []
     }).eq('id', state.profileId);
     if(error) throw error;
   }catch(e){
@@ -1065,7 +1139,8 @@ async function submitNewProfile(){
       lang: formLang,
       seeds: data.seeds,
       stars_by_game: data.starsByGame,
-      difficulty_by_game: data.difficultyByGame
+      difficulty_by_game: data.difficultyByGame,
+      unlocked_stickers: data.unlockedStickers
     }).select().single();
     
     if(error) throw error;
@@ -1157,6 +1232,8 @@ function applyGlobalI18n(){
   document.getElementById('seedsLabel').textContent = t.seedsLabel;
   document.getElementById('switchProfileBtn').textContent = t.switchProfile;
   document.getElementById('parentsAreaBtnLabel').textContent = t.parents.areaTitle;
+  document.getElementById('albumBtnLabel').textContent = t.album.title;
+  document.getElementById('headerLogoutBtnLabel').textContent = t.logoutBtnLabel;
   document.getElementById('footerNote').textContent = t.footer;
   document.querySelectorAll('.backLabel').forEach(el=>el.textContent = t.backLabel);
   if(state.profile){
@@ -1199,6 +1276,14 @@ function setInstructions(id, text){
   el.innerHTML = '';
   const span = document.createElement('span');
   span.className = 'instr-text';
+  span.textContent = text;
+  el.appendChild(span);
+  el.appendChild(makeTtsBtn(text));
+}
+function setThermoStepLabel(id, text){
+  const el = document.getElementById(id);
+  el.innerHTML = '';
+  const span = document.createElement('span');
   span.textContent = text;
   el.appendChild(span);
   el.appendChild(makeTtsBtn(text));
@@ -1384,7 +1469,7 @@ function semEnd(){
 }
 
 /* ========================= GAME 2: MEMÓRIA ========================= */
-let simon = { sequence:[], input:[], level:1, playing:false, cfg:null };
+let simon = { sequence:[], input:[], level:1, playing:false, cfg:null, lastPad:null, lastInputAt:0 };
 function simonInit(){
   const t = L();
   document.getElementById('memTitle').textContent = t.mem.title;
@@ -1421,6 +1506,11 @@ function simonPlaySequence(){
 }
 function simonInput(padIndex){
   if(simon.playing) return;
+  if(simon.input.length >= simon.sequence.length) return;
+  const now = Date.now();
+  if(padIndex === simon.lastPad && now - simon.lastInputAt < 200) return; // swallow accidental double-taps on the same pad
+  simon.lastPad = padIndex;
+  simon.lastInputAt = now;
   const t = L();
   const pads = document.querySelectorAll('.simon-pad');
   pads[padIndex].classList.add('lit');
@@ -1702,7 +1792,7 @@ function thermoRenderRound(){
   setInstructions('scenarioBox', thermo.rounds[thermo.step]);
   document.getElementById('thermoStep1').style.display = 'block';
   document.getElementById('thermoStep2').style.display = 'none';
-  document.getElementById('thermoStep1Label').textContent = t.thermo.step1;
+  setThermoStepLabel('thermoStep1Label', t.thermo.step1);
   document.getElementById('thermoStep2Label').textContent = t.thermo.step2;
   hideFeedback('thermoFeedback');
   const emoWrap = document.getElementById('emoOptions');
@@ -1717,7 +1807,6 @@ function thermoRenderRound(){
       thermo.emo = opt.label;
       setTimeout(thermoStep2, 500);
     };
-    btn.appendChild(makeTtsIcon(opt.label));
     emoWrap.appendChild(btn);
   });
 }
@@ -1785,6 +1874,58 @@ async function logSession(gameKey){
     });
     if(error) throw error;
   }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
+}
+
+/* ========================= STICKER ALBUM ========================= */
+function openAlbum(){
+  flushSessionLog();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-album').classList.add('active');
+  document.getElementById('albumTitle').textContent = '🖼️ ' + L().album.title;
+  setInstructions('albumInstructions', L().album.instr);
+  hideFeedback('albumFeedback');
+  renderAlbum();
+}
+function renderAlbum(){
+  const t = L();
+  const unlocked = state.profile.unlockedStickers || [];
+  document.getElementById('albumSummary').textContent = t.album.progress(unlocked.length, STICKERS.length);
+  const grid = document.getElementById('albumGrid');
+  grid.innerHTML = '';
+  STICKERS.forEach(st=>{
+    const isUnlocked = unlocked.includes(st.id);
+    const name = st.name[state.lang] || st.name.pt;
+    const card = document.createElement('div');
+    card.className = `sticker-card tier-${st.tier} ${isUnlocked ? 'unlocked' : 'locked'}`;
+    if(isUnlocked){
+      card.innerHTML = `<span class="sticker-emoji">${st.emoji}</span><span class="sticker-name">${name}</span>`;
+    } else {
+      card.innerHTML = `<span class="sticker-emoji locked-emoji">${st.emoji}</span><span class="sticker-price">🌰 ${st.price}</span>`;
+      card.setAttribute('role', 'button');
+      card.tabIndex = 0;
+      card.onclick = ()=>attemptUnlock(st.id);
+    }
+    grid.appendChild(card);
+  });
+}
+function attemptUnlock(id){
+  const t = L();
+  const st = STICKERS.find(s=>s.id===id);
+  if(!st) return;
+  if(!state.profile.unlockedStickers) state.profile.unlockedStickers = [];
+  if(state.profile.unlockedStickers.includes(id)) return;
+  if(state.profile.seeds < st.price){
+    showFeedback('albumFeedback', t.album.notEnough(st.price - state.profile.seeds), false);
+    return;
+  }
+  state.profile.seeds -= st.price;
+  state.profile.unlockedStickers.push(id);
+  document.getElementById('seedCount').textContent = state.profile.seeds;
+  saveProfileData();
+  renderAlbum();
+  const name = st.name[state.lang] || st.name.pt;
+  showFeedback('albumFeedback', t.album.unlocked(name, st.emoji), true);
+  say(t.mascotGood);
 }
 
 /* ========================= PARENTS AREA ========================= */

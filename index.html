@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ilha do Foco — com a Kapi</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B3D2E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -407,6 +412,7 @@
         <div class="turn-indicator" id="turnIndicator" style="display:none;"><span class="turn-dot"></span> <span id="turnIndicatorLabel"></span></div>
         <div class="reply-options" id="replyOptions"></div>
         <div class="feedback-banner" id="chatFeedback"></div>
+        <button class="big-cta" id="chatContinueBtn" onclick="chatContinue()" style="display:none;"></button>
       </div>
     </div>
   </div>
@@ -626,7 +632,7 @@ const I18N = {
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
     createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
-    backLabel:"Voltar", startBtn:"Começar", playAgainBtn:"Jogar de novo", diff:{facil:"Fácil",medio:"Médio",dificil:"Difícil"},
+    backLabel:"Voltar", startBtn:"Começar", playAgainBtn:"Jogar de novo", continueBtn:"Continuar", diff:{facil:"Fácil",medio:"Médio",dificil:"Difícil"},
     footer:"Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto",
     mascotHub:(n)=>`Oi, ${n}! Eu sou a Kapi 🌿 Escolhe uma aventura pra gente jogar juntos!`,
     mascotGood:"Show de bola! Você é demais! 🌟", mascotTry:"Sem problema, todo mundo erra! Bora tentar de novo? 💛",
@@ -681,7 +687,7 @@ const I18N = {
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
     createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
-    backLabel:"Torna", startBtn:"Inizia", playAgainBtn:"Gioca ancora", diff:{facil:"Facile",medio:"Medio",dificil:"Difficile"},
+    backLabel:"Torna", startBtn:"Inizia", playAgainBtn:"Gioca ancora", continueBtn:"Continua", diff:{facil:"Facile",medio:"Medio",dificil:"Difficile"},
     footer:"Fatto con cura per bambini curiosi 🌱 — gioca sempre insieme a un adulto",
     mascotHub:(n)=>`Ciao, ${n}! Sono Kapi 🌿 Scegli un'avventura da giocare insieme!`,
     mascotGood:"Fantastico! Sei bravissimo/a! 🌟", mascotTry:"Nessun problema, capita a tutti! Proviamo ancora? 💛",
@@ -1180,7 +1186,7 @@ async function renderProfilesScreen(){
   applyProfilesScreenI18n();
 }
 function applyProfilesScreenI18n(){
-  const t = I18N[formLang] || I18N.pt;
+  const t = I18N[authLang] || I18N.pt;
   document.getElementById('profilesTitle').textContent = t.profilesTitle;
   document.getElementById('profilesSubtitle').textContent = t.profilesSubtitle;
   document.getElementById('labelName').textContent = t.labelName;
@@ -1544,7 +1550,7 @@ function simonInput(padIndex){
 }
 
 /* ========================= GAME 3: HISTÓRIA ========================= */
-let story = { correct:[], shuffled:[], answer:[], title:'' };
+let story = { correct:[], shuffled:[], answer:[], title:'', lastPickIdx:null, lastWasPerfect:true };
 function storyInit(){
   const t = L();
   document.getElementById('storyTitle').textContent = t.story.title;
@@ -1561,7 +1567,14 @@ function storyStart(){
   const t = L();
   const cfg = DIFF.historia[getDifficulty('historia')];
   const bank = STORY_BANK[state.lang];
-  const pick = bank[Math.floor(Math.random()*bank.length)];
+  let idx;
+  if(!story.lastWasPerfect && story.lastPickIdx !== null && bank[story.lastPickIdx]){
+    idx = story.lastPickIdx; // retry the same story after a wrong/partial attempt
+  } else {
+    do { idx = Math.floor(Math.random()*bank.length); } while(bank.length > 1 && idx === story.lastPickIdx);
+  }
+  story.lastPickIdx = idx;
+  const pick = bank[idx];
   story.title = pick.title;
   story.correct = pick.cards.slice(0, cfg.len);
   story.answer = [];
@@ -1611,7 +1624,8 @@ function checkStory(){
   const ratio = correctCount/story.correct.length;
   const stars = ratio===1?3: ratio>=0.6?2: ratio>0?1:0;
   setStars('historia', stars);
-  if(correctCount === story.correct.length){
+  story.lastWasPerfect = correctCount === story.correct.length;
+  if(story.lastWasPerfect){
     showFeedback('storyFeedback', t.story.perfect, true); addSeeds(6); say(t.mascotGood);
   } else {
     showFeedback('storyFeedback', t.story.partial(correctCount, story.correct.length), false); say(t.mascotTry);
@@ -1620,7 +1634,7 @@ function checkStory(){
 }
 
 /* ========================= GAME 4: MINHA VEZ ========================= */
-let chat = { step:0, correctCount:0, turns:[] };
+let chat = { step:0, firstTryCorrect:0, triedThisTurn:false, willAdvance:false, turns:[] };
 function chatInit(){
   const t = L();
   document.getElementById('chatTitle').textContent = t.chat.title;
@@ -1629,15 +1643,18 @@ function chatInit(){
   document.getElementById('chatPreStart').style.display = 'flex';
   document.getElementById('chatPlayArea').style.display = 'none';
   document.getElementById('turnIndicatorLabel').textContent = t.chat.turnLabel;
+  document.getElementById('chatContinueBtn').textContent = t.continueBtn;
+  document.getElementById('chatContinueBtn').style.display = 'none';
   hideFeedback('chatFeedback');
   renderDiffRow('chatDiffRow', 'minhavez');
 }
 function chatStart(){
   const cfg = DIFF.minhavez[getDifficulty('minhavez')];
   const script = CHAT_SCRIPT[state.lang];
-  chat.turns = script.slice(0, cfg.turns);
+  const shuffled = [...script].sort(()=>Math.random()-0.5);
+  chat.turns = shuffled.slice(0, cfg.turns);
   chat.showHint = cfg.hint;
-  chat.step = 0; chat.correctCount = 0;
+  chat.step = 0; chat.firstTryCorrect = 0; chat.triedThisTurn = false;
   document.getElementById('chatPreStart').style.display = 'none';
   document.getElementById('chatPlayArea').style.display = 'flex';
   hideFeedback('chatFeedback');
@@ -1645,6 +1662,7 @@ function chatStart(){
 }
 function renderChatStep(){
   document.getElementById('turnIndicator').style.display = 'none';
+  document.getElementById('chatContinueBtn').style.display = 'none';
   if(chat.step >= chat.turns.length){ chatEnd(); return; }
   const s = chat.turns[chat.step];
   setChatBubble(s.line);
@@ -1663,20 +1681,36 @@ function renderChatStep(){
 function chatPick(ok){
   const t = L();
   document.querySelectorAll('.reply-btn').forEach(b=>b.style.pointerEvents='none');
-  if(ok){ chat.correctCount++; showFeedback('chatFeedback', t.chat.correct, true); }
-  else { showFeedback('chatFeedback', t.chat.wrong, false); }
+  if(ok){
+    if(!chat.triedThisTurn) chat.firstTryCorrect++;
+    showFeedback('chatFeedback', t.chat.correct, true);
+    chat.willAdvance = true;
+  } else {
+    chat.triedThisTurn = true;
+    showFeedback('chatFeedback', t.chat.wrong, false);
+    chat.willAdvance = false;
+  }
   document.getElementById('turnIndicator').style.display = 'flex';
-  setTimeout(()=>{ hideFeedback('chatFeedback'); chat.step++; renderChatStep(); }, 1600);
+  document.getElementById('chatContinueBtn').style.display = 'inline-block';
+}
+function chatContinue(){
+  document.getElementById('chatContinueBtn').style.display = 'none';
+  hideFeedback('chatFeedback');
+  if(chat.willAdvance){
+    chat.step++;
+    chat.triedThisTurn = false;
+  }
+  renderChatStep(); // same turn repeats if the last answer was wrong, otherwise moves on
 }
 function chatEnd(){
   const t = L();
   setChatBubble(t.chat.closing);
   document.getElementById('replyOptions').innerHTML = '';
   document.getElementById('turnIndicator').style.display = 'none';
-  const ratio = chat.correctCount/chat.turns.length;
+  const ratio = chat.firstTryCorrect/chat.turns.length;
   const stars = ratio===1?3: ratio>=0.5?2: ratio>0?1:0;
-  setStars('minhavez', stars); addSeeds(chat.correctCount*3);
-  showFeedback('chatFeedback', t.chat.result(chat.correctCount, chat.turns.length), true);
+  setStars('minhavez', stars); addSeeds(chat.firstTryCorrect*3);
+  showFeedback('chatFeedback', t.chat.result(chat.firstTryCorrect, chat.turns.length), true);
   say(stars>=2 ? t.mascotGood : t.mascotTry);
 }
 

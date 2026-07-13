@@ -196,21 +196,31 @@
 
   <!-- ===================== AUTH SCREEN (Responsáveis) ===================== -->
   <div class="screen active" id="screen-auth">
+    <div style="display:flex; justify-content:center; padding:15px 0;">
+      <div class="lang-toggle" style="border-color: rgba(255,255,255,0.05); background: rgba(0,0,0,0.2);">
+        <button id="authLangBtnPt" onclick="setAuthLang('pt')" class="active">🇧🇷</button>
+        <button id="authLangBtnIt" onclick="setAuthLang('it')">🇮🇹</button>
+      </div>
+    </div>
     <div class="auth-box">
-      <h2 id="authTitle">Área dos Responsáveis</h2>
+      <h2 id="authTitle" style="font-family:'Nunito',sans-serif; font-weight:800;">Área dos Responsáveis</h2>
       <p id="authSubtitle">Acesse para sincronizar o progresso</p>
       <div class="auth-error" id="authError"></div>
       <div class="auth-form">
-        <label>E-mail</label>
+        <label id="authEmailLabel">E-mail</label>
         <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email">
-        <label>Senha</label>
+        <label id="authPasswordLabel">Senha</label>
         <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+        <label id="authConfirmPasswordLabel" style="display:none;">Confirmar senha</label>
+        <input type="password" id="authConfirmPassword" placeholder="Digite a senha novamente" autocomplete="new-password" style="display:none;">
         <div class="auth-actions">
           <button class="big-cta" id="authSubmitBtn" onclick="handleAuthSubmit()">Entrar</button>
           <button class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">Não tem conta? Cadastre-se</button>
+          <button class="auth-toggle" id="authForgotBtn" onclick="handleForgotPassword()" style="font-size:12px; margin-top:2px;">Esqueci minha senha</button>
         </div>
       </div>
     </div>
+    <div id="authPrivacyNote" style="text-align:center; font-size:12.5px; color:rgba(255,255,255,0.3); max-width:380px; margin:0 auto; padding:0 20px;"></div>
   </div>
 
   <!-- ===================== PROFILES SCREEN ===================== -->
@@ -554,6 +564,85 @@ const I18N = {
   }
 };
 
+const AUTH_I18N = {
+  pt: {
+    welcomeTitle: "Área dos responsáveis",
+    welcomeSubtitle: "Entre ou crie uma conta para acompanhar o progresso dos seus filhos em qualquer aparelho.",
+    loginTab: "Entrar",
+    loginTitle: "Entrar na sua conta",
+    emailLabel: "E-mail",
+    emailPlaceholder: "seuemail@exemplo.com",
+    passwordLabel: "Senha",
+    passwordPlaceholder: "Sua senha",
+    loginBtn: "Entrar",
+    forgotPasswordLink: "Esqueci minha senha",
+    signupTab: "Criar conta",
+    signupTitle: "Criar sua conta",
+    signupSubtitle: "Leva menos de um minuto.",
+    confirmPasswordLabel: "Confirmar senha",
+    confirmPasswordPlaceholder: "Digite a senha novamente",
+    signupBtn: "Criar conta",
+    switchToLogin: "Já tem uma conta? Entrar",
+    switchToSignup: "Ainda não tem conta? Criar uma",
+    resetTitle: "Redefinir senha",
+    resetSubtitle: "Digite seu e-mail e enviaremos um link para você criar uma nova senha.",
+    resetBtn: "Enviar link de redefinição",
+    resetSentMessage: "Enviamos um link para o seu e-mail. Verifique também a caixa de spam.",
+    backToLogin: "← Voltar para o login",
+    loadingLogin: "Entrando...",
+    loadingSignup: "Criando conta...",
+    logoutBtn: "Sair da conta",
+    logoutConfirm: "Tem certeza que quer sair? Você vai precisar da senha para entrar de novo.",
+    sessionExpired: "Sua sessão expirou. Entre novamente para continuar.",
+    errorInvalidCredentials: "E-mail ou senha incorretos. Tente novamente.",
+    errorEmailInUse: "Esse e-mail já tem uma conta. Tente entrar em vez de criar uma nova.",
+    errorWeakPassword: "A senha precisa ter pelo menos 6 caracteres.",
+    errorPasswordMismatch: "As senhas digitadas não são iguais.",
+    errorInvalidEmail: "Digite um e-mail válido.",
+    errorGeneric: "Algo deu errado. Tente novamente em alguns instantes.",
+    errorNetwork: "Sem conexão com a internet. Verifique sua rede e tente de novo.",
+    privacyNote: "Seus dados ficam vinculados só à sua conta e não são compartilhados."
+  },
+  it: {
+    welcomeTitle: "Area genitori",
+    welcomeSubtitle: "Accedi o crea un account per seguire i progressi dei tuoi figli da qualsiasi dispositivo.",
+    loginTab: "Accedi",
+    loginTitle: "Accedi al tuo account",
+    emailLabel: "E-mail",
+    emailPlaceholder: "tuaemail@esempio.com",
+    passwordLabel: "Password",
+    passwordPlaceholder: "La tua password",
+    loginBtn: "Accedi",
+    forgotPasswordLink: "Ho dimenticato la password",
+    signupTab: "Crea account",
+    signupTitle: "Crea il tuo account",
+    signupSubtitle: "Ci vuole meno di un minuto.",
+    confirmPasswordLabel: "Conferma password",
+    confirmPasswordPlaceholder: "Ripeti la password",
+    signupBtn: "Crea account",
+    switchToLogin: "Hai già un account? Accedi",
+    switchToSignup: "Non hai ancora un account? Creane uno",
+    resetTitle: "Reimposta password",
+    resetSubtitle: "Inserisci la tua e-mail e ti invieremo un link per creare una nuova password.",
+    resetBtn: "Invia link di reimpostazione",
+    resetSentMessage: "Abbiamo inviato un link alla tua e-mail. Controlla anche nello spam.",
+    backToLogin: "← Torna al login",
+    loadingLogin: "Accesso in corso...",
+    loadingSignup: "Creazione account in corso...",
+    logoutBtn: "Esci dall'account",
+    logoutConfirm: "Sei sicuro/a di voler uscire? Ti servirà la password per accedere di nuovo.",
+    sessionExpired: "La tua sessione è scaduta. Accedi di nuovo per continuare.",
+    errorInvalidCredentials: "E-mail o password non corretti. Riprova.",
+    errorEmailInUse: "Questa e-mail ha già un account. Prova ad accedere invece di crearne uno nuovo.",
+    errorWeakPassword: "La password deve avere almeno 6 caratteri.",
+    errorPasswordMismatch: "Le password inserite non coincidono.",
+    errorInvalidEmail: "Inserisci un'e-mail valida.",
+    errorGeneric: "Qualcosa è andato storto. Riprova tra qualche istante.",
+    errorNetwork: "Nessuna connessione a internet. Controlla la rete e riprova.",
+    privacyNote: "I tuoi dati restano collegati solo al tuo account e non vengono condivisi."
+  }
+};
+
 const DIFF = {
   semaforo:{ facil:{rounds:4, greenMs:2000, waitMin:1000, waitMax:2000}, medio:{rounds:5, greenMs:1400, waitMin:1200, waitMax:2800}, dificil:{rounds:7, greenMs:1000, waitMin:1500, waitMax:3200} },
   memoria:{ facil:{maxLevel:4, startLen:2, stepDelay:800}, medio:{maxLevel:6, startLen:2, stepDelay:700}, dificil:{maxLevel:8, startLen:3, stepDelay:550} },
@@ -576,7 +665,16 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let state = { lang:'pt', profileId:null, profile:null, familyId:null };
-let isSignUpMode = false;
+
+let authLang = navigator.language.startsWith('it') ? 'it' : 'pt';
+let authMode = 'login'; // login, signup, reset
+
+function setAuthLang(l) {
+  authLang = l;
+  document.getElementById('authLangBtnPt').classList.toggle('active', l === 'pt');
+  document.getElementById('authLangBtnIt').classList.toggle('active', l === 'it');
+  renderAuthScreen();
+}
 
 function L(){ return I18N[state.lang]; }
 
@@ -585,6 +683,94 @@ function showError(msg) {
   el.textContent = msg;
   el.style.display = 'block';
   setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+function getAuthErrorMsg(errCode) {
+  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  if (!errCode) return t.errorGeneric;
+  if (errCode.includes('invalid_credentials')) return t.errorInvalidCredentials;
+  if (errCode.includes('user_already_exists')) return t.errorEmailInUse;
+  if (errCode.includes('weak_password')) return t.errorWeakPassword;
+  if (errCode.includes('network') || errCode.includes('fetch')) return t.errorNetwork;
+  return t.errorGeneric;
+}
+
+function renderAuthScreen() {
+  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  
+  const title = document.getElementById('authTitle');
+  const subtitle = document.getElementById('authSubtitle');
+  const btn = document.getElementById('authSubmitBtn');
+  const toggleBtn = document.getElementById('authToggleBtn');
+  const forgotBtn = document.getElementById('authForgotBtn');
+  const confirmLbl = document.getElementById('authConfirmPasswordLabel');
+  const confirmInp = document.getElementById('authConfirmPassword');
+  const passLbl = document.getElementById('authPasswordLabel');
+  const passInp = document.getElementById('authPassword');
+  
+  document.getElementById('authEmailLabel').textContent = t.emailLabel;
+  document.getElementById('authEmail').placeholder = t.emailPlaceholder;
+  passLbl.textContent = t.passwordLabel;
+  passInp.placeholder = t.passwordPlaceholder;
+  confirmLbl.textContent = t.confirmPasswordLabel;
+  confirmInp.placeholder = t.confirmPasswordPlaceholder;
+  document.getElementById('authPrivacyNote').textContent = t.privacyNote;
+  
+  // Logout button no painel
+  const logoutBtns = document.querySelectorAll('.logout-btn');
+  logoutBtns.forEach(b => b.textContent = t.logoutBtn);
+
+  document.getElementById('authError').style.display = 'none';
+
+  if (authMode === 'login') {
+    title.textContent = t.loginTitle;
+    subtitle.textContent = t.welcomeSubtitle;
+    btn.textContent = t.loginBtn;
+    toggleBtn.textContent = t.switchToSignup;
+    toggleBtn.style.display = 'inline-block';
+    forgotBtn.textContent = t.forgotPasswordLink;
+    forgotBtn.style.display = 'inline-block';
+    
+    passLbl.style.display = 'block';
+    passInp.style.display = 'block';
+    confirmLbl.style.display = 'none';
+    confirmInp.style.display = 'none';
+  } else if (authMode === 'signup') {
+    title.textContent = t.signupTitle;
+    subtitle.textContent = t.signupSubtitle;
+    btn.textContent = t.signupBtn;
+    toggleBtn.textContent = t.switchToLogin;
+    toggleBtn.style.display = 'inline-block';
+    forgotBtn.style.display = 'none';
+    
+    passLbl.style.display = 'block';
+    passInp.style.display = 'block';
+    confirmLbl.style.display = 'block';
+    confirmInp.style.display = 'block';
+  } else if (authMode === 'reset') {
+    title.textContent = t.resetTitle;
+    subtitle.textContent = t.resetSubtitle;
+    btn.textContent = t.resetBtn;
+    toggleBtn.textContent = t.backToLogin;
+    toggleBtn.style.display = 'inline-block';
+    forgotBtn.style.display = 'none';
+    
+    passLbl.style.display = 'none';
+    passInp.style.display = 'none';
+    confirmLbl.style.display = 'none';
+    confirmInp.style.display = 'none';
+  }
+}
+
+function toggleAuthMode() {
+  if (authMode === 'login') authMode = 'signup';
+  else authMode = 'login';
+  renderAuthScreen();
+}
+
+function handleForgotPassword() {
+  authMode = 'reset';
+  renderAuthScreen();
 }
 
 supabase.auth.onAuthStateChange(async (event, session) => {
@@ -603,46 +789,62 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     state.familyId = null;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-auth').classList.add('active');
+    renderAuthScreen(); // Atualiza idiomas
   }
 });
 
-function toggleAuthMode() {
-  isSignUpMode = !isSignUpMode;
-  document.getElementById('authTitle').textContent = isSignUpMode ? 'Criar Conta' : 'Área dos Responsáveis';
-  document.getElementById('authSubtitle').textContent = isSignUpMode ? 'Crie uma conta para salvar o progresso' : 'Acesse para sincronizar o progresso';
-  document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'Cadastrar' : 'Entrar';
-  document.getElementById('authToggleBtn').textContent = isSignUpMode ? 'Já tem conta? Entrar' : 'Não tem conta? Cadastre-se';
-  document.getElementById('authError').style.display = 'none';
-}
-
 async function handleAuthSubmit() {
+  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
+  const confirmPassword = document.getElementById('authConfirmPassword').value;
   const errEl = document.getElementById('authError');
   errEl.style.display = 'none';
   
-  if(!email || !password) {
-    errEl.textContent = 'Preencha e-mail e senha.';
+  if(!email || (authMode !== 'reset' && !password)) {
+    errEl.textContent = t.errorInvalidCredentials;
+    errEl.style.display = 'block';
+    return;
+  }
+  
+  if (authMode === 'signup' && password !== confirmPassword) {
+    errEl.textContent = t.errorPasswordMismatch;
     errEl.style.display = 'block';
     return;
   }
   
   const btn = document.getElementById('authSubmitBtn');
   const originalText = btn.textContent;
-  btn.textContent = 'Carregando...';
+  btn.textContent = authMode === 'signup' ? t.loadingSignup : (authMode === 'login' ? t.loadingLogin : '...');
   btn.disabled = true;
   
   let error = null;
-  if (isSignUpMode) {
+  if (authMode === 'signup') {
     const res = await supabase.auth.signUp({ email, password });
     error = res.error;
-  } else {
+  } else if (authMode === 'login') {
     const res = await supabase.auth.signInWithPassword({ email, password });
     error = res.error;
+  } else if (authMode === 'reset') {
+    const res = await supabase.auth.resetPasswordForEmail(email);
+    error = res.error;
+    if(!error) {
+      errEl.style.color = '#B8E8B0';
+      errEl.style.backgroundColor = 'rgba(124,197,118,.2)';
+      errEl.style.borderColor = 'var(--success)';
+      errEl.textContent = t.resetSentMessage;
+      errEl.style.display = 'block';
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
+    }
   }
   
   if (error) {
-    errEl.textContent = error.message;
+    errEl.style.color = '#FFA3B1';
+    errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
+    errEl.style.borderColor = 'var(--berry)';
+    errEl.textContent = getAuthErrorMsg(error.message || error.code);
     errEl.style.display = 'block';
   }
   
@@ -651,6 +853,8 @@ async function handleAuthSubmit() {
 }
 
 async function handleLogout() {
+  const t = AUTH_I18N[authLang] || AUTH_I18N.pt;
+  if(!confirm(t.logoutConfirm)) return;
   await supabase.auth.signOut();
   state.profileId = null;
   state.profile = null;

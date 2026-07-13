@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilha do Foco — com a Kapi</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B3D2E; --bg-mid:#15563F; --bg-mid2:#1C6A4C;
+    --sand:#F0C878; --papaya:#F2703C; --lilac:#8FA6CD; --cream:#FFF8ED;
+    --leaf:#4C9A5C; --leaf-dark:#357048; --berry:#E5556E; --success:#7CC576; --ink:#0B3D2E;
+    --shadow: 0 10px 30px rgba(0,0,0,.25); --radius-lg: 28px; --radius-md: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
+      var(--bg-deep);
+    color:var(--cream); min-height:100vh; overflow-x:hidden; position:relative;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+  button{font-family:inherit;}
+
+  .ambient-leaf{ position:fixed; font-size:28px; opacity:.18; pointer-events:none; animation: drift 14s linear infinite; }
+  @keyframes drift{ 0%{ transform: translateY(110vh) rotate(0deg);} 100%{ transform: translateY(-10vh) rotate(360deg);} }
+  @media (prefers-reduced-motion: reduce){ .ambient-leaf{ display:none; } *{ animation-duration: .001ms !important; } }
+
+  .app{ max-width: 980px; margin: 0 auto; padding: 28px 20px 60px; position:relative; z-index:1; }
+
+  .hub-header{ display:flex; align-items:center; gap:14px; justify-content:space-between; margin-bottom: 22px; flex-wrap: wrap; }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .brand h1{ font-size: 28px; margin:0; letter-spacing:.3px; color:var(--sand); }
+  .brand p{ margin:2px 0 0; font-size:13px; color:var(--lilac); font-weight:700;}
+  .top-actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .seeds{ display:flex; align-items:center; gap:8px; background: rgba(255,255,255,.08); border:2px solid rgba(240,200,120,.35); padding:8px 16px; border-radius: 999px; font-weight:800; font-size:15px; color:var(--sand); }
+  .icon-btn{ background: rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.2); color:var(--cream); padding:8px 14px; border-radius:999px; cursor:pointer; font-weight:800; font-size:13.5px; }
+  .icon-btn:hover{ background: rgba(255,255,255,.2); }
+  .profile-chip{ display:flex; align-items:center; gap:8px; background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); padding:6px 14px 6px 8px; border-radius: 999px; font-weight:800; font-size:14px; }
+  .profile-chip .av{ font-size:20px; }
+  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:2px solid rgba(255,255,255,.15); }
+  .lang-toggle button{ background:transparent; border:none; font-size:18px; padding:4px 8px; border-radius:999px; cursor:pointer; opacity:.5; }
+  .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
+
+  .mascot-wrap{ display:flex; flex-direction:column; align-items:center; margin: 6px 0 26px; }
+  .mascot-float{ animation: float 4s ease-in-out infinite; }
+  @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .speech{ background: var(--cream); color:var(--ink); font-weight:800; padding:10px 18px; border-radius: 18px; margin-top:8px; box-shadow: var(--shadow); font-size:15px; max-width: 380px; text-align:center; position:relative; }
+  .speech:after{ content:""; position:absolute; top:-8px; left:50%; transform:translateX(-50%); border-width:0 8px 8px 8px; border-style:solid; border-color: transparent transparent var(--cream) transparent; }
+
+  .grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:18px; }
+  .tile{ background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 20px 18px; cursor:pointer; position:relative; text-align:left; transition: transform .15s ease, border-color .15s ease, background .15s ease; display:flex; flex-direction:column; gap:8px; }
+  .tile:hover, .tile:focus-visible{ transform: translateY(-4px); border-color: var(--sand); background: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04)); outline: none; }
+  .tile .emoji{ font-size:36px; }
+  .tile h3{ margin:0; font-size:19px; color:var(--cream); }
+  .tile .skill{ font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.5px; color: var(--bg-deep); background: var(--sand); display:inline-block; padding:3px 10px; border-radius:999px; width:fit-content; }
+  .tile p{ margin:0; font-size:13.5px; color:var(--lilac); font-weight:600; line-height:1.4;}
+  .tile .stars-earned{ margin-top:4px; font-size:14px; }
+
+  .screen{ display:none; } .screen.active{ display:block; }
+  .game-shell{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 24px; min-height: 420px; position:relative; }
+  .top-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:10px; flex-wrap:wrap;}
+  .back-btn{ background: rgba(255,255,255,.1); color:var(--cream); border:2px solid rgba(255,255,255,.2); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer; font-size:14px; }
+  .back-btn:hover{ background: rgba(255,255,255,.2); }
+  .game-title{ font-size:22px; margin:0; color:var(--sand); }
+  .game-instructions{ background: rgba(255,255,255,.08); border-left:4px solid var(--papaya); padding:12px 16px; border-radius:12px; font-size:14.5px; font-weight:700; margin-bottom:18px; color:var(--cream); }
+  .feedback-banner{ text-align:center; font-weight:800; font-size:17px; padding:14px; border-radius:16px; margin: 14px 0; display:none; }
+  .feedback-banner.show{ display:block; }
+  .feedback-banner.good{ background: rgba(124,197,118,.2); color:#B8E8B0; border:2px solid var(--success); }
+  .feedback-banner.gentle{ background: rgba(255,255,255,.08); color: var(--sand); border:2px solid rgba(240,200,120,.4); }
+
+  .big-cta{ background: var(--papaya); color:white; border:none; font-weight:800; font-size:16px; padding:14px 26px; border-radius:999px; cursor:pointer; box-shadow: var(--shadow); transition: transform .1s ease; }
+  .big-cta:hover{ transform: scale(1.03); } .big-cta:active{ transform: scale(.98); }
+  .big-cta.secondary{ background: transparent; border:2px solid var(--sand); color:var(--sand); }
+  .center-col{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
+
+  .diff-row{ display:flex; gap:10px; margin-bottom:6px; flex-wrap:wrap; justify-content:center; }
+  .diff-btn{ padding:10px 20px; border-radius:999px; border:2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.06); color:var(--cream); cursor:pointer; font-weight:800; font-size:14px; }
+  .diff-btn.selected{ border-color: var(--papaya); background: rgba(242,112,60,.28); }
+  .pre-start{ display:flex; flex-direction:column; align-items:center; gap:14px; padding: 10px 0 4px; }
+
+  .light-circle{ width:160px; height:160px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:42px; font-weight:800; color:white; box-shadow: var(--shadow); transition: background .25s ease; cursor:pointer; user-select:none; border: 6px solid rgba(255,255,255,.2); }
+  .light-circle.wait{ background: radial-gradient(circle at 35% 30%, #ff8b8b, var(--berry)); }
+  .light-circle.go{ background: radial-gradient(circle at 35% 30%, #a8e79f, var(--success)); }
+  .rounds-track{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; justify-content:center; }
+  .round-dot{ width:14px; height:14px; border-radius:50%; background: rgba(255,255,255,.2); border:2px solid rgba(255,255,255,.3);}
+  .round-dot.hit{ background: var(--success); border-color:var(--success); }
+  .round-dot.miss{ background: var(--berry); border-color:var(--berry); }
+
+  .simon-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:14px; width: min(320px,80vw); }
+  .simon-pad{ aspect-ratio:1; border-radius:24px; border:none; cursor:pointer; opacity:.55; transition: opacity .1s, transform .1s; box-shadow: var(--shadow); }
+  .simon-pad.lit{ opacity:1; transform: scale(1.05); }
+  .simon-pad:nth-child(1){ background:#F2703C; } .simon-pad:nth-child(2){ background:#8FA6CD; }
+  .simon-pad:nth-child(3){ background:#F0C878; } .simon-pad:nth-child(4){ background:#7CC576; }
+  .level-badge{ font-weight:800; color:var(--sand); font-size:15px; }
+
+  .story-cards{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .story-card{ width:110px; height:110px; background: var(--cream); color:var(--ink); border-radius:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:38px; cursor:pointer; position:relative; box-shadow: var(--shadow); border:3px solid transparent; transition: transform .1s; }
+  .story-card:hover{ transform: translateY(-3px); }
+  .answer-row{ display:flex; gap:14px; justify-content:center; margin-top:22px; flex-wrap:wrap; min-height:110px; }
+  .answer-slot{ width:110px; height:110px; border-radius:18px; border:3px dashed rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-size:34px; color: rgba(255,255,255,.4); }
+  .answer-slot.filled{ border-style:solid; background:var(--cream); color:var(--ink); }
+
+  .chat-bubble{ background: var(--cream); color:var(--ink); border-radius:20px 20px 20px 4px; padding:16px 20px; font-weight:700; font-size:16px; max-width:480px; box-shadow: var(--shadow); text-align:left; }
+  .reply-options{ display:flex; flex-direction:column; gap:10px; width:min(480px,90vw); }
+  .reply-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); color:var(--cream); padding:13px 18px; border-radius:16px; text-align:left; cursor:pointer; font-weight:700; font-size:14.5px; }
+  .reply-btn:hover{ border-color: var(--sand); background: rgba(255,255,255,.14); }
+  .reply-hint{ display:block; font-weight:600; font-size:12px; opacity:.65; margin-top:3px; }
+  .turn-indicator{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color: var(--lilac); }
+  .turn-dot{ width:10px; height:10px; border-radius:50%; background: var(--lilac); animation: pulse 1.2s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:.4} 50%{opacity:1} }
+
+  .hunt-header{ display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;}
+  .hunt-grid{ display:grid; gap:8px; width:min(460px,90vw); }
+  .hunt-cell{ aspect-ratio:1; background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; transition: transform .08s; }
+  .hunt-cell:hover{ transform: scale(1.06); }
+  .hunt-cell.found{ background: rgba(124,197,118,.25); border-color: var(--success); cursor:default; }
+  .timer-bar-wrap{ width:min(460px,90vw); height:12px; background: rgba(255,255,255,.12); border-radius:999px; overflow:hidden; }
+  .timer-bar{ height:100%; background: var(--papaya); width:100%; transition: width 1s linear; }
+
+  .scenario-box{ background: rgba(255,255,255,.08); border-radius:18px; padding:18px 22px; font-size:16px; font-weight:700; max-width:520px; text-align:center; }
+  .emo-options, .calm-options{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .emo-btn{ background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.2); border-radius:16px; padding:14px 12px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--cream); font-size:12.5px; font-weight:800; width:92px; }
+  .emo-btn .e{ font-size:30px; }
+  .emo-btn:hover, .emo-btn.selected{ border-color: var(--sand); background: rgba(255,255,255,.16); }
+  .breathe-circle{ width:90px; height:90px; border-radius:50%; background: radial-gradient(circle at 35% 30%, #a8e79f, var(--success)); margin: 10px auto; animation: breathe 4s ease-in-out infinite; }
+  @keyframes breathe{ 0%,100%{ transform:scale(.8);} 50%{ transform:scale(1.15);} }
+  .thermo-progress{ font-size:12.5px; font-weight:800; color:var(--lilac); }
+
+  /* ---------- PROFILES SCREEN ---------- */
+  .profile-intro{ text-align:center; margin-bottom:22px; }
+  .profile-intro h2{ font-size:26px; color:var(--sand); margin:0 0 6px; }
+  .profile-intro p{ margin:0; color:var(--lilac); font-weight:700; font-size:14px; }
+  .profile-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:16px; margin-bottom: 10px;}
+  .profile-card{ background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:20px; padding:18px 12px; text-align:center; cursor:pointer; transition:transform .15s, border-color .15s; position:relative; }
+  .profile-card:hover{ transform:translateY(-4px); border-color:var(--sand); }
+  .profile-card .avatar{ font-size:42px; }
+  .profile-card .pname{ font-weight:800; margin-top:6px; font-family:'Baloo 2'; font-size:15.5px; }
+  .profile-card .plang{ font-size:11.5px; color:var(--lilac); font-weight:700; margin-top:2px; }
+  .profile-card .del-x{ position:absolute; top:6px; right:8px; background:none; border:none; color: rgba(255,255,255,.4); font-size:16px; cursor:pointer; font-weight:800;}
+  .profile-card .del-x:hover{ color: var(--berry); }
+  .profile-card.add-new{ border-style:dashed; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:106px; }
+  .profile-form{ background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:20px; padding:22px; margin-top:20px; max-width:440px; }
+  .profile-form label{ display:block; font-weight:800; font-size:13.5px; color:var(--sand); margin-bottom:6px; }
+  .profile-form input[type=text]{ width:100%; padding:12px 14px; border-radius:12px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08); color:var(--cream); font-size:15px; font-weight:700; margin-bottom:16px; }
+  .profile-form input[type=text]::placeholder{ color: rgba(255,255,255,.4); }
+  .avatar-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .avatar-choice{ font-size:26px; background:rgba(255,255,255,.06); border:2px solid transparent; border-radius:12px; padding:6px 10px; cursor:pointer; }
+  .avatar-choice.selected{ border-color:var(--sand); background:rgba(255,255,255,.16); }
+  .lang-row{ display:flex; gap:10px; margin-bottom:18px; }
+  .lang-choice{ flex:1; padding:12px; border-radius:12px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:var(--cream); cursor:pointer; font-weight:800; text-align:center; font-size:14px; }
+  .lang-choice.selected{ border-color:var(--sand); background:rgba(255,255,255,.18); }
+
+  footer{ text-align:center; margin-top: 34px; font-size:12.5px; color: rgba(255,255,255,.35); font-weight:700; }
+
+  /* ---------- AUTH SCREEN ---------- */
+  .auth-box { background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; margin: 40px auto; text-align: center; }
+  .auth-box h2 { color: var(--sand); font-size: 24px; margin-top: 0; margin-bottom: 8px; }
+  .auth-box p { color: var(--cream); opacity: 0.8; font-size: 14.5px; margin-bottom: 24px; }
+  .auth-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+  .auth-form label { font-weight: 800; font-size: 13.5px; color: var(--sand); margin-bottom: -10px; }
+  .auth-form input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: var(--cream); font-size: 15px; font-weight: 700; }
+  .auth-form input::placeholder { color: rgba(255,255,255,.4); }
+  .auth-error { background: rgba(229,85,110,.2); color: #FFA3B1; border: 1px solid var(--berry); padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center; display: none; }
+  .auth-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+  .auth-toggle { background: transparent; border: none; color: var(--sand); font-weight: 700; font-size: 13.5px; cursor: pointer; text-decoration: underline; opacity: 0.8; }
+  .auth-toggle:hover { opacity: 1; }
+  .logout-btn { background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.2); color: var(--cream); padding: 8px 16px; border-radius: 999px; font-weight: 800; font-size: 13px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
+  .logout-btn:hover { background: rgba(255,255,255,.2); border-color: var(--sand); }
+  .global-error { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--berry); color: white; padding: 12px 24px; border-radius: 999px; font-weight: 800; box-shadow: var(--shadow); z-index: 9999; display: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="hub-header" id="hubHeader" style="display:none;">
+    <div class="brand"><h1>🌴 <span id="appTitle">Ilha do Foco</span></h1><p id="appTag">Aventuras com a Kapi</p></div>
+    <div class="top-actions">
+      <div class="lang-toggle">
+        <button id="langBtnPt" onclick="setLang('pt')">🇧🇷</button>
+        <button id="langBtnIt" onclick="setLang('it')">🇮🇹</button>
+      </div>
+      <div class="seeds">🌰 <span id="seedCount">0</span> <span id="seedsLabel">sementes de foco</span></div>
+      <div class="profile-chip"><span class="av" id="chipAvatar">🦫</span><span id="chipName">—</span></div>
+      <button class="icon-btn" id="switchProfileBtn" onclick="goProfiles()">Trocar perfil</button>
+    </div>
+  </div>
+
+  <div id="globalError" class="global-error"></div>
+
+  <!-- ===================== AUTH SCREEN (Responsáveis) ===================== -->
+  <div class="screen active" id="screen-auth">
+    <div class="auth-box">
+      <h2 id="authTitle">Área dos Responsáveis</h2>
+      <p id="authSubtitle">Acesse para sincronizar o progresso</p>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-form">
+        <label>E-mail</label>
+        <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email">
+        <label>Senha</label>
+        <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+        <div class="auth-actions">
+          <button class="big-cta" id="authSubmitBtn" onclick="handleAuthSubmit()">Entrar</button>
+          <button class="auth-toggle" id="authToggleBtn" onclick="toggleAuthMode()">Não tem conta? Cadastre-se</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PROFILES SCREEN ===================== -->
+  <div class="screen" id="screen-profiles">
+    <button class="logout-btn" onclick="handleLogout()">Sair da conta (Responsável)</button>
+    <div class="profile-intro">
+      <h2 id="profilesTitle">Quem vai jogar hoje?</h2>
+      <p id="profilesSubtitle">Escolhe seu perfil ou cria um novo</p>
+    </div>
+    <div class="profile-grid" id="profileGrid"></div>
+
+    <div class="profile-form" id="newProfileForm" style="display:none;">
+      <label id="labelName">Nome da criança</label>
+      <input type="text" id="newProfileName" maxlength="20" placeholder="Nome">
+      <label id="labelAvatar">Escolhe um avatar</label>
+      <div class="avatar-row" id="avatarRow"></div>
+      <label id="labelLang">Escolhe o idioma</label>
+      <div class="lang-row" id="langRow">
+        <div class="lang-choice selected" data-lang="pt" onclick="selectFormLang('pt')">🇧🇷 Português</div>
+        <div class="lang-choice" data-lang="it" onclick="selectFormLang('it')">🇮🇹 Italiano</div>
+      </div>
+      <button class="big-cta" id="createProfileBtn" onclick="submitNewProfile()">Criar perfil</button>
+    </div>
+    <div class="center-col" style="margin-top:20px;">
+      <button class="big-cta secondary" id="addProfileToggleBtn" onclick="toggleNewProfileForm()">+ Novo perfil</button>
+    </div>
+  </div>
+
+  <!-- ===================== HUB SCREEN ===================== -->
+  <div class="screen" id="screen-hub">
+    <div class="mascot-wrap">
+      <div class="mascot-float">
+        <svg width="120" height="100" viewBox="0 0 120 100" id="kapiSvg">
+          <defs><linearGradient id="furGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#BE8C5D"/><stop offset="100%" stop-color="#9C6E45"/></linearGradient></defs>
+          <ellipse cx="60" cy="60" rx="52" ry="34" fill="url(#furGrad)"/>
+          <ellipse cx="60" cy="34" rx="30" ry="20" fill="url(#furGrad)"/>
+          <ellipse cx="40" cy="18" rx="8" ry="7" fill="#7A5738"/>
+          <ellipse cx="80" cy="18" rx="8" ry="7" fill="#7A5738"/>
+          <ellipse cx="46" cy="38" rx="4" ry="5" fill="#2B1B10" id="eyeL"/>
+          <ellipse cx="74" cy="38" rx="4" ry="5" fill="#2B1B10" id="eyeR"/>
+          <ellipse cx="60" cy="46" rx="7" ry="5" fill="#5C3B22"/>
+          <path d="M52 52 Q60 58 68 52" stroke="#3E2814" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="speech" id="mascotSpeech">...</div>
+    </div>
+    <div class="grid" id="hubGrid"></div>
+  </div>
+
+  <!-- ===================== GAME: SEMÁFORO ===================== -->
+  <div class="screen" id="screen-semaforo">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="semTitle"></h2></div>
+      <div class="game-instructions" id="semInstructions"></div>
+      <div class="pre-start" id="semPreStart">
+        <div class="diff-row" id="semDiffRow"></div>
+        <button class="big-cta" id="semStartBtn" onclick="semStart()"></button>
+      </div>
+      <div class="center-col" id="semPlayArea" style="display:none;">
+        <div class="rounds-track" id="semRounds"></div>
+        <div class="light-circle wait" id="semLight" onclick="semTap()"></div>
+        <div class="feedback-banner" id="semFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME: MEMÓRIA ===================== -->
+  <div class="screen" id="screen-memoria">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="memTitle"></h2></div>
+      <div class="game-instructions" id="memInstructions"></div>
+      <div class="pre-start" id="memPreStart">
+        <div class="diff-row" id="memDiffRow"></div>
+        <button class="big-cta" id="memStartBtn" onclick="simonStart()"></button>
+      </div>
+      <div class="center-col" id="memPlayArea" style="display:none;">
+        <div class="level-badge" id="simonLevel"></div>
+        <div class="simon-grid" id="simonGrid">
+          <button class="simon-pad" data-i="0" onclick="simonInput(0)"></button>
+          <button class="simon-pad" data-i="1" onclick="simonInput(1)"></button>
+          <button class="simon-pad" data-i="2" onclick="simonInput(2)"></button>
+          <button class="simon-pad" data-i="3" onclick="simonInput(3)"></button>
+        </div>
+        <div class="feedback-banner" id="simonFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME: HISTÓRIA ===================== -->
+  <div class="screen" id="screen-historia">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="storyTitle"></h2></div>
+      <div class="game-instructions" id="storyInstructions"></div>
+      <div class="pre-start" id="storyPreStart">
+        <div class="diff-row" id="storyDiffRow"></div>
+        <button class="big-cta" id="storyStartBtn" onclick="storyStart()"></button>
+      </div>
+      <div class="center-col" id="storyPlayArea" style="display:none;">
+        <div class="story-cards" id="storyCards"></div>
+        <div class="answer-row" id="storyAnswer"></div>
+        <div class="feedback-banner" id="storyFeedback"></div>
+        <button class="big-cta secondary" id="storyResetBtn" style="display:none"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME: MINHA VEZ ===================== -->
+  <div class="screen" id="screen-minhavez">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="chatTitle"></h2></div>
+      <div class="game-instructions" id="chatInstructions"></div>
+      <div class="pre-start" id="chatPreStart">
+        <div class="diff-row" id="chatDiffRow"></div>
+        <button class="big-cta" id="chatStartBtn" onclick="chatStart()"></button>
+      </div>
+      <div class="center-col" id="chatPlayArea" style="display:none;">
+        <div class="chat-bubble" id="chatBubble">...</div>
+        <div class="turn-indicator" id="turnIndicator" style="display:none;"><span class="turn-dot"></span> <span id="turnIndicatorLabel"></span></div>
+        <div class="reply-options" id="replyOptions"></div>
+        <div class="feedback-banner" id="chatFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME: CAÇA AO ALVO ===================== -->
+  <div class="screen" id="screen-cacaalvo">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="huntTitle"></h2></div>
+      <div class="game-instructions" id="huntInstructions"></div>
+      <div class="pre-start" id="huntPreStart">
+        <div class="diff-row" id="huntDiffRow"></div>
+        <button class="big-cta" id="huntStartBtn" onclick="huntStart()"></button>
+      </div>
+      <div class="center-col" id="huntPlayArea" style="display:none;">
+        <div class="hunt-header"><span id="huntFoundCount"></span><span id="huntTimeLeft"></span></div>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="huntTimerBar"></div></div>
+        <div class="hunt-grid" id="huntGrid"></div>
+        <div class="feedback-banner" id="huntFeedback"></div>
+        <button class="big-cta secondary" id="huntAgainBtn" style="display:none;" onclick="huntShowPreStart()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== GAME: TERMÔMETRO ===================== -->
+  <div class="screen" id="screen-termometro">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="thermoTitle"></h2></div>
+      <div class="game-instructions" id="thermoInstructions"></div>
+      <div class="pre-start" id="thermoPreStart">
+        <div class="diff-row" id="thermoDiffRow"></div>
+        <button class="big-cta" id="thermoStartBtn" onclick="thermoStart()"></button>
+      </div>
+      <div class="center-col" id="thermoPlayArea" style="display:none;">
+        <div class="thermo-progress" id="thermoProgress"></div>
+        <div class="scenario-box" id="scenarioBox"></div>
+        <div id="thermoStep1">
+          <p style="font-weight:800;color:var(--sand);margin-bottom:8px;" id="thermoStep1Label"></p>
+          <div class="emo-options" id="emoOptions"></div>
+        </div>
+        <div id="thermoStep2" style="display:none;">
+          <p style="font-weight:800;color:var(--sand);margin-bottom:8px;" id="thermoStep2Label"></p>
+          <div class="calm-options" id="calmOptions"></div>
+        </div>
+        <div class="feedback-banner" id="thermoFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer id="footerNote">Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto</footer>
+
+<script>
+/* ============================================================
+   I18N CONTENT
+   ============================================================ */
+const AVATARS = ['🦫','🐢','🦥','🐸','🦔','🐨'];
+
+const STORY_BANK = {
+  pt: [
+    { title:"O crescimento da planta", cards:["🌱","🌿","🪴","🌳","🍎"] },
+    { title:"O dia de manhã", cards:["😴","⏰","🪥","👕","🎒"] },
+    { title:"A borboleta", cards:["🥚","🐛","🍃","🛖","🦋"] },
+  ],
+  it: [
+    { title:"La crescita della pianta", cards:["🌱","🌿","🪴","🌳","🍎"] },
+    { title:"Il mattino", cards:["😴","⏰","🪥","👕","🎒"] },
+    { title:"La farfalla", cards:["🥚","🐛","🍃","🛖","🦋"] },
+  ]
+};
+
+const CHAT_SCRIPT = {
+  pt: [
+    { line:"Kapi: Oi! Eu adoro nadar no rio de manhã. E você, do que você mais gosta de brincar?",
+      options:[ {text:"Eu gosto de jogar bola no parque!", ok:true},
+                {text:"Ontem eu vi um desenho na TV que não tinha nada a ver...", ok:false, hint:"(muda de assunto sem responder à pergunta)"},
+                {text:"Sabia que eu tenho um carrinho azul?? Olha aqui, olha aqui!", ok:false, hint:"(fala sem esperar e muda de assunto de repente)"} ]},
+    { line:"Kapi: Que legal! E qual é sua cor favorita?",
+      options:[ {text:"Minha cor favorita é o verde, que nem você!", ok:true},
+                {text:"Eu não gosto de esperar minha vez de falar.", ok:false, hint:"(não responde à pergunta)"},
+                {text:"Sabia que capivara também gosta de melancia??", ok:false, hint:"(muda de assunto de repente)"} ]},
+    { line:"Kapi: Melancia é deliciosa mesmo! 🍉 O que você faria se um amigo quisesse brincar de outra coisa que você não gosta?",
+      options:[ {text:"Eu podia falar com calma que prefiro outra brincadeira, e ver se dá pra combinar.", ok:true},
+                {text:"Eu ia gritar que não quero.", ok:false, hint:"(reação muito forte, difícil pro amigo entender)"},
+                {text:"Ia embora sem falar nada.", ok:false, hint:"(não conta o que está sentindo)"} ]},
+    { line:"Kapi: Você pode me contar sobre seu animal favorito?",
+      options:[ {text:"Claro! Eu gosto muito de cachorros, eles são super fofos.", ok:true},
+                {text:"Animais são legais eu acho, mas ontem eu joguei videogame até tarde e...", ok:false, hint:"(começa a falar de outra coisa em vez de responder)"},
+                {text:"Não sei, deixa eu te mostrar uma coisa aqui no meu bolso agora.", ok:false, hint:"(troca de assunto de repente, sem esperar)"} ]},
+    { line:"Kapi: Última pergunta! O que você faria se alguém te interrompesse enquanto você está falando?",
+      options:[ {text:"Eu podia pedir com educação: 'Posso terminar de falar, por favor?'", ok:true},
+                {text:"Eu ia ficar quieto e nunca mais falar nada.", ok:false, hint:"(evita resolver a situação)"},
+                {text:"Eu ia falar mais alto ainda por cima da pessoa.", ok:false, hint:"(também corta a vez da outra pessoa)"} ]},
+  ],
+  it: [
+    { line:"Kapi: Ciao! Adoro nuotare nel fiume la mattina. E tu, a cosa ti piace giocare di più?",
+      options:[ {text:"A me piace giocare a palla al parco!", ok:true},
+                {text:"Ieri ho visto un cartone che non c'entrava niente...", ok:false, hint:"(cambia argomento senza rispondere alla domanda)"},
+                {text:"Sai che ho una macchinina blu?? Guarda, guarda!", ok:false, hint:"(parla senza aspettare e cambia argomento all'improvviso)"} ]},
+    { line:"Kapi: Che bello! E qual è il tuo colore preferito?",
+      options:[ {text:"Il mio colore preferito è il verde, come te!", ok:true},
+                {text:"Non mi piace aspettare il mio turno per parlare.", ok:false, hint:"(non risponde alla domanda)"},
+                {text:"Sai che ai capibara piace anche l'anguria??", ok:false, hint:"(cambia argomento all'improvviso)"} ]},
+    { line:"Kapi: L'anguria è davvero deliziosa! 🍉 Cosa faresti se un amico volesse giocare a qualcosa che a te non piace?",
+      options:[ {text:"Potrei dire con calma che preferisco un altro gioco, e vedere se troviamo un accordo.", ok:true},
+                {text:"Mi metterei a urlare che non voglio.", ok:false, hint:"(reazione troppo forte, difficile da capire per l'amico)"},
+                {text:"Me ne andrei senza dire niente.", ok:false, hint:"(non spiega cosa sta provando)"} ]},
+    { line:"Kapi: Mi racconti qual è il tuo animale preferito?",
+      options:[ {text:"Certo! Mi piacciono molto i cani, sono super teneri.", ok:true},
+                {text:"Gli animali sono carini credo, ma ieri ho giocato ai videogiochi fino a tardi e...", ok:false, hint:"(inizia a parlare d'altro invece di rispondere)"},
+                {text:"Non lo so, fammi vedere una cosa che ho in tasca adesso.", ok:false, hint:"(cambia argomento all'improvviso, senza aspettare)"} ]},
+    { line:"Kapi: Ultima domanda! Cosa faresti se qualcuno ti interrompesse mentre stai parlando?",
+      options:[ {text:"Potrei chiedere gentilmente: 'Posso finire di parlare, per favore?'", ok:true},
+                {text:"Starei zitto/a e non parlerei mai più.", ok:false, hint:"(evita di risolvere la situazione)"},
+                {text:"Parlerei ancora più forte sopra l'altra persona.", ok:false, hint:"(toglie il turno anche all'altra persona)"} ]},
+  ]
+};
+
+const SCENARIOS = {
+  pt: [
+    "Você estava jogando e perdeu bem no finalzinho.",
+    "Um amigo pegou seu brinquedo sem perguntar.",
+    "Você tentou fazer uma tarefa difícil e não conseguiu na primeira vez.",
+    "Você ganhou um elogio da professora na frente da turma.",
+    "Você esperou muito tempo na fila e ainda não chegou sua vez.",
+    "Seu amigo não quis brincar com você no recreio hoje."
+  ],
+  it: [
+    "Stavi giocando e hai perso proprio alla fine.",
+    "Un amico ha preso il tuo giocattolo senza chiedere.",
+    "Hai provato a fare un compito difficile e non ce l'hai fatta al primo tentativo.",
+    "Hai ricevuto un complimento dalla maestra davanti a tutta la classe.",
+    "Hai aspettato tanto in fila e non è ancora arrivato il tuo turno.",
+    "Il tuo amico oggi non ha voluto giocare con te in ricreazione."
+  ]
+};
+
+const EMOTIONS = {
+  pt: [ {e:'😠',label:'Bravo'}, {e:'😢',label:'Triste'}, {e:'😳',label:'Frustrado'}, {e:'😄',label:'Feliz'}, {e:'😰',label:'Ansioso'} ],
+  it: [ {e:'😠',label:'Arrabbiato'}, {e:'😢',label:'Triste'}, {e:'😳',label:'Frustrato'}, {e:'😄',label:'Felice'}, {e:'😰',label:'Ansioso'} ]
+};
+const CALM_STRATS = {
+  pt: [ {id:'breathe', e:'🫁', label:'Respirar fundo'}, {id:'count', e:'🔢', label:'Contar até 10'}, {id:'hug', e:'🤗', label:'Pedir um abraço'}, {id:'water', e:'💧', label:'Beber água'} ],
+  it: [ {id:'breathe', e:'🫁', label:'Respirare profondamente'}, {id:'count', e:'🔢', label:'Contare fino a 10'}, {id:'hug', e:'🤗', label:'Chiedere un abbraccio'}, {id:'water', e:'💧', label:'Bere acqua'} ]
+};
+
+const I18N = {
+  pt: {
+    appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil",
+    profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
+    labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
+    createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
+    backLabel:"Voltar", startBtn:"Começar", playAgainBtn:"Jogar de novo", diff:{facil:"Fácil",medio:"Médio",dificil:"Difícil"},
+    footer:"Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto",
+    mascotHub:(n)=>`Oi, ${n}! Eu sou a Kapi 🌿 Escolhe uma aventura pra gente jogar juntos!`,
+    mascotGood:"Show de bola! Você é demais! 🌟", mascotTry:"Sem problema, todo mundo erra! Bora tentar de novo? 💛",
+    tiles:{
+      semaforo:{emoji:"🚦",skill:"Autocontrole",title:"Luz da Espera",desc:"Espera o verde antes de agir. Treina segurar o impulso."},
+      memoria:{emoji:"🍃",skill:"Memória de trabalho",title:"Memória da Kapi",desc:"Repete a sequência de folhinhas coloridas."},
+      historia:{emoji:"📖",skill:"Sequenciamento",title:"Monte a História",desc:"Coloca as cenas na ordem certa, do começo ao fim."},
+      minhavez:{emoji:"💬",skill:"Conversa e turno",title:"Minha Vez, Sua Vez",desc:"Escolhe a resposta certa e espera sua vez de falar."},
+      cacaalvo:{emoji:"🔎",skill:"Atenção sustentada",title:"Caça ao Alvo",desc:"Encontra todas as folhinhas certas no tempo."},
+      termometro:{emoji:"🌈",skill:"Regulação emocional",title:"Termômetro das Emoções",desc:"Descobre como se sente e uma forma de se acalmar."}
+    },
+    sem:{ title:"🚦 Luz da Espera", instr:"Toca no círculo SÓ quando ele ficar verde. Se estiver vermelho, espera!", wait:"espera", go:"vai!",
+      early:"Quase! Espera a luz ficar verde 💚", hit:"Boa! Você esperou certinho 🌟", miss:"Tudo bem, vamos pra próxima!",
+      result:(h,t)=>`Você esperou certo em ${h} de ${t} rodadas!` },
+    mem:{ title:"🍃 Memória da Kapi", instr:"Observa a ordem que as folhinhas acendem, depois repete tocando na mesma ordem.",
+      level:(n)=>`Nível ${n}`, wrong:"Quase! Vamos tentar essa sequência de novo 🍃", next:"Isso aí! Próximo nível...",
+      mastery:"UAU! Você é uma mestre da memória! 🏆⭐⭐⭐" },
+    story:{ title:"📖 Monte a História", instr:(t)=>`"${t}" — toca nas cenas na ordem certa, do começo ao fim.`,
+      perfect:"Perfeito! Você montou a história certinha! 📖✨", partial:(c,t)=>`Você acertou ${c} de ${t} posições. Bora tentar de novo?` },
+    chat:{ title:"💬 Minha Vez, Sua Vez", instr:"A Kapi vai falar. Escolhe a resposta que combina com o que ela disse — e espera sua vez!",
+      correct:"Boa resposta! Isso é continuar a conversa 🌿", wrong:"Hmm, essa resposta sai do assunto ou corta a vez da Kapi. Vamos ver a próxima!",
+      closing:"Kapi: Adorei nossa conversa! Obrigada por esperar sua vez e ficar no assunto 💛",
+      result:(c,t)=>`Você acertou ${c} de ${t} respostas!`, turnLabel:"Esperando sua vez..." },
+    hunt:{ title:"🔎 Caça ao Alvo", instr:"Encontra todas as folhinhas 🍀 escondidas entre os outros emojis!",
+      found:(f,t)=>`${f} / ${t} encontradas`, time:(s)=>`⏱ ${s}s`,
+      resultAll:"Você achou todas as folhinhas! Incrível atenção! 🍀✨", resultPartial:(f,t)=>`Você achou ${f} de ${t} folhinhas. Bora tentar de novo?` },
+    thermo:{ title:"🌈 Termômetro das Emoções", instr:"Lê a situação, escolhe como você acha que se sentiria, e uma forma de se acalmar.",
+      step1:"Como você acha que se sentiria?", step2:"O que pode ajudar a se acalmar?",
+      feedback:(e,l)=>`Ótima escolha! Sentir <b>${e}</b> é normal, e "${l}" pode ajudar bastante. 💛`,
+      breathing:"Inspira... e solta o ar bem devagar...", progress:(i,t)=>`Situação ${i} de ${t}`, next:"Próxima situação" }
+  },
+  it: {
+    appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo",
+    profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
+    labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
+    createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
+    backLabel:"Torna", startBtn:"Inizia", playAgainBtn:"Gioca ancora", diff:{facil:"Facile",medio:"Medio",dificil:"Difficile"},
+    footer:"Fatto con cura per bambini curiosi 🌱 — gioca sempre insieme a un adulto",
+    mascotHub:(n)=>`Ciao, ${n}! Sono Kapi 🌿 Scegli un'avventura da giocare insieme!`,
+    mascotGood:"Fantastico! Sei bravissimo/a! 🌟", mascotTry:"Nessun problema, capita a tutti! Proviamo ancora? 💛",
+    tiles:{
+      semaforo:{emoji:"🚦",skill:"Autocontrollo",title:"Il Semaforo dell'Attesa",desc:"Aspetta il verde prima di agire. Allena l'autocontrollo."},
+      memoria:{emoji:"🍃",skill:"Memoria di lavoro",title:"La Memoria di Kapi",desc:"Ripeti la sequenza di foglioline colorate."},
+      historia:{emoji:"📖",skill:"Sequenza",title:"Costruisci la Storia",desc:"Metti le scene nell'ordine giusto, dall'inizio alla fine."},
+      minhavez:{emoji:"💬",skill:"Conversazione e turni",title:"Il Mio Turno, il Tuo Turno",desc:"Scegli la risposta giusta e aspetta il tuo turno per parlare."},
+      cacaalvo:{emoji:"🔎",skill:"Attenzione sostenuta",title:"Caccia al Bersaglio",desc:"Trova tutti i quadrifogli giusti in tempo."},
+      termometro:{emoji:"🌈",skill:"Regolazione emotiva",title:"Il Termometro delle Emozioni",desc:"Scopri come ti senti e un modo per calmarti."}
+    },
+    sem:{ title:"🚦 Il Semaforo dell'Attesa", instr:"Tocca il cerchio SOLO quando diventa verde. Se è rosso, aspetta!", wait:"aspetta", go:"vai!",
+      early:"Quasi! Aspetta che diventi verde 💚", hit:"Bravo/a! Hai aspettato benissimo 🌟", miss:"Va bene, andiamo avanti!",
+      result:(h,t)=>`Hai aspettato bene in ${h} di ${t} round!` },
+    mem:{ title:"🍃 La Memoria di Kapi", instr:"Osserva l'ordine in cui si accendono le foglioline, poi ripeti toccandole nello stesso ordine.",
+      level:(n)=>`Livello ${n}`, wrong:"Quasi! Riproviamo questa sequenza 🍃", next:"Ecco fatto! Livello successivo...",
+      mastery:"WOW! Sei un maestro della memoria! 🏆⭐⭐⭐" },
+    story:{ title:"📖 Costruisci la Storia", instr:(t)=>`"${t}" — tocca le scene nell'ordine giusto, dall'inizio alla fine.`,
+      perfect:"Perfetto! Hai costruito la storia giusta! 📖✨", partial:(c,t)=>`Hai indovinato ${c} di ${t} posizioni. Proviamo ancora?` },
+    chat:{ title:"💬 Il Mio Turno, il Tuo Turno", instr:"Kapi parlerà. Scegli la risposta che si collega a quello che ha detto — e aspetta il tuo turno!",
+      correct:"Ottima risposta! Così si continua la conversazione 🌿", wrong:"Hmm, questa risposta cambia argomento o toglie il turno a Kapi. Vediamo la prossima!",
+      closing:"Kapi: Mi è piaciuta la nostra conversazione! Grazie per aver aspettato il turno 💛",
+      result:(c,t)=>`Hai risposto bene a ${c} di ${t} domande!`, turnLabel:"Aspettando il tuo turno..." },
+    hunt:{ title:"🔎 Caccia al Bersaglio", instr:"Trova tutti i quadrifogli 🍀 nascosti tra le altre emoji!",
+      found:(f,t)=>`${f} / ${t} trovati`, time:(s)=>`⏱ ${s}s`,
+      resultAll:"Hai trovato tutti i quadrifogli! Attenzione incredibile! 🍀✨", resultPartial:(f,t)=>`Hai trovato ${f} di ${t} quadrifogli. Proviamo ancora?` },
+    thermo:{ title:"🌈 Il Termometro delle Emozioni", instr:"Leggi la situazione, scegli come pensi che ti sentiresti, e un modo per calmarti.",
+      step1:"Come pensi che ti sentiresti?", step2:"Cosa può aiutare a calmarti?",
+      feedback:(e,l)=>`Ottima scelta! Sentirsi <b>${e}</b> è normale, e "${l}" può aiutare molto. 💛`,
+      breathing:"Inspira... ed espira lentamente...", progress:(i,t)=>`Situazione ${i} di ${t}`, next:"Prossima situazione" }
+  }
+};
+
+const DIFF = {
+  semaforo:{ facil:{rounds:4, greenMs:2000, waitMin:1000, waitMax:2000}, medio:{rounds:5, greenMs:1400, waitMin:1200, waitMax:2800}, dificil:{rounds:7, greenMs:1000, waitMin:1500, waitMax:3200} },
+  memoria:{ facil:{maxLevel:4, startLen:2, stepDelay:800}, medio:{maxLevel:6, startLen:2, stepDelay:700}, dificil:{maxLevel:8, startLen:3, stepDelay:550} },
+  historia:{ facil:{len:3}, medio:{len:4}, dificil:{len:5} },
+  minhavez:{ facil:{turns:2, hint:true}, medio:{turns:3, hint:false}, dificil:{turns:5, hint:false} },
+  cacaalvo:{ facil:{cols:5, rows:5, targets:4, time:25, pool:['🍄','🌸','🪨','🐚']},
+             medio:{cols:6, rows:5, targets:6, time:20, pool:['🍄','🌸','🍂','🪨','🐚','🍁','🌼','🍇']},
+             dificil:{cols:7, rows:6, targets:8, time:18, pool:['🌿','🍃','☘️','🌱','🪴','🍂','🌸']} },
+  termometro:{ facil:{rounds:2}, medio:{rounds:3}, dificil:{rounds:4} }
+};
+
+const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro'];
+
+/* ============================================================
+   SUPABASE + AUTH + STATE
+   ============================================================ */
+const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let state = { lang:'pt', profileId:null, profile:null, familyId:null };
+let isSignUpMode = false;
+
+function L(){ return I18N[state.lang]; }
+
+function showError(msg) {
+  const el = document.getElementById('globalError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+supabase.auth.onAuthStateChange(async (event, session) => {
+  if (session) {
+    const { data: family, error } = await supabase.from('families').select('id').eq('auth_user_id', session.user.id).single();
+    if (family) {
+      state.familyId = family.id;
+    } else {
+      const { data: newFamily, err } = await supabase.from('families').insert({ auth_user_id: session.user.id }).select('id').single();
+      if(newFamily) state.familyId = newFamily.id;
+    }
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-profiles').classList.add('active');
+    renderProfilesScreen();
+  } else {
+    state.familyId = null;
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-auth').classList.add('active');
+  }
+});
+
+function toggleAuthMode() {
+  isSignUpMode = !isSignUpMode;
+  document.getElementById('authTitle').textContent = isSignUpMode ? 'Criar Conta' : 'Área dos Responsáveis';
+  document.getElementById('authSubtitle').textContent = isSignUpMode ? 'Crie uma conta para salvar o progresso' : 'Acesse para sincronizar o progresso';
+  document.getElementById('authSubmitBtn').textContent = isSignUpMode ? 'Cadastrar' : 'Entrar';
+  document.getElementById('authToggleBtn').textContent = isSignUpMode ? 'Já tem conta? Entrar' : 'Não tem conta? Cadastre-se';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function handleAuthSubmit() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+  
+  if(!email || !password) {
+    errEl.textContent = 'Preencha e-mail e senha.';
+    errEl.style.display = 'block';
+    return;
+  }
+  
+  const btn = document.getElementById('authSubmitBtn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Carregando...';
+  btn.disabled = true;
+  
+  let error = null;
+  if (isSignUpMode) {
+    const res = await supabase.auth.signUp({ email, password });
+    error = res.error;
+  } else {
+    const res = await supabase.auth.signInWithPassword({ email, password });
+    error = res.error;
+  }
+  
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  }
+  
+  btn.textContent = originalText;
+  btn.disabled = false;
+}
+
+async function handleLogout() {
+  await supabase.auth.signOut();
+  state.profileId = null;
+  state.profile = null;
+}
+
+function defaultProfileData(name, avatar, lang){
+  const diffByGame = {}; GAME_KEYS.forEach(k=>diffByGame[k]='medio');
+  const starsByGame = {}; GAME_KEYS.forEach(k=>starsByGame[k]=0);
+  return { name, avatar, lang, seeds:0, starsByGame, difficultyByGame:diffByGame };
+}
+
+async function loadProfilesList(){
+  if(!state.familyId) return [];
+  try{ 
+    const { data, error } = await supabase.from('child_profiles').select('*').eq('family_id', state.familyId).order('created_at', { ascending: true });
+    if(error) throw error;
+    return data || [];
+  } catch(e){ 
+    showError('Erro ao carregar perfis. Verifique sua conexão.');
+    return []; 
+  }
+}
+async function saveProfilesList(list){
+  // Not used in Supabase version
+}
+async function loadProfileData(id){
+  try{ 
+    const { data, error } = await supabase.from('child_profiles').select('*').eq('id', id).single();
+    if(error) throw error;
+    if(data) {
+       return {
+         name: data.name, avatar: data.avatar, lang: data.lang,
+         seeds: data.seeds, starsByGame: data.stars_by_game, difficultyByGame: data.difficulty_by_game
+       };
+    }
+    return null; 
+  } catch(e){ 
+    showError('Erro ao carregar dados. Verifique a conexão.');
+    return null; 
+  }
+}
+async function saveProfileData(){
+  if(!state.profileId || !state.profile) return;
+  try{ 
+    const p = state.profile;
+    const { error } = await supabase.from('child_profiles').update({
+      lang: p.lang,
+      seeds: p.seeds,
+      stars_by_game: p.starsByGame,
+      difficulty_by_game: p.difficultyByGame
+    }).eq('id', state.profileId);
+    if(error) throw error;
+  }catch(e){
+    showError('Erro ao salvar progresso. Verifique a conexão.');
+  }
+}
+async function deleteProfileData(id){
+  try{ 
+    const { error } = await supabase.from('child_profiles').delete().eq('id', id);
+    if(error) throw error;
+  }catch(e){
+    showError('Erro ao excluir perfil. Verifique a conexão.');
+  }
+}
+
+
+/* ============================================================
+   PROFILES SCREEN
+   ============================================================ */
+let formLang = 'pt';
+function selectFormLang(l){
+  formLang = l;
+  document.querySelectorAll('.lang-choice').forEach(el=>el.classList.toggle('selected', el.dataset.lang===l));
+}
+function toggleNewProfileForm(){
+  const f = document.getElementById('newProfileForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+async function submitNewProfile(){
+  if(!state.familyId) return;
+  const nameInput = document.getElementById('newProfileName');
+  const name = nameInput.value.trim();
+  if(!name) { nameInput.focus(); return; }
+  const avatarEl = document.querySelector('.avatar-choice.selected');
+  const avatar = avatarEl ? avatarEl.textContent : AVATARS[0];
+  
+  const data = defaultProfileData(name, avatar, formLang);
+  
+  const btn = document.getElementById('createProfileBtn');
+  const ogText = btn.textContent;
+  btn.textContent = '...';
+  btn.disabled = true;
+  
+  try {
+    const { data: newRow, error } = await supabase.from('child_profiles').insert({
+      family_id: state.familyId,
+      name: name,
+      avatar: avatar,
+      lang: formLang,
+      seeds: data.seeds,
+      stars_by_game: data.starsByGame,
+      difficulty_by_game: data.difficultyByGame
+    }).select().single();
+    
+    if(error) throw error;
+    
+    nameInput.value = '';
+    document.getElementById('newProfileForm').style.display = 'none';
+    await enterProfile(newRow.id, data);
+  } catch(e) {
+    showError('Erro ao criar perfil. Verifique a conexão.');
+  }
+  btn.textContent = ogText;
+  btn.disabled = false;
+}
+
+async function renderProfilesScreen(){
+  const list = await loadProfilesList();
+  const grid = document.getElementById('profileGrid');
+  grid.innerHTML = '';
+  list.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.innerHTML = `<button class="del-x" title="excluir" onclick="event.stopPropagation(); removeProfile('${p.id}')">✕</button>
+      <div class="avatar">${p.avatar}</div><div class="pname">${p.name}</div>
+      <div class="plang">${p.lang==='pt'?'🇧🇷 PT':'🇮🇹 IT'}</div>`;
+    card.onclick = ()=>selectProfile(p.id);
+    grid.appendChild(card);
+  });
+  const avatarRow = document.getElementById('avatarRow');
+  avatarRow.innerHTML = '';
+  AVATARS.forEach((a,i)=>{
+    const el = document.createElement('div');
+    el.className = 'avatar-choice' + (i===0?' selected':'');
+    el.textContent = a;
+    el.onclick = ()=>{ document.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
+    avatarRow.appendChild(el);
+  });
+  applyProfilesScreenI18n();
+}
+function applyProfilesScreenI18n(){
+  const t = I18N[formLang] || I18N.pt;
+  document.getElementById('profilesTitle').textContent = t.profilesTitle;
+  document.getElementById('profilesSubtitle').textContent = t.profilesSubtitle;
+  document.getElementById('labelName').textContent = t.labelName;
+  document.getElementById('newProfileName').placeholder = t.namePlaceholder;
+  document.getElementById('labelAvatar').textContent = t.labelAvatar;
+  document.getElementById('labelLang').textContent = t.labelLang;
+  document.getElementById('createProfileBtn').textContent = t.createProfileBtn;
+  document.getElementById('addProfileToggleBtn').textContent = t.addProfileBtn;
+}
+async function selectProfile(id){
+  const data = await loadProfileData(id);
+  if(!data) return;
+  await enterProfile(id, data);
+}
+async function removeProfile(id){
+  if(!confirm(I18N.pt.confirmDelete + ' / ' + I18N.it.confirmDelete)) return;
+  await deleteProfileData(id);
+  renderProfilesScreen();
+}
+async function enterProfile(id, data){
+  state.profileId = id;
+  state.profile = data;
+  state.lang = data.lang || 'pt';
+  document.getElementById('hubHeader').style.display = 'flex';
+  goHub();
+}
+function goProfiles(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-profiles').classList.add('active');
+  document.getElementById('hubHeader').style.display = 'none';
+  renderProfilesScreen();
+}
+
+/* ============================================================
+   LANGUAGE SWITCH + GLOBAL UI
+   ============================================================ */
+function setLang(l){
+  state.lang = l;
+  if(state.profile){ state.profile.lang = l; saveProfileData(); }
+  applyGlobalI18n();
+  renderHub();
+  say(L().mascotHub(state.profile ? state.profile.name : ''));
+}
+function applyGlobalI18n(){
+  const t = L();
+  document.getElementById('langBtnPt').classList.toggle('active', state.lang==='pt');
+  document.getElementById('langBtnIt').classList.toggle('active', state.lang==='it');
+  document.getElementById('appTag').textContent = t.appTag;
+  document.getElementById('seedsLabel').textContent = t.seedsLabel;
+  document.getElementById('switchProfileBtn').textContent = t.switchProfile;
+  document.getElementById('footerNote').textContent = t.footer;
+  document.querySelectorAll('.backLabel').forEach(el=>el.textContent = t.backLabel);
+  if(state.profile){
+    document.getElementById('chipAvatar').textContent = state.profile.avatar;
+    document.getElementById('chipName').textContent = state.profile.name;
+    document.getElementById('seedCount').textContent = state.profile.seeds;
+  }
+}
+
+function say(text){ document.getElementById('mascotSpeech').textContent = text; }
+function blinkMascot(){
+  const l = document.getElementById('eyeL'), r = document.getElementById('eyeR');
+  if(!l||!r) return;
+  l.setAttribute('ry','1'); r.setAttribute('ry','1');
+  setTimeout(()=>{ l.setAttribute('ry','5'); r.setAttribute('ry','5'); }, 160);
+}
+setInterval(blinkMascot, 3500);
+
+function addSeeds(n){
+  state.profile.seeds += n;
+  document.getElementById('seedCount').textContent = state.profile.seeds;
+  saveProfileData();
+}
+function setStars(gameKey, count){
+  state.profile.starsByGame[gameKey] = Math.max(state.profile.starsByGame[gameKey], count);
+  saveProfileData();
+  renderHubTileStars();
+}
+function setDifficulty(gameKey, level){
+  state.profile.difficultyByGame[gameKey] = level;
+  saveProfileData();
+}
+function getDifficulty(gameKey){ return state.profile.difficultyByGame[gameKey] || 'medio'; }
+
+function renderHubTileStars(){
+  GAME_KEYS.forEach(k=>{
+    const el = document.getElementById('stars-'+k);
+    if(!el) return;
+    const c = state.profile.starsByGame[k] || 0;
+    el.textContent = '⭐'.repeat(c) + '☆'.repeat(Math.max(0,3-c));
+  });
+}
+
+function renderHub(){
+  const t = L();
+  const grid = document.getElementById('hubGrid');
+  grid.innerHTML = '';
+  GAME_KEYS.forEach(k=>{
+    const tile = t.tiles[k];
+    const div = document.createElement('div');
+    div.className = 'tile'; div.tabIndex = 0;
+    div.onclick = ()=>openGame(k);
+    div.innerHTML = `<span class="emoji">${tile.emoji}</span><span class="skill">${tile.skill}</span>
+      <h3>${tile.title}</h3><p>${tile.desc}</p><div class="stars-earned" id="stars-${k}"></div>`;
+    grid.appendChild(div);
+  });
+  renderHubTileStars();
+}
+
+function renderDiffRow(containerId, gameKey, onChange){
+  const t = L();
+  const row = document.getElementById(containerId);
+  row.innerHTML = '';
+  const current = getDifficulty(gameKey);
+  ['facil','medio','dificil'].forEach(level=>{
+    const btn = document.createElement('button');
+    btn.className = 'diff-btn' + (level===current ? ' selected' : '');
+    btn.textContent = t.diff[level];
+    btn.onclick = ()=>{
+      setDifficulty(gameKey, level);
+      row.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      if(onChange) onChange(level);
+    };
+    row.appendChild(btn);
+  });
+}
+
+function openGame(key){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+key).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(key==='semaforo') semInit();
+  if(key==='memoria') simonInit();
+  if(key==='historia') storyInit();
+  if(key==='minhavez') chatInit();
+  if(key==='cacaalvo') huntInit();
+  if(key==='termometro') thermoInit();
+}
+function goHub(){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-hub').classList.add('active');
+  applyGlobalI18n();
+  renderHub();
+  say(L().mascotHub(state.profile.name));
+  clearTimeout(window._semTimer); clearTimeout(window._semTimer2);
+  clearInterval(window._huntTimer);
+}
+
+function showFeedback(id, text, good){
+  const el = document.getElementById(id);
+  el.innerHTML = text;
+  el.className = 'feedback-banner show ' + (good ? 'good' : 'gentle');
+}
+function hideFeedback(id){ document.getElementById(id).className = 'feedback-banner'; }
+
+/* ========================= GAME 1: SEMÁFORO ========================= */
+let sem = { round:0, hits:0, total:5, canGo:false, cfg:null };
+function semInit(){
+  const t = L();
+  document.getElementById('semTitle').textContent = t.sem.title;
+  document.getElementById('semInstructions').textContent = t.sem.instr;
+  document.getElementById('semStartBtn').textContent = t.startBtn;
+  document.getElementById('semPreStart').style.display = 'flex';
+  document.getElementById('semPlayArea').style.display = 'none';
+  hideFeedback('semFeedback');
+  renderDiffRow('semDiffRow', 'semaforo');
+}
+function semStart(){
+  const t = L();
+  sem.cfg = DIFF.semaforo[getDifficulty('semaforo')];
+  sem.round = 0; sem.hits = 0; sem.total = sem.cfg.rounds; sem.canGo = false;
+  document.getElementById('semPreStart').style.display = 'none';
+  document.getElementById('semPlayArea').style.display = 'flex';
+  document.getElementById('semRounds').innerHTML = Array.from({length:sem.total}).map(()=>'<div class="round-dot"></div>').join('');
+  semNextRound();
+}
+function semNextRound(){
+  clearTimeout(window._semTimer);
+  const t = L();
+  const light = document.getElementById('semLight');
+  if(sem.round >= sem.total){ semEnd(); return; }
+  light.className = 'light-circle wait'; light.textContent = t.sem.wait; sem.canGo = false;
+  const waitTime = sem.cfg.waitMin + Math.random()*(sem.cfg.waitMax - sem.cfg.waitMin);
+  window._semTimer = setTimeout(()=>{
+    light.className = 'light-circle go'; light.textContent = t.sem.go; sem.canGo = true;
+    window._semTimer = setTimeout(()=>{ if(sem.canGo){ sem.canGo = false; markRound(false); } }, sem.cfg.greenMs);
+  }, waitTime);
+}
+function semTap(){
+  if(sem.round >= sem.total) return;
+  if(sem.canGo){ sem.canGo = false; markRound(true); }
+  else { showFeedback('semFeedback', L().sem.early, false); setTimeout(()=>hideFeedback('semFeedback'), 1100); }
+}
+function markRound(hit){
+  clearTimeout(window._semTimer);
+  const t = L();
+  const dots = document.querySelectorAll('#semRounds .round-dot');
+  dots[sem.round].classList.add(hit?'hit':'miss');
+  if(hit){ sem.hits++; showFeedback('semFeedback', t.sem.hit, true); } else { showFeedback('semFeedback', t.sem.miss, false); }
+  sem.round++;
+  setTimeout(()=>{ hideFeedback('semFeedback'); semNextRound(); }, 900);
+}
+function semEnd(){
+  const t = L();
+  const light = document.getElementById('semLight');
+  light.className = 'light-circle go'; light.textContent = '🎉';
+  const ratio = sem.hits / sem.total;
+  const stars = ratio>=0.9?3: ratio>=0.5?2: ratio>0?1:0;
+  setStars('semaforo', stars);
+  addSeeds(sem.hits*2);
+  showFeedback('semFeedback', `${t.sem.result(sem.hits, sem.total)} ${'⭐'.repeat(stars)}`, true);
+  say(stars>=2 ? t.mascotGood : t.mascotTry);
+}
+
+/* ========================= GAME 2: MEMÓRIA ========================= */
+let simon = { sequence:[], input:[], level:1, playing:false, cfg:null };
+function simonInit(){
+  const t = L();
+  document.getElementById('memTitle').textContent = t.mem.title;
+  document.getElementById('memInstructions').textContent = t.mem.instr;
+  document.getElementById('memStartBtn').textContent = t.startBtn;
+  document.getElementById('memPreStart').style.display = 'flex';
+  document.getElementById('memPlayArea').style.display = 'none';
+  hideFeedback('simonFeedback');
+  renderDiffRow('memDiffRow', 'memoria');
+}
+function simonStart(){
+  simon.cfg = DIFF.memoria[getDifficulty('memoria')];
+  document.getElementById('memPreStart').style.display = 'none';
+  document.getElementById('memPlayArea').style.display = 'flex';
+  simon.sequence = Array.from({length: simon.cfg.startLen}, ()=>Math.floor(Math.random()*4));
+  simon.level = 1;
+  simonPlaySequence();
+}
+function simonPlaySequence(){
+  const t = L();
+  simon.playing = true; simon.input = [];
+  document.getElementById('simonLevel').textContent = t.mem.level(simon.level);
+  hideFeedback('simonFeedback');
+  let i = 0;
+  const pads = document.querySelectorAll('.simon-pad');
+  function step(){
+    if(i>0) pads[simon.sequence[i-1]].classList.remove('lit');
+    if(i >= simon.sequence.length){ simon.playing = false; return; }
+    pads[simon.sequence[i]].classList.add('lit');
+    i++;
+    setTimeout(step, simon.cfg.stepDelay);
+  }
+  setTimeout(step, 500);
+}
+function simonInput(padIndex){
+  if(simon.playing) return;
+  const t = L();
+  const pads = document.querySelectorAll('.simon-pad');
+  pads[padIndex].classList.add('lit');
+  setTimeout(()=>pads[padIndex].classList.remove('lit'), 250);
+  simon.input.push(padIndex);
+  const idx = simon.input.length - 1;
+  if(simon.input[idx] !== simon.sequence[idx]){
+    showFeedback('simonFeedback', t.mem.wrong, false);
+    const stars = simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.7) ? 3 : simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.4) ? 2 : simon.level-1>=1?1:0;
+    setStars('memoria', stars);
+    setTimeout(()=>simonPlaySequence(), 1400);
+    return;
+  }
+  if(simon.input.length === simon.sequence.length){
+    if(simon.level >= simon.cfg.maxLevel){
+      showFeedback('simonFeedback', t.mem.mastery, true);
+      setStars('memoria', 3); addSeeds(10); say(t.mascotGood);
+      return;
+    }
+    showFeedback('simonFeedback', t.mem.next, true);
+    addSeeds(2);
+    simon.level++;
+    simon.sequence.push(Math.floor(Math.random()*4));
+    setTimeout(()=>simonPlaySequence(), 1200);
+  }
+}
+
+/* ========================= GAME 3: HISTÓRIA ========================= */
+let story = { correct:[], shuffled:[], answer:[], title:'' };
+function storyInit(){
+  const t = L();
+  document.getElementById('storyTitle').textContent = t.story.title;
+  document.getElementById('storyStartBtn').textContent = t.startBtn;
+  document.getElementById('storyResetBtn').textContent = t.playAgainBtn;
+  document.getElementById('storyPreStart').style.display = 'flex';
+  document.getElementById('storyPlayArea').style.display = 'none';
+  document.getElementById('storyResetBtn').style.display = 'none';
+  document.getElementById('storyInstructions').textContent = t.story.instr('...');
+  hideFeedback('storyFeedback');
+  renderDiffRow('storyDiffRow', 'historia');
+}
+function storyStart(){
+  const t = L();
+  const cfg = DIFF.historia[getDifficulty('historia')];
+  const bank = STORY_BANK[state.lang];
+  const pick = bank[Math.floor(Math.random()*bank.length)];
+  story.title = pick.title;
+  story.correct = pick.cards.slice(0, cfg.len);
+  story.answer = [];
+  story.shuffled = [...story.correct].sort(()=>Math.random()-0.5);
+  document.getElementById('storyInstructions').textContent = t.story.instr(pick.title);
+  document.getElementById('storyPreStart').style.display = 'none';
+  document.getElementById('storyPlayArea').style.display = 'flex';
+  document.getElementById('storyResetBtn').style.display = 'none';
+  hideFeedback('storyFeedback');
+  renderStoryCards(); renderStoryAnswer();
+}
+function renderStoryCards(){
+  const wrap = document.getElementById('storyCards');
+  wrap.innerHTML = '';
+  story.shuffled.forEach(emoji=>{
+    const used = story.answer.includes(emoji);
+    const card = document.createElement('div');
+    card.className = 'story-card';
+    card.textContent = emoji;
+    card.style.opacity = used ? '0.35' : '1';
+    card.style.pointerEvents = used ? 'none' : 'auto';
+    card.onclick = ()=>storyPick(emoji);
+    wrap.appendChild(card);
+  });
+}
+function renderStoryAnswer(){
+  const wrap = document.getElementById('storyAnswer');
+  wrap.innerHTML = '';
+  for(let i=0;i<story.correct.length;i++){
+    const slot = document.createElement('div');
+    const filled = story.answer[i] !== undefined;
+    slot.className = 'answer-slot' + (filled?' filled':'');
+    slot.textContent = filled ? story.answer[i] : (i+1);
+    wrap.appendChild(slot);
+  }
+}
+function storyPick(emoji){
+  if(story.answer.length >= story.correct.length) return;
+  story.answer.push(emoji);
+  renderStoryCards(); renderStoryAnswer();
+  if(story.answer.length === story.correct.length) checkStory();
+}
+function checkStory(){
+  const t = L();
+  let correctCount = 0;
+  for(let i=0;i<story.correct.length;i++) if(story.answer[i] === story.correct[i]) correctCount++;
+  const ratio = correctCount/story.correct.length;
+  const stars = ratio===1?3: ratio>=0.6?2: ratio>0?1:0;
+  setStars('historia', stars);
+  if(correctCount === story.correct.length){
+    showFeedback('storyFeedback', t.story.perfect, true); addSeeds(6); say(t.mascotGood);
+  } else {
+    showFeedback('storyFeedback', t.story.partial(correctCount, story.correct.length), false); say(t.mascotTry);
+  }
+  document.getElementById('storyResetBtn').style.display = 'inline-block';
+}
+
+/* ========================= GAME 4: MINHA VEZ ========================= */
+let chat = { step:0, correctCount:0, turns:[] };
+function chatInit(){
+  const t = L();
+  document.getElementById('chatTitle').textContent = t.chat.title;
+  document.getElementById('chatInstructions').textContent = t.chat.instr;
+  document.getElementById('chatStartBtn').textContent = t.startBtn;
+  document.getElementById('chatPreStart').style.display = 'flex';
+  document.getElementById('chatPlayArea').style.display = 'none';
+  document.getElementById('turnIndicatorLabel').textContent = t.chat.turnLabel;
+  hideFeedback('chatFeedback');
+  renderDiffRow('chatDiffRow', 'minhavez');
+}
+function chatStart(){
+  const cfg = DIFF.minhavez[getDifficulty('minhavez')];
+  const script = CHAT_SCRIPT[state.lang];
+  chat.turns = script.slice(0, cfg.turns);
+  chat.showHint = cfg.hint;
+  chat.step = 0; chat.correctCount = 0;
+  document.getElementById('chatPreStart').style.display = 'none';
+  document.getElementById('chatPlayArea').style.display = 'flex';
+  hideFeedback('chatFeedback');
+  renderChatStep();
+}
+function renderChatStep(){
+  document.getElementById('turnIndicator').style.display = 'none';
+  if(chat.step >= chat.turns.length){ chatEnd(); return; }
+  const s = chat.turns[chat.step];
+  document.getElementById('chatBubble').textContent = s.line;
+  const optWrap = document.getElementById('replyOptions');
+  optWrap.innerHTML = '';
+  const shuffled = [...s.options].sort(()=>Math.random()-0.5);
+  shuffled.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'reply-btn';
+    btn.innerHTML = opt.text + (chat.showHint && opt.hint ? `<span class="reply-hint">${opt.hint}</span>` : '');
+    btn.onclick = ()=>chatPick(opt.ok);
+    optWrap.appendChild(btn);
+  });
+}
+function chatPick(ok){
+  const t = L();
+  document.querySelectorAll('.reply-btn').forEach(b=>b.style.pointerEvents='none');
+  if(ok){ chat.correctCount++; showFeedback('chatFeedback', t.chat.correct, true); }
+  else { showFeedback('chatFeedback', t.chat.wrong, false); }
+  document.getElementById('turnIndicator').style.display = 'flex';
+  setTimeout(()=>{ hideFeedback('chatFeedback'); chat.step++; renderChatStep(); }, 1600);
+}
+function chatEnd(){
+  const t = L();
+  document.getElementById('chatBubble').textContent = t.chat.closing;
+  document.getElementById('replyOptions').innerHTML = '';
+  document.getElementById('turnIndicator').style.display = 'none';
+  const ratio = chat.correctCount/chat.turns.length;
+  const stars = ratio===1?3: ratio>=0.5?2: ratio>0?1:0;
+  setStars('minhavez', stars); addSeeds(chat.correctCount*3);
+  showFeedback('chatFeedback', t.chat.result(chat.correctCount, chat.turns.length), true);
+  say(stars>=2 ? t.mascotGood : t.mascotTry);
+}
+
+/* ========================= GAME 5: CAÇA AO ALVO ========================= */
+let hunt = { found:0, target:6, timeLeft:20, timerId:null, cfg:null };
+function huntInit(){
+  const t = L();
+  document.getElementById('huntTitle').textContent = t.hunt.title;
+  document.getElementById('huntInstructions').textContent = t.hunt.instr;
+  document.getElementById('huntStartBtn').textContent = t.startBtn;
+  document.getElementById('huntAgainBtn').textContent = t.playAgainBtn;
+  document.getElementById('huntPreStart').style.display = 'flex';
+  document.getElementById('huntPlayArea').style.display = 'none';
+  document.getElementById('huntAgainBtn').style.display = 'none';
+  hideFeedback('huntFeedback');
+  clearInterval(hunt.timerId);
+  renderDiffRow('huntDiffRow', 'cacaalvo');
+}
+function huntShowPreStart(){
+  document.getElementById('huntPlayArea').style.display = 'none';
+  document.getElementById('huntPreStart').style.display = 'flex';
+}
+function buildHuntGrid(active){
+  const cfg = hunt.cfg;
+  const totalCells = cfg.cols * cfg.rows;
+  let cells = [];
+  for(let i=0;i<cfg.targets;i++) cells.push('🍀');
+  for(let i=0;i<totalCells - cfg.targets;i++) cells.push(cfg.pool[Math.floor(Math.random()*cfg.pool.length)]);
+  cells = cells.sort(()=>Math.random()-0.5);
+  const grid = document.getElementById('huntGrid');
+  grid.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
+  grid.innerHTML = '';
+  cells.forEach(emoji=>{
+    const cell = document.createElement('div');
+    cell.className = 'hunt-cell';
+    cell.textContent = active ? emoji : '❔';
+    cell.dataset.emoji = emoji;
+    cell.onclick = ()=> active && huntClick(cell);
+    grid.appendChild(cell);
+  });
+}
+function huntStart(){
+  const t = L();
+  hunt.cfg = DIFF.cacaalvo[getDifficulty('cacaalvo')];
+  hunt.found = 0; hunt.target = hunt.cfg.targets; hunt.timeLeft = hunt.cfg.time;
+  document.getElementById('huntPreStart').style.display = 'none';
+  document.getElementById('huntPlayArea').style.display = 'flex';
+  document.getElementById('huntAgainBtn').style.display = 'none';
+  document.getElementById('huntFoundCount').textContent = t.hunt.found(0, hunt.target);
+  document.getElementById('huntTimeLeft').textContent = t.hunt.time(hunt.timeLeft);
+  document.getElementById('huntTimerBar').style.width = '100%';
+  hideFeedback('huntFeedback');
+  buildHuntGrid(true);
+  clearInterval(hunt.timerId);
+  hunt.timerId = setInterval(()=>{
+    hunt.timeLeft--;
+    document.getElementById('huntTimeLeft').textContent = t.hunt.time(hunt.timeLeft);
+    document.getElementById('huntTimerBar').style.width = (hunt.timeLeft/hunt.cfg.time*100) + '%';
+    if(hunt.timeLeft<=0) huntEnd(false);
+  }, 1000);
+}
+function huntClick(cell){
+  if(cell.classList.contains('found')) return;
+  const t = L();
+  if(cell.dataset.emoji === '🍀'){
+    cell.classList.add('found');
+    hunt.found++;
+    document.getElementById('huntFoundCount').textContent = t.hunt.found(hunt.found, hunt.target);
+    if(hunt.found >= hunt.target) huntEnd(true);
+  } else {
+    cell.style.transform = 'scale(0.9)';
+    setTimeout(()=>cell.style.transform='', 150);
+  }
+}
+function huntEnd(allFound){
+  clearInterval(hunt.timerId);
+  const t = L();
+  document.querySelectorAll('.hunt-cell').forEach(c=>c.onclick=null);
+  const ratio = hunt.found/hunt.target;
+  const stars = ratio===1?3: ratio>=0.5?2: ratio>0?1:0;
+  setStars('cacaalvo', stars); addSeeds(hunt.found*2);
+  showFeedback('huntFeedback', allFound ? t.hunt.resultAll : t.hunt.resultPartial(hunt.found, hunt.target), allFound);
+  say(stars>=2 ? t.mascotGood : t.mascotTry);
+  document.getElementById('huntAgainBtn').style.display = 'inline-block';
+}
+
+/* ========================= GAME 6: TERMÔMETRO ========================= */
+let thermo = { rounds:[], step:0, emo:null, total:0 };
+function thermoInit(){
+  const t = L();
+  document.getElementById('thermoTitle').textContent = t.thermo.title;
+  document.getElementById('thermoInstructions').textContent = t.thermo.instr;
+  document.getElementById('thermoStartBtn').textContent = t.startBtn;
+  document.getElementById('thermoPreStart').style.display = 'flex';
+  document.getElementById('thermoPlayArea').style.display = 'none';
+  hideFeedback('thermoFeedback');
+  renderDiffRow('thermoDiffRow', 'termometro');
+}
+function thermoStart(){
+  const cfg = DIFF.termometro[getDifficulty('termometro')];
+  const pool = [...SCENARIOS[state.lang]].sort(()=>Math.random()-0.5);
+  thermo.rounds = pool.slice(0, cfg.rounds);
+  thermo.total = thermo.rounds.length;
+  thermo.step = 0;
+  document.getElementById('thermoPreStart').style.display = 'none';
+  document.getElementById('thermoPlayArea').style.display = 'flex';
+  thermoRenderRound();
+}
+function thermoRenderRound(){
+  const t = L();
+  if(thermo.step >= thermo.rounds.length){
+    setStars('termometro', 3); say(t.mascotGood);
+    return;
+  }
+  document.getElementById('thermoProgress').textContent = t.thermo.progress(thermo.step+1, thermo.total);
+  document.getElementById('scenarioBox').textContent = thermo.rounds[thermo.step];
+  document.getElementById('thermoStep1').style.display = 'block';
+  document.getElementById('thermoStep2').style.display = 'none';
+  document.getElementById('thermoStep1Label').textContent = t.thermo.step1;
+  document.getElementById('thermoStep2Label').textContent = t.thermo.step2;
+  hideFeedback('thermoFeedback');
+  const emoWrap = document.getElementById('emoOptions');
+  emoWrap.innerHTML = '';
+  EMOTIONS[state.lang].forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'emo-btn';
+    btn.innerHTML = `<span class="e">${opt.e}</span>${opt.label}`;
+    btn.onclick = ()=>{
+      document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      thermo.emo = opt.label;
+      setTimeout(thermoStep2, 500);
+    };
+    emoWrap.appendChild(btn);
+  });
+}
+function thermoStep2(){
+  document.getElementById('thermoStep1').style.display = 'none';
+  document.getElementById('thermoStep2').style.display = 'block';
+  const calmWrap = document.getElementById('calmOptions');
+  calmWrap.innerHTML = '';
+  CALM_STRATS[state.lang].forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.className = 'emo-btn';
+    btn.innerHTML = `<span class="e">${opt.e}</span>${opt.label}`;
+    btn.onclick = ()=>thermoPickCalm(opt, btn);
+    calmWrap.appendChild(btn);
+  });
+}
+function thermoPickCalm(opt, btn){
+  const t = L();
+  document.querySelectorAll('#calmOptions .emo-btn').forEach(b=>b.style.pointerEvents='none');
+  btn.classList.add('selected');
+  let extra = '';
+  if(opt.id === 'breathe'){
+    extra = `<div class="breathe-circle"></div><p style="font-size:13px;color:var(--lilac);font-weight:700;">${t.thermo.breathing}</p>`;
+  }
+  showFeedback('thermoFeedback', t.thermo.feedback(thermo.emo, opt.label) + extra, true);
+  addSeeds(5);
+  const isLast = thermo.step >= thermo.rounds.length - 1;
+  setTimeout(()=>{
+    thermo.step++;
+    if(isLast){
+      const stars = 3;
+      setStars('termometro', stars);
+      say(t.mascotGood);
+    } else {
+      thermoRenderRound();
+    }
+  }, isLast ? 1800 : 2200);
+}
+
+/* ========================= AMBIENT + INIT ========================= */
+(function initAmbient(){
+  const emojis = ['🍃','🌿','🌴'];
+  for(let i=0;i<8;i++){
+    const el = document.createElement('div');
+    el.className = 'ambient-leaf';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = Math.random()*100 + 'vw';
+    el.style.animationDelay = (Math.random()*14) + 's';
+    el.style.animationDuration = (10 + Math.random()*10) + 's';
+    document.body.appendChild(el);
+  }
+})();
+
+</script>
+</body>
+</html>

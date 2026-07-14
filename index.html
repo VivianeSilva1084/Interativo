@@ -108,11 +108,16 @@
   .round-dot.hit{ background: var(--success); border-color:var(--success); }
   .round-dot.miss{ background: var(--berry); border-color:var(--berry); }
 
-  .simon-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:14px; width: min(320px,80vw); }
-  .simon-pad{ aspect-ratio:1; border-radius:24px; border:none; cursor:pointer; opacity:.55; transition: opacity .1s, transform .1s; box-shadow: var(--shadow); }
-  .simon-pad.lit{ opacity:1; transform: scale(1.05); }
-  .simon-pad:nth-child(1){ background:#F2703C; } .simon-pad:nth-child(2){ background:#8FA6CD; }
-  .simon-pad:nth-child(3){ background:#F0C878; } .simon-pad:nth-child(4){ background:#7CC576; }
+  .trail-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:20px; width: min(360px,85vw); }
+  .trail-pad{ aspect-ratio:1; min-height:120px; border-radius:26px; border:none; cursor:pointer; opacity:.6; transition: opacity .15s ease, transform .1s ease; box-shadow: var(--shadow); display:flex; align-items:center; justify-content:center; font-size:46px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; }
+  .trail-pad.lit{ opacity:1; transform: scale(1.08); }
+  .trail-pad.locked{ pointer-events:none; }
+  .trail-pad:active{ transform: scale(.94); }
+  .trail-pad:nth-child(1){ background:#F2703C; } .trail-pad:nth-child(2){ background:#8FA6CD; }
+  .trail-pad:nth-child(3){ background:#F0C878; } .trail-pad:nth-child(4){ background:#7CC576; }
+  .trail-footprints{ display:flex; gap:8px; min-height:18px; }
+  .trail-footprints span{ opacity:.25; font-size:16px; transition: opacity .15s ease; }
+  .trail-footprints span.done{ opacity:1; }
   .level-badge{ font-weight:800; color:var(--sand); font-size:15px; }
 
   .story-cards{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
@@ -369,11 +374,12 @@
       </div>
       <div class="center-col" id="memPlayArea" style="display:none;">
         <div class="level-badge" id="simonLevel"></div>
-        <div class="simon-grid" id="simonGrid">
-          <button class="simon-pad" data-i="0" onclick="simonInput(0)"></button>
-          <button class="simon-pad" data-i="1" onclick="simonInput(1)"></button>
-          <button class="simon-pad" data-i="2" onclick="simonInput(2)"></button>
-          <button class="simon-pad" data-i="3" onclick="simonInput(3)"></button>
+        <div class="trail-footprints" id="trailFootprints"></div>
+        <div class="trail-grid" id="simonGrid">
+          <button class="trail-pad" data-i="0">🍃</button>
+          <button class="trail-pad" data-i="1">🍃</button>
+          <button class="trail-pad" data-i="2">🍃</button>
+          <button class="trail-pad" data-i="3">🍃</button>
         </div>
         <div class="feedback-banner" id="simonFeedback"></div>
       </div>
@@ -1484,8 +1490,8 @@ function semEnd(){
   say(stars>=2 ? t.mascotGood : t.mascotTry);
 }
 
-/* ========================= GAME 2: MEMÓRIA ========================= */
-let simon = { sequence:[], input:[], level:1, playing:false, cfg:null, lastPad:null, lastInputAt:0 };
+/* ========================= GAME 2: TRILHA DA KAPI ========================= */
+let simon = { sequence:[], input:[], level:1, playing:false, cfg:null, locked:false };
 function simonInit(){
   const t = L();
   document.getElementById('memTitle').textContent = t.mem.title;
@@ -1504,16 +1510,31 @@ function simonStart(){
   simon.level = 1;
   simonPlaySequence();
 }
+function simonSetLocked(locked){
+  document.querySelectorAll('.trail-pad').forEach(p=>p.classList.toggle('locked', locked));
+}
+function simonRenderFootprints(litCount){
+  const el = document.getElementById('trailFootprints');
+  el.innerHTML = '';
+  for(let i=0;i<simon.sequence.length;i++){
+    const span = document.createElement('span');
+    span.textContent = '👣';
+    if(i < litCount) span.classList.add('done');
+    el.appendChild(span);
+  }
+}
 function simonPlaySequence(){
   const t = L();
-  simon.playing = true; simon.input = [];
+  simon.playing = true; simon.input = []; simon.locked = false;
   document.getElementById('simonLevel').textContent = t.mem.level(simon.level);
   hideFeedback('simonFeedback');
+  simonRenderFootprints(0);
+  simonSetLocked(true);
   let i = 0;
-  const pads = document.querySelectorAll('.simon-pad');
+  const pads = document.querySelectorAll('.trail-pad');
   function step(){
     if(i>0) pads[simon.sequence[i-1]].classList.remove('lit');
-    if(i >= simon.sequence.length){ simon.playing = false; return; }
+    if(i >= simon.sequence.length){ simon.playing = false; simonSetLocked(false); return; }
     pads[simon.sequence[i]].classList.add('lit');
     i++;
     setTimeout(step, simon.cfg.stepDelay);
@@ -1521,14 +1542,12 @@ function simonPlaySequence(){
   setTimeout(step, 500);
 }
 function simonInput(padIndex){
-  if(simon.playing) return;
+  if(simon.playing || simon.locked) return;
   if(simon.input.length >= simon.sequence.length) return;
-  const now = Date.now();
-  if(padIndex === simon.lastPad && now - simon.lastInputAt < 200) return; // swallow accidental double-taps on the same pad
-  simon.lastPad = padIndex;
-  simon.lastInputAt = now;
+  simon.locked = true;
+  setTimeout(()=>{ simon.locked = false; }, 280);
   const t = L();
-  const pads = document.querySelectorAll('.simon-pad');
+  const pads = document.querySelectorAll('.trail-pad');
   pads[padIndex].classList.add('lit');
   setTimeout(()=>pads[padIndex].classList.remove('lit'), 250);
   simon.input.push(padIndex);
@@ -1541,6 +1560,7 @@ function simonInput(padIndex){
     setTimeout(()=>simonPlaySequence(), 1400);
     return;
   }
+  simonRenderFootprints(simon.input.length);
   if(simon.input.length === simon.sequence.length){
     simon.playing = true;
     if(simon.level >= simon.cfg.maxLevel){
@@ -1555,6 +1575,12 @@ function simonInput(padIndex){
     setTimeout(()=>simonPlaySequence(), 1200);
   }
 }
+document.getElementById('simonGrid').addEventListener('pointerdown', function(e){
+  const pad = e.target.closest('.trail-pad');
+  if(!pad) return;
+  e.preventDefault();
+  simonInput(Number(pad.dataset.i));
+});
 
 /* ========================= GAME 3: HISTÓRIA ========================= */
 let story = { correct:[], shuffled:[], answer:[], title:'', lastPickIdx:null, lastWasPerfect:true };

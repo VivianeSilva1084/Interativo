@@ -231,6 +231,35 @@
   .chart-empty{ color: var(--lilac); font-size:13px; font-weight:700; text-align:center; padding:14px 0; }
   .parents-recent{ list-style:none; margin:10px 0 0; padding:0; font-size:12px; color: var(--cream); opacity:.85; display:flex; flex-direction:column; gap:3px; }
 
+  .parents-topline{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .parents-premium-badge{ display:inline-flex; align-items:center; gap:6px; background:rgba(240,200,120,.18); border:2px solid var(--sand); border-radius:999px; padding:5px 14px; color:var(--sand); font-weight:800; font-size:12.5px; }
+  .parents-tip{ display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12); border-radius:16px; padding:14px 16px; margin-bottom:18px; text-align:left; }
+  .parents-tip .tip-emoji{ font-size:24px; }
+  .parents-tip .tip-title{ font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--leaf); margin-bottom:3px; }
+  .parents-tip .tip-text{ font-size:13.5px; color:var(--cream); opacity:.92; line-height:1.5; }
+
+  .parents-section-title{ display:flex; align-items:center; gap:8px; font-weight:800; color:var(--sand); font-size:15px; margin: 22px 0 10px; }
+  .parents-section-subtitle{ font-size:12px; font-weight:700; color:var(--lilac); margin:-8px 0 12px; }
+
+  .parents-reading-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; }
+  .syllable-chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+  .syllable-chip{ background:var(--cream); color:var(--leaf-dark); font-weight:800; font-size:12.5px; padding:3px 10px; border-radius:8px; }
+  .parents-reading-row{ display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; color:var(--cream); margin-top:8px; }
+  .parents-reading-label{ font-size:11.5px; font-weight:700; color:var(--lilac); }
+
+  .weekly-chart-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; }
+  .weekly-bars{ display:flex; align-items:flex-end; gap:8px; height:110px; margin-top:14px; }
+  .weekly-bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; }
+  .weekly-bar{ width:100%; max-width:26px; background: var(--leaf); border-radius:6px 6px 2px 2px; min-height:3px; transition: height .2s ease; }
+  .weekly-bar-label{ font-size:11px; font-weight:700; color:var(--lilac); }
+
+  .parents-professionals-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
+  .parents-professionals-card .txt{ font-size:13px; color:var(--cream); opacity:.85; max-width:340px; text-align:left; }
+  .parents-invite-btn{ background: var(--papaya); color:#fff; border:none; border-radius:12px; padding:9px 16px; font-weight:800; font-size:13px; cursor:default; white-space:nowrap; }
+
+  .parents-dash-error{ text-align:center; padding: 30px 10px; }
+  .parents-dash-error p{ color:var(--cream); opacity:.9; font-size:14.5px; margin-bottom:14px; }
+
   /* ---------- STICKER ALBUM ---------- */
   .album-summary{ text-align:center; font-weight:800; color:var(--sand); margin-bottom:16px; font-size:15px; }
   .album-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(108px,1fr)); gap:14px; }
@@ -680,7 +709,20 @@ const I18N = {
       errPinWrong:"PIN incorreto. Tente de novo.", errGeneric:"Algo deu errado. Verifique a conexão e tente de novo.",
       noChildren:"Crie um perfil de criança primeiro para ver a evolução aqui.",
       statsSeeds:"Sementes de foco", statsSessions:"Sessões jogadas", statsLast:"Última vez que jogou", never:"Ainda não jogou",
-      noSessions:"Ainda não jogou esse jogo.", chartAriaLabel:"Gráfico de estrelas ao longo do tempo"
+      noSessions:"Ainda não jogou esse jogo.", chartAriaLabel:"Gráfico de estrelas ao longo do tempo",
+      premiumBadge:"Premium",
+      kapiTipTitle:"Dica do Kapi",
+      kapiTip:(name,count)=>`${name} já domina ${count} sílabas. Que tal celebrar com uma leitura em voz alta juntos?`,
+      ilhaDoFocoTitle:"Ilha do Foco", ilhaDoFocoSubtitle:"Atenção e função executiva",
+      readingTitle:"Aventura das Letras", readingSubtitle:"Alfabetização e leitura",
+      readingMasteredLabel:"Sílabas dominadas", readingChallenges:"Desafios concluídos",
+      notPlayedHere:"Ainda não jogou aqui.",
+      weeklyUsageTitle:"Tempo de tela — últimos 7 dias",
+      dayLabels:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+      professionalsTitle:"Profissionais vinculados",
+      professionalsNone:(name)=>`Nenhum profissional tem acesso aos dados de ${name} ainda.`,
+      inviteBtn:"Convidar",
+      dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
       title:"Álbum", instr:"Toca numa figurinha bloqueada para desbloquear com suas sementes de foco!",
@@ -736,7 +778,20 @@ const I18N = {
       errPinWrong:"PIN errato. Riprova.", errGeneric:"Qualcosa è andato storto. Controlla la connessione e riprova.",
       noChildren:"Crea prima un profilo bambino per vedere l'evoluzione qui.",
       statsSeeds:"Semi della concentrazione", statsSessions:"Sessioni giocate", statsLast:"Ultima volta che ha giocato", never:"Non ha ancora giocato",
-      noSessions:"Non ha ancora giocato a questo gioco.", chartAriaLabel:"Grafico delle stelle nel tempo"
+      noSessions:"Non ha ancora giocato a questo gioco.", chartAriaLabel:"Grafico delle stelle nel tempo",
+      premiumBadge:"Premium",
+      kapiTipTitle:"Consiglio di Kapi",
+      kapiTip:(name,count)=>`${name} padroneggia già ${count} sillabe. Perché non festeggiare leggendo insieme ad alta voce?`,
+      ilhaDoFocoTitle:"Isola della Concentrazione", ilhaDoFocoSubtitle:"Attenzione e funzione esecutiva",
+      readingTitle:"Avventura delle Lettere", readingSubtitle:"Alfabetizzazione e lettura",
+      readingMasteredLabel:"Sillabe padroneggiate", readingChallenges:"Sfide completate",
+      notPlayedHere:"Non ha ancora giocato qui.",
+      weeklyUsageTitle:"Tempo di gioco — ultimi 7 giorni",
+      dayLabels:["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
+      professionalsTitle:"Professionisti collegati",
+      professionalsNone:(name)=>`Nessun professionista ha ancora accesso ai dati di ${name}.`,
+      inviteBtn:"Invita",
+      dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
       title:"Album", instr:"Tocca una figurina bloccata per sbloccarla con i tuoi semi della concentrazione!",
@@ -2070,7 +2125,7 @@ async function logSession(gameKey, sessionId){
   const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
   try{
     const { error } = await sb.from('game_sessions')
-      .update({ difficulty, stars, seeds_earned: seedsEarned })
+      .update({ difficulty, stars, seeds_earned: seedsEarned, end_time: new Date().toISOString() })
       .eq('id', sessionId);
     if(error) throw error;
   }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
@@ -2221,6 +2276,64 @@ async function loadSessions(profileId){
 }
 function getChildDifficulty(child, key){ return (child.difficulty_by_game && child.difficulty_by_game[key]) || 'medio'; }
 
+async function loadReadingProgress(childId){
+  try{
+    const { data, error } = await sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle();
+    if(error) throw error;
+    return data || null;
+  }catch(e){ return null; }
+}
+async function loadSubscription(familyId){
+  try{
+    const { data, error } = await sb.from('subscriptions').select('plan, current_period_end, admin_granted_until').eq('family_id', familyId).maybeSingle();
+    if(error) throw error;
+    return data || null;
+  }catch(e){ return null; }
+}
+async function loadLinkedProfessionals(childId){
+  try{
+    const { data, error } = await sb.from('professional_child_links').select('id, status, professionals(full_name, role)').eq('child_profile_id', childId).eq('status', 'active');
+    if(error) throw error;
+    return data || [];
+  }catch(e){ return []; }
+}
+// game_sessions is shared across both apps (game_key includes the 6 Ilha do Foco
+// keys plus 'aventura_das_letras'), each row carrying its own played_at/end_time —
+// so summing every row's real duration here already covers both apps' screen time.
+function computeWeeklyUsage(sessions){
+  const minutesByDay = [0,0,0,0,0,0,0];
+  const cutoff = Date.now() - 7*24*60*60*1000;
+  sessions.forEach(s=>{
+    if(!s.end_time) return;
+    const start = new Date(s.played_at);
+    if(start.getTime() < cutoff) return;
+    const end = new Date(s.end_time);
+    minutesByDay[start.getDay()] += Math.max(0, (end - start) / 60000);
+  });
+  return minutesByDay.map(m=>Math.round(m));
+}
+function renderWeeklyChart(container, minutesByDay, dayLabels){
+  container.innerHTML = '';
+  const bars = document.createElement('div');
+  bars.className = 'weekly-bars';
+  const max = Math.max(1, ...minutesByDay);
+  minutesByDay.forEach((m,i)=>{
+    const col = document.createElement('div');
+    col.className = 'weekly-bar-col';
+    const bar = document.createElement('div');
+    bar.className = 'weekly-bar';
+    bar.style.height = `${Math.max(3, (m/max)*100)}%`;
+    bar.title = `${m} min`;
+    const label = document.createElement('div');
+    label.className = 'weekly-bar-label';
+    label.textContent = dayLabels[i];
+    col.appendChild(bar);
+    col.appendChild(label);
+    bars.appendChild(col);
+  });
+  container.appendChild(bars);
+}
+
 async function parentsOpenDashboard(){
   document.getElementById('parentsGate').style.display = 'none';
   document.getElementById('parentsDashboard').style.display = 'block';
@@ -2262,47 +2375,167 @@ async function renderParentsDashboardBody(){
   body.innerHTML = '';
   const child = parentsChildren.find(c=>c.id === parentsActiveChildId);
   if(!child) return;
-  const sessions = await loadSessions(child.id);
+
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('no-session');
+  }catch(e){
+    body.innerHTML = '';
+    const err = document.createElement('div');
+    err.className = 'parents-dash-error';
+    err.innerHTML = `<p>${t.parents.sessionExpired}</p>`;
+    body.appendChild(err);
+    return;
+  }
+
+  let sessions, reading, subscription, professionals;
+  try{
+    [sessions, reading, subscription, professionals] = await Promise.all([
+      loadSessions(child.id),
+      loadReadingProgress(child.id),
+      loadSubscription(state.familyId),
+      loadLinkedProfessionals(child.id)
+    ]);
+  }catch(e){
+    body.innerHTML = '';
+    const err = document.createElement('div');
+    err.className = 'parents-dash-error';
+    err.innerHTML = `<p>${t.parents.dashboardError}</p>`;
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'big-cta';
+    retryBtn.textContent = t.parents.retryBtn;
+    retryBtn.onclick = renderParentsDashboardBody;
+    err.appendChild(retryBtn);
+    body.appendChild(err);
+    return;
+  }
+
   const locale = state.lang === 'it' ? 'it-IT' : 'pt-BR';
+  // game_sessions is shared with Aventura das Letras (game_key: 'aventura_das_letras'),
+  // so the Ilha do Foco summary/grid must filter down to this app's own game keys.
+  const ilhaDoFocoSessions = sessions.filter(s=>GAME_KEYS.includes(s.game_key));
+
+  const isPremium = subscription?.plan === 'premium';
+  if(isPremium){
+    const topline = document.createElement('div');
+    topline.className = 'parents-topline';
+    topline.innerHTML = `<span class="parents-premium-badge">👑 ${t.parents.premiumBadge}</span>`;
+    body.appendChild(topline);
+  }
+
+  const masteredSyllables = reading?.mastered_syllables || [];
+  if(masteredSyllables.length > 0){
+    const tip = document.createElement('div');
+    tip.className = 'parents-tip';
+    tip.innerHTML = `<span class="tip-emoji">🦫</span><div><div class="tip-title">${t.parents.kapiTipTitle}</div><div class="tip-text">${t.parents.kapiTip(child.name, masteredSyllables.length)}</div></div>`;
+    body.appendChild(tip);
+  }
 
   const summary = document.createElement('div');
   summary.className = 'parents-summary';
-  const lastPlayed = sessions.length ? new Date(sessions[sessions.length-1].played_at).toLocaleDateString(locale) : t.parents.never;
+  const lastPlayed = ilhaDoFocoSessions.length ? new Date(ilhaDoFocoSessions[ilhaDoFocoSessions.length-1].played_at).toLocaleDateString(locale) : t.parents.never;
   summary.innerHTML = `
     <div class="parents-stat"><span class="v">🌰 ${child.seeds || 0}</span><span class="l">${t.parents.statsSeeds}</span></div>
-    <div class="parents-stat"><span class="v">${sessions.length}</span><span class="l">${t.parents.statsSessions}</span></div>
+    <div class="parents-stat"><span class="v">${ilhaDoFocoSessions.length}</span><span class="l">${t.parents.statsSessions}</span></div>
     <div class="parents-stat"><span class="v">${lastPlayed}</span><span class="l">${t.parents.statsLast}</span></div>`;
   body.appendChild(summary);
 
-  const grid = document.createElement('div');
-  grid.className = 'parents-grid';
-  GAME_KEYS.forEach(key=>{
-    const gameSessions = sessions.filter(s=>s.game_key === key);
-    const tile = t.tiles[key];
-    const card = document.createElement('div');
-    card.className = 'parents-card';
-    const head = document.createElement('div');
-    head.className = 'parents-card-head';
-    head.innerHTML = `<span class="emoji">${tile.emoji}</span><span class="title">${tile.title}</span><span class="diff-tag">${t.diff[getChildDifficulty(child, key)]}</span>`;
-    card.appendChild(head);
-    const chartWrap = document.createElement('div');
-    chartWrap.className = 'trend-chart-wrap';
-    card.appendChild(chartWrap);
-    renderTrendChart(chartWrap, gameSessions);
-    if(gameSessions.length){
-      const list = document.createElement('ul');
-      list.className = 'parents-recent';
-      gameSessions.slice(-3).reverse().forEach(s=>{
-        const li = document.createElement('li');
-        const d = new Date(s.played_at).toLocaleDateString(locale);
-        li.textContent = `${d} — ${'⭐'.repeat(s.stars)}${'☆'.repeat(3-s.stars)} — ${t.diff[s.difficulty] || s.difficulty}`;
-        list.appendChild(li);
-      });
-      card.appendChild(list);
+  // ---- Aventura das Letras ----
+  const readingTitle = document.createElement('div');
+  readingTitle.className = 'parents-section-title';
+  readingTitle.innerHTML = `📚 ${t.parents.readingTitle}`;
+  body.appendChild(readingTitle);
+  const readingSubtitle = document.createElement('div');
+  readingSubtitle.className = 'parents-section-subtitle';
+  readingSubtitle.textContent = t.parents.readingSubtitle;
+  body.appendChild(readingSubtitle);
+
+  const readingCard = document.createElement('div');
+  readingCard.className = 'parents-reading-card';
+  if(!reading){
+    readingCard.innerHTML = `<p class="chart-empty">${t.parents.notPlayedHere}</p>`;
+  } else {
+    let html = '';
+    if(masteredSyllables.length){
+      html += `<div class="parents-reading-label">${t.parents.readingMasteredLabel}</div>
+        <div class="syllable-chips">${masteredSyllables.map(s=>`<span class="syllable-chip">${s}</span>`).join('')}</div>`;
     }
-    grid.appendChild(card);
-  });
-  body.appendChild(grid);
+    html += `<div class="parents-reading-row"><span>${t.parents.readingChallenges}</span><span>${reading.challenges_completed ?? 0}</span></div>`;
+    readingCard.innerHTML = html;
+  }
+  body.appendChild(readingCard);
+
+  // ---- Ilha do Foco ----
+  const gridTitle = document.createElement('div');
+  gridTitle.className = 'parents-section-title';
+  gridTitle.innerHTML = `🧩 ${t.parents.ilhaDoFocoTitle}`;
+  body.appendChild(gridTitle);
+  const gridSubtitle = document.createElement('div');
+  gridSubtitle.className = 'parents-section-subtitle';
+  gridSubtitle.textContent = t.parents.ilhaDoFocoSubtitle;
+  body.appendChild(gridSubtitle);
+
+  if(ilhaDoFocoSessions.length === 0){
+    const empty = document.createElement('p');
+    empty.className = 'chart-empty';
+    empty.textContent = t.parents.notPlayedHere;
+    body.appendChild(empty);
+  } else {
+    const grid = document.createElement('div');
+    grid.className = 'parents-grid';
+    GAME_KEYS.forEach(key=>{
+      const gameSessions = ilhaDoFocoSessions.filter(s=>s.game_key === key);
+      const tile = t.tiles[key];
+      const card = document.createElement('div');
+      card.className = 'parents-card';
+      const head = document.createElement('div');
+      head.className = 'parents-card-head';
+      head.innerHTML = `<span class="emoji">${tile.emoji}</span><span class="title">${tile.title}</span><span class="diff-tag">${t.diff[getChildDifficulty(child, key)]}</span>`;
+      card.appendChild(head);
+      const chartWrap = document.createElement('div');
+      chartWrap.className = 'trend-chart-wrap';
+      card.appendChild(chartWrap);
+      renderTrendChart(chartWrap, gameSessions);
+      if(gameSessions.length){
+        const list = document.createElement('ul');
+        list.className = 'parents-recent';
+        gameSessions.slice(-3).reverse().forEach(s=>{
+          const li = document.createElement('li');
+          const d = new Date(s.played_at).toLocaleDateString(locale);
+          li.textContent = `${d} — ${'⭐'.repeat(s.stars)}${'☆'.repeat(3-s.stars)} — ${t.diff[s.difficulty] || s.difficulty}`;
+          list.appendChild(li);
+        });
+        card.appendChild(list);
+      }
+      grid.appendChild(card);
+    });
+    body.appendChild(grid);
+  }
+
+  // ---- Weekly screen time ----
+  const weeklyTitle = document.createElement('div');
+  weeklyTitle.className = 'parents-section-title';
+  weeklyTitle.innerHTML = `⏱️ ${t.parents.weeklyUsageTitle}`;
+  body.appendChild(weeklyTitle);
+
+  const weeklyCard = document.createElement('div');
+  weeklyCard.className = 'weekly-chart-card';
+  renderWeeklyChart(weeklyCard, computeWeeklyUsage(sessions), t.parents.dayLabels);
+  body.appendChild(weeklyCard);
+
+  // ---- Linked professionals ----
+  const profTitle = document.createElement('div');
+  profTitle.className = 'parents-section-title';
+  profTitle.innerHTML = `🛡️ ${t.parents.professionalsTitle}`;
+  body.appendChild(profTitle);
+
+  const profCard = document.createElement('div');
+  profCard.className = 'parents-professionals-card';
+  const namesText = professionals.length
+    ? professionals.map(p=>p.professionals?.full_name).filter(Boolean).join(', ')
+    : t.parents.professionalsNone(child.name);
+  profCard.innerHTML = `<div class="txt">${namesText}</div><button class="parents-invite-btn">➕ ${t.parents.inviteBtn}</button>`;
+  body.appendChild(profCard);
 }
 
 function renderTrendChart(container, sessions){

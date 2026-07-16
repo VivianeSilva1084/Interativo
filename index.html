@@ -1407,12 +1407,28 @@ function openGame(key){
   sessionDirty[key] = false;
   currentSessionId = crypto.randomUUID();
   sessionCompleted = false;
+  startSessionRow(key, currentSessionId);
   if(key==='semaforo') semInit();
   if(key==='memoria') simonInit();
   if(key==='historia') storyInit();
   if(key==='minhavez') chatInit();
   if(key==='cacaalvo') huntInit();
   if(key==='termometro') thermoInit();
+}
+async function startSessionRow(gameKey, sessionId){
+  if(!state.profileId || !state.familyId) return;
+  try{
+    const { error } = await sb.from('game_sessions').insert({
+      id: sessionId,
+      family_id: state.familyId,
+      profile_id: state.profileId,
+      game_key: gameKey,
+      difficulty: getDifficulty(gameKey),
+      stars: 0,
+      seeds_earned: 0
+    });
+    if(error) throw error;
+  }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
 }
 function goHub(){
   flushSessionLog();
@@ -2040,28 +2056,22 @@ function flushSessionLog(){
     if(!sessionCompleted && sessionDirty[currentGameKey]) {
       logGameEvent({ eventType: 'abandon' });
     }
-    if (sessionDirty[currentGameKey]) logSession(currentGameKey);
+    if (sessionDirty[currentGameKey]) logSession(currentGameKey, currentSessionId);
   }
   currentGameKey = null;
   currentSessionId = null;
 }
-async function logSession(gameKey){
+async function logSession(gameKey, sessionId){
   sessionDirty[gameKey] = false;
-  if(!state.profileId || !state.familyId || !state.profile) return;
+  if(!state.profileId || !state.familyId || !state.profile || !sessionId) return;
   const stars = state.profile.starsByGame[gameKey] || 0;
   const difficulty = getDifficulty(gameKey);
   const startSeeds = sessionSeedsStart[gameKey] ?? state.profile.seeds;
   const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
   try{
-    const { error } = await sb.from('game_sessions').insert({
-      id: currentSessionId,
-      family_id: state.familyId,
-      profile_id: state.profileId,
-      game_key: gameKey,
-      difficulty,
-      stars,
-      seeds_earned: seedsEarned
-    });
+    const { error } = await sb.from('game_sessions')
+      .update({ difficulty, stars, seeds_earned: seedsEarned })
+      .eq('id', sessionId);
     if(error) throw error;
   }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
 }

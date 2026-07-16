@@ -1483,7 +1483,7 @@ function semNextRound(){
     window._semTimer = setTimeout(()=>{ 
       if(sem.canGo){ 
         sem.canGo = false; 
-        logGameEvent({ eventType: 'answer', targetType: 'light', correct: false, errorType: 'omission' });
+        logGameEvent({ eventType: 'answer', targetType: 'light', correct: false, errorType: 'omissao' });
         markRound(false); 
       } 
     }, sem.cfg.greenMs);

@@ -1013,7 +1013,8 @@ function handleForgotPassword() {
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     state.authUserId = session.user.id;
-    const { data: family, error } = await sb.from('families').select('id, parent_pin_hash').eq('auth_user_id', session.user.id).single();
+    const { data: familyList, error } = await sb.from('families').select('id, parent_pin_hash').eq('auth_user_id', session.user.id).limit(1);
+    const family = familyList && familyList.length > 0 ? familyList[0] : null;
     if (family) {
       state.familyId = family.id;
       state.familyPinHash = family.parent_pin_hash || null;
@@ -1118,9 +1119,9 @@ function defaultProfileData(name, avatar, lang){
 }
 
 async function loadProfilesList(){
-  if(!state.familyId) return [];
+  if(!state.authUserId) return [];
   try{ 
-    const { data, error } = await sb.from('child_profiles').select('*').eq('family_id', state.familyId).order('created_at', { ascending: true });
+    const { data, error } = await sb.from('child_profiles').select('*, families!inner(auth_user_id)').eq('families.auth_user_id', state.authUserId).order('created_at', { ascending: true });
     if(error) throw error;
     return data || [];
   } catch(e){ 
@@ -2252,7 +2253,7 @@ async function parentsSavePin(){
   if(pin !== confirmPin){ errEl.textContent = t.parents.errPinMismatch; errEl.style.display = 'block'; return; }
   try{
     const hash = await hashPin(pin);
-    const { error } = await sb.from('families').update({ parent_pin_hash: hash }).eq('id', state.familyId);
+    const { error } = await sb.from('families').update({ parent_pin_hash: hash }).eq('auth_user_id', state.authUserId);
     if(error) throw error;
     state.familyPinHash = hash;
     parentsForcedSetup = false;

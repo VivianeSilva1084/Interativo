@@ -902,7 +902,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null };
+let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null };
 
 let authMode = 'login'; // login, signup, reset
 
@@ -1012,6 +1012,7 @@ function handleForgotPassword() {
 
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
+    state.authUserId = session.user.id;
     const { data: family, error } = await sb.from('families').select('id, parent_pin_hash').eq('auth_user_id', session.user.id).single();
     if (family) {
       state.familyId = family.id;
@@ -1026,6 +1027,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
   } else {
     state.familyId = null;
     state.familyPinHash = null;
+    state.authUserId = null;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-auth').classList.add('active');
     renderAuthScreen(); // Atualiza idiomas
@@ -2192,7 +2194,15 @@ async function sha256Hex(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function hashPin(pin){ return sha256Hex('ilhadofoco:' + state.familyId + ':' + pin); }
+async function hashPin(pin){
+  const str = pin + ':' + state.authUserId;
+  let hash = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash = (hash * 16777619) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+}
 
 function openParents(){
   flushSessionLog();

@@ -399,7 +399,7 @@
         <div class="story-cards" id="storyCards"></div>
         <div class="answer-row" id="storyAnswer"></div>
         <div class="feedback-banner" id="storyFeedback"></div>
-        <button class="big-cta secondary" id="storyResetBtn" style="display:none" onclick="storyInit()"></button>
+        <button class="big-cta secondary" id="storyResetBtn" style="display:none" onclick="logGameEvent({eventType:'retry'}); storyInit()"></button>
       </div>
     </div>
   </div>
@@ -437,7 +437,7 @@
         <div class="timer-bar-wrap"><div class="timer-bar" id="huntTimerBar"></div></div>
         <div class="hunt-grid" id="huntGrid"></div>
         <div class="feedback-banner" id="huntFeedback"></div>
-        <button class="big-cta secondary" id="huntAgainBtn" style="display:none;" onclick="huntShowPreStart()"></button>
+        <button class="big-cta secondary" id="huntAgainBtn" style="display:none;" onclick="logGameEvent({eventType:'retry'}); huntShowPreStart()"></button>
       </div>
     </div>
   </div>
@@ -1405,6 +1405,8 @@ function openGame(key){
   currentGameKey = key;
   sessionSeedsStart[key] = state.profile.seeds;
   sessionDirty[key] = false;
+  currentSessionId = crypto.randomUUID();
+  sessionCompleted = false;
   if(key==='semaforo') semInit();
   if(key==='memoria') simonInit();
   if(key==='historia') storyInit();
@@ -1461,13 +1463,28 @@ function semNextRound(){
   const waitTime = sem.cfg.waitMin + Math.random()*(sem.cfg.waitMax - sem.cfg.waitMin);
   window._semTimer = setTimeout(()=>{
     light.className = 'light-circle go'; light.textContent = t.sem.go; sem.canGo = true;
-    window._semTimer = setTimeout(()=>{ if(sem.canGo){ sem.canGo = false; markRound(false); } }, sem.cfg.greenMs);
+    window.instructionEndedAt = Date.now();
+    window._semTimer = setTimeout(()=>{ 
+      if(sem.canGo){ 
+        sem.canGo = false; 
+        logGameEvent({ eventType: 'answer', targetType: 'light', correct: false, errorType: 'omission' });
+        markRound(false); 
+      } 
+    }, sem.cfg.greenMs);
   }, waitTime);
 }
 function semTap(){
   if(sem.round >= sem.total) return;
-  if(sem.canGo){ sem.canGo = false; markRound(true); }
-  else { showFeedback('semFeedback', L().sem.early, false); setTimeout(()=>hideFeedback('semFeedback'), 1100); }
+  if(sem.canGo){ 
+    const rt = Date.now() - window.instructionEndedAt;
+    sem.canGo = false; 
+    logGameEvent({ eventType: 'answer', targetType: 'light', correct: true, responseTimeMs: rt });
+    markRound(true); 
+  }
+  else { 
+    logGameEvent({ eventType: 'premature_click', targetType: 'light' });
+    showFeedback('semFeedback', L().sem.early, false); setTimeout(()=>hideFeedback('semFeedback'), 1100); 
+  }
 }
 function markRound(hit){
   clearTimeout(window._semTimer);
@@ -1479,6 +1496,8 @@ function markRound(hit){
   setTimeout(()=>{ hideFeedback('semFeedback'); semNextRound(); }, 900);
 }
 function semEnd(){
+  sessionCompleted = true;
+  logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   const light = document.getElementById('semLight');
   light.className = 'light-circle go'; light.textContent = '🎉';
@@ -1534,7 +1553,12 @@ function simonPlaySequence(){
   const pads = document.querySelectorAll('.trail-pad');
   function step(){
     if(i>0) pads[simon.sequence[i-1]].classList.remove('lit');
-    if(i >= simon.sequence.length){ simon.playing = false; simonSetLocked(false); return; }
+    if(i >= simon.sequence.length){ 
+      simon.playing = false; 
+      simonSetLocked(false); 
+      window.instructionEndedAt = Date.now();
+      return; 
+    }
     pads[simon.sequence[i]].classList.add('lit');
     i++;
     setTimeout(step, simon.cfg.stepDelay);
@@ -1542,8 +1566,13 @@ function simonPlaySequence(){
   setTimeout(step, 500);
 }
 function simonInput(padIndex){
-  if(simon.playing || simon.locked) return;
+  if(simon.playing || simon.locked) {
+    if (simon.playing) logGameEvent({ eventType: 'premature_click' });
+    return;
+  }
   if(simon.input.length >= simon.sequence.length) return;
+  const rt = Date.now() - (window.instructionEndedAt || Date.now());
+  window.instructionEndedAt = Date.now(); // reset timer for next input in sequence
   simon.locked = true;
   setTimeout(()=>{ simon.locked = false; }, 280);
   const t = L();
@@ -1552,7 +1581,12 @@ function simonInput(padIndex){
   setTimeout(()=>pads[padIndex].classList.remove('lit'), 250);
   simon.input.push(padIndex);
   const idx = simon.input.length - 1;
-  if(simon.input[idx] !== simon.sequence[idx]){
+  const isCorrect = simon.input[idx] === simon.sequence[idx];
+  let errorType = null;
+  if (!isCorrect && rt < 400) errorType = 'impulsiva';
+  logGameEvent({ eventType: 'answer', targetType: 'sequence', target: simon.sequence.join(''), responseValue: simon.input.join(''), correct: isCorrect, responseTimeMs: rt, errorType });
+
+  if(!isCorrect){
     simon.playing = true;
     showFeedback('simonFeedback', t.mem.wrong, false);
     const stars = simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.7) ? 3 : simon.level-1 >= Math.ceil(simon.cfg.maxLevel*0.4) ? 2 : simon.level-1>=1?1:0;
@@ -1564,6 +1598,8 @@ function simonInput(padIndex){
   if(simon.input.length === simon.sequence.length){
     simon.playing = true;
     if(simon.level >= simon.cfg.maxLevel){
+      sessionCompleted = true;
+      logGameEvent({ eventType: 'activity_complete' });
       showFeedback('simonFeedback', t.mem.mastery, true);
       setStars('memoria', 3); addSeeds(10); say(t.mascotGood);
       return;
@@ -1576,6 +1612,7 @@ function simonInput(padIndex){
   }
 }
 document.getElementById('simonGrid').addEventListener('pointerdown', function(e){
+  if(!e.isPrimary) return; // ignore incidental secondary touches (palm/other finger) so they can't hijack the sequence
   const pad = e.target.closest('.trail-pad');
   if(!pad) return;
   e.preventDefault();
@@ -1618,6 +1655,7 @@ function storyStart(){
   document.getElementById('storyResetBtn').style.display = 'none';
   hideFeedback('storyFeedback');
   renderStoryCards(); renderStoryAnswer();
+  window.instructionEndedAt = Date.now();
 }
 function renderStoryCards(){
   const wrap = document.getElementById('storyCards');
@@ -1646,7 +1684,11 @@ function renderStoryAnswer(){
 }
 function storyPick(emoji){
   if(story.answer.length >= story.correct.length) return;
+  const rt = Date.now() - (window.instructionEndedAt || Date.now());
+  window.instructionEndedAt = Date.now();
   story.answer.push(emoji);
+  const isCorrect = emoji === story.correct[story.answer.length - 1];
+  logGameEvent({ eventType: 'answer', targetType: 'instruction', target: story.title, responseValue: emoji, correct: isCorrect, responseTimeMs: rt });
   renderStoryCards(); renderStoryAnswer();
   if(story.answer.length === story.correct.length) checkStory();
 }
@@ -1657,6 +1699,8 @@ function checkStory(){
   const ratio = correctCount/story.correct.length;
   const stars = ratio===1?3: ratio>=0.6?2: ratio>0?1:0;
   setStars('historia', stars);
+  sessionCompleted = true;
+  logGameEvent({ eventType: 'activity_complete' });
   story.lastWasPerfect = correctCount === story.correct.length;
   if(story.lastWasPerfect){
     showFeedback('storyFeedback', t.story.perfect, true); addSeeds(6); say(t.mascotGood);
@@ -1706,15 +1750,18 @@ function renderChatStep(){
     const btn = document.createElement('button');
     btn.className = 'reply-btn';
     btn.innerHTML = opt.text + (chat.showHint && opt.hint ? `<span class="reply-hint">${opt.hint}</span>` : '');
-    btn.onclick = ()=>chatPick(opt.ok);
+    btn.onclick = ()=>chatPick(opt);
     btn.appendChild(makeTtsIcon(opt.text));
     optWrap.appendChild(btn);
   });
+  window.instructionEndedAt = Date.now();
 }
-function chatPick(ok){
+function chatPick(opt){
   const t = L();
   document.querySelectorAll('.reply-btn').forEach(b=>b.style.pointerEvents='none');
-  if(ok){
+  const rt = Date.now() - (window.instructionEndedAt || Date.now());
+  logGameEvent({ eventType: 'answer', targetType: 'dialog', responseValue: opt.text, correct: opt.ok, responseTimeMs: rt });
+  if(opt.ok){
     if(!chat.triedThisTurn) chat.firstTryCorrect++;
     showFeedback('chatFeedback', t.chat.correct, true);
     chat.willAdvance = true;
@@ -1736,6 +1783,8 @@ function chatContinue(){
   renderChatStep(); // same turn repeats if the last answer was wrong, otherwise moves on
 }
 function chatEnd(){
+  sessionCompleted = true;
+  logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   setChatBubble(t.chat.closing);
   document.getElementById('replyOptions').innerHTML = '';
@@ -1797,6 +1846,7 @@ function huntStart(){
   document.getElementById('huntTimerBar').style.width = '100%';
   hideFeedback('huntFeedback');
   buildHuntGrid(true);
+  window.instructionEndedAt = Date.now();
   clearInterval(hunt.timerId);
   hunt.timerId = setInterval(()=>{
     hunt.timeLeft--;
@@ -1807,8 +1857,15 @@ function huntStart(){
 }
 function huntClick(cell){
   if(cell.classList.contains('found')) return;
+  const rt = Date.now() - (window.instructionEndedAt || Date.now());
+  window.instructionEndedAt = Date.now();
+  const isTarget = cell.dataset.emoji === '🍀';
+  let errorType = null;
+  if (!isTarget && rt < 300) errorType = 'impulsiva';
+  logGameEvent({ eventType: 'answer', targetType: 'grid', target: '🍀', responseValue: cell.dataset.emoji, correct: isTarget, responseTimeMs: rt, errorType });
+
   const t = L();
-  if(cell.dataset.emoji === '🍀'){
+  if(isTarget){
     cell.classList.add('found');
     hunt.found++;
     document.getElementById('huntFoundCount').textContent = t.hunt.found(hunt.found, hunt.target);
@@ -1820,6 +1877,8 @@ function huntClick(cell){
 }
 function huntEnd(allFound){
   clearInterval(hunt.timerId);
+  sessionCompleted = true;
+  logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   document.querySelectorAll('.hunt-cell').forEach(c=>c.onclick=null);
   const ratio = hunt.found/hunt.target;
@@ -1855,6 +1914,8 @@ function thermoStart(){
 function thermoRenderRound(){
   const t = L();
   if(thermo.step >= thermo.rounds.length){
+    sessionCompleted = true;
+    logGameEvent({ eventType: 'activity_complete' });
     setStars('termometro', 3); say(t.mascotGood);
     return;
   }
@@ -1872,6 +1933,9 @@ function thermoRenderRound(){
     btn.className = 'emo-btn';
     btn.innerHTML = `<span class="e">${opt.e}</span>${opt.label}`;
     btn.onclick = ()=>{
+      const rt = Date.now() - (window.instructionEndedAt || Date.now());
+      logGameEvent({ eventType: 'answer', targetType: 'emotion', target: thermo.rounds[thermo.step], responseValue: opt.label, responseTimeMs: rt });
+      logGameEvent({ eventType: 'emotion_check', emotion: opt.label, context: 'scenario' });
       document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
       thermo.emo = opt.label;
@@ -1879,6 +1943,7 @@ function thermoRenderRound(){
     };
     emoWrap.appendChild(btn);
   });
+  window.instructionEndedAt = Date.now();
 }
 function thermoStep2(){
   document.getElementById('thermoStep1').style.display = 'none';
@@ -1893,8 +1958,11 @@ function thermoStep2(){
     btn.appendChild(makeTtsIcon(opt.label));
     calmWrap.appendChild(btn);
   });
+  window.instructionEndedAt = Date.now();
 }
 function thermoPickCalm(opt, btn){
+  const rt = Date.now() - (window.instructionEndedAt || Date.now());
+  logGameEvent({ eventType: 'answer', targetType: 'strategy', responseValue: opt.label, responseTimeMs: rt });
   const t = L();
   document.querySelectorAll('#calmOptions .emo-btn').forEach(b=>b.style.pointerEvents='none');
   btn.classList.add('selected');
@@ -1921,10 +1989,61 @@ function thermoPickCalm(opt, btn){
 let currentGameKey = null;
 let sessionDirty = {};
 let sessionSeedsStart = {};
+let currentSessionId = null;
+let sessionCompleted = false;
+
+async function logGameEvent({ eventType, target = null, targetType = null, responseValue = null, correct = null, responseTimeMs = null, errorType = null, emotion = null, context = null }) {
+  if (!state.profileId || !currentSessionId || !currentGameKey) return;
+  try {
+    const { error } = await sb.from('game_events').insert({
+      session_id: currentSessionId,
+      profile_id: state.profileId,
+      game_key: currentGameKey,
+      event_type: eventType,
+      target: target,
+      target_type: targetType,
+      response_value: responseValue,
+      correct: correct,
+      response_time_ms: responseTimeMs,
+      error_type: errorType,
+      emotion: emotion,
+      context: context
+    });
+    if (error) console.error('[gameEvents] falha ao gravar evento:', error);
+  } catch (e) {}
+}
+
+const repeatedTapTimestamps = {};
+function trackRepeatedTap(elementId) {
+  const now = Date.now();
+  if (!repeatedTapTimestamps[elementId]) repeatedTapTimestamps[elementId] = [];
+  repeatedTapTimestamps[elementId] = repeatedTapTimestamps[elementId].filter(t => now - t < 1000);
+  repeatedTapTimestamps[elementId].push(now);
+  if (repeatedTapTimestamps[elementId].length >= 3) {
+    logGameEvent({ eventType: 'repeated_tap', target: elementId });
+    repeatedTapTimestamps[elementId] = [];
+  }
+}
+document.addEventListener('pointerdown', (e) => {
+  if (!currentGameKey) return;
+  let id = null;
+  const btn = e.target.closest('button, .hunt-cell, .trail-pad, .story-card, .light-circle, .emo-btn');
+  if (btn) {
+    if (btn.id) id = btn.id;
+    else if (btn.className && typeof btn.className === 'string') id = btn.className.split(' ')[0];
+  }
+  if (id) trackRepeatedTap(id);
+});
 
 function flushSessionLog(){
-  if(currentGameKey && sessionDirty[currentGameKey]) logSession(currentGameKey);
+  if(currentGameKey) {
+    if(!sessionCompleted && sessionDirty[currentGameKey]) {
+      logGameEvent({ eventType: 'abandon' });
+    }
+    if (sessionDirty[currentGameKey]) logSession(currentGameKey);
+  }
   currentGameKey = null;
+  currentSessionId = null;
 }
 async function logSession(gameKey){
   sessionDirty[gameKey] = false;
@@ -1935,6 +2054,7 @@ async function logSession(gameKey){
   const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
   try{
     const { error } = await sb.from('game_sessions').insert({
+      id: currentSessionId,
       family_id: state.familyId,
       profile_id: state.profileId,
       game_key: gameKey,

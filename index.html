@@ -2410,11 +2410,14 @@ async function loadProfDashboardChildDetail(childId){
   const { data: sessions } = await sb.from('game_sessions').select('start_time, end_time')
     .eq('profile_id', childId).gte('start_time', sevenDaysAgo.toISOString()).not('end_time', 'is', null);
 
+  // subscriptions is only readable by the family itself (RLS), so a professional
+  // querying it directly always gets nothing back - use the has_premium_access()
+  // RPC instead, which is SECURITY DEFINER and works for both family and professional.
   let isPremium = false;
-  if(profile?.family_id){
-    const { data: sub } = await sb.from('subscriptions').select('plan, admin_granted_until').eq('family_id', profile.family_id).maybeSingle();
-    isPremium = sub?.plan === 'premium' || (sub?.admin_granted_until && new Date(sub.admin_granted_until) > new Date());
-  }
+  try{
+    const { data } = await sb.rpc('has_premium_access', { p_child_profile_id: childId });
+    isPremium = !!data;
+  }catch(e){ /* best-effort; falls back to locked-card copy */ }
 
   const dayLabels = state.lang === 'it' ? ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'] : ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const usageByDay = dayLabels.map(d=>({ day: d, minutes: 0 }));

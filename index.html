@@ -960,6 +960,7 @@ const DIFF = {
              dificil:{cols:7, rows:6, targets:8, time:18, pool:['🌿','🍃','☘️','🌱','🪴','🍂','🌸']} },
   termometro:{ facil:{rounds:2}, medio:{rounds:3}, dificil:{rounds:4} }
 };
+const DIFF_LEVELS = ['facil','medio','dificil'];
 
 const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro'];
 
@@ -1553,7 +1554,7 @@ function renderDiffRow(containerId, gameKey, onChange){
   const row = document.getElementById(containerId);
   row.innerHTML = '';
   const current = getDifficulty(gameKey);
-  ['facil','medio','dificil'].forEach(level=>{
+  DIFF_LEVELS.forEach(level=>{
     const btn = document.createElement('button');
     btn.className = 'diff-btn' + (level===current ? ' selected' : '');
     btn.textContent = t.diff[level];
@@ -1567,7 +1568,22 @@ function renderDiffRow(containerId, gameKey, onChange){
   });
 }
 
-function openGame(key){
+// v_recommended_difficulty looks at the child's last 15 answers for this game
+// and suggests 'subir'/'descer'/'manter'/'dados_insuficientes'. Moves at most
+// one step per session so a single noisy round can't cause a sudden jump.
+async function adjustDifficultyForSession(gameKey){
+  if(!state.profileId) return;
+  try{
+    const { data, error } = await sb.from('v_recommended_difficulty')
+      .select('recomendacao').eq('profile_id', state.profileId).eq('game_key', gameKey).maybeSingle();
+    if(error) throw error;
+    if(!data || data.recomendacao === 'manter' || data.recomendacao === 'dados_insuficientes') return;
+    const idx = DIFF_LEVELS.indexOf(getDifficulty(gameKey));
+    if(data.recomendacao === 'subir' && idx < DIFF_LEVELS.length - 1) setDifficulty(gameKey, DIFF_LEVELS[idx+1]);
+    else if(data.recomendacao === 'descer' && idx > 0) setDifficulty(gameKey, DIFF_LEVELS[idx-1]);
+  }catch(e){ /* best-effort; keep whatever difficulty is already set */ }
+}
+async function openGame(key){
   flushSessionLog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+key).classList.add('active');
@@ -1577,6 +1593,7 @@ function openGame(key){
   sessionDirty[key] = false;
   currentSessionId = crypto.randomUUID();
   sessionCompleted = false;
+  await adjustDifficultyForSession(key);
   startSessionRow(key, currentSessionId);
   if(key==='semaforo') semInit();
   if(key==='memoria') simonInit();

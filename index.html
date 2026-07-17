@@ -265,6 +265,11 @@
   .parents-dash-error{ text-align:center; padding: 30px 10px; }
   .parents-dash-error p{ color:var(--cream); opacity:.9; font-size:14.5px; margin-bottom:14px; }
 
+  .parents-clinical-locked{ background: rgba(240,200,120,.08); border:2px dashed var(--sand); border-radius:18px; padding:26px 22px; text-align:center; }
+  .parents-clinical-locked .locked-icon{ font-size:32px; margin-bottom:8px; }
+  .parents-clinical-locked .locked-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:8px; }
+  .parents-clinical-locked .locked-desc{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 auto 18px; max-width:420px; }
+
   /* ---------- STICKER ALBUM ---------- */
   .album-summary{ text-align:center; font-weight:800; color:var(--sand); margin-bottom:16px; font-size:15px; }
   .album-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(108px,1fr)); gap:14px; }
@@ -780,6 +785,11 @@ const I18N = {
       professionalsTitle:"Profissionais vinculados",
       professionalsNone:(name)=>`Nenhum profissional tem acesso aos dados de ${name} ainda.`,
       inviteBtn:"Convidar",
+      impulsivityIndex:"Índice de controle inibitório",
+      clinicalReportTitle:"Relatório Clínico",
+      clinicalReportLockedTitle:"Relatório Clínico — recurso Premium",
+      clinicalReportLockedDesc:"Assine o Premium para ver o índice de controle inibitório e um relatório completo, pronto para compartilhar com quem acompanha seu filho.",
+      upgradeBtn:"Conhecer o Premium",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -864,6 +874,11 @@ const I18N = {
       professionalsTitle:"Professionisti collegati",
       professionalsNone:(name)=>`Nessun professionista ha ancora accesso ai dati di ${name}.`,
       inviteBtn:"Invita",
+      impulsivityIndex:"Indice di controllo inibitorio",
+      clinicalReportTitle:"Referto Clinico",
+      clinicalReportLockedTitle:"Referto Clinico — funzione Premium",
+      clinicalReportLockedDesc:"Passa a Premium per vedere l'indice di controllo inibitorio e un referto completo, pronto da condividere con chi segue tuo figlio.",
+      upgradeBtn:"Scopri Premium",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -2665,6 +2680,15 @@ async function loadAdherence(childId){
     return (data || []).filter(r=>r.semanas_com_dado > 0);
   }catch(e){ return []; }
 }
+// Only fetched for premium families - free families never have this data sent
+// over the wire, so the paywall can't be bypassed by just reading network traffic.
+async function loadImpulsivityIndex(childId){
+  try{
+    const { data, error } = await sb.from('v_impulsivity_index').select('indice').eq('profile_id', childId).maybeSingle();
+    if(error) throw error;
+    return data?.indice ?? null;
+  }catch(e){ return null; }
+}
 // game_sessions is shared across both apps (game_key includes the 6 Ilha do Foco
 // keys plus 'aventura_das_letras'), each row carrying its own played_at/end_time —
 // so summing every row's real duration here already covers both apps' screen time.
@@ -2928,6 +2952,34 @@ async function renderParentsDashboardBody(){
     : t.parents.professionalsNone(child.name);
   profCard.innerHTML = `<div class="txt">${namesText}</div><button class="parents-invite-btn">➕ ${t.parents.inviteBtn}</button>`;
   body.appendChild(profCard);
+
+  // ---- Clinical report (premium) ----
+  const clinicalTitle = document.createElement('div');
+  clinicalTitle.className = 'parents-section-title';
+  clinicalTitle.innerHTML = `🩺 ${t.parents.clinicalReportTitle}`;
+  body.appendChild(clinicalTitle);
+
+  if(isPremium){
+    const impulsivityIndex = await loadImpulsivityIndex(child.id);
+    const clinicalCard = document.createElement('div');
+    clinicalCard.className = 'parents-card';
+    clinicalCard.innerHTML = `
+      <div class="parents-reading-row"><span>${t.parents.impulsivityIndex}</span><span>${impulsivityIndex !== null ? impulsivityIndex + '/100' : t.parents.never}</span></div>
+      <div class="parents-reading-row"><span>${t.parents.readingMasteredLabel}</span><span>${masteredSyllables.length}</span></div>
+      <div class="parents-reading-row"><span>${t.parents.statsSessions}</span><span>${ilhaDoFocoSessions.length}</span></div>
+    `;
+    body.appendChild(clinicalCard);
+  } else {
+    const lockedCard = document.createElement('div');
+    lockedCard.className = 'parents-clinical-locked';
+    lockedCard.innerHTML = `
+      <div class="locked-icon">🔒</div>
+      <div class="locked-title">${t.parents.clinicalReportLockedTitle}</div>
+      <p class="locked-desc">${t.parents.clinicalReportLockedDesc}</p>
+      <button class="big-cta">${t.parents.upgradeBtn}</button>
+    `;
+    body.appendChild(lockedCard);
+  }
 }
 
 function renderTrendChart(container, sessions){

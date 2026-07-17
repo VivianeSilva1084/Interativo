@@ -253,6 +253,11 @@
   .weekly-bar{ width:100%; max-width:26px; background: var(--leaf); border-radius:6px 6px 2px 2px; min-height:3px; transition: height .2s ease; }
   .weekly-bar-label{ font-size:11px; font-weight:700; color:var(--lilac); }
 
+  .parents-adherence-row{ padding:9px 0; border-top:1px solid rgba(255,255,255,.08); }
+  .parents-adherence-row:first-child{ border-top:none; padding-top:0; }
+  .parents-adherence-line{ font-size:13.5px; font-weight:700; color:var(--cream); }
+  .parents-adherence-phrase{ font-size:12px; color:var(--lilac); margin-top:2px; }
+
   .parents-professionals-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
   .parents-professionals-card .txt{ font-size:13px; color:var(--cream); opacity:.85; max-width:340px; text-align:left; }
   .parents-invite-btn{ background: var(--papaya); color:#fff; border:none; border-radius:12px; padding:9px 16px; font-weight:800; font-size:13px; cursor:default; white-space:nowrap; }
@@ -768,6 +773,10 @@ const I18N = {
       notPlayedHere:"Ainda não jogou aqui.",
       weeklyUsageTitle:"Tempo de tela — últimos 7 dias",
       dayLabels:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+      adherenceTitle:"Adesão (últimas 9 semanas)",
+      adherenceLine:(game,pct,met,total)=>`${game} — ${pct}% (${met} de ${total} semanas com meta batida)`,
+      adherenceNone:"Ainda sem dado suficiente de adesão",
+      adherenceSupportHigh:"Rotina consistente! 🎉", adherenceSupportMid:"No caminho certo.", adherenceSupportLow:"Toda sessão conta, sem pressa.",
       professionalsTitle:"Profissionais vinculados",
       professionalsNone:(name)=>`Nenhum profissional tem acesso aos dados de ${name} ainda.`,
       inviteBtn:"Convidar",
@@ -847,6 +856,10 @@ const I18N = {
       notPlayedHere:"Non ha ancora giocato qui.",
       weeklyUsageTitle:"Tempo di gioco — ultimi 7 giorni",
       dayLabels:["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
+      adherenceTitle:"Aderenza (ultime 9 settimane)",
+      adherenceLine:(game,pct,met,total)=>`${game} — ${pct}% (${met} di ${total} settimane con obiettivo raggiunto)`,
+      adherenceNone:"Ancora nessun dato sufficiente di aderenza",
+      adherenceSupportHigh:"Routine costante! 🎉", adherenceSupportMid:"Sulla strada giusta.", adherenceSupportLow:"Ogni sessione conta, senza fretta.",
       professionalsTitle:"Professionisti collegati",
       professionalsNone:(name)=>`Nessun professionista ha ancora accesso ai dati di ${name}.`,
       inviteBtn:"Invita",
@@ -2630,6 +2643,14 @@ async function loadLinkedProfessionals(childId){
     return data || [];
   }catch(e){ return []; }
 }
+async function loadAdherence(childId){
+  try{
+    const { data, error } = await sb.from('v_adherence_summary')
+      .select('game_key, semanas_com_dado, semanas_com_meta_atingida, taxa_adesao_pct').eq('profile_id', childId);
+    if(error) throw error;
+    return (data || []).filter(r=>r.semanas_com_dado > 0);
+  }catch(e){ return []; }
+}
 // game_sessions is shared across both apps (game_key includes the 6 Ilha do Foco
 // keys plus 'aventura_das_letras'), each row carrying its own played_at/end_time —
 // so summing every row's real duration here already covers both apps' screen time.
@@ -2721,13 +2742,14 @@ async function renderParentsDashboardBody(){
     return;
   }
 
-  let sessions, reading, subscription, professionals;
+  let sessions, reading, subscription, professionals, adherence;
   try{
-    [sessions, reading, subscription, professionals] = await Promise.all([
+    [sessions, reading, subscription, professionals, adherence] = await Promise.all([
       loadSessions(child.id),
       loadReadingProgress(child.id),
       loadSubscription(state.familyId),
-      loadLinkedProfessionals(child.id)
+      loadLinkedProfessionals(child.id),
+      loadAdherence(child.id)
     ]);
   }catch(e){
     body.innerHTML = '';
@@ -2855,6 +2877,29 @@ async function renderParentsDashboardBody(){
   weeklyCard.className = 'weekly-chart-card';
   renderWeeklyChart(weeklyCard, computeWeeklyUsage(sessions), t.parents.dayLabels);
   body.appendChild(weeklyCard);
+
+  // ---- Adherence (last 9 weeks) ----
+  const adherenceTitle = document.createElement('div');
+  adherenceTitle.className = 'parents-section-title';
+  adherenceTitle.innerHTML = `📅 ${t.parents.adherenceTitle}`;
+  body.appendChild(adherenceTitle);
+
+  const adherenceCard = document.createElement('div');
+  adherenceCard.className = 'parents-card';
+  if(adherence.length === 0){
+    adherenceCard.innerHTML = `<p class="chart-empty">${t.parents.adherenceNone}</p>`;
+  } else {
+    adherenceCard.innerHTML = adherence.map(r=>{
+      const pct = Math.round(parseFloat(r.taxa_adesao_pct));
+      const gameLabel = r.game_key === 'aventura_das_letras' ? t.parents.readingTitle : (t.tiles[r.game_key]?.title || r.game_key);
+      const phrase = pct >= 100 ? t.parents.adherenceSupportHigh : pct >= 50 ? t.parents.adherenceSupportMid : t.parents.adherenceSupportLow;
+      return `<div class="parents-adherence-row">
+        <div class="parents-adherence-line">${t.parents.adherenceLine(gameLabel, pct, r.semanas_com_meta_atingida, r.semanas_com_dado)}</div>
+        <div class="parents-adherence-phrase">${phrase}</div>
+      </div>`;
+    }).join('');
+  }
+  body.appendChild(adherenceCard);
 
   // ---- Linked professionals ----
   const profTitle = document.createElement('div');

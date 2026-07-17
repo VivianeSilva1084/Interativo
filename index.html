@@ -275,6 +275,44 @@
   .sticker-card.tier-silver{ border-color:#C7CDD6; }
   .sticker-card.tier-gold{ border-color:var(--sand); }
   .sticker-card.tier-legendary{ border-color:var(--papaya); box-shadow: 0 0 16px rgba(242,112,60,.5); }
+
+  /* ---------- PROFESSIONAL AUTH TOGGLE ---------- */
+  .auth-pro-toggle{ display:block; text-align:center; margin-top:14px; font-size:12.5px; color:rgba(255,255,255,.4); cursor:pointer; text-decoration:underline; background:none; border:none; font-family:inherit; font-weight:700; }
+  .auth-pro-toggle:hover{ color:rgba(255,255,255,.75); }
+  .auth-pro-mode-badge{ display:inline-flex; align-items:center; gap:6px; background:rgba(107,191,163,.15); border:1px solid rgba(107,191,163,.3); border-radius:999px; padding:4px 14px; color:rgba(180,230,215,.9); font-size:11.5px; font-weight:800; margin-bottom:10px; }
+  .prof-dash-shell{ background:#FBF8F1; border-radius: var(--radius-lg); overflow:hidden; }
+
+  /* ---------- PAINEL PROFISSIONAL ---------- */
+  /* Paleta clara própria (não usa os tokens escuros do app): sinaliza visualmente
+     que este é um portal externo, separado da experiência de jogo da criança. */
+  .prof-dash-shell{ border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow); }
+  .prof-dash { font-family: 'Nunito', sans-serif; background: #FBF8F1; min-height: 100%; }
+  .prof-dash-topbar { background: #123C3E; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .prof-dash-title { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 20px; color: #fff; }
+  .prof-dash-subtitle { font-size: 12.5px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .prof-dash-lang-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .prof-dash-body { display: flex; min-height: 480px; flex-wrap: wrap; }
+  .prof-dash-sidebar { width: 220px; border-right: 1px solid #E7DCC0; padding: 16px 0; flex-shrink: 0; }
+  .prof-dash-sidebar-label { font-size: 11.5px; color: #8A8067; font-weight: 700; padding: 0 18px 10px; text-transform: uppercase; }
+  .prof-dash-child-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 18px; background: transparent; border: none; border-left: 3px solid transparent; text-align: left; cursor: pointer; }
+  .prof-dash-child-btn.active { background: #F5E6C8; border-left-color: #FF6F59; }
+  .prof-dash-child-name { font-size: 13.5px; font-weight: 700; color: #1F2E29; }
+  .prof-dash-pending-tag { font-size: 10.5px; color: #FF6F59; font-weight: 700; }
+  .prof-dash-detail { flex: 1; min-width: 260px; padding: 22px 28px; }
+  .prof-dash-card { background: #fff; border: 1px solid #E7DCC0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
+  .prof-dash-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .prof-dash-card-title { font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 14.5px; color: #1F2E29; }
+  .prof-dash-row { display: flex; justify-content: space-between; font-size: 12.5px; padding: 4px 0; }
+  .prof-dash-row-label { color: #8A8067; }
+  .prof-dash-row-value { font-weight: 700; color: #1F2E29; }
+  .prof-dash-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .prof-dash-footer { border-top: 1px solid #E7DCC0; padding: 12px 28px; font-size: 11.5px; color: #8A8067; }
+  .prof-dash-bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding-top: 10px; }
+  .prof-dash-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .prof-dash-bar { width: 100%; background: #6FA287; border-radius: 4px 4px 0 0; min-height: 2px; }
+  .prof-dash-bar-label { font-size: 10px; color: #8A8067; }
+  .prof-dash-impulsivity-badge { font-size: 28px; font-weight: 700; font-family: 'Baloo 2', sans-serif; }
+  .prof-dash-star { font-size: 12px; }
 </style>
 </head>
 <body>
@@ -326,6 +364,9 @@
       </div>
     </div>
     <div id="authPrivacyNote" style="text-align:center; font-size:12.5px; color:rgba(255,255,255,0.3); max-width:380px; margin:0 auto; padding:0 20px;"></div>
+    <div style="text-align:center; margin-top:20px; padding-bottom:20px;">
+      <button class="auth-pro-toggle" id="authProToggle" onclick="toggleAuthUserType()">Entrar como profissional</button>
+    </div>
   </div>
 
   <!-- ===================== PROFILES SCREEN ===================== -->
@@ -542,6 +583,14 @@
     </div>
   </div>
 
+  <!-- ===================== PAINEL PROFISSIONAL ===================== -->
+  <div class="screen" id="screen-professional">
+    <div class="top-row" style="padding:16px 24px 0; background:#123C3E;">
+      <button class="back-btn" style="background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.2); color:#fff;" onclick="handleLogout()">🚪 Sair</button>
+    </div>
+    <div id="profDashboardContainer" class="prof-dash-shell"></div>
+  </div>
+
 </div>
 
 <footer id="footerNote">Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto</footer>
@@ -729,6 +778,16 @@ const I18N = {
       progress:(n,t)=>`${n} de ${t} figurinhas coletadas`,
       notEnough:(n)=>`Faltam ${n} sementes para essa figurinha. Continue jogando! 🌰`,
       unlocked:(name,emoji)=>`Você desbloqueou ${name}! ${emoji}✨`
+    },
+    prof:{
+      title:"Painel profissional", subtitle:"Crianças vinculadas à sua conta",
+      linkedChildren:"Crianças", pending:"pendente", selectChild:"Selecione uma criança à esquerda",
+      focusIsland:"Ilha do Foco", lettersIsland:"Aventura das Letras", weeklyUsage:"Tempo de tela — últimos 7 dias",
+      syllablesMastered:"Sílabas dominadas", lettersLearned:"Letras aprendidas", wordsRead:"Palavras lidas",
+      challenges:"Desafios concluídos", impulsivityIndex:"Índice de controle inibitório",
+      accessNote:"Acesso somente leitura. Todo acesso é registrado para conformidade com a LGPD.",
+      since:"Vinculado desde", none:"nenhuma ainda", minutes:"min",
+      noChildren:"Nenhuma criança vinculada ainda.", loading:"Carregando...", error:"Não consegui carregar os dados."
     }
   },
   it: {
@@ -798,6 +857,16 @@ const I18N = {
       progress:(n,t)=>`${n} di ${t} figurine raccolte`,
       notEnough:(n)=>`Mancano ${n} semi per questa figurina. Continua a giocare! 🌰`,
       unlocked:(name,emoji)=>`Hai sbloccato ${name}! ${emoji}✨`
+    },
+    prof:{
+      title:"Pannello professionale", subtitle:"Bambini collegati al tuo account",
+      linkedChildren:"Bambini", pending:"in attesa", selectChild:"Seleziona un bambino a sinistra",
+      focusIsland:"Isola del Focus", lettersIsland:"Avventura delle Lettere", weeklyUsage:"Tempo di utilizzo — ultimi 7 giorni",
+      syllablesMastered:"Sillabe padroneggiate", lettersLearned:"Lettere imparate", wordsRead:"Parole lette",
+      challenges:"Sfide completate", impulsivityIndex:"Indice di controllo inibitorio",
+      accessNote:"Accesso di sola lettura. Ogni accesso viene registrato per conformità al GDPR.",
+      since:"Collegato dal", none:"ancora nessuna", minutes:"min",
+      noChildren:"Nessun bambino collegato ancora.", loading:"Caricamento...", error:"Impossibile caricare i dati."
     }
   }
 };
@@ -902,9 +971,10 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null };
+let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null, isProfessional:false };
 
 let authMode = 'login'; // login, signup, reset
+let authUserType = 'family'; // family | professional
 
 function setAuthLang(l) {
   state.lang = l; // one language drives the whole app, from the login screen onward
@@ -997,6 +1067,28 @@ function renderAuthScreen() {
     confirmLbl.style.display = 'none';
     confirmInp.style.display = 'none';
   }
+
+  // -- Sobrescreve com modo profissional (quando ativo) --
+  const proToggle = document.getElementById('authProToggle');
+  if (authUserType === 'professional') {
+    const proLabels = {
+      pt: { title: 'Área dos Profissionais', badge: '🏥 Modo Profissional', toggle: '← Entrar como responsável' },
+      it: { title: 'Area Professionisti', badge: '🏥 Modalità Professionale', toggle: '← Accedi come genitore' }
+    };
+    const pl = proLabels[state.lang] || proLabels.pt;
+    title.textContent = pl.title;
+    subtitle.innerHTML = `<span class="auth-pro-mode-badge">${pl.badge}</span>`;
+    btn.textContent = t.loginBtn;
+    toggleBtn.style.display = 'none';
+    forgotBtn.style.display = 'none';
+    passLbl.style.display = 'block';
+    passInp.style.display = 'block';
+    confirmLbl.style.display = 'none';
+    confirmInp.style.display = 'none';
+    if (proToggle) proToggle.textContent = pl.toggle;
+  } else {
+    if (proToggle) proToggle.textContent = state.lang === 'it' ? 'Accedi come professionista' : 'Entrar como profissional';
+  }
 }
 
 function toggleAuthMode() {
@@ -1013,6 +1105,23 @@ function handleForgotPassword() {
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     state.authUserId = session.user.id;
+
+    // -- Verificação de profissional (antes da lógica de família) --
+    const { data: profRow } = await sb.from('professionals').select('id').eq('auth_user_id', session.user.id).maybeSingle();
+    if (profRow) {
+      state.isProfessional = true;
+      document.getElementById('hubHeader').style.display = 'none';
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-professional').classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+      profDashboardSelectedId = null;
+      profDashboardLang = state.lang;
+      professionalOpenDashboard('#profDashboardContainer');
+      return;
+    }
+    state.isProfessional = false;
+
+    // -- Lógica de família (fluxo existente) --
     const { data: familyList, error } = await sb.from('families').select('id, parent_pin_hash').eq('auth_user_id', session.user.id).limit(1);
     const family = familyList && familyList.length > 0 ? familyList[0] : null;
     if (family) {
@@ -1026,6 +1135,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('screen-profiles').classList.add('active');
     renderProfilesScreen();
   } else {
+    state.isProfessional = false;
     state.familyId = null;
     state.familyPinHash = null;
     state.authUserId = null;
@@ -1110,6 +1220,13 @@ async function handleLogout() {
   parentsChildren = [];
   parentsActiveChildId = null;
   parentsForcedSetup = false;
+}
+
+function toggleAuthUserType() {
+  authUserType = authUserType === 'family' ? 'professional' : 'family';
+  authMode = 'login'; // sempre volta ao login ao trocar de tipo
+  document.getElementById('authError').style.display = 'none';
+  renderAuthScreen();
 }
 
 function defaultProfileData(name, avatar, lang){
@@ -2184,6 +2301,198 @@ function attemptUnlock(id){
   const name = st.name[state.lang] || st.name.pt;
   showFeedback('albumFeedback', t.album.unlocked(name, st.emoji), true);
   say(t.mascotGood);
+}
+
+/* ========================= PROFESSIONAL DASHBOARD =========================
+   Read-only portal for professionals (logopedista/psicólogo/professor) linked
+   to a child via professional_child_links. Not reachable via normal navigation
+   yet: today every authenticated user is provisioned as a family (see the
+   sb.auth.onAuthStateChange handler), there's no professional signup/login
+   distinction, and the parent-side "Convidar" button has no action wired up.
+   openProfessionalDashboard() is ready to be called once that flow exists. */
+let profDashboardChildren = [];
+let profDashboardSelectedId = null;
+
+function openProfessionalDashboard(){
+  flushSessionLog();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-professional').classList.add('active');
+  renderProfDashboardBody(document.getElementById('profDashboardContainer'));
+}
+
+async function loadProfDashboardChildren(){
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) throw new Error('no-session');
+
+  const { data: professional, error: profErr } = await sb.from('professionals').select('id').eq('auth_user_id', user.id).single();
+  if(profErr) throw profErr;
+
+  const { data: links, error: linksErr } = await sb.from('professional_child_links')
+    .select('id, status, child_profile_id, child_profiles(id, name)').eq('professional_id', professional.id);
+  if(linksErr) throw linksErr;
+
+  return (links || []).map(l=>({
+    linkId: l.id, status: l.status, childId: l.child_profile_id, name: l.child_profiles?.name || '?'
+  }));
+}
+
+async function loadProfDashboardChildDetail(childId){
+  const [{ data: profile }, { data: readingProgress }, { data: impulsivity }] = await Promise.all([
+    sb.from('child_profiles').select('*').eq('id', childId).single(),
+    sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle(),
+    sb.from('v_impulsivity_index').select('indice').eq('profile_id', childId).maybeSingle()
+  ]);
+
+  const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const { data: sessions } = await sb.from('game_sessions').select('start_time, end_time')
+    .eq('profile_id', childId).gte('start_time', sevenDaysAgo.toISOString()).not('end_time', 'is', null);
+
+  const dayLabels = state.lang === 'it' ? ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'] : ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const usageByDay = dayLabels.map(d=>({ day: d, minutes: 0 }));
+  (sessions || []).forEach(s=>{
+    const start = new Date(s.start_time), end = new Date(s.end_time);
+    usageByDay[start.getDay()].minutes += Math.max(0, (end - start) / 60000);
+  });
+
+  return {
+    profile, readingProgress, impulsivityIndex: impulsivity?.indice ?? null,
+    weeklyUsage: usageByDay.map(d=>({ ...d, minutes: Math.round(d.minutes) }))
+  };
+}
+
+function renderProfStars(count, max = 3){
+  let html = '';
+  for(let i=0;i<max;i++) html += `<span class="prof-dash-star" style="color:${i < count ? '#C79A3D' : '#D8D0BC'}">★</span>`;
+  return html;
+}
+
+async function renderProfDashboardBody(container){
+  const t = L().prof;
+  container.innerHTML = `<div class="prof-dash"><div style="padding:40px; text-align:center; color:#8A8067;">${t.loading}</div></div>`;
+
+  let children;
+  try{
+    children = await loadProfDashboardChildren();
+  }catch(e){
+    container.innerHTML = `<div class="prof-dash"><div style="padding:40px; text-align:center; color:#8A8067;">${t.error}</div></div>`;
+    return;
+  }
+
+  profDashboardChildren = children;
+  if(!profDashboardSelectedId && children.some(c=>c.status === 'active')){
+    profDashboardSelectedId = children.find(c=>c.status === 'active').childId;
+  }
+  await renderProfDashboardFrame(container);
+}
+
+async function renderProfDashboardFrame(container){
+  const t = L().prof;
+
+  const sidebarItems = profDashboardChildren.length === 0
+    ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.noChildren}</div>`
+    : profDashboardChildren.map(c=>`
+      <button class="prof-dash-child-btn ${c.childId === profDashboardSelectedId ? 'active' : ''}"
+        data-child-id="${c.childId}" ${c.status !== 'active' ? 'disabled' : ''}
+        style="opacity:${c.status === 'active' ? 1 : 0.55}">
+        <span class="prof-dash-child-name">${c.name}</span>
+        ${c.status === 'pending' ? `<span class="prof-dash-pending-tag">${t.pending}</span>` : ''}
+      </button>
+    `).join('');
+
+  container.innerHTML = `
+    <div class="prof-dash">
+      <div class="prof-dash-topbar">
+        <div>
+          <div class="prof-dash-title">${t.title}</div>
+          <div class="prof-dash-subtitle">${t.subtitle}</div>
+        </div>
+        <button class="prof-dash-lang-btn" id="profDashLangToggle">${state.lang === 'it' ? '🇮🇹' : '🇧🇷'}</button>
+      </div>
+      <div class="prof-dash-body">
+        <div class="prof-dash-sidebar">
+          <div class="prof-dash-sidebar-label">${t.linkedChildren}</div>
+          ${sidebarItems}
+        </div>
+        <div class="prof-dash-detail" id="profDashDetail">
+          <div style="color:#8A8067; text-align:center; margin-top:40px;">${t.selectChild}</div>
+        </div>
+      </div>
+      <div class="prof-dash-footer">🛡️ ${t.accessNote}</div>
+    </div>
+  `;
+
+  container.querySelector('#profDashLangToggle').addEventListener('click', async ()=>{
+    state.lang = state.lang === 'it' ? 'pt' : 'it';
+    await renderProfDashboardFrame(container);
+    if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
+  });
+
+  container.querySelectorAll('.prof-dash-child-btn:not([disabled])').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      profDashboardSelectedId = btn.dataset.childId;
+      await renderProfDashboardFrame(container);
+      await loadAndRenderProfChildDetail(container);
+    });
+  });
+
+  if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
+}
+
+async function loadAndRenderProfChildDetail(container){
+  const t = L().prof;
+  const detailEl = container.querySelector('#profDashDetail');
+  if(!detailEl) return;
+
+  let detail;
+  try{
+    detail = await loadProfDashboardChildDetail(profDashboardSelectedId);
+  }catch(e){
+    detailEl.innerHTML = `<div style="color:#8A8067;">${t.error}</div>`;
+    return;
+  }
+
+  const { profile, readingProgress, impulsivityIndex, weeklyUsage } = detail;
+  const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
+  const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
+
+  detailEl.innerHTML = `
+    <div class="prof-dash-grid2">
+      <div class="prof-dash-card">
+        <div class="prof-dash-card-header">🧩 <span class="prof-dash-card-title">${t.focusIsland}</span></div>
+        ${ilhaDoFocoGames.length === 0
+          ? `<div style="font-size:12.5px; color:#8A8067;">${t.none}</div>`
+          : ilhaDoFocoGames.map(([key, stars])=>`
+            <div class="prof-dash-row"><span class="prof-dash-row-label">${L().tiles[key]?.title || key}</span><span>${renderProfStars(stars)}</span></div>
+          `).join('')}
+      </div>
+      <div class="prof-dash-card">
+        <div class="prof-dash-card-header">📖 <span class="prof-dash-card-title">${t.lettersIsland}</span></div>
+        <div class="prof-dash-row"><span class="prof-dash-row-label">${t.syllablesMastered}</span><span class="prof-dash-row-value">${readingProgress?.mastered_syllables?.length || t.none}</span></div>
+        <div class="prof-dash-row"><span class="prof-dash-row-label">${t.lettersLearned}</span><span class="prof-dash-row-value">${readingProgress?.learned_letters?.length || t.none}</span></div>
+        <div class="prof-dash-row"><span class="prof-dash-row-label">${t.wordsRead}</span><span class="prof-dash-row-value">${readingProgress?.read_words?.length || t.none}</span></div>
+        <div class="prof-dash-row"><span class="prof-dash-row-label">${t.challenges}</span><span class="prof-dash-row-value">${readingProgress?.challenges_completed ?? 0}</span></div>
+      </div>
+    </div>
+
+    <div class="prof-dash-card">
+      <div class="prof-dash-card-header">🛡️ <span class="prof-dash-card-title">${t.impulsivityIndex}</span></div>
+      <div class="prof-dash-impulsivity-badge" style="color:#4F7C64">
+        ${impulsivityIndex !== null ? impulsivityIndex + '/100' : t.none}
+      </div>
+    </div>
+
+    <div class="prof-dash-card">
+      <div class="prof-dash-card-header">⏱️ <span class="prof-dash-card-title">${t.weeklyUsage}</span></div>
+      <div class="prof-dash-bar-chart">
+        ${weeklyUsage.map(d=>`
+          <div class="prof-dash-bar-col">
+            <div class="prof-dash-bar" style="height:${(d.minutes / maxMinutes) * 80}px"></div>
+            <div class="prof-dash-bar-label">${d.day}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
 
 /* ========================= PARENTS AREA ========================= */

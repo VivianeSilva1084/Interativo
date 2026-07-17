@@ -191,6 +191,8 @@
   .auth-form label { font-weight: 800; font-size: 13.5px; color: var(--sand); margin-bottom: -10px; }
   .auth-form input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: var(--cream); font-size: 15px; font-weight: 700; }
   .auth-form input::placeholder { color: rgba(255,255,255,.4); }
+  .auth-form select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: var(--cream); font-size: 15px; font-weight: 700; font-family: inherit; }
+  .auth-form select option { background: var(--bg-deep); color: var(--cream); }
   .auth-error { background: rgba(229,85,110,.2); color: #FFA3B1; border: 1px solid var(--berry); padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center; display: none; }
   .auth-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
   .auth-toggle { background: transparent; border: none; color: var(--sand); font-weight: 700; font-size: 13.5px; cursor: pointer; text-decoration: underline; opacity: 0.8; }
@@ -381,6 +383,19 @@
       <p id="authSubtitle">Acesse para sincronizar o progresso</p>
       <div class="auth-error" id="authError"></div>
       <div class="auth-form">
+        <label id="authFullNameLabel" style="display:none;">Nome completo</label>
+        <input type="text" id="authFullName" placeholder="Seu nome completo" autocomplete="name" style="display:none;">
+        <label id="authRoleLabel" style="display:none;">Função</label>
+        <select id="authRole" style="display:none;">
+          <option value="logopedista" id="authRoleOptLogopedista"></option>
+          <option value="psicologo" id="authRoleOptPsicologo"></option>
+          <option value="professor" id="authRoleOptProfessor"></option>
+          <option value="outro" id="authRoleOptOutro"></option>
+        </select>
+        <label id="authLicenseLabel" style="display:none;">Registro profissional</label>
+        <input type="text" id="authLicense" autocomplete="off" style="display:none;">
+        <label id="authOrgLabel" style="display:none;">Instituição/clínica</label>
+        <input type="text" id="authOrg" autocomplete="organization" style="display:none;">
         <label id="authEmailLabel">E-mail</label>
         <input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email">
         <label id="authPasswordLabel">Senha</label>
@@ -1017,7 +1032,19 @@ const AUTH_I18N = {
     errorInvalidEmail: "Digite um e-mail válido.",
     errorGeneric: "Algo deu errado. Tente novamente em alguns instantes.",
     errorNetwork: "Sem conexão com a internet. Verifique sua rede e tente de novo.",
-    privacyNote: "Seus dados ficam vinculados só à sua conta e não são compartilhados."
+    privacyNote: "Seus dados ficam vinculados só à sua conta e não são compartilhados.",
+    proSignupTitle: "Cadastro profissional",
+    proSignupSubtitle: "Leva menos de um minuto.",
+    proSignupBtn: "Criar conta profissional",
+    proLoadingSignup: "Criando conta...",
+    proSignupSuccess: "Conta criada! Verifique seu e-mail para confirmar.",
+    fullNameLabel: "Nome completo", fullNamePlaceholder: "Seu nome completo",
+    roleLabel: "Função",
+    roleLogopedista: "Fonoaudiólogo(a)", rolePsicologo: "Psicólogo(a)", roleProfessor: "Professor(a)", roleOutro: "Outro",
+    licenseLabel: "Registro profissional (CRFa, CRP, etc) — opcional", licensePlaceholder: "Opcional",
+    orgLabel: "Instituição/clínica — opcional", orgPlaceholder: "Opcional",
+    errorFullNameRequired: "Digite seu nome completo.",
+    errorProfOrphaned: "Sua conta foi criada, mas não consegui salvar seus dados profissionais. Tente entrar novamente ou contate o suporte."
   },
   it: {
     welcomeTitle: "Area genitori",
@@ -1055,7 +1082,19 @@ const AUTH_I18N = {
     errorInvalidEmail: "Inserisci un'e-mail valida.",
     errorGeneric: "Qualcosa è andato storto. Riprova tra qualche istante.",
     errorNetwork: "Nessuna connessione a internet. Controlla la rete e riprova.",
-    privacyNote: "I tuoi dati restano collegati solo al tuo account e non vengono condivisi."
+    privacyNote: "I tuoi dati restano collegati solo al tuo account e non vengono condivisi.",
+    proSignupTitle: "Registrazione professionale",
+    proSignupSubtitle: "Ci vuole meno di un minuto.",
+    proSignupBtn: "Crea account professionale",
+    proLoadingSignup: "Creazione account in corso...",
+    proSignupSuccess: "Account creato! Controlla la tua email per confermare.",
+    fullNameLabel: "Nome completo", fullNamePlaceholder: "Il tuo nome completo",
+    roleLabel: "Ruolo",
+    roleLogopedista: "Logopedista", rolePsicologo: "Psicologa/o", roleProfessor: "Insegnante", roleOutro: "Altro",
+    licenseLabel: "Numero di iscrizione all'albo — facoltativo", licensePlaceholder: "Facoltativo",
+    orgLabel: "Istituzione/clinica — facoltativo", orgPlaceholder: "Facoltativo",
+    errorFullNameRequired: "Inserisci il tuo nome completo.",
+    errorProfOrphaned: "Il tuo account è stato creato, ma non sono riuscito a salvare i tuoi dati professionali. Prova ad accedere di nuovo o contatta l'assistenza."
   }
 };
 
@@ -1085,6 +1124,14 @@ let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId
 
 let authMode = 'login'; // login, signup, reset
 let authUserType = 'family'; // family | professional
+// Auto-confirm is on for this project, so sb.auth.signUp() establishes a
+// session immediately and fires onAuthStateChange before our own code gets
+// a chance to insert the professionals row. While true, onAuthStateChange's
+// family/professional routing is skipped entirely - the professional signup
+// handler manages state itself instead, so it can never race the "create a
+// families row if none exists yet" fallback and turn a professional into a
+// family by accident.
+let suppressAutoRouting = false;
 
 function setAuthLang(l) {
   state.lang = l; // one language drives the whole app, from the login screen onward
@@ -1178,24 +1225,55 @@ function renderAuthScreen() {
     confirmInp.style.display = 'none';
   }
 
+  // -- Campos exclusivos do cadastro profissional (nome, função, registro, instituição) --
+  const fullNameLbl = document.getElementById('authFullNameLabel');
+  const fullNameInp = document.getElementById('authFullName');
+  const roleLbl = document.getElementById('authRoleLabel');
+  const roleSel = document.getElementById('authRole');
+  const licenseLbl = document.getElementById('authLicenseLabel');
+  const licenseInp = document.getElementById('authLicense');
+  const orgLbl = document.getElementById('authOrgLabel');
+  const orgInp = document.getElementById('authOrg');
+  const showProFields = authUserType === 'professional' && authMode === 'signup';
+  [fullNameLbl, fullNameInp, roleLbl, roleSel, licenseLbl, licenseInp, orgLbl, orgInp].forEach(el=>{
+    el.style.display = showProFields ? 'block' : 'none';
+  });
+  fullNameLbl.textContent = t.fullNameLabel;
+  fullNameInp.placeholder = t.fullNamePlaceholder;
+  roleLbl.textContent = t.roleLabel;
+  document.getElementById('authRoleOptLogopedista').textContent = t.roleLogopedista;
+  document.getElementById('authRoleOptPsicologo').textContent = t.rolePsicologo;
+  document.getElementById('authRoleOptProfessor').textContent = t.roleProfessor;
+  document.getElementById('authRoleOptOutro').textContent = t.roleOutro;
+  licenseLbl.textContent = t.licenseLabel;
+  licenseInp.placeholder = t.licensePlaceholder;
+  orgLbl.textContent = t.orgLabel;
+  orgInp.placeholder = t.orgPlaceholder;
+
   // -- Sobrescreve com modo profissional (quando ativo) --
   const proToggle = document.getElementById('authProToggle');
   if (authUserType === 'professional') {
-    const proLabels = {
-      pt: { title: 'Área dos Profissionais', badge: '🏥 Modo Profissional', toggle: '← Entrar como responsável' },
-      it: { title: 'Area Professionisti', badge: '🏥 Modalità Professionale', toggle: '← Accedi come genitore' }
-    };
-    const pl = proLabels[state.lang] || proLabels.pt;
-    title.textContent = pl.title;
-    subtitle.innerHTML = `<span class="auth-pro-mode-badge">${pl.badge}</span>`;
-    btn.textContent = t.loginBtn;
-    toggleBtn.style.display = 'none';
+    const proBadge = { pt: '🏥 Modo Profissional', it: '🏥 Modalità Professionale' };
+    const badge = proBadge[state.lang] || proBadge.pt;
+    if (authMode === 'signup') {
+      title.textContent = t.proSignupTitle;
+      subtitle.innerHTML = `<span class="auth-pro-mode-badge">${badge}</span>`;
+      btn.textContent = t.proSignupBtn;
+      toggleBtn.textContent = t.switchToLogin;
+      confirmLbl.style.display = 'block';
+      confirmInp.style.display = 'block';
+    } else {
+      const proTitle = { pt: 'Área dos Profissionais', it: 'Area Professionisti' };
+      title.textContent = proTitle[state.lang] || proTitle.pt;
+      subtitle.innerHTML = `<span class="auth-pro-mode-badge">${badge}</span>`;
+      btn.textContent = t.loginBtn;
+      toggleBtn.textContent = t.switchToSignup;
+    }
+    toggleBtn.style.display = 'inline-block';
     forgotBtn.style.display = 'none';
     passLbl.style.display = 'block';
     passInp.style.display = 'block';
-    confirmLbl.style.display = 'none';
-    confirmInp.style.display = 'none';
-    if (proToggle) proToggle.textContent = pl.toggle;
+    if (proToggle) proToggle.textContent = state.lang === 'it' ? '← Accedi come genitore' : '← Entrar como responsável';
   } else {
     if (proToggle) proToggle.textContent = state.lang === 'it' ? 'Accedi come professionista' : 'Entrar como profissional';
   }
@@ -1213,6 +1291,7 @@ function handleForgotPassword() {
 }
 
 sb.auth.onAuthStateChange(async (event, session) => {
+  if (suppressAutoRouting) return;
   if (session) {
     state.authUserId = session.user.id;
 
@@ -1251,30 +1330,34 @@ sb.auth.onAuthStateChange(async (event, session) => {
 });
 
 async function handleAuthSubmit() {
+  if (authUserType === 'professional' && authMode === 'signup') {
+    return handleProfessionalSignup();
+  }
+
   const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   const email = document.getElementById('authEmail').value.trim();
   const password = document.getElementById('authPassword').value;
   const confirmPassword = document.getElementById('authConfirmPassword').value;
   const errEl = document.getElementById('authError');
   errEl.style.display = 'none';
-  
+
   if(!email || (authMode !== 'reset' && !password)) {
     errEl.textContent = t.errorInvalidCredentials;
     errEl.style.display = 'block';
     return;
   }
-  
+
   if (authMode === 'signup' && password !== confirmPassword) {
     errEl.textContent = t.errorPasswordMismatch;
     errEl.style.display = 'block';
     return;
   }
-  
+
   const btn = document.getElementById('authSubmitBtn');
   const originalText = btn.textContent;
   btn.textContent = authMode === 'signup' ? t.loadingSignup : (authMode === 'login' ? t.loadingLogin : '...');
   btn.disabled = true;
-  
+
   let error = null;
   if (authMode === 'signup') {
     const res = await sb.auth.signUp({ email, password });
@@ -1307,6 +1390,88 @@ async function handleAuthSubmit() {
   
   btn.textContent = originalText;
   btn.disabled = false;
+}
+
+async function handleProfessionalSignup(){
+  const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
+  const fullName = document.getElementById('authFullName').value.trim();
+  const role = document.getElementById('authRole').value;
+  const license = document.getElementById('authLicense').value.trim();
+  const org = document.getElementById('authOrg').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const confirmPassword = document.getElementById('authConfirmPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+
+  if(!fullName){
+    errEl.textContent = t.errorFullNameRequired;
+    errEl.style.display = 'block';
+    return;
+  }
+  if(!email || !password){
+    errEl.textContent = t.errorInvalidCredentials;
+    errEl.style.display = 'block';
+    return;
+  }
+  if(password !== confirmPassword){
+    errEl.textContent = t.errorPasswordMismatch;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('authSubmitBtn');
+  const originalText = btn.textContent;
+  btn.textContent = t.proLoadingSignup;
+  btn.disabled = true;
+
+  // See suppressAutoRouting's declaration: with auto-confirm on, signUp()
+  // below establishes a session and fires onAuthStateChange immediately,
+  // which would otherwise race this function's own professionals insert
+  // and create a stray families row instead.
+  suppressAutoRouting = true;
+  try{
+    const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+    if(authError){
+      errEl.style.color = '#FFA3B1';
+      errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
+      errEl.style.borderColor = 'var(--berry)';
+      errEl.textContent = getAuthErrorMsg(authError.message || authError.code);
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const profPayload = {
+      auth_user_id: authData.user.id,
+      full_name: fullName,
+      role,
+      license_number: license || null,
+      organization_name: org || null
+    };
+    let { error: profError } = await sb.from('professionals').insert(profPayload);
+    if(profError){
+      // Best-effort single retry: the auth account already exists at this
+      // point, so silently giving up here would strand the user as neither
+      // family nor professional the next time they log in.
+      ({ error: profError } = await sb.from('professionals').insert(profPayload));
+    }
+    if(profError){
+      errEl.style.color = '#FFA3B1';
+      errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
+      errEl.style.borderColor = 'var(--berry)';
+      errEl.textContent = t.errorProfOrphaned;
+      errEl.style.display = 'block';
+      return;
+    }
+
+    state.authUserId = authData.user.id;
+    state.isProfessional = true;
+    openProfessionalDashboard();
+  } finally {
+    suppressAutoRouting = false;
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
 }
 
 async function handleLogout() {

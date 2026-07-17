@@ -260,7 +260,21 @@
 
   .parents-professionals-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
   .parents-professionals-card .txt{ font-size:13px; color:var(--cream); opacity:.85; max-width:340px; text-align:left; }
-  .parents-invite-btn{ background: var(--papaya); color:#fff; border:none; border-radius:12px; padding:9px 16px; font-weight:800; font-size:13px; cursor:default; white-space:nowrap; }
+  .parents-invite-btn{ background: var(--papaya); color:#fff; border:none; border-radius:12px; padding:9px 16px; font-weight:800; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .parents-invite-btn:disabled{ opacity:.6; cursor:default; }
+
+  .parents-pending-requests{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+  .parents-pending-row{ background: rgba(240,200,120,.1); border:2px solid rgba(240,200,120,.35); border-radius:16px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .parents-pending-row .txt{ font-size:13px; color:var(--cream); }
+  .parents-pending-actions{ display:flex; gap:8px; }
+  .parents-approve-btn{ background: var(--success); color:#0B3D2E; border:none; border-radius:10px; padding:7px 14px; font-weight:800; font-size:12.5px; cursor:pointer; }
+  .parents-reject-btn{ background: rgba(255,255,255,.1); color:var(--cream); border:2px solid rgba(255,255,255,.2); border-radius:10px; padding:7px 14px; font-weight:800; font-size:12.5px; cursor:pointer; }
+  .parents-pending-actions button:disabled{ opacity:.6; cursor:default; }
+
+  .parents-invite-code-card{ background: rgba(124,197,118,.12); border:2px solid var(--success); border-radius:16px; padding:16px; text-align:center; margin-top:10px; }
+  .invite-code-value{ font-family:'Baloo 2',cursive; font-size:28px; font-weight:800; color:var(--sand); letter-spacing:1px; margin-bottom:10px; }
+  .parents-copy-btn{ background: var(--papaya); color:#fff; border:none; border-radius:10px; padding:8px 18px; font-weight:800; font-size:13px; cursor:pointer; }
+  .invite-code-hint{ font-size:12px; color:var(--lilac); margin: 10px 0 0; }
 
   .parents-dash-error{ text-align:center; padding: 30px 10px; }
   .parents-dash-error p{ color:var(--cream); opacity:.9; font-size:14.5px; margin-bottom:14px; }
@@ -308,6 +322,13 @@
   .prof-dash-child-btn.active { background: #F5E6C8; border-left-color: #FF6F59; }
   .prof-dash-child-name { font-size: 13.5px; font-weight: 700; color: #1F2E29; }
   .prof-dash-pending-tag { font-size: 10.5px; color: #FF6F59; font-weight: 700; }
+  .prof-dash-redeem { margin-top: 18px; padding: 0 18px; }
+  .prof-dash-redeem-input { width: 100%; box-sizing: border-box; border: 1px solid #E7DCC0; border-radius: 10px; padding: 8px 10px; font-size: 12.5px; margin-bottom: 8px; font-family: 'Nunito', sans-serif; }
+  .prof-dash-redeem-btn { width: 100%; background: #123C3E; color: #fff; border: none; border-radius: 10px; padding: 9px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+  .prof-dash-redeem-btn:disabled { opacity: .6; cursor: default; }
+  .prof-dash-redeem-msg { font-size: 11.5px; margin-top: 8px; line-height: 1.4; }
+  .prof-dash-redeem-msg.success { color: #4F7C64; font-weight: 700; }
+  .prof-dash-redeem-msg.error { color: #FF6F59; font-weight: 700; }
   .prof-dash-detail { flex: 1; min-width: 260px; padding: 22px 28px; }
   .prof-dash-card { background: #fff; border: 1px solid #E7DCC0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }
   .prof-dash-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
@@ -785,6 +806,11 @@ const I18N = {
       professionalsTitle:"Profissionais vinculados",
       professionalsNone:(name)=>`Nenhum profissional tem acesso aos dados de ${name} ainda.`,
       inviteBtn:"Convidar",
+      professionalRoles:{ logopedista:"Fonoaudióloga(o)", psicologo:"Psicóloga(o)", professor:"Professora(o)", outro:"Profissional" },
+      approveBtn:"Aprovar", rejectBtn:"Recusar",
+      generatingCode:"Gerando...", copyCodeBtn:"Copiar código", copiedLabel:"Copiado! ✓",
+      inviteCodeHint:"Envie esse código para o profissional. Ele expira em 7 dias.",
+      inviteCodeError:"Não consegui gerar o código. Tente de novo.",
       impulsivityIndex:"Índice de controle inibitório",
       clinicalReportTitle:"Relatório Clínico",
       clinicalReportLockedTitle:"Relatório Clínico — recurso Premium",
@@ -807,6 +833,14 @@ const I18N = {
       accessNote:"Acesso somente leitura. Todo acesso é registrado para conformidade com a LGPD.",
       since:"Vinculado desde", none:"nenhuma ainda", minutes:"min",
       noChildren:"Nenhuma criança vinculada ainda.", loading:"Carregando...", error:"Não consegui carregar os dados.",
+      redeemLabel:"Vincular por código", redeemPlaceholder:"Ex: MAYA-7F3K", redeemBtn:"Solicitar vínculo",
+      redeemSuccess:(name)=>`Solicitação enviada! Assim que ${name} for aprovada pelo responsável, ela aparece no seu painel.`,
+      redeemErrors:{
+        code_not_found:"Código não encontrado. Confira se digitou certo.",
+        code_already_used:"Esse código já foi usado.",
+        code_expired:"Esse código expirou. Peça um novo ao responsável.",
+        not_a_professional:"Não foi possível confirmar sua conta como profissional."
+      },
       adherence:"Adesão (últimas 9 semanas)", adherenceGoalMet:"semanas com meta batida", adherenceNoData:"Ainda sem dado suficiente de adesão.",
       lockedTitle:"Relatório disponível no plano Premium",
       lockedBody:"A família ainda não assina o Premium. Assim que assinar, esses relatórios aparecem automaticamente aqui.",
@@ -890,6 +924,11 @@ const I18N = {
       professionalsTitle:"Professionisti collegati",
       professionalsNone:(name)=>`Nessun professionista ha ancora accesso ai dati di ${name}.`,
       inviteBtn:"Invita",
+      professionalRoles:{ logopedista:"Logopedista", psicologo:"Psicologa/o", professor:"Insegnante", outro:"Professionista" },
+      approveBtn:"Approva", rejectBtn:"Rifiuta",
+      generatingCode:"Generazione...", copyCodeBtn:"Copia codice", copiedLabel:"Copiato! ✓",
+      inviteCodeHint:"Invia questo codice al professionista. Scade tra 7 giorni.",
+      inviteCodeError:"Non sono riuscito a generare il codice. Riprova.",
       impulsivityIndex:"Indice di controllo inibitorio",
       clinicalReportTitle:"Referto Clinico",
       clinicalReportLockedTitle:"Referto Clinico — funzione Premium",
@@ -912,6 +951,14 @@ const I18N = {
       accessNote:"Accesso di sola lettura. Ogni accesso viene registrato per conformità al GDPR.",
       since:"Collegato dal", none:"ancora nessuna", minutes:"min",
       noChildren:"Nessun bambino collegato ancora.", loading:"Caricamento...", error:"Impossibile caricare i dati.",
+      redeemLabel:"Collega con codice", redeemPlaceholder:"Es: MAYA-7F3K", redeemBtn:"Richiedi collegamento",
+      redeemSuccess:(name)=>`Richiesta inviata! Non appena ${name} sarà approvato dal responsabile, apparirà nel tuo pannello.`,
+      redeemErrors:{
+        code_not_found:"Codice non trovato. Controlla di averlo digitato correttamente.",
+        code_already_used:"Questo codice è già stato utilizzato.",
+        code_expired:"Questo codice è scaduto. Chiedi un nuovo codice al responsabile.",
+        not_a_professional:"Non è stato possibile confermare il tuo account come professionista."
+      },
       adherence:"Aderenza (ultime 9 settimane)", adherenceGoalMet:"settimane con obiettivo raggiunto", adherenceNoData:"Dati di aderenza ancora insufficienti.",
       lockedTitle:"Report disponibile nel piano Premium",
       lockedBody:"La famiglia non è ancora abbonata al Premium. Non appena si abbona, questi report appariranno automaticamente qui.",
@@ -2499,17 +2546,6 @@ async function renderProfDashboardBody(container){
 async function renderProfDashboardFrame(container){
   const t = L().prof;
 
-  const sidebarItems = profDashboardChildren.length === 0
-    ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.noChildren}</div>`
-    : profDashboardChildren.map(c=>`
-      <button class="prof-dash-child-btn ${c.childId === profDashboardSelectedId ? 'active' : ''}"
-        data-child-id="${c.childId}" ${c.status !== 'active' ? 'disabled' : ''}
-        style="opacity:${c.status === 'active' ? 1 : 0.55}">
-        <span class="prof-dash-child-name">${c.name}</span>
-        ${c.status === 'pending' ? `<span class="prof-dash-pending-tag">${t.pending}</span>` : ''}
-      </button>
-    `).join('');
-
   container.innerHTML = `
     <div class="prof-dash">
       <div class="prof-dash-topbar">
@@ -2522,7 +2558,13 @@ async function renderProfDashboardFrame(container){
       <div class="prof-dash-body">
         <div class="prof-dash-sidebar">
           <div class="prof-dash-sidebar-label">${t.linkedChildren}</div>
-          ${sidebarItems}
+          <div id="profSidebarList"></div>
+          <div class="prof-dash-redeem">
+            <div class="prof-dash-sidebar-label">${t.redeemLabel}</div>
+            <input type="text" id="profRedeemInput" class="prof-dash-redeem-input" placeholder="${t.redeemPlaceholder}">
+            <button class="prof-dash-redeem-btn" id="profRedeemBtn">${t.redeemBtn}</button>
+            <div id="profRedeemMsg" class="prof-dash-redeem-msg"></div>
+          </div>
         </div>
         <div class="prof-dash-detail" id="profDashDetail">
           <div style="color:#8A8067; text-align:center; margin-top:40px;">${t.selectChild}</div>
@@ -2532,21 +2574,75 @@ async function renderProfDashboardFrame(container){
     </div>
   `;
 
+  renderProfSidebarList(container);
+
   container.querySelector('#profDashLangToggle').addEventListener('click', async ()=>{
     state.lang = state.lang === 'it' ? 'pt' : 'it';
     await renderProfDashboardFrame(container);
     if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
   });
 
-  container.querySelectorAll('.prof-dash-child-btn:not([disabled])').forEach(btn=>{
+  container.querySelector('#profRedeemBtn').addEventListener('click', ()=>handleRedeemInviteCode(container));
+  container.querySelector('#profRedeemInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') handleRedeemInviteCode(container);
+  });
+
+  if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
+}
+
+function renderProfSidebarList(container){
+  const t = L().prof;
+  const listEl = container.querySelector('#profSidebarList');
+  if(!listEl) return;
+  listEl.innerHTML = profDashboardChildren.length === 0
+    ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.noChildren}</div>`
+    : profDashboardChildren.map(c=>`
+      <button class="prof-dash-child-btn ${c.childId === profDashboardSelectedId ? 'active' : ''}"
+        data-child-id="${c.childId}" ${c.status !== 'active' ? 'disabled' : ''}
+        style="opacity:${c.status === 'active' ? 1 : 0.55}">
+        <span class="prof-dash-child-name">${c.name}</span>
+        ${c.status === 'pending' ? `<span class="prof-dash-pending-tag">${t.pending}</span>` : ''}
+      </button>
+    `).join('');
+
+  listEl.querySelectorAll('.prof-dash-child-btn:not([disabled])').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       profDashboardSelectedId = btn.dataset.childId;
       await renderProfDashboardFrame(container);
       await loadAndRenderProfChildDetail(container);
     });
   });
+}
 
-  if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
+async function handleRedeemInviteCode(container){
+  const t = L().prof;
+  const input = container.querySelector('#profRedeemInput');
+  const btn = container.querySelector('#profRedeemBtn');
+  const msgEl = container.querySelector('#profRedeemMsg');
+  const code = input.value.trim();
+  if(!code) return;
+  btn.disabled = true;
+  msgEl.textContent = '';
+  msgEl.className = 'prof-dash-redeem-msg';
+  try{
+    const { data, error } = await sb.rpc('redeem_invite_code', { p_code: code });
+    if(error) throw error;
+    if(data?.success){
+      msgEl.textContent = t.redeemSuccess(data.child_name);
+      msgEl.className = 'prof-dash-redeem-msg success';
+      input.value = '';
+      profDashboardChildren = await loadProfDashboardChildren();
+      renderProfSidebarList(container);
+    } else {
+      msgEl.textContent = t.redeemErrors[data?.error] || t.error;
+      msgEl.className = 'prof-dash-redeem-msg error';
+    }
+  }catch(e){
+    msgEl.textContent = t.error;
+    msgEl.className = 'prof-dash-redeem-msg error';
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 async function loadAndRenderProfChildDetail(container){
@@ -2887,6 +2983,23 @@ async function loadLinkedProfessionals(childId){
     return data || [];
   }catch(e){ return []; }
 }
+async function loadPendingProfessionalRequests(childId){
+  try{
+    const { data, error } = await sb.from('professional_child_links').select('id, status, professionals(full_name, role)').eq('child_profile_id', childId).eq('status', 'pending');
+    if(error) throw error;
+    return data || [];
+  }catch(e){ return []; }
+}
+async function generateInviteCode(childId){
+  const { data, error } = await sb.rpc('create_invite_code', { p_child_profile_id: childId });
+  if(error) throw error;
+  return data;
+}
+async function respondToProfessionalLink(linkId, approve){
+  const payload = approve ? { status: 'active', linked_at: new Date().toISOString() } : { status: 'revoked' };
+  const { error } = await sb.from('professional_child_links').update(payload).eq('id', linkId);
+  if(error) throw error;
+}
 async function loadAdherence(childId){
   try{
     const { data, error } = await sb.from('v_adherence_summary')
@@ -2995,14 +3108,15 @@ async function renderParentsDashboardBody(){
     return;
   }
 
-  let sessions, reading, subscription, professionals, adherence;
+  let sessions, reading, subscription, professionals, adherence, pendingRequests;
   try{
-    [sessions, reading, subscription, professionals, adherence] = await Promise.all([
+    [sessions, reading, subscription, professionals, adherence, pendingRequests] = await Promise.all([
       loadSessions(child.id),
       loadReadingProgress(child.id),
       loadSubscription(state.familyId),
       loadLinkedProfessionals(child.id),
-      loadAdherence(child.id)
+      loadAdherence(child.id),
+      loadPendingProfessionalRequests(child.id)
     ]);
   }catch(e){
     body.innerHTML = '';
@@ -3161,6 +3275,37 @@ async function renderParentsDashboardBody(){
   profTitle.innerHTML = `🛡️ ${t.parents.professionalsTitle}`;
   body.appendChild(profTitle);
 
+  if(pendingRequests.length){
+    const pendingWrap = document.createElement('div');
+    pendingWrap.className = 'parents-pending-requests';
+    pendingRequests.forEach(req=>{
+      const row = document.createElement('div');
+      row.className = 'parents-pending-row';
+      const name = req.professionals?.full_name || '?';
+      const role = req.professionals?.role ? (t.parents.professionalRoles[req.professionals.role] || req.professionals.role) : '';
+      row.innerHTML = `
+        <div class="txt"><strong>${name}</strong>${role ? ` — ${role}` : ''}</div>
+        <div class="parents-pending-actions">
+          <button class="parents-approve-btn">${t.parents.approveBtn}</button>
+          <button class="parents-reject-btn">${t.parents.rejectBtn}</button>
+        </div>
+      `;
+      const setBusy = (busy)=> row.querySelectorAll('button').forEach(b=>b.disabled = busy);
+      row.querySelector('.parents-approve-btn').addEventListener('click', async ()=>{
+        setBusy(true);
+        try{ await respondToProfessionalLink(req.id, true); await renderParentsDashboardBody(); }
+        catch(e){ setBusy(false); }
+      });
+      row.querySelector('.parents-reject-btn').addEventListener('click', async ()=>{
+        setBusy(true);
+        try{ await respondToProfessionalLink(req.id, false); await renderParentsDashboardBody(); }
+        catch(e){ setBusy(false); }
+      });
+      pendingWrap.appendChild(row);
+    });
+    body.appendChild(pendingWrap);
+  }
+
   const profCard = document.createElement('div');
   profCard.className = 'parents-professionals-card';
   const namesText = professionals.length
@@ -3168,6 +3313,40 @@ async function renderParentsDashboardBody(){
     : t.parents.professionalsNone(child.name);
   profCard.innerHTML = `<div class="txt">${namesText}</div><button class="parents-invite-btn">➕ ${t.parents.inviteBtn}</button>`;
   body.appendChild(profCard);
+
+  const inviteCodeWrap = document.createElement('div');
+  inviteCodeWrap.style.display = 'none';
+  body.appendChild(inviteCodeWrap);
+
+  profCard.querySelector('.parents-invite-btn').addEventListener('click', async (e)=>{
+    const btn = e.currentTarget;
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t.parents.generatingCode;
+    try{
+      const code = await generateInviteCode(child.id);
+      inviteCodeWrap.style.display = 'block';
+      inviteCodeWrap.innerHTML = `
+        <div class="parents-invite-code-card">
+          <div class="invite-code-value">${code}</div>
+          <button class="parents-copy-btn">${t.parents.copyCodeBtn}</button>
+          <p class="invite-code-hint">${t.parents.inviteCodeHint}</p>
+        </div>
+      `;
+      inviteCodeWrap.querySelector('.parents-copy-btn').addEventListener('click', async ()=>{
+        const copyBtn = inviteCodeWrap.querySelector('.parents-copy-btn');
+        try{ await navigator.clipboard.writeText(code); }catch(err){ /* clipboard may be unavailable; code is still shown on screen */ }
+        copyBtn.textContent = t.parents.copiedLabel;
+        setTimeout(()=>{ copyBtn.textContent = t.parents.copyCodeBtn; }, 1800);
+      });
+    }catch(err){
+      inviteCodeWrap.style.display = 'block';
+      inviteCodeWrap.innerHTML = `<p class="chart-empty">${t.parents.inviteCodeError}</p>`;
+    }finally{
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
 
   // ---- Clinical report (premium) ----
   const clinicalTitle = document.createElement('div');

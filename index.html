@@ -1110,13 +1110,8 @@ sb.auth.onAuthStateChange(async (event, session) => {
     const { data: profRow } = await sb.from('professionals').select('id').eq('auth_user_id', session.user.id).maybeSingle();
     if (profRow) {
       state.isProfessional = true;
-      document.getElementById('hubHeader').style.display = 'none';
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById('screen-professional').classList.add('active');
-      window.scrollTo({top:0, behavior:'smooth'});
       profDashboardSelectedId = null;
-      profDashboardLang = state.lang;
-      professionalOpenDashboard('#profDashboardContainer');
+      openProfessionalDashboard();
       return;
     }
     state.isProfessional = false;
@@ -2305,18 +2300,19 @@ function attemptUnlock(id){
 
 /* ========================= PROFESSIONAL DASHBOARD =========================
    Read-only portal for professionals (logopedista/psicólogo/professor) linked
-   to a child via professional_child_links. Not reachable via normal navigation
-   yet: today every authenticated user is provisioned as a family (see the
-   sb.auth.onAuthStateChange handler), there's no professional signup/login
-   distinction, and the parent-side "Convidar" button has no action wired up.
-   openProfessionalDashboard() is ready to be called once that flow exists. */
+   to a child via professional_child_links. Entered from sb.auth.onAuthStateChange
+   when the logged-in user has a row in `professionals`. The parent-side
+   "Convidar" button still has no action wired up, so links have to be
+   created directly for now. */
 let profDashboardChildren = [];
 let profDashboardSelectedId = null;
 
 function openProfessionalDashboard(){
   flushSessionLog();
+  document.getElementById('hubHeader').style.display = 'none';
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-professional').classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
   renderProfDashboardBody(document.getElementById('profDashboardContainer'));
 }
 

@@ -286,6 +286,12 @@
   .parents-clinical-locked .locked-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:8px; }
   .parents-clinical-locked .locked-desc{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 auto 18px; max-width:420px; }
 
+  .parents-danger-zone{ background: rgba(229,85,110,.08); border:2px solid rgba(229,85,110,.4); border-radius:18px; padding:18px 20px; text-align:center; }
+  .parents-danger-zone .danger-desc{ font-size:12.5px; color:var(--cream); opacity:.85; line-height:1.5; margin:0 auto 14px; max-width:420px; }
+  .parents-reset-btn{ background:transparent; border:2px solid var(--berry); color:#FFA3B1; font-weight:800; font-size:13px; padding:9px 18px; border-radius:12px; cursor:pointer; }
+  .parents-reset-btn:hover{ background: rgba(229,85,110,.15); }
+  .parents-reset-btn:disabled{ opacity:.6; cursor:default; }
+
   /* ---------- STICKER ALBUM ---------- */
   .album-summary{ text-align:center; font-weight:800; color:var(--sand); margin-bottom:16px; font-size:15px; }
   .album-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(108px,1fr)); gap:14px; }
@@ -831,6 +837,12 @@ const I18N = {
       clinicalReportLockedTitle:"Relatório Clínico — recurso Premium",
       clinicalReportLockedDesc:"Assine o Premium para ver o índice de controle inibitório e um relatório completo, pronto para compartilhar com quem acompanha seu filho.",
       upgradeBtn:"Conhecer o Premium",
+      dangerZoneTitle:"Zona de risco",
+      resetProgressDesc:"Apaga sementes, estrelas, figurinhas, histórico de sessões e progresso de leitura. A criança começa do zero. Essa ação não pode ser desfeita.",
+      resetProgressBtn:(name)=>`Zerar evolução de ${name}`,
+      resetProgressConfirm:(name)=>`Tem certeza? Isso vai apagar TODO o progresso de ${name} (sementes, estrelas, figurinhas, sessões, leitura). Não é possível desfazer.`,
+      resettingProgress:"Zerando...",
+      resetProgressError:"Não consegui zerar a evolução. Tente de novo.",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -949,6 +961,12 @@ const I18N = {
       clinicalReportLockedTitle:"Referto Clinico — funzione Premium",
       clinicalReportLockedDesc:"Passa a Premium per vedere l'indice di controllo inibitorio e un referto completo, pronto da condividere con chi segue tuo figlio.",
       upgradeBtn:"Scopri Premium",
+      dangerZoneTitle:"Zona a rischio",
+      resetProgressDesc:"Cancella semi, stelle, figurine, cronologia delle sessioni e progressi di lettura. Il bambino/a riparte da zero. Questa azione non può essere annullata.",
+      resetProgressBtn:(name)=>`Azzera i progressi di ${name}`,
+      resetProgressConfirm:(name)=>`Sei sicuro/a? Questo cancellerà TUTTI i progressi di ${name} (semi, stelle, figurine, sessioni, lettura). Non è possibile annullare.`,
+      resettingProgress:"Azzeramento...",
+      resetProgressError:"Non sono riuscito ad azzerare i progressi. Riprova.",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -3540,6 +3558,36 @@ async function renderParentsDashboardBody(){
     `;
     body.appendChild(lockedCard);
   }
+
+  // ---- Danger zone: reset progress ----
+  const dangerTitle = document.createElement('div');
+  dangerTitle.className = 'parents-section-title';
+  dangerTitle.innerHTML = `⚠️ ${t.parents.dangerZoneTitle}`;
+  body.appendChild(dangerTitle);
+
+  const dangerCard = document.createElement('div');
+  dangerCard.className = 'parents-danger-zone';
+  dangerCard.innerHTML = `
+    <p class="danger-desc">${t.parents.resetProgressDesc}</p>
+    <button class="parents-reset-btn">${t.parents.resetProgressBtn(child.name)}</button>
+  `;
+  dangerCard.querySelector('.parents-reset-btn').addEventListener('click', async (e)=>{
+    if(!confirm(t.parents.resetProgressConfirm(child.name))) return;
+    const btn = e.currentTarget;
+    const originalLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t.parents.resettingProgress;
+    try{
+      const { error } = await sb.rpc('reset_child_progress', { p_child_profile_id: child.id });
+      if(error) throw error;
+      await renderParentsDashboardBody();
+    }catch(err){
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      showError(t.parents.resetProgressError);
+    }
+  });
+  body.appendChild(dangerCard);
 }
 
 function renderTrendChart(container, sessions){

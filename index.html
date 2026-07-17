@@ -813,7 +813,17 @@ const I18N = {
       phoneticAnalysis:"Análise fonética", hardestSyllables:"Sílabas com mais dificuldade",
       phonologicalSwaps:"Trocas fonológicas mais frequentes", errorTypesLabel:"Tipos de erro",
       errorTypeNames:{ omissao:"Omissão", substituicao:"Substituição", inversao:"Inversão", acrescimo:"Acréscimo" },
-      swapArrow:"→", noPhoneticData:"Ainda sem dado suficiente de análise fonética."
+      swapArrow:"→", noPhoneticData:"Ainda sem dado suficiente de análise fonética.",
+      focusDuration:"Atenção sustentada", focusAvg:"Duração média de foco", focusMax:"Maior tempo de foco",
+      focusMin:"Menor tempo de foco", focusDistractions:"Distrações por sessão (média)",
+      responseTimeTitle:"Tempo de resposta", responseTimeAvg:"Média", responseTimeBest:"Melhor tempo",
+      workingMemoryTitle:"Memória de trabalho", workingMemoryLongest:"Maior sequência lembrada", workingMemoryAvg:"Média",
+      cognitiveFlexTitle:"Flexibilidade cognitiva", cognitiveFlexBody:"Tempo médio para se adaptar após mudança de regra",
+      frustrationTitle:"Tolerância à frustração", frustrationAbandons:"Abandonos",
+      frustrationHelp:"Pedidos de ajuda", frustrationRetries:"Tentativas de novo",
+      waitTitle:"Cumprimento de espera", waitCorrect:"Esperou corretamente", waitEarly:"Clicou antes da hora",
+      instructionTitle:"Seguir instruções", instructionAccuracy:"Taxa de acerto",
+      seconds:"s", ms:"ms", noDataGeneric:"Ainda sem dado suficiente."
     }
   },
   it: {
@@ -908,7 +918,17 @@ const I18N = {
       phoneticAnalysis:"Analisi fonetica", hardestSyllables:"Sillabe con maggiore difficoltà",
       phonologicalSwaps:"Sostituzioni fonologiche più frequenti", errorTypesLabel:"Tipi di errore",
       errorTypeNames:{ omissao:"Omissione", substituicao:"Sostituzione", inversao:"Inversione", acrescimo:"Aggiunta" },
-      swapArrow:"→", noPhoneticData:"Dati di analisi fonetica ancora insufficienti."
+      swapArrow:"→", noPhoneticData:"Dati di analisi fonetica ancora insufficienti.",
+      focusDuration:"Attenzione sostenuta", focusAvg:"Durata media di attenzione", focusMax:"Tempo massimo di attenzione",
+      focusMin:"Tempo minimo di attenzione", focusDistractions:"Distrazioni per sessione (media)",
+      responseTimeTitle:"Tempo di risposta", responseTimeAvg:"Media", responseTimeBest:"Tempo migliore",
+      workingMemoryTitle:"Memoria di lavoro", workingMemoryLongest:"Sequenza più lunga ricordata", workingMemoryAvg:"Media",
+      cognitiveFlexTitle:"Flessibilità cognitiva", cognitiveFlexBody:"Tempo medio di adattamento dopo un cambio di regola",
+      frustrationTitle:"Tolleranza alla frustrazione", frustrationAbandons:"Abbandoni",
+      frustrationHelp:"Richieste di aiuto", frustrationRetries:"Nuovi tentativi",
+      waitTitle:"Rispetto dell'attesa", waitCorrect:"Ha atteso correttamente", waitEarly:"Ha cliccato in anticipo",
+      instructionTitle:"Seguire le istruzioni", instructionAccuracy:"Tasso di successo",
+      seconds:"s", ms:"ms", noDataGeneric:"Dati ancora insufficienti."
     }
   }
 };
@@ -2392,18 +2412,31 @@ async function loadProfDashboardChildren(){
 }
 
 async function loadProfDashboardChildDetail(childId){
-  const [{ data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows }, { data: swaps }, { data: errorTypes }, { data: syllableDifficulty }] = await Promise.all([
+  const [
+    { data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows },
+    { data: swaps }, { data: errorTypes }, { data: syllableDifficulty },
+    { data: focusEvolution }, { data: responseTime }, { data: workingMemory },
+    { data: ruleAdaptation }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing }
+  ] = await Promise.all([
     sb.from('child_profiles').select('*').eq('id', childId).single(),
     sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle(),
     sb.from('v_impulsivity_index').select('indice').eq('profile_id', childId).maybeSingle(),
     sb.from('v_adherence_summary').select('game_key, semanas_com_dado, semanas_com_meta_atingida, taxa_adesao_pct').eq('profile_id', childId),
-    // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty all filter on
-    // has_premium_access(profile_id) at the DB level, so an empty array here can mean
-    // either "no data yet" or "family isn't premium" - isPremium (fetched below,
-    // separately, since it needs profile.family_id) disambiguates the two.
+    // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty, and all 7 clinical
+    // views below, filter on has_premium_access(profile_id) at the DB level, so an empty
+    // array here can mean either "no data yet" or "family isn't premium" - isPremium
+    // (fetched below via RPC, since subscriptions itself isn't readable by professionals)
+    // disambiguates the two.
     sb.from('v_phonological_swaps').select('expected, answered, occurrences').eq('profile_id', childId).order('occurrences', { ascending:false }).limit(5),
     sb.from('v_error_type_summary').select('error_type, occurrences').eq('profile_id', childId),
-    sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 100).order('accuracy_pct', { ascending:true }).limit(5)
+    sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 100).order('accuracy_pct', { ascending:true }).limit(5),
+    sb.from('v_weekly_focus_evolution').select('game_key, week_start, avg_duration_seconds, max_duration_seconds, min_duration_seconds, avg_distractions').eq('profile_id', childId).order('week_start', { ascending:false }),
+    sb.from('v_response_time_trend').select('game_key, month, avg_response_time_ms, best_response_time_ms').eq('profile_id', childId).order('month', { ascending:false }),
+    sb.from('v_working_memory').select('game_key, longest_correct_sequence, avg_correct_length').eq('profile_id', childId),
+    sb.from('v_rule_adaptation').select('game_key, time_to_adapt_ms').eq('profile_id', childId).not('time_to_adapt_ms', 'is', null),
+    sb.from('v_frustration_raw').select('game_key, abandons, help_requests, retries').eq('profile_id', childId),
+    sb.from('v_wait_task_compliance').select('game_key, waited_correctly, clicked_early, total_attempts').eq('profile_id', childId),
+    sb.from('v_instruction_following').select('game_key, followed_correctly, total_instructions, accuracy_pct').eq('profile_id', childId)
   ]);
 
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -2431,6 +2464,9 @@ async function loadProfDashboardChildDetail(childId){
     weeklyUsage: usageByDay.map(d=>({ ...d, minutes: Math.round(d.minutes) })),
     adherence: (adherenceRows || []).filter(a=>a.semanas_com_dado > 0),
     phonologicalSwaps: swaps || [], errorTypes: errorTypes || [], syllableDifficulty: syllableDifficulty || [],
+    focusEvolution: focusEvolution || [], responseTime: responseTime || [], workingMemory: workingMemory || [],
+    ruleAdaptation: ruleAdaptation || [], frustration: frustration || [],
+    waitCompliance: waitCompliance || [], instructionFollowing: instructionFollowing || [],
     isPremium
   };
 }
@@ -2526,13 +2562,18 @@ async function loadAndRenderProfChildDetail(container){
     return;
   }
 
-  const { profile, readingProgress, impulsivityIndex, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty, isPremium } = detail;
+  const {
+    profile, readingProgress, impulsivityIndex, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty,
+    focusEvolution, responseTime, workingMemory, ruleAdaptation, frustration, waitCompliance, instructionFollowing, isPremium
+  } = detail;
   const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
   const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
+  const gameTitle = (key)=> key === 'aventura_das_letras' ? t.lettersIsland : (L().tiles[key]?.title || key);
+  const lockedNote = `<div style="font-size:12.5px; color:#8A8067; line-height:1.5;">${t.lockedBody}</div>`;
+  const noDataNote = `<div style="font-size:12.5px; color:#8A8067;">${t.noDataGeneric}</div>`;
   const adherenceRowsHtml = (adherence || []).map(a=>{
     const pct = Math.round(parseFloat(a.taxa_adesao_pct));
-    const gameLabel = a.game_key === 'aventura_das_letras' ? t.lettersIsland : (L().tiles[a.game_key]?.title || a.game_key);
-    return `<div class="prof-dash-row"><span class="prof-dash-row-label">${gameLabel}</span><span class="prof-dash-row-value">${pct}% (${a.semanas_com_meta_atingida}/${a.semanas_com_dado} ${t.adherenceGoalMet})</span></div>`;
+    return `<div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(a.game_key)}</span><span class="prof-dash-row-value">${pct}% (${a.semanas_com_meta_atingida}/${a.semanas_com_dado} ${t.adherenceGoalMet})</span></div>`;
   }).join('');
 
   // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty are filtered by
@@ -2563,6 +2604,82 @@ async function loadAndRenderProfChildDetail(container){
         </div>` : ''}
     `;
   }
+
+  // --- Atenção sustentada: semana mais recente por jogo (query já ordena week_start desc) ---
+  const focusByGame = {};
+  (focusEvolution || []).forEach(f=>{ if(!focusByGame[f.game_key]) focusByGame[f.game_key] = f; });
+  let focusHtml;
+  if(!isPremium) focusHtml = lockedNote;
+  else if(Object.keys(focusByGame).length === 0) focusHtml = noDataNote;
+  else focusHtml = Object.entries(focusByGame).map(([key, f])=>`
+    <div style="margin-bottom:10px;">
+      <div style="font-size:11.5px; color:#8A8067; font-weight:700; margin-bottom:4px;">${gameTitle(key)}</div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.focusAvg}</span><span class="prof-dash-row-value">${Math.round(f.avg_duration_seconds || 0)}${t.seconds}</span></div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.focusMax}</span><span class="prof-dash-row-value">${Math.round(f.max_duration_seconds || 0)}${t.seconds}</span></div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.focusMin}</span><span class="prof-dash-row-value">${Math.round(f.min_duration_seconds || 0)}${t.seconds}</span></div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.focusDistractions}</span><span class="prof-dash-row-value">${(f.avg_distractions || 0).toFixed(1)}</span></div>
+    </div>
+  `).join('');
+
+  // --- Tempo de resposta: mês mais recente por jogo (query já ordena month desc) ---
+  const responseByGame = {};
+  (responseTime || []).forEach(r=>{ if(!responseByGame[r.game_key]) responseByGame[r.game_key] = r; });
+  let responseTimeHtml;
+  if(!isPremium) responseTimeHtml = lockedNote;
+  else if(Object.keys(responseByGame).length === 0) responseTimeHtml = noDataNote;
+  else responseTimeHtml = Object.entries(responseByGame).map(([key, r])=>`
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(key)} — ${t.responseTimeAvg}</span><span class="prof-dash-row-value">${Math.round(r.avg_response_time_ms || 0)}${t.ms}</span></div>
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(key)} — ${t.responseTimeBest}</span><span class="prof-dash-row-value">${Math.round(r.best_response_time_ms || 0)}${t.ms}</span></div>
+  `).join('');
+
+  // --- Memória de trabalho ---
+  let workingMemoryHtml;
+  if(!isPremium) workingMemoryHtml = lockedNote;
+  else if((workingMemory || []).length === 0) workingMemoryHtml = noDataNote;
+  else workingMemoryHtml = workingMemory.map(w=>`
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(w.game_key)} — ${t.workingMemoryLongest}</span><span class="prof-dash-row-value">${w.longest_correct_sequence ?? '-'}</span></div>
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(w.game_key)} — ${t.workingMemoryAvg}</span><span class="prof-dash-row-value">${w.avg_correct_length ? Number(w.avg_correct_length).toFixed(1) : '-'}</span></div>
+  `).join('');
+
+  // --- Flexibilidade cognitiva: média geral (não agrupado por jogo) ---
+  const ruleAdaptationList = (ruleAdaptation || []).filter(r=>r.time_to_adapt_ms != null);
+  const avgAdaptMs = ruleAdaptationList.length
+    ? Math.round(ruleAdaptationList.reduce((sum,r)=>sum + r.time_to_adapt_ms, 0) / ruleAdaptationList.length)
+    : null;
+  let cognitiveFlexHtml;
+  if(!isPremium) cognitiveFlexHtml = lockedNote;
+  else if(avgAdaptMs === null) cognitiveFlexHtml = noDataNote;
+  else cognitiveFlexHtml = `<div style="font-size:12.5px; color:#1F2E29;">${t.cognitiveFlexBody}: <strong>${avgAdaptMs}${t.ms}</strong></div>`;
+
+  // --- Tolerância à frustração ---
+  let frustrationHtml;
+  if(!isPremium) frustrationHtml = lockedNote;
+  else if((frustration || []).length === 0) frustrationHtml = noDataNote;
+  else frustrationHtml = frustration.map(f=>`
+    <div style="margin-bottom:8px;">
+      <div style="font-size:11.5px; color:#8A8067; font-weight:700; margin-bottom:4px;">${gameTitle(f.game_key)}</div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.frustrationAbandons}</span><span class="prof-dash-row-value">${f.abandons}</span></div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.frustrationHelp}</span><span class="prof-dash-row-value">${f.help_requests}</span></div>
+      <div class="prof-dash-row"><span class="prof-dash-row-label">${t.frustrationRetries}</span><span class="prof-dash-row-value">${f.retries}</span></div>
+    </div>
+  `).join('');
+
+  // --- Cumprimento de espera ---
+  let waitHtml;
+  if(!isPremium) waitHtml = lockedNote;
+  else if((waitCompliance || []).length === 0) waitHtml = noDataNote;
+  else waitHtml = waitCompliance.map(w=>`
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(w.game_key)} — ${t.waitCorrect}</span><span class="prof-dash-row-value">${w.waited_correctly}/${w.total_attempts}</span></div>
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(w.game_key)} — ${t.waitEarly}</span><span class="prof-dash-row-value">${w.clicked_early}</span></div>
+  `).join('');
+
+  // --- Seguir instruções ---
+  let instructionHtml;
+  if(!isPremium) instructionHtml = lockedNote;
+  else if((instructionFollowing || []).length === 0) instructionHtml = noDataNote;
+  else instructionHtml = instructionFollowing.map(i=>`
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(i.game_key)} — ${t.instructionAccuracy}</span><span class="prof-dash-row-value">${i.accuracy_pct}%</span></div>
+  `).join('');
 
   detailEl.innerHTML = `
     <div class="prof-dash-grid2">
@@ -2597,6 +2714,41 @@ async function loadAndRenderProfChildDetail(container){
     <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
       <div class="prof-dash-card-header">🔬 <span class="prof-dash-card-title">${t.phoneticAnalysis}</span></div>
       ${phoneticHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🎯 <span class="prof-dash-card-title">${t.focusDuration}</span></div>
+      ${focusHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">⚡ <span class="prof-dash-card-title">${t.responseTimeTitle}</span></div>
+      ${responseTimeHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🧠 <span class="prof-dash-card-title">${t.workingMemoryTitle}</span></div>
+      ${workingMemoryHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🔄 <span class="prof-dash-card-title">${t.cognitiveFlexTitle}</span></div>
+      ${cognitiveFlexHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">💪 <span class="prof-dash-card-title">${t.frustrationTitle}</span></div>
+      ${frustrationHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">⏳ <span class="prof-dash-card-title">${t.waitTitle}</span></div>
+      ${waitHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">✅ <span class="prof-dash-card-title">${t.instructionTitle}</span></div>
+      ${instructionHtml}
     </div>
 
     <div class="prof-dash-card">

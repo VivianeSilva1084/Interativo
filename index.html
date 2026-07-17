@@ -807,7 +807,13 @@ const I18N = {
       accessNote:"Acesso somente leitura. Todo acesso é registrado para conformidade com a LGPD.",
       since:"Vinculado desde", none:"nenhuma ainda", minutes:"min",
       noChildren:"Nenhuma criança vinculada ainda.", loading:"Carregando...", error:"Não consegui carregar os dados.",
-      adherence:"Adesão (últimas 9 semanas)", adherenceGoalMet:"semanas com meta batida", adherenceNoData:"Ainda sem dado suficiente de adesão."
+      adherence:"Adesão (últimas 9 semanas)", adherenceGoalMet:"semanas com meta batida", adherenceNoData:"Ainda sem dado suficiente de adesão.",
+      lockedTitle:"Relatório disponível no plano Premium",
+      lockedBody:"A família ainda não assina o Premium. Assim que assinar, esses relatórios aparecem automaticamente aqui.",
+      phoneticAnalysis:"Análise fonética", hardestSyllables:"Sílabas com mais dificuldade",
+      phonologicalSwaps:"Trocas fonológicas mais frequentes", errorTypesLabel:"Tipos de erro",
+      errorTypeNames:{ omissao:"Omissão", substituicao:"Substituição", inversao:"Inversão", acrescimo:"Acréscimo" },
+      swapArrow:"→", noPhoneticData:"Ainda sem dado suficiente de análise fonética."
     }
   },
   it: {
@@ -896,7 +902,13 @@ const I18N = {
       accessNote:"Accesso di sola lettura. Ogni accesso viene registrato per conformità al GDPR.",
       since:"Collegato dal", none:"ancora nessuna", minutes:"min",
       noChildren:"Nessun bambino collegato ancora.", loading:"Caricamento...", error:"Impossibile caricare i dati.",
-      adherence:"Aderenza (ultime 9 settimane)", adherenceGoalMet:"settimane con obiettivo raggiunto", adherenceNoData:"Dati di aderenza ancora insufficienti."
+      adherence:"Aderenza (ultime 9 settimane)", adherenceGoalMet:"settimane con obiettivo raggiunto", adherenceNoData:"Dati di aderenza ancora insufficienti.",
+      lockedTitle:"Report disponibile nel piano Premium",
+      lockedBody:"La famiglia non è ancora abbonata al Premium. Non appena si abbona, questi report appariranno automaticamente qui.",
+      phoneticAnalysis:"Analisi fonetica", hardestSyllables:"Sillabe con maggiore difficoltà",
+      phonologicalSwaps:"Sostituzioni fonologiche più frequenti", errorTypesLabel:"Tipi di errore",
+      errorTypeNames:{ omissao:"Omissione", substituicao:"Sostituzione", inversao:"Inversione", acrescimo:"Aggiunta" },
+      swapArrow:"→", noPhoneticData:"Dati di analisi fonetica ancora insufficienti."
     }
   }
 };
@@ -2380,16 +2392,29 @@ async function loadProfDashboardChildren(){
 }
 
 async function loadProfDashboardChildDetail(childId){
-  const [{ data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows }] = await Promise.all([
+  const [{ data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows }, { data: swaps }, { data: errorTypes }, { data: syllableDifficulty }] = await Promise.all([
     sb.from('child_profiles').select('*').eq('id', childId).single(),
     sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle(),
     sb.from('v_impulsivity_index').select('indice').eq('profile_id', childId).maybeSingle(),
-    sb.from('v_adherence_summary').select('game_key, semanas_com_dado, semanas_com_meta_atingida, taxa_adesao_pct').eq('profile_id', childId)
+    sb.from('v_adherence_summary').select('game_key, semanas_com_dado, semanas_com_meta_atingida, taxa_adesao_pct').eq('profile_id', childId),
+    // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty all filter on
+    // has_premium_access(profile_id) at the DB level, so an empty array here can mean
+    // either "no data yet" or "family isn't premium" - isPremium (fetched below,
+    // separately, since it needs profile.family_id) disambiguates the two.
+    sb.from('v_phonological_swaps').select('expected, answered, occurrences').eq('profile_id', childId).order('occurrences', { ascending:false }).limit(5),
+    sb.from('v_error_type_summary').select('error_type, occurrences').eq('profile_id', childId),
+    sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 100).order('accuracy_pct', { ascending:true }).limit(5)
   ]);
 
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const { data: sessions } = await sb.from('game_sessions').select('start_time, end_time')
     .eq('profile_id', childId).gte('start_time', sevenDaysAgo.toISOString()).not('end_time', 'is', null);
+
+  let isPremium = false;
+  if(profile?.family_id){
+    const { data: sub } = await sb.from('subscriptions').select('plan, admin_granted_until').eq('family_id', profile.family_id).maybeSingle();
+    isPremium = sub?.plan === 'premium' || (sub?.admin_granted_until && new Date(sub.admin_granted_until) > new Date());
+  }
 
   const dayLabels = state.lang === 'it' ? ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'] : ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
   const usageByDay = dayLabels.map(d=>({ day: d, minutes: 0 }));
@@ -2401,7 +2426,9 @@ async function loadProfDashboardChildDetail(childId){
   return {
     profile, readingProgress, impulsivityIndex: impulsivity?.indice ?? null,
     weeklyUsage: usageByDay.map(d=>({ ...d, minutes: Math.round(d.minutes) })),
-    adherence: (adherenceRows || []).filter(a=>a.semanas_com_dado > 0)
+    adherence: (adherenceRows || []).filter(a=>a.semanas_com_dado > 0),
+    phonologicalSwaps: swaps || [], errorTypes: errorTypes || [], syllableDifficulty: syllableDifficulty || [],
+    isPremium
   };
 }
 
@@ -2496,7 +2523,7 @@ async function loadAndRenderProfChildDetail(container){
     return;
   }
 
-  const { profile, readingProgress, impulsivityIndex, weeklyUsage, adherence } = detail;
+  const { profile, readingProgress, impulsivityIndex, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty, isPremium } = detail;
   const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
   const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
   const adherenceRowsHtml = (adherence || []).map(a=>{
@@ -2504,6 +2531,35 @@ async function loadAndRenderProfChildDetail(container){
     const gameLabel = a.game_key === 'aventura_das_letras' ? t.lettersIsland : (L().tiles[a.game_key]?.title || a.game_key);
     return `<div class="prof-dash-row"><span class="prof-dash-row-label">${gameLabel}</span><span class="prof-dash-row-value">${pct}% (${a.semanas_com_meta_atingida}/${a.semanas_com_dado} ${t.adherenceGoalMet})</span></div>`;
   }).join('');
+
+  // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty are filtered by
+  // has_premium_access() in the DB, so empty here means either "no data yet" (premium,
+  // nothing to show) or "family isn't premium" (isPremium tells them apart).
+  const hasPhoneticData = syllableDifficulty.length > 0 || phonologicalSwaps.length > 0 || errorTypes.length > 0;
+  let phoneticHtml;
+  if(!isPremium){
+    phoneticHtml = `<div style="font-size:12.5px; color:#8A8067; line-height:1.5;">${t.lockedBody}</div>`;
+  } else if(!hasPhoneticData){
+    phoneticHtml = `<div style="font-size:12.5px; color:#8A8067;">${t.noPhoneticData}</div>`;
+  } else {
+    phoneticHtml = `
+      ${syllableDifficulty.length ? `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11.5px; color:#8A8067; margin-bottom:6px; font-weight:700;">${t.hardestSyllables}</div>
+          ${syllableDifficulty.map(s=>`<div class="prof-dash-row"><span class="prof-dash-row-label">${s.syllable}</span><span class="prof-dash-row-value">${s.accuracy_pct}%</span></div>`).join('')}
+        </div>` : ''}
+      ${phonologicalSwaps.length ? `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11.5px; color:#8A8067; margin-bottom:6px; font-weight:700;">${t.phonologicalSwaps}</div>
+          ${phonologicalSwaps.map(s=>`<div class="prof-dash-row"><span class="prof-dash-row-label">${s.expected} ${t.swapArrow} ${s.answered}</span><span class="prof-dash-row-value">${s.occurrences}×</span></div>`).join('')}
+        </div>` : ''}
+      ${errorTypes.length ? `
+        <div>
+          <div style="font-size:11.5px; color:#8A8067; margin-bottom:6px; font-weight:700;">${t.errorTypesLabel}</div>
+          ${errorTypes.map(e=>`<div class="prof-dash-row"><span class="prof-dash-row-label">${t.errorTypeNames[e.error_type] || e.error_type}</span><span class="prof-dash-row-value">${e.occurrences}</span></div>`).join('')}
+        </div>` : ''}
+    `;
+  }
 
   detailEl.innerHTML = `
     <div class="prof-dash-grid2">
@@ -2533,6 +2589,11 @@ async function loadAndRenderProfChildDetail(container){
     <div class="prof-dash-card">
       <div class="prof-dash-card-header">📅 <span class="prof-dash-card-title">${t.adherence}</span></div>
       ${adherenceRowsHtml || `<div style="font-size:12.5px; color:#8A8067;">${t.adherenceNoData}</div>`}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🔬 <span class="prof-dash-card-title">${t.phoneticAnalysis}</span></div>
+      ${phoneticHtml}
     </div>
 
     <div class="prof-dash-card">

@@ -774,7 +774,7 @@ const I18N = {
       kapiTip:(name,count)=>`${name} já domina ${count} sílabas. Que tal celebrar com uma leitura em voz alta juntos?`,
       ilhaDoFocoTitle:"Ilha do Foco", ilhaDoFocoSubtitle:"Atenção e função executiva",
       readingTitle:"Aventura das Letras", readingSubtitle:"Alfabetização e leitura",
-      readingMasteredLabel:"Sílabas dominadas", readingChallenges:"Desafios concluídos",
+      readingMasteredLabel:"Sílabas dominadas", readingWordsRead:"Palavras lidas", readingChallenges:"Desafios concluídos",
       notPlayedHere:"Ainda não jogou aqui.",
       weeklyUsageTitle:"Tempo de tela — últimos 7 dias",
       dayLabels:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
@@ -802,7 +802,7 @@ const I18N = {
       title:"Painel profissional", subtitle:"Crianças vinculadas à sua conta",
       linkedChildren:"Crianças", pending:"pendente", selectChild:"Selecione uma criança à esquerda",
       focusIsland:"Ilha do Foco", lettersIsland:"Aventura das Letras", weeklyUsage:"Tempo de tela — últimos 7 dias",
-      syllablesMastered:"Sílabas dominadas", lettersLearned:"Letras aprendidas", wordsRead:"Palavras lidas",
+      syllablesMastered:"Sílabas dominadas", wordsRead:"Palavras lidas",
       challenges:"Desafios concluídos", impulsivityIndex:"Índice de controle inibitório",
       accessNote:"Acesso somente leitura. Todo acesso é registrado para conformidade com a LGPD.",
       since:"Vinculado desde", none:"nenhuma ainda", minutes:"min",
@@ -863,7 +863,7 @@ const I18N = {
       kapiTip:(name,count)=>`${name} padroneggia già ${count} sillabe. Perché non festeggiare leggendo insieme ad alta voce?`,
       ilhaDoFocoTitle:"Isola della Concentrazione", ilhaDoFocoSubtitle:"Attenzione e funzione esecutiva",
       readingTitle:"Avventura delle Lettere", readingSubtitle:"Alfabetizzazione e lettura",
-      readingMasteredLabel:"Sillabe padroneggiate", readingChallenges:"Sfide completate",
+      readingMasteredLabel:"Sillabe padroneggiate", readingWordsRead:"Parole lette", readingChallenges:"Sfide completate",
       notPlayedHere:"Non ha ancora giocato qui.",
       weeklyUsageTitle:"Tempo di gioco — ultimi 7 giorni",
       dayLabels:["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
@@ -891,7 +891,7 @@ const I18N = {
       title:"Pannello professionale", subtitle:"Bambini collegati al tuo account",
       linkedChildren:"Bambini", pending:"in attesa", selectChild:"Seleziona un bambino a sinistra",
       focusIsland:"Isola del Focus", lettersIsland:"Avventura delle Lettere", weeklyUsage:"Tempo di utilizzo — ultimi 7 giorni",
-      syllablesMastered:"Sillabe padroneggiate", lettersLearned:"Lettere imparate", wordsRead:"Parole lette",
+      syllablesMastered:"Sillabe padroneggiate", wordsRead:"Parole lette",
       challenges:"Sfide completate", impulsivityIndex:"Indice di controllo inibitorio",
       accessNote:"Accesso di sola lettura. Ogni accesso viene registrato per conformità al GDPR.",
       since:"Collegato dal", none:"ancora nessuna", minutes:"min",
@@ -2518,7 +2518,6 @@ async function loadAndRenderProfChildDetail(container){
       <div class="prof-dash-card">
         <div class="prof-dash-card-header">📖 <span class="prof-dash-card-title">${t.lettersIsland}</span></div>
         <div class="prof-dash-row"><span class="prof-dash-row-label">${t.syllablesMastered}</span><span class="prof-dash-row-value">${readingProgress?.mastered_syllables?.length || t.none}</span></div>
-        <div class="prof-dash-row"><span class="prof-dash-row-label">${t.lettersLearned}</span><span class="prof-dash-row-value">${readingProgress?.learned_letters?.length || t.none}</span></div>
         <div class="prof-dash-row"><span class="prof-dash-row-label">${t.wordsRead}</span><span class="prof-dash-row-value">${readingProgress?.read_words?.length || t.none}</span></div>
         <div class="prof-dash-row"><span class="prof-dash-row-label">${t.challenges}</span><span class="prof-dash-row-value">${readingProgress?.challenges_completed ?? 0}</span></div>
       </div>
@@ -2853,6 +2852,7 @@ async function renderParentsDashboardBody(){
       html += `<div class="parents-reading-label">${t.parents.readingMasteredLabel}</div>
         <div class="syllable-chips">${masteredSyllables.map(s=>`<span class="syllable-chip">${s}</span>`).join('')}</div>`;
     }
+    html += `<div class="parents-reading-row"><span>${t.parents.readingWordsRead}</span><span>${reading.read_words?.length ?? 0}</span></div>`;
     html += `<div class="parents-reading-row"><span>${t.parents.readingChallenges}</span><span>${reading.challenges_completed ?? 0}</span></div>`;
     readingCard.innerHTML = html;
   }

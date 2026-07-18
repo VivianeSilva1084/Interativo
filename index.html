@@ -188,6 +188,7 @@
 
   /* ---------- AUTH SCREEN ---------- */
   .auth-box { background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15); border-radius: var(--radius-lg); padding: 32px; max-width: 400px; margin: 40px auto; text-align: center; }
+  #authLegalConsent a{ color: var(--sand); font-weight:700; }
   .auth-box h2 { color: var(--sand); font-size: 24px; margin-top: 0; margin-bottom: 8px; }
   .auth-box p { color: var(--cream); opacity: 0.8; font-size: 14.5px; margin-bottom: 24px; }
   .auth-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
@@ -432,6 +433,7 @@
       </div>
     </div>
     <div id="authPrivacyNote" style="text-align:center; font-size:12.5px; color:rgba(255,255,255,0.3); max-width:380px; margin:0 auto; padding:0 20px;"></div>
+    <div id="authLegalConsent" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.55); max-width:380px; margin:10px auto 0; padding:0 20px; line-height:1.5;"></div>
     <div style="text-align:center; margin-top:20px; padding-bottom:20px;">
       <button class="auth-pro-toggle" id="authProToggle" onclick="toggleAuthUserType()">Entrar como profissional</button>
     </div>
@@ -1093,6 +1095,7 @@ const AUTH_I18N = {
     errorGeneric: "Algo deu errado. Tente novamente em alguns instantes.",
     errorNetwork: "Sem conexão com a internet. Verifique sua rede e tente de novo.",
     privacyNote: "Seus dados ficam vinculados só à sua conta e não são compartilhados.",
+    legalConsentHtml: 'Ao criar uma conta, você concorda com nossos <a href="termos-de-uso.html" target="_blank" rel="noopener">Termos de Uso</a> e nossa <a href="politica-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.',
     proSignupTitle: "Cadastro profissional",
     proSignupSubtitle: "Leva menos de um minuto.",
     proSignupBtn: "Criar conta profissional",
@@ -1143,6 +1146,7 @@ const AUTH_I18N = {
     errorGeneric: "Qualcosa è andato storto. Riprova tra qualche istante.",
     errorNetwork: "Nessuna connessione a internet. Controlla la rete e riprova.",
     privacyNote: "I tuoi dati restano collegati solo al tuo account e non vengono condivisi.",
+    legalConsentHtml: 'Creando un account, accetti i nostri <a href="termos-de-uso.html" target="_blank" rel="noopener">Termini di Utilizzo</a> e la nostra <a href="politica-privacidade.html" target="_blank" rel="noopener">Informativa sulla Privacy</a>.',
     proSignupTitle: "Registrazione professionale",
     proSignupSubtitle: "Ci vuole meno di un minuto.",
     proSignupBtn: "Crea account professionale",
@@ -1293,6 +1297,9 @@ function renderAuthScreen() {
   confirmLbl.textContent = t.confirmPasswordLabel;
   confirmInp.placeholder = t.confirmPasswordPlaceholder;
   document.getElementById('authPrivacyNote').textContent = t.privacyNote;
+  const legalConsent = document.getElementById('authLegalConsent');
+  legalConsent.innerHTML = t.legalConsentHtml;
+  legalConsent.style.display = authMode === 'signup' ? 'block' : 'none';
   document.getElementById('footerNote').textContent = (I18N[state.lang] || I18N.pt).footer;
 
   document.getElementById('authError').style.display = 'none';

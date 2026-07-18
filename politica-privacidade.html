@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidade — Ilha do Foco</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B3D2E; --bg-mid:#15563F; --bg-mid2:#1C6A4C;
+    --sand:#F0C878; --cream:#FFF8ED; --lilac:#8FA6CD;
+    --shadow: 0 10px 30px rgba(0,0,0,.25); --radius-lg: 28px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
+      var(--bg-deep);
+    color:var(--cream); min-height:100vh;
+  }
+  h1,h2,h3{ font-family:'Baloo 2',cursive; color:var(--sand); }
+  .wrap{ max-width: 760px; margin:0 auto; padding: 24px 20px 60px; }
+  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:2px solid rgba(255,255,255,.15); width:fit-content; margin: 0 auto 22px; }
+  .lang-toggle button{ background:transparent; border:none; font-size:18px; padding:6px 14px; border-radius:999px; cursor:pointer; opacity:.5; }
+  .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
+  .doc-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 32px 30px; box-shadow: var(--shadow); line-height:1.6; }
+  .doc-card h1{ font-size:26px; margin:0 0 4px; }
+  .doc-card h2{ font-size:18px; margin:28px 0 8px; }
+  .doc-card h3{ font-size:15px; margin:18px 0 6px; color:var(--cream); }
+  .doc-card p, .doc-card li{ font-size:14.5px; color: rgba(255,248,237,.92); }
+  .doc-card ul{ padding-left: 20px; margin:8px 0; }
+  .doc-card li{ margin-bottom:4px; }
+  .doc-updated{ font-size:13px; color: var(--lilac); font-weight:700; margin:0 0 18px; }
+  .doc-card table{ width:100%; border-collapse: collapse; margin: 12px 0; font-size:13.5px; }
+  .doc-card th, .doc-card td{ border:1px solid rgba(255,255,255,.15); padding:8px 10px; text-align:left; }
+  .doc-card th{ color: var(--sand); }
+  .doc-card a{ color: var(--sand); }
+  .back-link{ display:inline-block; margin-top: 28px; color: var(--cream); opacity:.75; text-decoration:underline; font-size:13.5px; }
+  [data-lang="it"]{ display:none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="lang-toggle">
+      <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
+      <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
+    </div>
+    <div class="doc-card">
+
+      <div data-lang="pt">
+        <h1>Política de Privacidade</h1>
+        <p class="doc-updated">Última atualização: 18 de julho de 2026</p>
+        <p>Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos os dados dos usuários da plataforma Ilha do Foco e Aventura das Letras ("Plataforma"), incluindo pais/responsáveis, crianças e profissionais de saúde/educação vinculados.</p>
+
+        <h2>1. Quem somos e a quem esta política se aplica</h2>
+        <p>A Plataforma é operada por Viscare Develops, disponível no Brasil e na Itália. Esta política se aplica a:</p>
+        <ul>
+          <li><strong>Responsáveis</strong> (pais/mães) que criam contas para seus filhos</li>
+          <li><strong>Crianças</strong>, cujos dados são gerenciados pelos responsáveis</li>
+          <li><strong>Profissionais</strong> (fonoaudiólogos, psicólogos, professores) com acesso autorizado ao progresso de crianças vinculadas</li>
+        </ul>
+
+        <h2>2. Dados que coletamos</h2>
+        <h3>2.1 Dados do responsável</h3>
+        <ul>
+          <li>E-mail, senha (armazenada de forma criptografada)</li>
+          <li>Dados de pagamento, quando aplicável (processados por terceiro — ver seção 6)</li>
+        </ul>
+        <h3>2.2 Dados da criança</h3>
+        <ul>
+          <li>Nome, idioma preferido, avatar escolhido</li>
+          <li>Progresso nos jogos (estrelas, sementes, sílabas/letras/palavras dominadas, adesivos desbloqueados)</li>
+          <li><strong>Dados comportamentais granulares</strong>: respostas a atividades, tempo de resposta, tipos de erro, sinais de atenção/distração, indicadores de frustração (abandonos, pedidos de ajuda, tentativas), estado emocional quando informado</li>
+        </ul>
+        <p>Esses dados comportamentais alimentam relatórios de apoio destinados a profissionais de saúde/educação vinculados — <strong>não constituem diagnóstico médico</strong> e não substituem avaliação clínica profissional.</p>
+        <h3>2.3 Dados do profissional</h3>
+        <ul>
+          <li>Nome completo, função (fonoaudiólogo/psicólogo/professor/outro), registro profissional (quando informado), instituição/clínica (quando informada)</li>
+        </ul>
+
+        <h2>3. Base legal para o tratamento (LGPD e GDPR)</h2>
+        <ul>
+          <li><strong>Consentimento explícito</strong> do responsável legal para o cadastro da criança e para o compartilhamento de dados com profissionais vinculados</li>
+          <li><strong>Execução de contrato</strong>, para fornecer o serviço contratado (plano gratuito ou premium)</li>
+          <li><strong>Legítimo interesse</strong>, para melhorias do produto com dados agregados e anonimizados</li>
+        </ul>
+        <p>Como a Plataforma trata dados de <strong>menores de idade</strong>, aplicamos cuidado adicional: nenhuma conta de criança é criada sem uma conta de responsável associada, e o compartilhamento de dados com profissionais exige aprovação explícita do responsável a cada vínculo.</p>
+
+        <h2>4. Como os dados são usados</h2>
+        <ul>
+          <li>Exibir progresso e relatórios ao responsável</li>
+          <li>Gerar relatórios de apoio para profissionais <strong>vinculados e aprovados pelo responsável</strong></li>
+          <li>Calibrar a dificuldade dos jogos automaticamente, com base no desempenho da própria criança</li>
+          <li>Processar pagamentos e gerenciar assinaturas</li>
+          <li>Comunicação essencial sobre a conta (confirmação de e-mail, redefinição de senha)</li>
+        </ul>
+        <p><strong>Nunca vendemos dados a terceiros.</strong> Não usamos os dados das crianças para publicidade direcionada.</p>
+
+        <h2>5. Compartilhamento de dados com profissionais</h2>
+        <p>O acesso de um profissional aos dados de uma criança <strong>só é liberado</strong> depois que o responsável aprova explicitamente o vínculo dentro da Plataforma. O responsável pode revogar esse acesso a qualquer momento. Todo acesso de um profissional aos dados é registrado (log de auditoria), para fins de conformidade e segurança.</p>
+
+        <h2>6. Terceiros que processam dados em nosso nome</h2>
+        <table>
+          <tr><th>Serviço</th><th>Finalidade</th></tr>
+          <tr><td>Supabase</td><td>Armazenamento de banco de dados e autenticação</td></tr>
+          <tr><td>Stripe</td><td>Processamento de pagamentos</td></tr>
+          <tr><td>Google (OAuth)</td><td>Login opcional via conta Google</td></tr>
+          <tr><td>Vercel</td><td>Hospedagem da aplicação</td></tr>
+        </table>
+        <p>Esses fornecedores têm suas próprias políticas de privacidade e cumprem obrigações contratuais de proteção de dados conosco.</p>
+
+        <h2>7. Retenção de dados</h2>
+        <p>Mantemos os dados enquanto a conta estiver ativa. Após a exclusão da conta (ver seção 8), os dados são removidos permanentemente do banco de dados principal em até 30 dias, exceto quando a retenção for exigida por lei (ex: registros fiscais de pagamento).</p>
+
+        <h2>8. Direitos do usuário (LGPD/GDPR)</h2>
+        <p>O responsável pode, a qualquer momento, diretamente pela Plataforma ou solicitando por e-mail:</p>
+        <ul>
+          <li><strong>Acessar</strong> os dados armazenados sobre si e sobre a criança</li>
+          <li><strong>Corrigir</strong> dados incorretos</li>
+          <li><strong>Excluir permanentemente</strong> a conta e todos os dados associados (criança, progresso, eventos de jogo, vínculos profissionais, assinatura) através da opção "Excluir minha conta" nas configurações</li>
+          <li><strong>Revogar</strong> o consentimento de compartilhamento com um profissional específico, a qualquer momento</li>
+          <li><strong>Portar</strong> os dados para outro serviço, mediante solicitação</li>
+        </ul>
+        <p>A exclusão de conta é <strong>irreversível</strong> e remove todos os dados relacionados de forma permanente.</p>
+
+        <h2>9. Segurança</h2>
+        <p>Os dados são protegidos por controle de acesso em nível de linha (Row Level Security), garantindo que cada família só acessa os dados dos próprios filhos, e que profissionais só acessam dados de crianças explicitamente vinculadas e aprovadas.</p>
+
+        <h2>10. Contato</h2>
+        <p>Dúvidas sobre esta política ou solicitações relacionadas aos seus dados podem ser enviadas para: <a href="mailto:viverevivi37@gmail.com">viverevivi37@gmail.com</a></p>
+
+        <a class="back-link" href="index.html">← Voltar para o Ilha do Foco</a>
+      </div>
+
+      <div data-lang="it">
+        <h1>Informativa sulla Privacy</h1>
+        <p class="doc-updated">Ultimo aggiornamento: 18 luglio 2026</p>
+        <p>Questa Informativa sulla Privacy descrive come raccogliamo, utilizziamo, conserviamo e proteggiamo i dati degli utenti della piattaforma Isola del Focus e Avventura delle Lettere ("Piattaforma"), inclusi genitori/tutori, bambini e professionisti sanitari/educativi collegati.</p>
+
+        <h2>1. Chi siamo e a chi si applica questa informativa</h2>
+        <p>La Piattaforma è gestita da Viscare Develops, disponibile in Brasile e in Italia. Questa informativa si applica a:</p>
+        <ul>
+          <li><strong>Genitori/tutori</strong> che creano account per i propri figli</li>
+          <li><strong>Bambini</strong>, i cui dati sono gestiti dai genitori/tutori</li>
+          <li><strong>Professionisti</strong> (logopedisti, psicologi, insegnanti) con accesso autorizzato ai progressi dei bambini collegati</li>
+        </ul>
+
+        <h2>2. Dati che raccogliamo</h2>
+        <h3>2.1 Dati del genitore/tutore</h3>
+        <ul>
+          <li>Email, password (memorizzata in forma crittografata)</li>
+          <li>Dati di pagamento, quando applicabile (elaborati da terzi — vedi sezione 6)</li>
+        </ul>
+        <h3>2.2 Dati del bambino</h3>
+        <ul>
+          <li>Nome, lingua preferita, avatar scelto</li>
+          <li>Progressi nei giochi (stelle, semi, sillabe/lettere/parole padroneggiate, adesivi sbloccati)</li>
+          <li><strong>Dati comportamentali granulari</strong>: risposte alle attività, tempo di risposta, tipi di errore, segnali di attenzione/distrazione, indicatori di frustrazione (abbandoni, richieste di aiuto, tentativi), stato emotivo quando indicato</li>
+        </ul>
+        <p>Questi dati comportamentali alimentano report di supporto destinati a professionisti sanitari/educativi collegati — <strong>non costituiscono una diagnosi medica</strong> e non sostituiscono una valutazione clinica professionale.</p>
+        <h3>2.3 Dati del professionista</h3>
+        <ul>
+          <li>Nome completo, ruolo (logopedista/psicologo/insegnante/altro), numero di iscrizione all'albo (se fornito), istituzione/clinica (se fornita)</li>
+        </ul>
+
+        <h2>3. Base giuridica del trattamento (GDPR e LGPD)</h2>
+        <ul>
+          <li><strong>Consenso esplicito</strong> del genitore/tutore per la registrazione del bambino e per la condivisione dei dati con professionisti collegati</li>
+          <li><strong>Esecuzione del contratto</strong>, per fornire il servizio richiesto (piano gratuito o premium)</li>
+          <li><strong>Legittimo interesse</strong>, per il miglioramento del prodotto con dati aggregati e anonimizzati</li>
+        </ul>
+        <p>Poiché la Piattaforma tratta dati di <strong>minori</strong>, applichiamo una cura aggiuntiva: nessun account per un bambino viene creato senza un account di un genitore/tutore associato, e la condivisione dei dati con professionisti richiede l'approvazione esplicita del genitore/tutore per ogni collegamento.</p>
+
+        <h2>4. Come vengono utilizzati i dati</h2>
+        <ul>
+          <li>Mostrare progressi e report al genitore/tutore</li>
+          <li>Generare report di supporto per professionisti <strong>collegati e approvati dal genitore/tutore</strong></li>
+          <li>Calibrare automaticamente la difficoltà dei giochi, in base alle prestazioni del bambino stesso</li>
+          <li>Elaborare pagamenti e gestire abbonamenti</li>
+          <li>Comunicazioni essenziali relative all'account (conferma email, reset password)</li>
+        </ul>
+        <p><strong>Non vendiamo mai i dati a terzi.</strong> Non utilizziamo i dati dei bambini per pubblicità mirata.</p>
+
+        <h2>5. Condivisione dei dati con i professionisti</h2>
+        <p>L'accesso di un professionista ai dati di un bambino <strong>viene concesso solo</strong> dopo che il genitore/tutore approva esplicitamente il collegamento all'interno della Piattaforma. Il genitore/tutore può revocare questo accesso in qualsiasi momento. Ogni accesso di un professionista ai dati viene registrato (log di controllo), per finalità di conformità e sicurezza.</p>
+
+        <h2>6. Terze parti che trattano dati per nostro conto</h2>
+        <table>
+          <tr><th>Servizio</th><th>Finalità</th></tr>
+          <tr><td>Supabase</td><td>Archiviazione del database e autenticazione</td></tr>
+          <tr><td>Stripe</td><td>Elaborazione dei pagamenti</td></tr>
+          <tr><td>Google (OAuth)</td><td>Login opzionale tramite account Google</td></tr>
+          <tr><td>Vercel</td><td>Hosting dell'applicazione</td></tr>
+        </table>
+        <p>Questi fornitori hanno le proprie informative sulla privacy e rispettano con noi obblighi contrattuali di protezione dei dati.</p>
+
+        <h2>7. Conservazione dei dati</h2>
+        <p>Conserviamo i dati finché l'account è attivo. Dopo l'eliminazione dell'account (vedi sezione 8), i dati vengono rimossi permanentemente dal database principale entro 30 giorni, salvo quando la conservazione sia richiesta dalla legge (es. registri fiscali di pagamento).</p>
+
+        <h2>8. Diritti dell'utente (GDPR/LGPD)</h2>
+        <p>Il genitore/tutore può, in qualsiasi momento, direttamente tramite la Piattaforma o richiedendo via email:</p>
+        <ul>
+          <li><strong>Accedere</strong> ai dati memorizzati su di sé e sul bambino</li>
+          <li><strong>Correggere</strong> dati errati</li>
+          <li><strong>Eliminare permanentemente</strong> l'account e tutti i dati associati (bambino, progressi, eventi di gioco, collegamenti professionali, abbonamento) tramite l'opzione "Elimina il mio account" nelle impostazioni</li>
+          <li><strong>Revocare</strong> il consenso alla condivisione con un professionista specifico, in qualsiasi momento</li>
+          <li><strong>Portare</strong> i dati verso un altro servizio, su richiesta</li>
+        </ul>
+        <p>L'eliminazione dell'account è <strong>irreversibile</strong> e rimuove permanentemente tutti i dati correlati.</p>
+
+        <h2>9. Sicurezza</h2>
+        <p>I dati sono protetti da controllo degli accessi a livello di riga (Row Level Security), garantendo che ogni famiglia acceda solo ai dati dei propri figli, e che i professionisti accedano solo ai dati dei bambini esplicitamente collegati e approvati.</p>
+
+        <h2>10. Contatti</h2>
+        <p>Domande su questa informativa o richieste relative ai propri dati possono essere inviate a: <a href="mailto:viverevivi37@gmail.com">viverevivi37@gmail.com</a></p>
+
+        <a class="back-link" href="index.html">← Torna a Isola del Focus</a>
+      </div>
+
+    </div>
+  </div>
+<script>
+function setDocLang(l){
+  document.documentElement.setAttribute('lang', l === 'it' ? 'it-IT' : 'pt-BR');
+  document.getElementById('btnPt').classList.toggle('active', l === 'pt');
+  document.getElementById('btnIt').classList.toggle('active', l === 'it');
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = (el.getAttribute('data-lang') === l) ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termos de Uso — Ilha do Foco</title>
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B3D2E; --bg-mid:#15563F; --bg-mid2:#1C6A4C;
+    --sand:#F0C878; --cream:#FFF8ED; --lilac:#8FA6CD;
+    --shadow: 0 10px 30px rgba(0,0,0,.25); --radius-lg: 28px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
+      var(--bg-deep);
+    color:var(--cream); min-height:100vh;
+  }
+  h1,h2,h3{ font-family:'Baloo 2',cursive; color:var(--sand); }
+  .wrap{ max-width: 760px; margin:0 auto; padding: 24px 20px 60px; }
+  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:2px solid rgba(255,255,255,.15); width:fit-content; margin: 0 auto 22px; }
+  .lang-toggle button{ background:transparent; border:none; font-size:18px; padding:6px 14px; border-radius:999px; cursor:pointer; opacity:.5; }
+  .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
+  .doc-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 32px 30px; box-shadow: var(--shadow); line-height:1.6; }
+  .doc-card h1{ font-size:26px; margin:0 0 4px; }
+  .doc-card h2{ font-size:18px; margin:28px 0 8px; }
+  .doc-card p, .doc-card li{ font-size:14.5px; color: rgba(255,248,237,.92); }
+  .doc-card ul{ padding-left: 20px; margin:8px 0; }
+  .doc-card li{ margin-bottom:4px; }
+  .doc-updated{ font-size:13px; color: var(--lilac); font-weight:700; margin:0 0 18px; }
+  .doc-card a{ color: var(--sand); }
+  .back-link{ display:inline-block; margin-top: 28px; color: var(--cream); opacity:.75; text-decoration:underline; font-size:13.5px; }
+  [data-lang="it"]{ display:none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="lang-toggle">
+      <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
+      <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
+    </div>
+    <div class="doc-card">
+
+      <div data-lang="pt">
+        <h1>Termos de Uso</h1>
+        <p class="doc-updated">Última atualização: 18 de julho de 2026</p>
+        <p>Ao criar uma conta e usar a plataforma Ilha do Foco e Aventura das Letras ("Plataforma"), você concorda com estes Termos de Uso.</p>
+
+        <h2>1. Descrição do serviço</h2>
+        <p>A Plataforma oferece jogos educativos digitais voltados a crianças com TDAH e dificuldades de aprendizagem, com acompanhamento de progresso para responsáveis e, opcionalmente, para profissionais de saúde e educação vinculados.</p>
+        <p><strong>A Plataforma não é uma ferramenta de diagnóstico médico.</strong> Os relatórios gerados são um apoio à observação e ao acompanhamento, e não substituem avaliação, diagnóstico ou tratamento por profissional qualificado.</p>
+
+        <h2>2. Quem pode usar</h2>
+        <ul>
+          <li>A conta principal deve ser criada por um responsável legal maior de idade, em nome da(s) criança(s)</li>
+          <li>Profissionais que se cadastram devem fornecer informações verdadeiras sobre sua função e, quando aplicável, registro profissional</li>
+          <li>A Plataforma não deve ser usada sem supervisão de um adulto responsável</li>
+        </ul>
+
+        <h2>3. Conta e responsabilidades do usuário</h2>
+        <ul>
+          <li>Você é responsável por manter a confidencialidade de sua senha</li>
+          <li>Você é responsável pela veracidade das informações fornecidas</li>
+          <li>Você é responsável por revisar e aprovar (ou recusar) vínculos com profissionais antes que eles tenham acesso aos dados da criança</li>
+        </ul>
+
+        <h2>4. Planos e pagamento</h2>
+        <ul>
+          <li>A Plataforma oferece um plano gratuito com funcionalidades limitadas e um plano Premium pago, com acesso completo a relatórios clínicos e funcionalidades avançadas dos jogos</li>
+          <li>Pagamentos são processados por um provedor terceirizado (Stripe); não armazenamos dados completos de cartão</li>
+          <li>Cancelamentos de assinatura seguem os termos vigentes no momento da contratação, exibidos antes da confirmação do pagamento</li>
+          <li>O acesso de profissionais vinculados é, no momento, gratuito</li>
+        </ul>
+
+        <h2>5. Uso aceitável</h2>
+        <p>Você concorda em não:</p>
+        <ul>
+          <li>Fornecer informações falsas sobre identidade, idade ou função profissional</li>
+          <li>Tentar acessar dados de crianças ou famílias que não sejam de sua responsabilidade</li>
+          <li>Usar a Plataforma para qualquer finalidade ilegal ou não autorizada</li>
+          <li>Tentar contornar mecanismos de segurança ou controle de acesso</li>
+        </ul>
+
+        <h2>6. Propriedade intelectual</h2>
+        <p>Todo o conteúdo da Plataforma (jogos, design, mascotes, textos, código) é de propriedade de Viscare Develops ou de seus licenciadores, protegido por leis de direitos autorais. O uso da Plataforma não concede qualquer direito de propriedade sobre esse conteúdo.</p>
+
+        <h2>7. Limitação de responsabilidade</h2>
+        <p>A Plataforma é fornecida "como está". Não garantimos que os relatórios gerados sejam completos, precisos ou adequados para qualquer finalidade clínica específica. Decisões sobre saúde, educação ou tratamento da criança são de responsabilidade exclusiva do responsável e dos profissionais qualificados consultados.</p>
+
+        <h2>8. Encerramento de conta</h2>
+        <p>Você pode encerrar sua conta a qualquer momento através da opção "Excluir minha conta", que remove permanentemente todos os dados associados, conforme descrito na Política de Privacidade. Também podemos suspender ou encerrar contas que violem estes Termos.</p>
+
+        <h2>9. Alterações nestes Termos</h2>
+        <p>Podemos atualizar estes Termos periodicamente. Mudanças significativas serão comunicadas por e-mail ou aviso dentro da Plataforma.</p>
+
+        <h2>10. Legislação aplicável</h2>
+        <p>Estes Termos são regidos pela legislação brasileira, para usuários no Brasil, e pela legislação italiana/europeia, para usuários na Itália, sem prejuízo de direitos garantidos por normas de proteção ao consumidor e proteção de dados aplicáveis.</p>
+
+        <h2>11. Contato</h2>
+        <p>Dúvidas sobre estes Termos: <a href="mailto:viverevivi37@gmail.com">viverevivi37@gmail.com</a></p>
+
+        <a class="back-link" href="index.html">← Voltar para o Ilha do Foco</a>
+      </div>
+
+      <div data-lang="it">
+        <h1>Termini di Utilizzo</h1>
+        <p class="doc-updated">Ultimo aggiornamento: 18 luglio 2026</p>
+        <p>Creando un account e utilizzando la piattaforma Isola del Focus e Avventura delle Lettere ("Piattaforma"), accetti questi Termini di Utilizzo.</p>
+
+        <h2>1. Descrizione del servizio</h2>
+        <p>La Piattaforma offre giochi educativi digitali rivolti a bambini con ADHD e difficoltà di apprendimento, con monitoraggio dei progressi per i genitori/tutori e, facoltativamente, per professionisti sanitari ed educativi collegati.</p>
+        <p><strong>La Piattaforma non è uno strumento di diagnosi medica.</strong> I report generati sono un supporto all'osservazione e al monitoraggio, e non sostituiscono valutazione, diagnosi o trattamento da parte di un professionista qualificato.</p>
+
+        <h2>2. Chi può utilizzare il servizio</h2>
+        <ul>
+          <li>L'account principale deve essere creato da un genitore/tutore legale maggiorenne, per conto del/dei bambino/i</li>
+          <li>I professionisti che si registrano devono fornire informazioni veritiere sul proprio ruolo e, quando applicabile, sull'iscrizione all'albo professionale</li>
+          <li>La Piattaforma non deve essere utilizzata senza la supervisione di un adulto responsabile</li>
+        </ul>
+
+        <h2>3. Account e responsabilità dell'utente</h2>
+        <ul>
+          <li>Sei responsabile di mantenere riservata la tua password</li>
+          <li>Sei responsabile della veridicità delle informazioni fornite</li>
+          <li>Sei responsabile di rivedere e approvare (o rifiutare) i collegamenti con professionisti prima che questi abbiano accesso ai dati del bambino</li>
+        </ul>
+
+        <h2>4. Piani e pagamento</h2>
+        <ul>
+          <li>La Piattaforma offre un piano gratuito con funzionalità limitate e un piano Premium a pagamento, con accesso completo ai report clinici e alle funzionalità avanzate dei giochi</li>
+          <li>I pagamenti sono elaborati da un fornitore terzo (Stripe); non memorizziamo i dati completi della carta</li>
+          <li>Le cancellazioni dell'abbonamento seguono i termini vigenti al momento della sottoscrizione, mostrati prima della conferma del pagamento</li>
+          <li>L'accesso dei professionisti collegati è, al momento, gratuito</li>
+        </ul>
+
+        <h2>5. Uso accettabile</h2>
+        <p>Accetti di non:</p>
+        <ul>
+          <li>Fornire informazioni false su identità, età o ruolo professionale</li>
+          <li>Tentare di accedere ai dati di bambini o famiglie che non sono di tua responsabilità</li>
+          <li>Utilizzare la Piattaforma per scopi illegali o non autorizzati</li>
+          <li>Tentare di aggirare i meccanismi di sicurezza o controllo degli accessi</li>
+        </ul>
+
+        <h2>6. Proprietà intellettuale</h2>
+        <p>Tutti i contenuti della Piattaforma (giochi, design, mascotte, testi, codice) sono di proprietà di Viscare Develops o dei suoi licenzianti, protetti dalle leggi sul diritto d'autore. L'uso della Piattaforma non concede alcun diritto di proprietà su tali contenuti.</p>
+
+        <h2>7. Limitazione di responsabilità</h2>
+        <p>La Piattaforma è fornita "così com'è". Non garantiamo che i report generati siano completi, accurati o adeguati per qualsiasi scopo clinico specifico. Le decisioni relative alla salute, all'istruzione o al trattamento del bambino sono di esclusiva responsabilità del genitore/tutore e dei professionisti qualificati consultati.</p>
+
+        <h2>8. Chiusura dell'account</h2>
+        <p>Puoi chiudere il tuo account in qualsiasi momento tramite l'opzione "Elimina il mio account", che rimuove permanentemente tutti i dati associati, come descritto nell'Informativa sulla Privacy. Possiamo anche sospendere o chiudere account che violano questi Termini.</p>
+
+        <h2>9. Modifiche a questi Termini</h2>
+        <p>Potremmo aggiornare periodicamente questi Termini. Modifiche significative saranno comunicate via email o avviso all'interno della Piattaforma.</p>
+
+        <h2>10. Legge applicabile</h2>
+        <p>Questi Termini sono regolati dalla legge brasiliana, per gli utenti in Brasile, e dalla legge italiana/europea, per gli utenti in Italia, fatti salvi i diritti garantiti dalle norme applicabili in materia di tutela dei consumatori e protezione dei dati.</p>
+
+        <h2>11. Contatti</h2>
+        <p>Domande su questi Termini: <a href="mailto:viverevivi37@gmail.com">viverevivi37@gmail.com</a></p>
+
+        <a class="back-link" href="index.html">← Torna a Isola del Focus</a>
+      </div>
+
+    </div>
+  </div>
+<script>
+function setDocLang(l){
+  document.documentElement.setAttribute('lang', l === 'it' ? 'it-IT' : 'pt-BR');
+  document.getElementById('btnPt').classList.toggle('active', l === 'pt');
+  document.getElementById('btnIt').classList.toggle('active', l === 'it');
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = (el.getAttribute('data-lang') === l) ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>

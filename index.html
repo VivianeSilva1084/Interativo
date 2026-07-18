@@ -66,6 +66,9 @@
   .tts-btn-light:hover{ background: rgba(11,61,46,.16); }
   .tts-icon{ position:absolute; font-size:15px; cursor:pointer; opacity:.7; line-height:1; }
   .tts-icon:hover{ opacity:1; }
+  .help-btn{ background: rgba(240,200,120,.18); border:2px solid rgba(240,200,120,.4); color:var(--cream); width:32px; height:32px; min-width:32px; border-radius:50%; cursor:pointer; font-size:15px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; padding:0; line-height:1; transition: transform .1s, background .1s; }
+  .help-btn:hover{ background: rgba(240,200,120,.3); transform: scale(1.08); }
+  .help-btn:active{ transform: scale(.95); }
 
   .grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:18px; }
   .tile{ background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 20px 18px; cursor:pointer; position:relative; text-align:left; transition: transform .15s ease, border-color .15s ease, background .15s ease; display:flex; flex-direction:column; gap:8px; }
@@ -765,7 +768,7 @@ const CALM_STRATS = {
 const I18N = {
   pt: {
     appTitle:"Ilha do Foco", pageTitle:"Ilha do Foco — com a Kapi",
-    appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil", logoutBtnLabel:"Sair",
+    appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil", logoutBtnLabel:"Sair", helpBtnLabel:"Preciso de uma dica",
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
     createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
@@ -889,7 +892,7 @@ const I18N = {
   },
   it: {
     appTitle:"Isola della Concentrazione", pageTitle:"Isola della Concentrazione — con Kapi",
-    appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo", logoutBtnLabel:"Esci",
+    appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo", logoutBtnLabel:"Esci", helpBtnLabel:"Ho bisogno di un aiuto",
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
     createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
@@ -1725,7 +1728,7 @@ function applyGlobalI18n(){
   }
 }
 
-function speak(text){
+function speak(text, rate){
   if(!('speechSynthesis' in window) || !text) return;
   const clean = String(text)
     .replace(/<[^>]+>/g, ' ')
@@ -1735,7 +1738,7 @@ function speak(text){
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(clean);
   u.lang = state.lang === 'it' ? 'it-IT' : 'pt-BR';
-  u.rate = 0.9;
+  u.rate = rate || 0.9;
   window.speechSynthesis.speak(u);
 }
 function makeTtsBtn(text, light){
@@ -1756,7 +1759,20 @@ function makeTtsIcon(text){
   span.onclick = (e)=>{ e.stopPropagation(); speak(text); };
   return span;
 }
-function setInstructions(id, text){
+function makeHelpBtn(instructionText){
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'help-btn';
+  btn.setAttribute('aria-label', L().helpBtnLabel);
+  btn.textContent = '💡';
+  btn.onclick = (e)=>{
+    e.stopPropagation();
+    logGameEvent({ eventType: 'help_request' }); // behavioral signal for the "Tolerância à frustração" report; the hint itself is intentionally simple
+    speak(instructionText, 0.65); // slower repeat of the instruction doubles as the "hint"
+  };
+  return btn;
+}
+function setInstructions(id, text, showHelp){
   const el = document.getElementById(id);
   el.innerHTML = '';
   const span = document.createElement('span');
@@ -1764,6 +1780,7 @@ function setInstructions(id, text){
   span.textContent = text;
   el.appendChild(span);
   el.appendChild(makeTtsBtn(text));
+  if(showHelp) el.appendChild(makeHelpBtn(text));
 }
 function setThermoStepLabel(id, text){
   const el = document.getElementById(id);
@@ -1933,7 +1950,7 @@ let sem = { round:0, hits:0, total:5, canGo:false, cfg:null };
 function semInit(){
   const t = L();
   document.getElementById('semTitle').textContent = t.sem.title;
-  setInstructions('semInstructions', t.sem.instr);
+  setInstructions('semInstructions', t.sem.instr, true);
   document.getElementById('semStartBtn').textContent = t.startBtn;
   document.getElementById('semPreStart').style.display = 'flex';
   document.getElementById('semPlayArea').style.display = 'none';
@@ -2009,7 +2026,7 @@ let simon = { sequence:[], input:[], level:1, playing:false, cfg:null, locked:fa
 function simonInit(){
   const t = L();
   document.getElementById('memTitle').textContent = t.mem.title;
-  setInstructions('memInstructions', t.mem.instr);
+  setInstructions('memInstructions', t.mem.instr, true);
   document.getElementById('memStartBtn').textContent = t.startBtn;
   document.getElementById('memPreStart').style.display = 'flex';
   document.getElementById('memPlayArea').style.display = 'none';
@@ -2124,7 +2141,7 @@ function storyInit(){
   document.getElementById('storyPreStart').style.display = 'flex';
   document.getElementById('storyPlayArea').style.display = 'none';
   document.getElementById('storyResetBtn').style.display = 'none';
-  setInstructions('storyInstructions', t.story.instr('...'));
+  setInstructions('storyInstructions', t.story.instr('...'), true);
   hideFeedback('storyFeedback');
   renderDiffRow('storyDiffRow', 'historia');
 }
@@ -2144,7 +2161,7 @@ function storyStart(){
   story.correct = pick.cards.slice(0, cfg.len);
   story.answer = [];
   story.shuffled = [...story.correct].sort(()=>Math.random()-0.5);
-  setInstructions('storyInstructions', t.story.instr(pick.title));
+  setInstructions('storyInstructions', t.story.instr(pick.title), true);
   document.getElementById('storyPreStart').style.display = 'none';
   document.getElementById('storyPlayArea').style.display = 'flex';
   document.getElementById('storyResetBtn').style.display = 'none';
@@ -2210,7 +2227,7 @@ let chat = { step:0, firstTryCorrect:0, triedThisTurn:false, willAdvance:false, 
 function chatInit(){
   const t = L();
   document.getElementById('chatTitle').textContent = t.chat.title;
-  setInstructions('chatInstructions', t.chat.instr);
+  setInstructions('chatInstructions', t.chat.instr, true);
   document.getElementById('chatStartBtn').textContent = t.startBtn;
   document.getElementById('chatPreStart').style.display = 'flex';
   document.getElementById('chatPlayArea').style.display = 'none';
@@ -2296,7 +2313,7 @@ let hunt = { found:0, target:6, timeLeft:20, timerId:null, cfg:null };
 function huntInit(){
   const t = L();
   document.getElementById('huntTitle').textContent = t.hunt.title;
-  setInstructions('huntInstructions', t.hunt.instr);
+  setInstructions('huntInstructions', t.hunt.instr, true);
   document.getElementById('huntStartBtn').textContent = t.startBtn;
   document.getElementById('huntAgainBtn').textContent = t.playAgainBtn;
   document.getElementById('huntPreStart').style.display = 'flex';
@@ -2389,7 +2406,7 @@ let thermo = { rounds:[], step:0, emo:null, total:0 };
 function thermoInit(){
   const t = L();
   document.getElementById('thermoTitle').textContent = t.thermo.title;
-  setInstructions('thermoInstructions', t.thermo.instr);
+  setInstructions('thermoInstructions', t.thermo.instr, true);
   document.getElementById('thermoStartBtn').textContent = t.startBtn;
   document.getElementById('thermoPreStart').style.display = 'flex';
   document.getElementById('thermoPlayArea').style.display = 'none';

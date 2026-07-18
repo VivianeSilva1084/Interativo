@@ -295,6 +295,19 @@
   .parents-reset-btn:hover{ background: rgba(229,85,110,.15); }
   .parents-reset-btn:disabled{ opacity:.6; cursor:default; }
 
+  .delete-account-link{ background:none; border:none; color:#8A8067; font-size:12px; font-weight:700; text-decoration:underline; cursor:pointer; padding:4px; opacity:.8; }
+  .delete-account-link:hover{ opacity:1; color:var(--berry); }
+
+  .confirm-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:10000; padding:20px; }
+  .confirm-modal{ background:var(--cream); color:var(--ink); border-radius:var(--radius-lg); padding:26px 24px; max-width:420px; width:100%; box-shadow:var(--shadow); }
+  .confirm-modal h3{ margin:0 0 12px; font-size:18px; color:var(--berry); font-family:'Baloo 2',cursive; }
+  .confirm-modal p{ margin:0 0 18px; font-size:14px; line-height:1.5; }
+  .confirm-modal-input{ width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; border:2px solid rgba(11,61,46,.25); font-size:15px; font-weight:800; text-align:center; letter-spacing:1px; margin-bottom:16px; font-family:'Nunito',sans-serif; }
+  .confirm-modal-actions{ display:flex; gap:10px; justify-content:flex-end; }
+  .confirm-modal-btn-secondary{ background:transparent; border:2px solid rgba(11,61,46,.2); color:var(--ink); font-weight:800; padding:9px 16px; border-radius:12px; cursor:pointer; font-size:13.5px; }
+  .confirm-modal-btn-danger{ background:var(--berry); border:none; color:#fff; font-weight:800; padding:9px 18px; border-radius:12px; cursor:pointer; font-size:13.5px; }
+  .confirm-modal-btn-danger:disabled{ opacity:.5; cursor:default; }
+
   /* ---------- STICKER ALBUM ---------- */
   .album-summary{ text-align:center; font-weight:800; color:var(--sand); margin-bottom:16px; font-size:15px; }
   .album-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(108px,1fr)); gap:14px; }
@@ -846,6 +859,10 @@ const I18N = {
       resetProgressConfirm:(name)=>`Tem certeza? Isso vai apagar TODO o progresso de ${name} (sementes, estrelas, figurinhas, sessões, leitura). Não é possível desfazer.`,
       resettingProgress:"Zerando...",
       resetProgressError:"Não consegui zerar a evolução. Tente de novo.",
+      deleteAccountBtn:"Excluir minha conta",
+      deleteAccountWarning:(name)=>`Isso vai apagar permanentemente ${name} e todo o progresso dela: sementes, estrelas, figurinhas, sessões, leitura, assinatura e vínculos com profissionais. Essa ação não pode ser desfeita.`,
+      accountDeletedMsg:"Sua conta foi excluída.",
+      deleteAccountError:"Não consegui excluir sua conta. Tente de novo.",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -887,7 +904,16 @@ const I18N = {
       frustrationHelp:"Pedidos de ajuda", frustrationRetries:"Tentativas de novo",
       waitTitle:"Cumprimento de espera", waitCorrect:"Esperou corretamente", waitEarly:"Clicou antes da hora",
       instructionTitle:"Seguir instruções", instructionAccuracy:"Taxa de acerto",
-      seconds:"s", ms:"ms", noDataGeneric:"Ainda sem dado suficiente."
+      seconds:"s", ms:"ms", noDataGeneric:"Ainda sem dado suficiente.",
+      deleteAccountBtn:"Excluir minha conta",
+      deleteAccountWarning:"Isso vai apagar permanentemente sua conta profissional e todos os vínculos com as crianças que você acompanha. Essa ação não pode ser desfeita.",
+      accountDeletedMsg:"Sua conta foi excluída.",
+      deleteAccountError:"Não consegui excluir sua conta. Tente de novo."
+    },
+    deleteModal:{
+      title:"Excluir conta", continueBtn:"Continuar", cancelBtn:"Cancelar",
+      typeToConfirmLabel:"Digite EXCLUIR para confirmar", confirmWord:"EXCLUIR",
+      finalBtn:"Excluir permanentemente", deleting:"Excluindo..."
     }
   },
   it: {
@@ -970,6 +996,10 @@ const I18N = {
       resetProgressConfirm:(name)=>`Sei sicuro/a? Questo cancellerà TUTTI i progressi di ${name} (semi, stelle, figurine, sessioni, lettura). Non è possibile annullare.`,
       resettingProgress:"Azzeramento...",
       resetProgressError:"Non sono riuscito ad azzerare i progressi. Riprova.",
+      deleteAccountBtn:"Elimina il mio account",
+      deleteAccountWarning:(name)=>`Questo eliminerà permanentemente ${name} e tutti i suoi progressi: semi, stelle, figurine, sessioni, lettura, abbonamento e collegamenti con i professionisti. Questa azione non può essere annullata.`,
+      accountDeletedMsg:"Il tuo account è stato eliminato.",
+      deleteAccountError:"Non sono riuscito a eliminare il tuo account. Riprova.",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -1011,7 +1041,16 @@ const I18N = {
       frustrationHelp:"Richieste di aiuto", frustrationRetries:"Nuovi tentativi",
       waitTitle:"Rispetto dell'attesa", waitCorrect:"Ha atteso correttamente", waitEarly:"Ha cliccato in anticipo",
       instructionTitle:"Seguire le istruzioni", instructionAccuracy:"Tasso di successo",
-      seconds:"s", ms:"ms", noDataGeneric:"Dati ancora insufficienti."
+      seconds:"s", ms:"ms", noDataGeneric:"Dati ancora insufficienti.",
+      deleteAccountBtn:"Elimina il mio account",
+      deleteAccountWarning:"Questo eliminerà permanentemente il tuo account professionale e tutti i collegamenti con i bambini che segui. Questa azione non può essere annullata.",
+      accountDeletedMsg:"Il tuo account è stato eliminato.",
+      deleteAccountError:"Non sono riuscito a eliminare il tuo account. Riprova."
+    },
+    deleteModal:{
+      title:"Elimina account", continueBtn:"Continua", cancelBtn:"Annulla",
+      typeToConfirmLabel:"Digita ELIMINA per confermare", confirmWord:"ELIMINA",
+      finalBtn:"Elimina definitivamente", deleting:"Eliminazione..."
     }
   }
 };
@@ -1168,6 +1207,57 @@ function showError(msg) {
   el.textContent = msg;
   el.style.display = 'block';
   setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// Two-step "type the word to confirm" modal, used for irreversible actions
+// (account deletion). Step 1 explains what's about to be lost; step 2 only
+// unlocks the final button once the exact confirm word has been typed.
+function openDeleteAccountModal({ warningHtml, onConfirm }){
+  const t = L().deleteModal;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <div data-step="1">
+        <h3>⚠️ ${t.title}</h3>
+        <p>${warningHtml}</p>
+        <div class="confirm-modal-actions">
+          <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+          <button type="button" class="confirm-modal-btn-danger" data-action="continue">${t.continueBtn}</button>
+        </div>
+      </div>
+      <div data-step="2" style="display:none;">
+        <h3>⚠️ ${t.title}</h3>
+        <p>${t.typeToConfirmLabel}</p>
+        <input type="text" class="confirm-modal-input" id="deleteAccountConfirmInput" autocomplete="off" autocapitalize="characters">
+        <div class="confirm-modal-actions">
+          <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+          <button type="button" class="confirm-modal-btn-danger" data-action="confirm" disabled>${t.finalBtn}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelectorAll('[data-action="cancel"]').forEach(btn=> btn.onclick = close);
+  overlay.querySelector('[data-action="continue"]').onclick = ()=>{
+    overlay.querySelector('[data-step="1"]').style.display = 'none';
+    overlay.querySelector('[data-step="2"]').style.display = 'block';
+    overlay.querySelector('#deleteAccountConfirmInput').focus();
+  };
+
+  const input = overlay.querySelector('#deleteAccountConfirmInput');
+  const confirmBtn = overlay.querySelector('[data-action="confirm"]');
+  input.addEventListener('input', ()=>{
+    confirmBtn.disabled = input.value.trim().toUpperCase() !== t.confirmWord;
+  });
+  confirmBtn.onclick = async ()=>{
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = t.deleting;
+    await onConfirm(close);
+  };
 }
 
 function getAuthErrorMsg(errCode) {
@@ -2765,6 +2855,9 @@ async function renderProfDashboardFrame(container){
             <button class="prof-dash-redeem-btn" id="profRedeemBtn">${t.redeemBtn}</button>
             <div id="profRedeemMsg" class="prof-dash-redeem-msg"></div>
           </div>
+          <div style="padding:18px 18px 0; text-align:center;">
+            <button type="button" class="delete-account-link" id="profDeleteAccountBtn">${t.deleteAccountBtn}</button>
+          </div>
         </div>
         <div class="prof-dash-detail" id="profDashDetail">
           <div style="color:#8A8067; text-align:center; margin-top:40px;">${t.selectChild}</div>
@@ -2785,6 +2878,24 @@ async function renderProfDashboardFrame(container){
   container.querySelector('#profRedeemBtn').addEventListener('click', ()=>handleRedeemInviteCode(container));
   container.querySelector('#profRedeemInput').addEventListener('keydown', (e)=>{
     if(e.key === 'Enter') handleRedeemInviteCode(container);
+  });
+
+  container.querySelector('#profDeleteAccountBtn').addEventListener('click', ()=>{
+    openDeleteAccountModal({
+      warningHtml: t.deleteAccountWarning,
+      onConfirm: async (close)=>{
+        try{
+          const { data, error } = await sb.rpc('delete_my_account');
+          if(error) throw error;
+          close();
+          try{ await sb.auth.signOut(); }catch(e){ /* account row is already gone server-side; local cleanup is what matters */ }
+          alert(t.accountDeletedMsg);
+        }catch(err){
+          close();
+          showError(t.deleteAccountError);
+        }
+      }
+    });
   });
 
   if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
@@ -3587,6 +3698,9 @@ async function renderParentsDashboardBody(){
   dangerCard.innerHTML = `
     <p class="danger-desc">${t.parents.resetProgressDesc}</p>
     <button class="parents-reset-btn">${t.parents.resetProgressBtn(child.name)}</button>
+    <div style="margin-top:14px;">
+      <button type="button" class="delete-account-link">${t.parents.deleteAccountBtn}</button>
+    </div>
   `;
   dangerCard.querySelector('.parents-reset-btn').addEventListener('click', async (e)=>{
     if(!confirm(t.parents.resetProgressConfirm(child.name))) return;
@@ -3603,6 +3717,23 @@ async function renderParentsDashboardBody(){
       btn.textContent = originalLabel;
       showError(t.parents.resetProgressError);
     }
+  });
+  dangerCard.querySelector('.delete-account-link').addEventListener('click', ()=>{
+    openDeleteAccountModal({
+      warningHtml: t.parents.deleteAccountWarning(child.name),
+      onConfirm: async (close)=>{
+        try{
+          const { data, error } = await sb.rpc('delete_my_account');
+          if(error) throw error;
+          close();
+          try{ await sb.auth.signOut(); }catch(e){ /* account row is already gone server-side; local cleanup is what matters */ }
+          alert(t.parents.accountDeletedMsg);
+        }catch(err){
+          close();
+          showError(t.parents.deleteAccountError);
+        }
+      }
+    });
   });
   body.appendChild(dangerCard);
 }

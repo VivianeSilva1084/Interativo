@@ -784,6 +784,7 @@ const I18N = {
   pt: {
     appTitle:"Ilha do Foco", pageTitle:"Ilha do Foco — com a Kapi",
     appTag:"Aventuras com a Kapi", seedsLabel:"sementes de foco", switchProfile:"Trocar perfil", logoutBtnLabel:"Sair", helpBtnLabel:"Preciso de uma dica",
+    checkoutSuccessMsg:"Pagamento recebido! Seu Premium pode levar alguns instantes para aparecer — atualize a página se ainda não vir.",
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
     createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
@@ -865,6 +866,7 @@ const I18N = {
       deleteAccountWarning:(name)=>`Isso vai apagar permanentemente ${name} e todo o progresso dela: sementes, estrelas, figurinhas, sessões, leitura, assinatura e vínculos com profissionais. Essa ação não pode ser desfeita.`,
       accountDeletedMsg:"Sua conta foi excluída.",
       deleteAccountError:"Não consegui excluir sua conta. Tente de novo.",
+      checkoutRedirecting:"Redirecionando...", checkoutError:"Não consegui iniciar o pagamento. Tente de novo.",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -921,6 +923,7 @@ const I18N = {
   it: {
     appTitle:"Isola della Concentrazione", pageTitle:"Isola della Concentrazione — con Kapi",
     appTag:"Avventure con Kapi", seedsLabel:"semi della concentrazione", switchProfile:"Cambia profilo", logoutBtnLabel:"Esci", helpBtnLabel:"Ho bisogno di un aiuto",
+    checkoutSuccessMsg:"Pagamento ricevuto! Il tuo Premium potrebbe richiedere qualche istante per apparire - aggiorna la pagina se ancora non lo vedi.",
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
     createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
@@ -1002,6 +1005,7 @@ const I18N = {
       deleteAccountWarning:(name)=>`Questo eliminerà permanentemente ${name} e tutti i suoi progressi: semi, stelle, figurine, sessioni, lettura, abbonamento e collegamenti con i professionisti. Questa azione non può essere annullata.`,
       accountDeletedMsg:"Il tuo account è stato eliminato.",
       deleteAccountError:"Non sono riuscito a eliminare il tuo account. Riprova.",
+      checkoutRedirecting:"Reindirizzamento...", checkoutError:"Non sono riuscito ad avviare il pagamento. Riprova.",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -3407,6 +3411,29 @@ function renderParentsChildTabs(){
     wrap.appendChild(btn);
   });
 }
+async function startCheckout(btn){
+  const t = L();
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = t.parents.checkoutRedirecting;
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('no-session');
+    const country = navigator.language.toLowerCase().startsWith('pt') ? 'BR' : 'INT';
+    const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ country }),
+    });
+    const result = await response.json();
+    if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
+    window.location.href = result.url;
+  }catch(err){
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    showError(t.parents.checkoutError);
+  }
+}
 async function renderParentsDashboardBody(){
   const t = L();
   const body = document.getElementById('parentsDashboardBody');
@@ -3691,6 +3718,7 @@ async function renderParentsDashboardBody(){
       <p class="locked-desc">${t.parents.clinicalReportLockedDesc}</p>
       <button class="big-cta">${t.parents.upgradeBtn}</button>
     `;
+    lockedCard.querySelector('.big-cta').addEventListener('click', (e)=> startCheckout(e.currentTarget));
     body.appendChild(lockedCard);
   }
 
@@ -3810,6 +3838,20 @@ function renderTrendChart(container, sessions){
 
   container.appendChild(svg);
 }
+
+/* ========================= CHECKOUT REDIRECT ========================= */
+(function handleCheckoutRedirect(){
+  const params = new URLSearchParams(window.location.search);
+  const checkout = params.get('checkout');
+  if(!checkout) return;
+  history.replaceState({}, '', window.location.pathname);
+  if(checkout === 'success'){
+    alert(L().checkoutSuccessMsg);
+    if(document.getElementById('screen-parents')?.classList.contains('active')){
+      renderParentsDashboardBody();
+    }
+  }
+})();
 
 /* ========================= AMBIENT + INIT ========================= */
 (function initAmbient(){

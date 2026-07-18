@@ -239,6 +239,9 @@
 
   .parents-topline{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
   .parents-premium-badge{ display:inline-flex; align-items:center; gap:6px; background:rgba(240,200,120,.18); border:2px solid var(--sand); border-radius:999px; padding:5px 14px; color:var(--sand); font-weight:800; font-size:12.5px; }
+  .parents-manage-sub-btn{ background:transparent; border:2px solid rgba(255,255,255,.25); color:var(--cream); font-weight:800; font-size:12.5px; padding:5px 14px; border-radius:999px; cursor:pointer; }
+  .parents-manage-sub-btn:hover{ background:rgba(255,255,255,.1); }
+  .parents-manage-sub-btn:disabled{ opacity:.6; cursor:default; }
   .parents-tip{ display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12); border-radius:16px; padding:14px 16px; margin-bottom:18px; text-align:left; }
   .parents-tip .tip-emoji{ font-size:24px; }
   .parents-tip .tip-title{ font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.4px; color:var(--leaf); margin-bottom:3px; }
@@ -867,6 +870,9 @@ const I18N = {
       accountDeletedMsg:"Sua conta foi excluída.",
       deleteAccountError:"Não consegui excluir sua conta. Tente de novo.",
       checkoutRedirecting:"Redirecionando...", checkoutError:"Não consegui iniciar o pagamento. Tente de novo.",
+      manageSubBtn:"Gerenciar assinatura", manageSubRedirecting:"Abrindo...",
+      manageSubNoCustomer:"Para gerenciar sua assinatura, entre em contato: viverevivi37@gmail.com",
+      manageSubError:"Não consegui abrir o gerenciamento de assinatura. Tente de novo.",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -1006,6 +1012,9 @@ const I18N = {
       accountDeletedMsg:"Il tuo account è stato eliminato.",
       deleteAccountError:"Non sono riuscito a eliminare il tuo account. Riprova.",
       checkoutRedirecting:"Reindirizzamento...", checkoutError:"Non sono riuscito ad avviare il pagamento. Riprova.",
+      manageSubBtn:"Gestisci abbonamento", manageSubRedirecting:"Apertura...",
+      manageSubNoCustomer:"Per gestire il tuo abbonamento, contattaci: viverevivi37@gmail.com",
+      manageSubError:"Non sono riuscito ad aprire la gestione dell'abbonamento. Riprova.",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -3434,6 +3443,37 @@ async function startCheckout(btn){
     showError(t.parents.checkoutError);
   }
 }
+async function manageSubscription(btn){
+  const t = L();
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = t.parents.manageSubRedirecting;
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('no-session');
+    const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-portal-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ returnUrl: 'https://interativo-pi.vercel.app' }),
+    });
+    const result = await response.json();
+    if(result.url){
+      window.location.href = result.url;
+      return;
+    }
+    if(result.error === 'no_stripe_customer'){
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+      alert(t.parents.manageSubNoCustomer);
+      return;
+    }
+    throw new Error(result.error || 'portal_failed');
+  }catch(err){
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    showError(t.parents.manageSubError);
+  }
+}
 async function renderParentsDashboardBody(){
   const t = L();
   const body = document.getElementById('parentsDashboardBody');
@@ -3486,7 +3526,11 @@ async function renderParentsDashboardBody(){
   if(isPremium){
     const topline = document.createElement('div');
     topline.className = 'parents-topline';
-    topline.innerHTML = `<span class="parents-premium-badge">👑 ${t.parents.premiumBadge}</span>`;
+    topline.innerHTML = `
+      <span class="parents-premium-badge">👑 ${t.parents.premiumBadge}</span>
+      <button type="button" class="parents-manage-sub-btn">${t.parents.manageSubBtn}</button>
+    `;
+    topline.querySelector('.parents-manage-sub-btn').addEventListener('click', (e)=> manageSubscription(e.currentTarget));
     body.appendChild(topline);
   }
 

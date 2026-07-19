@@ -873,6 +873,7 @@ const I18N = {
       manageSubBtn:"Gerenciar assinatura", manageSubRedirecting:"Abrindo...",
       manageSubNoCustomer:"Para gerenciar sua assinatura, entre em contato: viverevivi37@gmail.com",
       manageSubError:"Não consegui abrir o gerenciamento de assinatura. Tente de novo.",
+      aiSummaryTitle:"Resumo do progresso",
       dashboardError:"Não consegui carregar os dados dos pais.", sessionExpired:"Sessão expirada. Faça login novamente.", retryBtn:"Tentar de novo"
     },
     album:{
@@ -915,6 +916,7 @@ const I18N = {
       waitTitle:"Cumprimento de espera", waitCorrect:"Esperou corretamente", waitEarly:"Clicou antes da hora",
       instructionTitle:"Seguir instruções", instructionAccuracy:"Taxa de acerto",
       seconds:"s", ms:"ms", noDataGeneric:"Ainda sem dado suficiente.",
+      aiSummaryTitle:"Resumo Clínico", aiSummaryDisclaimer:"Não constitui diagnóstico",
       deleteAccountBtn:"Excluir minha conta",
       deleteAccountWarning:"Isso vai apagar permanentemente sua conta profissional e todos os vínculos com as crianças que você acompanha. Essa ação não pode ser desfeita.",
       accountDeletedMsg:"Sua conta foi excluída.",
@@ -1015,6 +1017,7 @@ const I18N = {
       manageSubBtn:"Gestisci abbonamento", manageSubRedirecting:"Apertura...",
       manageSubNoCustomer:"Per gestire il tuo abbonamento, contattaci: viverevivi37@gmail.com",
       manageSubError:"Non sono riuscito ad aprire la gestione dell'abbonamento. Riprova.",
+      aiSummaryTitle:"Riepilogo dei progressi",
       dashboardError:"Non sono riuscito a caricare i dati dei genitori.", sessionExpired:"Sessione scaduta. Accedi di nuovo.", retryBtn:"Riprova"
     },
     album:{
@@ -1057,6 +1060,7 @@ const I18N = {
       waitTitle:"Rispetto dell'attesa", waitCorrect:"Ha atteso correttamente", waitEarly:"Ha cliccato in anticipo",
       instructionTitle:"Seguire le istruzioni", instructionAccuracy:"Tasso di successo",
       seconds:"s", ms:"ms", noDataGeneric:"Dati ancora insufficienti.",
+      aiSummaryTitle:"Riepilogo Clinico", aiSummaryDisclaimer:"Non costituisce una diagnosi",
       deleteAccountBtn:"Elimina il mio account",
       deleteAccountWarning:"Questo eliminerà permanentemente il tuo account professionale e tutti i collegamenti con i bambini che segui. Questa azione non può essere annullata.",
       accountDeletedMsg:"Il tuo account è stato eliminato.",
@@ -2939,8 +2943,7 @@ function renderProfSidebarList(container){
   listEl.querySelectorAll('.prof-dash-child-btn:not([disabled])').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       profDashboardSelectedId = btn.dataset.childId;
-      await renderProfDashboardFrame(container);
-      await loadAndRenderProfChildDetail(container);
+      await renderProfDashboardFrame(container); // already calls loadAndRenderProfChildDetail when profDashboardSelectedId is set
     });
   });
 }
@@ -3178,6 +3181,15 @@ async function loadAndRenderProfChildDetail(container){
       ${instructionHtml}
     </div>
 
+    <div class="prof-dash-card" style="border-left:3px solid #C79A3D;">
+      <div class="prof-dash-card-header">✨ <span class="prof-dash-card-title">${t.aiSummaryTitle}</span>
+        <span style="font-size:10px; color:#8A8067; margin-left:auto;">${t.aiSummaryDisclaimer}</span>
+      </div>
+      <div style="font-size:13px; color:#1F2E29; line-height:1.7; font-style:italic;">
+        ${isPremium ? buildClinicalSummary({ profile, focusEvolution, workingMemory, impulsivityIndex, syllableDifficulty, phonologicalSwaps, frustration, adherence, readingProgress }, state.lang) : t.lockedBody}
+      </div>
+    </div>
+
     <div class="prof-dash-card">
       <div class="prof-dash-card-header">⏱️ <span class="prof-dash-card-title">${t.weeklyUsage}</span></div>
       <div class="prof-dash-bar-chart">
@@ -3347,6 +3359,142 @@ async function loadImpulsivityIndex(childId){
     if(error) throw error;
     return data?.indice ?? null;
   }catch(e){ return null; }
+}
+// Extra clinical inputs buildClinicalSummary() needs beyond what the parents
+// dashboard already loads elsewhere (adherence, readingProgress, impulsivityIndex).
+async function loadClinicalSummaryExtras(childId){
+  try{
+    const [{ data: focusEvolution }, { data: workingMemory }, { data: phonologicalSwaps }, { data: syllableDifficulty }, { data: frustration }] = await Promise.all([
+      sb.from('v_weekly_focus_evolution').select('game_key, week_start, avg_duration_seconds').eq('profile_id', childId).order('week_start', { ascending: false }),
+      sb.from('v_working_memory').select('*').eq('profile_id', childId),
+      sb.from('v_phonological_swaps').select('expected, answered, occurrences').eq('profile_id', childId).order('occurrences', { ascending: false }).limit(3),
+      sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 80).order('accuracy_pct', { ascending: true }).limit(3),
+      sb.from('v_frustration_raw').select('game_key, abandons, retries').eq('profile_id', childId),
+    ]);
+    return { focusEvolution: focusEvolution || [], workingMemory: workingMemory || [], phonologicalSwaps: phonologicalSwaps || [], syllableDifficulty: syllableDifficulty || [], frustration: frustration || [] };
+  }catch(e){
+    return { focusEvolution: [], workingMemory: [], phonologicalSwaps: [], syllableDifficulty: [], frustration: [] };
+  }
+}
+
+const SUMMARY_STRINGS = {
+  pt: {
+    theChild: 'A criança',
+    noData: (n) => `${n} ainda tem poucas sessões registradas para gerar uma análise completa.`,
+    adherenceGood: (n, p) => `${n} manteve uma frequência excelente nas últimas semanas (${p}% das metas atingidas).`,
+    adherencePartial: (n, p) => `${n} jogou de forma irregular nas últimas semanas (${p}% das metas atingidas).`,
+    adherenceLow: (n, p) => `A frequência de uso foi baixa nas últimas semanas (${p}% das metas atingidas).`,
+    focusImproved: (s, d) => `A atenção sustentada melhorou: média de ${s}s por sessão (+${d}% em relação à semana anterior).`,
+    focusDeclined: (s, d) => `A duração média de atenção foi de ${s}s por sessão (-${d}% em relação à semana anterior).`,
+    focusStable: (s) => `A atenção sustentada está estável, com média de ${s}s por sessão.`,
+    focusBaseline: (s) => `Primeira semana de dados de atenção: média de ${s}s por sessão.`,
+    impulsivityGood: (i) => `O índice de controle inibitório está em ${i}/100, indicando bom controle.`,
+    impulsivityModerate: (i) => `O índice de controle inibitório está em ${i}/100, com impulsividade ocasional.`,
+    impulsivityHigh: (i) => `O índice de controle inibitório está em ${i}/100, indicando área de atenção.`,
+    syllablesHard: (s) => `Sílabas com maior dificuldade: ${s}.`,
+    syllablesMastered: (n) => `${n} sílabas já dominadas no Aventura das Letras.`,
+    phoneticSwap: (e, a, n) => `Troca fonológica mais frequente: /${e}/ → /${a}/ (${n} ocorrências).`,
+    persistenceGood: (n, r) => `${n} demonstrou persistência, tentando novamente ${r} vezes após erros.`,
+    persistenceLow: (n, a) => `Foram registrados ${a} abandonos de atividade nas últimas semanas.`,
+  },
+  it: {
+    theChild: 'Il bambino',
+    noData: (n) => `${n} ha ancora poche sessioni registrate per generare un'analisi completa.`,
+    adherenceGood: (n, p) => `${n} ha mantenuto una frequenza eccellente nelle ultime settimane (${p}% degli obiettivi raggiunti).`,
+    adherencePartial: (n, p) => `${n} ha giocato in modo irregolare nelle ultime settimane (${p}% degli obiettivi raggiunti).`,
+    adherenceLow: (n, p) => `La frequenza di utilizzo è stata bassa nelle ultime settimane (${p}% degli obiettivi raggiunti).`,
+    focusImproved: (s, d) => `L'attenzione sostenuta è migliorata: media di ${s}s per sessione (+${d}% rispetto alla settimana precedente).`,
+    focusDeclined: (s, d) => `La durata media dell'attenzione è stata di ${s}s per sessione (-${d}% rispetto alla settimana precedente).`,
+    focusStable: (s) => `L'attenzione sostenuta è stabile, con una media di ${s}s per sessione.`,
+    focusBaseline: (s) => `Prima settimana di dati sull'attenzione: media di ${s}s per sessione.`,
+    impulsivityGood: (i) => `L'indice di controllo inibitorio è ${i}/100, indicando un buon controllo.`,
+    impulsivityModerate: (i) => `L'indice di controllo inibitorio è ${i}/100, con impulsività occasionale.`,
+    impulsivityHigh: (i) => `L'indice di controllo inibitorio è ${i}/100, un'area da monitorare.`,
+    syllablesHard: (s) => `Sillabe con maggiore difficoltà: ${s}.`,
+    syllablesMastered: (n) => `${n} sillabe già padroneggiate nell'Avventura delle Lettere.`,
+    phoneticSwap: (e, a, n) => `Sostituzione fonologica più frequente: /${e}/ → /${a}/ (${n} occorrenze).`,
+    persistenceGood: (n, r) => `${n} ha dimostrato perseveranza, riprovando ${r} volte dopo gli errori.`,
+    persistenceLow: (n, a) => `Sono stati registrati ${a} abbandoni di attività nelle ultime settimane.`,
+  },
+};
+
+function buildClinicalSummary(detail, lang){
+  const t = lang === 'it' ? SUMMARY_STRINGS.it : SUMMARY_STRINGS.pt;
+  const lines = [];
+
+  const { profile, focusEvolution, workingMemory, impulsivityIndex,
+          syllableDifficulty, phonologicalSwaps, frustration,
+          adherence, readingProgress } = detail;
+
+  const name = profile?.name || t.theChild;
+
+  // 1. Adesão
+  const totalAdh = adherence || [];
+  const overallAdh = totalAdh.length > 0
+    ? Math.round(totalAdh.reduce((s, a) => s + (a.taxa_adesao_pct || 0), 0) / totalAdh.length)
+    : null;
+
+  if (overallAdh !== null) {
+    lines.push(overallAdh >= 80
+      ? t.adherenceGood(name, overallAdh)
+      : overallAdh >= 50
+      ? t.adherencePartial(name, overallAdh)
+      : t.adherenceLow(name, overallAdh));
+  }
+
+  // 2. Atenção sustentada — pega as 2 semanas mais recentes (do primeiro jogo com dado) e compara
+  const focusByGame = {};
+  (focusEvolution || []).forEach(f => {
+    if (!focusByGame[f.game_key]) focusByGame[f.game_key] = [];
+    focusByGame[f.game_key].push(f);
+  });
+  const focusGames = Object.values(focusByGame);
+  if (focusGames.length > 0) {
+    const latest = focusGames[0];
+    if (latest.length >= 2 && latest[1].avg_duration_seconds) {
+      const curr = latest[0].avg_duration_seconds;
+      const prev = latest[1].avg_duration_seconds;
+      const delta = Math.round(((curr - prev) / prev) * 100);
+      lines.push(delta > 0
+        ? t.focusImproved(Math.round(curr), delta)
+        : delta < -5
+        ? t.focusDeclined(Math.round(curr), Math.abs(delta))
+        : t.focusStable(Math.round(curr)));
+    } else if (latest.length >= 1) {
+      lines.push(t.focusBaseline(Math.round(latest[0].avg_duration_seconds)));
+    }
+  }
+
+  // 3. Índice de impulsividade
+  if (impulsivityIndex !== null && impulsivityIndex !== undefined) {
+    if (impulsivityIndex >= 80) lines.push(t.impulsivityGood(impulsivityIndex));
+    else if (impulsivityIndex >= 60) lines.push(t.impulsivityModerate(impulsivityIndex));
+    else lines.push(t.impulsivityHigh(impulsivityIndex));
+  }
+
+  // 4. Análise fonética — sílabas difíceis
+  if (syllableDifficulty && syllableDifficulty.length > 0) {
+    const hard = syllableDifficulty.slice(0, 3).map(s => `${s.syllable} (${s.accuracy_pct}%)`).join(', ');
+    lines.push(t.syllablesHard(hard));
+  } else if (readingProgress?.mastered_syllables?.length > 0) {
+    lines.push(t.syllablesMastered(readingProgress.mastered_syllables.length));
+  }
+
+  // 5. Trocas fonológicas
+  if (phonologicalSwaps && phonologicalSwaps.length > 0) {
+    const topSwap = phonologicalSwaps[0];
+    lines.push(t.phoneticSwap(topSwap.expected, topSwap.answered, topSwap.occurrences));
+  }
+
+  // 6. Tolerância à frustração
+  const totAbandons = (frustration || []).reduce((s, f) => s + (f.abandons || 0), 0);
+  const totRetries = (frustration || []).reduce((s, f) => s + (f.retries || 0), 0);
+  if (totAbandons === 0 && totRetries > 0) lines.push(t.persistenceGood(name, totRetries));
+  else if (totAbandons > 2) lines.push(t.persistenceLow(name, totAbandons));
+
+  if (lines.length === 0) return t.noData(name);
+
+  return lines.join(' ');
 }
 // game_sessions is shared across both apps (game_key includes the 6 Ilha do Foco
 // keys plus 'aventura_das_letras'), each row carrying its own played_at/end_time —
@@ -3753,6 +3901,19 @@ async function renderParentsDashboardBody(){
       <div class="parents-reading-row"><span>${t.parents.statsSessions}</span><span>${ilhaDoFocoSessions.length}</span></div>
     `;
     body.appendChild(clinicalCard);
+
+    const extras = await loadClinicalSummaryExtras(child.id);
+    const summaryText = buildClinicalSummary({
+      profile: { name: child.name },
+      focusEvolution: extras.focusEvolution, workingMemory: extras.workingMemory,
+      impulsivityIndex, syllableDifficulty: extras.syllableDifficulty,
+      phonologicalSwaps: extras.phonologicalSwaps, frustration: extras.frustration,
+      adherence, readingProgress: reading,
+    }, state.lang);
+    const summaryCard = document.createElement('div');
+    summaryCard.className = 'parents-card';
+    summaryCard.innerHTML = `<div style="font-size:13.5px; color:var(--cream); line-height:1.6; font-style:italic;">${summaryText}</div>`;
+    body.appendChild(summaryCard);
   } else {
     const lockedCard = document.createElement('div');
     lockedCard.className = 'parents-clinical-locked';

@@ -4139,6 +4139,17 @@ function renderTrendChart(container, sessions){
   container.appendChild(svg);
 }
 
+/* ========================= LANDING PAGE CTA ========================= */
+// Lets vendas.html link straight into the signup form instead of login -
+// authMode is read whenever renderAuthScreen() first runs, so setting it
+// here (synchronous, top of the auth-state check) is enough.
+(function openSignupFromQueryParam(){
+  if(new URLSearchParams(window.location.search).get('signup') === '1'){
+    authMode = 'signup';
+    history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
 /* ========================= CHECKOUT REDIRECT ========================= */
 (function handleCheckoutRedirect(){
   const params = new URLSearchParams(window.location.search);

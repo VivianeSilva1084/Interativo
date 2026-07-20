@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilha do Foco + Aventura das Letras — Jogos para foco, calma e leitura</title>
+<meta name="description" content="Jogos pensados para crianças com TDAH e dificuldades de aprendizagem, com acompanhamento de progresso para pais e profissionais.">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0B3D2E; --bg-mid:#15563F; --bg-mid2:#1C6A4C;
+    --sand:#F0C878; --papaya:#F2703C; --lilac:#8FA6CD; --cream:#FFF8ED;
+    --leaf:#4C9A5C; --berry:#E5556E; --success:#7CC576; --ink:#0B3D2E;
+    --shadow: 0 10px 30px rgba(0,0,0,.25); --radius-lg: 28px; --radius-md:18px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; scroll-behavior:smooth; }
+  body{
+    font-family:'Nunito',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
+      var(--bg-deep);
+    color:var(--cream); min-height:100vh; overflow-x:hidden;
+  }
+  h1,h2,h3{ font-family:'Baloo 2',cursive; color:var(--sand); margin:0; }
+  p{ margin:0; }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; }
+  .wrap{ max-width: 1080px; margin:0 auto; padding: 0 20px; }
+
+  /* ---------- Top bar ---------- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 0; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Baloo 2',cursive; font-weight:700; font-size:18px; color:var(--cream); }
+  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:2px solid rgba(255,255,255,.15); }
+  .lang-toggle button{ background:transparent; border:none; font-size:17px; padding:6px 12px; border-radius:999px; cursor:pointer; opacity:.5; }
+  .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
+
+  /* ---------- Buttons ---------- */
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; background: var(--papaya); color:#fff; font-weight:800; font-size:16px; padding:15px 30px; border-radius:999px; text-decoration:none; box-shadow: var(--shadow); border:none; cursor:pointer; }
+  .btn-primary:hover{ transform: translateY(-1px); }
+  .btn-secondary{ display:inline-flex; align-items:center; gap:8px; background: transparent; color:var(--cream); font-weight:800; font-size:14.5px; padding:12px 22px; border-radius:999px; text-decoration:none; border:2px solid rgba(255,255,255,.3); }
+  .micro-note{ font-size:12.5px; color:rgba(255,255,255,.55); margin-top:10px; }
+
+  /* ---------- Hero ---------- */
+  .hero{ display:grid; grid-template-columns: 1.1fr .9fr; gap:40px; align-items:center; padding: 40px 0 70px; }
+  .hero-eyebrow{ display:inline-flex; gap:8px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:999px; padding:6px 16px; font-size:13px; font-weight:800; color:var(--sand); margin-bottom:18px; }
+  .hero h1{ font-size:40px; line-height:1.15; margin-bottom:16px; }
+  .hero-sub{ font-size:16.5px; line-height:1.6; color:rgba(255,248,237,.9); max-width:520px; margin-bottom:26px; }
+  .hero-art{ display:flex; justify-content:center; }
+  .hero-art img{ width:100%; max-width:340px; border-radius:32px; filter:drop-shadow(0 20px 40px rgba(0,0,0,.35)); }
+
+  /* ---------- Sections generic ---------- */
+  section{ padding: 50px 0; }
+  .section-title{ font-size:28px; text-align:center; margin-bottom:10px; }
+  .section-sub{ text-align:center; color:rgba(255,248,237,.75); font-size:15px; max-width:560px; margin: 0 auto 36px; line-height:1.5; }
+
+  /* ---------- Problem cards ---------- */
+  .problem-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+  .problem-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius: var(--radius-md); padding:22px; text-align:center; }
+  .problem-card .emoji{ font-size:32px; display:block; margin-bottom:10px; }
+  .problem-card p{ font-size:14.5px; line-height:1.5; color:rgba(255,248,237,.9); }
+  .bridge-line{ text-align:center; font-weight:800; color:var(--sand); font-size:17px; margin-top:30px; }
+
+  /* ---------- Two-app cards ---------- */
+  .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
+  .app-card{ background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border:2px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); padding:28px; }
+  .app-card .emoji{ font-size:38px; }
+  .app-card h3{ font-size:21px; margin:10px 0 4px; }
+  .app-card .app-tag{ font-size:12.5px; font-weight:800; color:var(--lilac); margin-bottom:12px; display:block; }
+  .app-card p{ font-size:14.5px; line-height:1.6; color:rgba(255,248,237,.88); }
+
+  /* ---------- Games grid ---------- */
+  .games-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:16px; }
+  .game-tile{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius: var(--radius-md); padding:20px; }
+  .game-tile .emoji{ font-size:30px; }
+  .game-tile h4{ font-family:'Baloo 2',cursive; color:var(--cream); font-size:16px; margin:8px 0 2px; }
+  .game-tile .skill{ font-size:11.5px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.3px; }
+  .game-tile p{ font-size:13.5px; color:rgba(255,248,237,.8); line-height:1.5; margin-top:6px; }
+
+  /* ---------- Feature list ---------- */
+  .feature-list{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .feature-item{ display:flex; gap:14px; align-items:flex-start; background: rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.09); border-radius: var(--radius-md); padding:18px; }
+  .feature-item .emoji{ font-size:24px; flex-shrink:0; }
+  .feature-item strong{ display:block; color:var(--cream); font-size:14.5px; margin-bottom:3px; }
+  .feature-item span.desc{ font-size:13px; color:rgba(255,248,237,.75); line-height:1.5; }
+  .premium-tag{ display:inline-block; background:rgba(240,200,120,.2); border:1px solid var(--sand); color:var(--sand); font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
+
+  /* ---------- Professional bridge ---------- */
+  .pro-bridge{ background: rgba(143,166,205,.1); border:2px solid rgba(143,166,205,.3); border-radius: var(--radius-lg); padding:30px; text-align:center; max-width:680px; margin:0 auto; }
+  .pro-bridge p{ font-size:14.5px; line-height:1.6; color:rgba(255,248,237,.9); }
+
+  /* ---------- Pricing ---------- */
+  .pricing-wrap{ display:flex; justify-content:center; }
+  .pricing-card{ background: linear-gradient(160deg, rgba(240,200,120,.14), rgba(255,255,255,.03)); border:2px solid var(--sand); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
+  .pricing-card .plan-name{ font-size:13px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.5px; }
+  .pricing-card .price{ font-family:'Baloo 2',cursive; font-size:46px; color:var(--cream); margin:10px 0 2px; }
+  .pricing-card .price span{ font-size:16px; font-weight:700; color:rgba(255,248,237,.7); }
+  .pricing-card .price-note{ font-size:12.5px; color:rgba(255,248,237,.6); margin-bottom:22px; }
+  .pricing-list{ list-style:none; padding:0; margin:0 0 26px; text-align:left; display:inline-block; }
+  .pricing-list li{ font-size:14px; padding:6px 0; color:rgba(255,248,237,.9); }
+  .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:800; }
+
+  .compare-table{ width:100%; max-width:680px; margin:0 auto; border-collapse:separate; border-spacing:0; background:rgba(255,255,255,.05); border-radius:var(--radius-md); overflow:hidden; border:2px solid rgba(255,255,255,.1); }
+  .compare-table th{ font-family:'Baloo 2',cursive; font-size:14.5px; padding:14px 16px; text-align:left; color:var(--cream); background:rgba(255,255,255,.06); }
+  .compare-table th.col-premium{ color:var(--sand); }
+  .compare-table td{ padding:11px 16px; font-size:13.5px; border-top:1px solid rgba(255,255,255,.08); color:rgba(255,248,237,.9); }
+  .compare-table td.check{ text-align:center; font-weight:800; }
+  .compare-table td.yes{ color:var(--success); }
+  .compare-table td.no{ color:rgba(255,248,237,.35); }
+
+  /* ---------- FAQ ---------- */
+  .faq-item{ border-bottom:1px solid rgba(255,255,255,.12); padding:16px 0; max-width:680px; margin:0 auto; }
+  .faq-item summary{ font-family:'Baloo 2',cursive; font-size:15.5px; color:var(--cream); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{ content:"+"; font-size:20px; color:var(--sand); }
+  .faq-item[open] summary::after{ content:"–"; }
+  .faq-item p{ font-size:14px; line-height:1.6; color:rgba(255,248,237,.82); margin-top:10px; }
+
+  /* ---------- Final CTA ---------- */
+  .final-cta{ text-align:center; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:2px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); padding:50px 30px; }
+  .final-cta h2{ font-size:26px; margin-bottom:10px; }
+  .final-cta p{ color:rgba(255,248,237,.8); font-size:14.5px; margin-bottom:24px; }
+
+  /* ---------- Footer ---------- */
+  footer{ padding: 40px 0 50px; text-align:center; }
+  footer .foot-links{ margin-bottom:14px; }
+  footer .foot-links a{ color:var(--sand); font-weight:700; font-size:13px; text-decoration:underline; margin:0 10px; }
+  footer .foot-disclaimer{ font-size:11.5px; color:rgba(255,255,255,.4); max-width:520px; margin:0 auto 8px; line-height:1.5; }
+  footer .foot-credit{ font-size:12px; color:rgba(255,255,255,.35); }
+
+  [data-lang="it"]{ display:none; }
+
+  @media (max-width: 760px){
+    .hero{ grid-template-columns: 1fr; text-align:center; }
+    .hero-sub{ margin:0 auto 26px; }
+    .hero h1{ font-size:30px; }
+    .hero-art{ order:-1; }
+    .hero-art img{ max-width:220px; }
+    .pricing-card{ padding:28px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">🌴 Ilha do Foco</div>
+    <div class="lang-toggle">
+      <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
+      <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= PT ======================= -->
+<div data-lang="pt">
+
+  <div class="wrap hero">
+    <div>
+      <span class="hero-eyebrow">🌴 Ilha do Foco + 📖 Aventura das Letras</span>
+      <h1>Ajude seu filho a treinar foco, calma e leitura — brincando</h1>
+      <p class="hero-sub">Jogos pensados para crianças com TDAH e dificuldades de aprendizagem. Você acompanha o progresso de verdade — não só a sensação — e pode até convidar quem cuida do seu filho pra ver os relatórios.</p>
+      <a class="btn-primary" href="index.html?signup=1">Criar minha conta grátis →</a>
+      <p class="micro-note">Sem cartão de crédito para começar. Cancele quando quiser.</p>
+    </div>
+    <div class="hero-art"><img src="Kapi.png" alt="Kapi, a mascote da Ilha do Foco" loading="lazy"></div>
+  </div>
+
+  <section class="wrap">
+    <h2 class="section-title">Você reconhece isso?</h2>
+    <div class="problem-grid">
+      <div class="problem-card"><span class="emoji">😮‍💨</span><p>Seu filho começa uma atividade e o foco some em poucos minutos.</p></div>
+      <div class="problem-card"><span class="emoji">😤</span><p>Esperar a vez, seguir uma instrução ou lidar com frustração vira desafio todo dia.</p></div>
+      <div class="problem-card"><span class="emoji">🤔</span><p>Você quer ajudar, mas não tem como saber, de fato, o que está funcionando.</p></div>
+    </div>
+    <p class="bridge-line">A gente transforma isso em jogo — e em dado real pra você acompanhar.</p>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Uma plataforma, duas frentes de treino</h2>
+    <p class="section-sub">Uma conta, um assinatura — dois apps trabalhando junto pelo desenvolvimento do seu filho.</p>
+    <div class="apps-grid">
+      <div class="app-card">
+        <span class="emoji">🌴</span>
+        <span class="app-tag">ATENÇÃO E FUNÇÃO EXECUTIVA</span>
+        <h3>Ilha do Foco</h3>
+        <p>6 minijogos que treinam autocontrole, memória de trabalho, atenção sustentada, sequenciamento, conversa por turnos e regulação emocional — a base das funções executivas.</p>
+      </div>
+      <div class="app-card">
+        <span class="emoji">📖</span>
+        <span class="app-tag">ALFABETIZAÇÃO E LEITURA</span>
+        <h3>Aventura das Letras</h3>
+        <p>7 mundos de aventura de leitura, do reconhecimento de letras à leitura de palavras, no ritmo da própria criança — com desafios e adesivos pra colecionar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Os 6 minijogos da Ilha do Foco</h2>
+    <div class="games-grid">
+      <div class="game-tile"><span class="emoji">🚦</span><h4>Luz da Espera</h4><div class="skill">Autocontrole</div><p>Espera o verde antes de agir. Treina segurar o impulso.</p></div>
+      <div class="game-tile"><span class="emoji">🍃</span><h4>Memória da Kapi</h4><div class="skill">Memória de trabalho</div><p>Repete a sequência de folhinhas coloridas.</p></div>
+      <div class="game-tile"><span class="emoji">📖</span><h4>Monte a História</h4><div class="skill">Sequenciamento</div><p>Coloca as cenas na ordem certa, do começo ao fim.</p></div>
+      <div class="game-tile"><span class="emoji">💬</span><h4>Minha Vez, Sua Vez</h4><div class="skill">Conversa e turno</div><p>Escolhe a resposta certa e espera sua vez de falar.</p></div>
+      <div class="game-tile"><span class="emoji">🔎</span><h4>Caça ao Alvo</h4><div class="skill">Atenção sustentada</div><p>Encontra todas as folhinhas certas no tempo.</p></div>
+      <div class="game-tile"><span class="emoji">🌈</span><h4>Termômetro das Emoções</h4><div class="skill">Regulação emocional</div><p>Descobre como se sente e uma forma de se acalmar.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Você acompanha tudo, sem esforço</h2>
+    <div class="feature-list">
+      <div class="feature-item"><span class="emoji">⭐</span><div><strong>Progresso automático</strong><span class="desc">Estrelas, sementes de foco e sequência de dias jogados, sempre atualizados.</span></div></div>
+      <div class="feature-item"><span class="emoji">⏱️</span><div><strong>Tempo de tela da semana</strong><span class="desc">Veja quanto tempo seu filho jogou, dia a dia.</span></div></div>
+      <div class="feature-item"><span class="emoji">📅</span><div><strong>Adesão às metas</strong><span class="desc">Acompanhe a frequência de uso, não só o resultado.</span></div></div>
+      <div class="feature-item"><span class="emoji">🔒</span><div><strong>Área dos pais protegida por PIN</strong><span class="desc">Configurações e relatórios ficam só com o responsável.</span></div></div>
+      <div class="feature-item"><span class="emoji">🛡️</span><div><strong>Relatórios clínicos completos<span class="premium-tag">Premium</span></strong><span class="desc">Controle inibitório, atenção sustentada, memória de trabalho, tolerância à frustração, flexibilidade cognitiva e análise fonética.</span></div></div>
+      <div class="feature-item"><span class="emoji">✨</span><div><strong>Resumo descritivo automático<span class="premium-tag">Premium</span></strong><span class="desc">Um resumo em linguagem simples de como seu filho está evoluindo.</span></div></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="pro-bridge">
+      <h2 class="section-title" style="margin-bottom:14px;">Quer envolver quem acompanha seu filho?</h2>
+      <p>Você pode convidar um fonoaudiólogo, psicólogo ou professor pra ver os relatórios de progresso — só depois da sua aprovação, e você pode revogar o acesso quando quiser. Todo acesso é registrado, seguindo a LGPD.</p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Grátis pra começar, Premium pra ir a fundo</h2>
+    <p class="section-sub">Uma assinatura só desbloqueia mais dos dois apps ao mesmo tempo.</p>
+    <table class="compare-table">
+      <tr><th>Recurso</th><th>Grátis</th><th class="col-premium">Premium</th></tr>
+      <tr><td>6 minijogos da Ilha do Foco</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Progresso, estrelas e adesão</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Área dos pais com PIN</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Aventura das Letras (mundos iniciais)</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Relatórios clínicos completos</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Resumo descritivo automático</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Compartilhar com profissionais vinculados</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Todos os 7 mundos do Aventura das Letras</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Adesivos exclusivos e mais perfis de criança</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+    </table>
+  </section>
+
+  <section class="wrap">
+    <div class="pricing-wrap">
+      <div class="pricing-card">
+        <div class="plan-name">Premium</div>
+        <div class="price">R$24,90<span>/mês</span></div>
+        <p class="price-note">Preço para o Brasil · €4,99/mês para Itália e demais países</p>
+        <ul class="pricing-list">
+          <li>Tudo do plano grátis</li>
+          <li>Relatórios clínicos completos</li>
+          <li>Resumo automático do progresso</li>
+          <li>Todos os 7 mundos do Aventura das Letras</li>
+          <li>Adesivos exclusivos e mais perfis</li>
+        </ul>
+        <a class="btn-primary" href="index.html?signup=1">Assinar Premium</a>
+        <p class="micro-note">Cancele quando quiser, direto pelo app.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Perguntas frequentes</h2>
+    <details class="faq-item"><summary>Isso substitui terapia ou diagnóstico?</summary><p>Não. Os relatórios são um apoio à observação e ao acompanhamento — eles não constituem diagnóstico médico e não substituem avaliação de um profissional qualificado.</p></details>
+    <details class="faq-item"><summary>Posso usar para mais de um filho?</summary><p>Sim, sua conta pode ter vários perfis de crianças, cada um com seu próprio progresso.</p></details>
+    <details class="faq-item"><summary>Meus dados ficam seguros?</summary><p>Sim. Seguimos a LGPD e o GDPR — veja os detalhes na nossa Política de Privacidade.</p></details>
+    <details class="faq-item"><summary>Posso cancelar quando quiser?</summary><p>Sim, direto pelo botão "Gerenciar assinatura" dentro do app, sem precisar entrar em contato.</p></details>
+    <details class="faq-item"><summary>Funciona em português e italiano?</summary><p>Sim — jogos, relatórios e e-mails da plataforma estão disponíveis nos dois idiomas.</p></details>
+  </section>
+
+  <section class="wrap">
+    <div class="final-cta">
+      <h2>Pronta(o) pra começar?</h2>
+      <p>Leva menos de um minuto pra criar o perfil do seu filho.</p>
+      <a class="btn-primary" href="index.html?signup=1">Criar minha conta grátis →</a>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <div class="foot-links">
+      <a href="termos-de-uso.html" target="_blank" rel="noopener">Termos de Uso</a>
+      <a href="politica-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>
+    </div>
+    <p class="foot-disclaimer">Os relatórios desta plataforma são um apoio à observação e não constituem diagnóstico médico. Consulte sempre um profissional qualificado.</p>
+    <p class="foot-credit">Feito com carinho por Viscare Develops 🌱</p>
+  </footer>
+
+</div>
+
+<!-- ======================= IT ======================= -->
+<div data-lang="it">
+
+  <div class="wrap hero">
+    <div>
+      <span class="hero-eyebrow">🌴 Isola del Focus + 📖 Avventura delle Lettere</span>
+      <h1>Aiuta tuo figlio ad allenare attenzione, calma e lettura — giocando</h1>
+      <p class="hero-sub">Giochi pensati per bambini con ADHD e difficoltà di apprendimento. Monitori i progressi in modo concreto — non solo a sensazione — e puoi anche invitare chi segue tuo figlio a vedere i report.</p>
+      <a class="btn-primary" href="index.html?signup=1">Crea il mio account gratis →</a>
+      <p class="micro-note">Nessuna carta di credito per iniziare. Annulla quando vuoi.</p>
+    </div>
+    <div class="hero-art"><img src="Kapi.png" alt="Kapi, la mascotte dell'Isola del Focus" loading="lazy"></div>
+  </div>
+
+  <section class="wrap">
+    <h2 class="section-title">Ti riconosci in questo?</h2>
+    <div class="problem-grid">
+      <div class="problem-card"><span class="emoji">😮‍💨</span><p>Tuo figlio inizia un'attività e l'attenzione svanisce in pochi minuti.</p></div>
+      <div class="problem-card"><span class="emoji">😤</span><p>Aspettare il proprio turno, seguire un'istruzione o gestire la frustrazione diventa una sfida ogni giorno.</p></div>
+      <div class="problem-card"><span class="emoji">🤔</span><p>Vuoi aiutare, ma non hai modo di sapere davvero cosa funziona.</p></div>
+    </div>
+    <p class="bridge-line">Noi trasformiamo tutto questo in gioco — e in dati reali da monitorare.</p>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Una piattaforma, due fronti di allenamento</h2>
+    <p class="section-sub">Un account, un abbonamento — due app che lavorano insieme per lo sviluppo di tuo figlio.</p>
+    <div class="apps-grid">
+      <div class="app-card">
+        <span class="emoji">🌴</span>
+        <span class="app-tag">ATTENZIONE E FUNZIONE ESECUTIVA</span>
+        <h3>Isola del Focus</h3>
+        <p>6 minigiochi che allenano autocontrollo, memoria di lavoro, attenzione sostenuta, sequenza logica, conversazione a turni e regolazione emotiva — le basi delle funzioni esecutive.</p>
+      </div>
+      <div class="app-card">
+        <span class="emoji">📖</span>
+        <span class="app-tag">ALFABETIZZAZIONE E LETTURA</span>
+        <h3>Avventura delle Lettere</h3>
+        <p>7 mondi di avventura nella lettura, dal riconoscimento delle lettere alla lettura di parole, al ritmo del bambino stesso — con sfide e adesivi da collezionare.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">I 6 minigiochi dell'Isola del Focus</h2>
+    <div class="games-grid">
+      <div class="game-tile"><span class="emoji">🚦</span><h4>Il Semaforo dell'Attesa</h4><div class="skill">Autocontrollo</div><p>Aspetta il verde prima di agire. Allena l'autocontrollo.</p></div>
+      <div class="game-tile"><span class="emoji">🍃</span><h4>La Memoria di Kapi</h4><div class="skill">Memoria di lavoro</div><p>Ripeti la sequenza di foglioline colorate.</p></div>
+      <div class="game-tile"><span class="emoji">📖</span><h4>Costruisci la Storia</h4><div class="skill">Sequenza</div><p>Metti le scene nell'ordine giusto, dall'inizio alla fine.</p></div>
+      <div class="game-tile"><span class="emoji">💬</span><h4>Il Mio Turno, il Tuo Turno</h4><div class="skill">Conversazione e turni</div><p>Scegli la risposta giusta e aspetta il tuo turno per parlare.</p></div>
+      <div class="game-tile"><span class="emoji">🔎</span><h4>Caccia al Bersaglio</h4><div class="skill">Attenzione sostenuta</div><p>Trova tutti i quadrifogli giusti in tempo.</p></div>
+      <div class="game-tile"><span class="emoji">🌈</span><h4>Il Termometro delle Emozioni</h4><div class="skill">Regolazione emotiva</div><p>Scopri come ti senti e un modo per calmarti.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Monitori tutto, senza sforzo</h2>
+    <div class="feature-list">
+      <div class="feature-item"><span class="emoji">⭐</span><div><strong>Progressi automatici</strong><span class="desc">Stelle, semi della concentrazione e serie di giorni giocati, sempre aggiornati.</span></div></div>
+      <div class="feature-item"><span class="emoji">⏱️</span><div><strong>Tempo di utilizzo settimanale</strong><span class="desc">Vedi quanto ha giocato tuo figlio, giorno per giorno.</span></div></div>
+      <div class="feature-item"><span class="emoji">📅</span><div><strong>Aderenza agli obiettivi</strong><span class="desc">Monitora la frequenza d'uso, non solo il risultato.</span></div></div>
+      <div class="feature-item"><span class="emoji">🔒</span><div><strong>Area genitori protetta da PIN</strong><span class="desc">Impostazioni e report restano solo con il responsabile.</span></div></div>
+      <div class="feature-item"><span class="emoji">🛡️</span><div><strong>Report clinici completi<span class="premium-tag">Premium</span></strong><span class="desc">Controllo inibitorio, attenzione sostenuta, memoria di lavoro, tolleranza alla frustrazione, flessibilità cognitiva e analisi fonetica.</span></div></div>
+      <div class="feature-item"><span class="emoji">✨</span><div><strong>Riepilogo descrittivo automatico<span class="premium-tag">Premium</span></strong><span class="desc">Un riepilogo in linguaggio semplice di come tuo figlio sta evolvendo.</span></div></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="pro-bridge">
+      <h2 class="section-title" style="margin-bottom:14px;">Vuoi coinvolgere chi segue tuo figlio?</h2>
+      <p>Puoi invitare un logopedista, uno psicologo o un insegnante a vedere i report di progresso — solo dopo la tua approvazione, e puoi revocare l'accesso quando vuoi. Ogni accesso viene registrato, in conformità al GDPR.</p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Gratis per iniziare, Premium per andare più a fondo</h2>
+    <p class="section-sub">Un solo abbonamento sblocca di più in entrambe le app.</p>
+    <table class="compare-table">
+      <tr><th>Funzione</th><th>Gratis</th><th class="col-premium">Premium</th></tr>
+      <tr><td>6 minigiochi dell'Isola del Focus</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Progressi, stelle e aderenza</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Area genitori con PIN</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Avventura delle Lettere (mondi iniziali)</td><td class="check yes">✓</td><td class="check yes">✓</td></tr>
+      <tr><td>Report clinici completi</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Riepilogo descrittivo automatico</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Condivisione con professionisti collegati</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Tutti i 7 mondi dell'Avventura delle Lettere</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+      <tr><td>Adesivi esclusivi e più profili bambino</td><td class="check no">—</td><td class="check yes">✓</td></tr>
+    </table>
+  </section>
+
+  <section class="wrap">
+    <div class="pricing-wrap">
+      <div class="pricing-card">
+        <div class="plan-name">Premium</div>
+        <div class="price">€4,99<span>/mese</span></div>
+        <p class="price-note">Prezzo per l'Italia e altri paesi · R$24,90/mese per il Brasile</p>
+        <ul class="pricing-list">
+          <li>Tutto del piano gratis</li>
+          <li>Report clinici completi</li>
+          <li>Riepilogo automatico dei progressi</li>
+          <li>Tutti i 7 mondi dell'Avventura delle Lettere</li>
+          <li>Adesivi esclusivi e più profili</li>
+        </ul>
+        <a class="btn-primary" href="index.html?signup=1">Abbonati a Premium</a>
+        <p class="micro-note">Annulla quando vuoi, direttamente dall'app.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Domande frequenti</h2>
+    <details class="faq-item"><summary>Sostituisce la terapia o una diagnosi?</summary><p>No. I report sono un supporto all'osservazione e al monitoraggio — non costituiscono una diagnosi medica e non sostituiscono la valutazione di un professionista qualificato.</p></details>
+    <details class="faq-item"><summary>Posso usarlo per più di un figlio?</summary><p>Sì, il tuo account può avere più profili bambino, ognuno con i propri progressi.</p></details>
+    <details class="faq-item"><summary>I miei dati sono al sicuro?</summary><p>Sì. Rispettiamo il GDPR e la LGPD — trovi i dettagli nella nostra Informativa sulla Privacy.</p></details>
+    <details class="faq-item"><summary>Posso annullare quando voglio?</summary><p>Sì, direttamente dal pulsante "Gestisci abbonamento" nell'app, senza doverci contattare.</p></details>
+    <details class="faq-item"><summary>Funziona in portoghese e italiano?</summary><p>Sì — giochi, report ed email della piattaforma sono disponibili in entrambe le lingue.</p></details>
+  </section>
+
+  <section class="wrap">
+    <div class="final-cta">
+      <h2>Pronto/a per iniziare?</h2>
+      <p>Bastano meno di un minuto per creare il profilo di tuo figlio.</p>
+      <a class="btn-primary" href="index.html?signup=1">Crea il mio account gratis →</a>
+    </div>
+  </section>
+
+  <footer class="wrap">
+    <div class="foot-links">
+      <a href="termos-de-uso.html" target="_blank" rel="noopener">Termini di Utilizzo</a>
+      <a href="politica-privacidade.html" target="_blank" rel="noopener">Informativa sulla Privacy</a>
+    </div>
+    <p class="foot-disclaimer">I report di questa piattaforma sono un supporto all'osservazione e non costituiscono una diagnosi medica. Consulta sempre un professionista qualificato.</p>
+    <p class="foot-credit">Realizzato con cura da Viscare Develops 🌱</p>
+  </footer>
+
+</div>
+
+<script>
+function setDocLang(l){
+  document.documentElement.setAttribute('lang', l === 'it' ? 'it-IT' : 'pt-BR');
+  document.getElementById('btnPt').classList.toggle('active', l === 'pt');
+  document.getElementById('btnIt').classList.toggle('active', l === 'it');
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.style.display = (el.getAttribute('data-lang') === l) ? 'block' : 'none';
+  });
+  document.title = l === 'it'
+    ? "Isola del Focus + Avventura delle Lettere — Giochi per attenzione, calma e lettura"
+    : "Ilha do Foco + Aventura das Letras — Jogos para foco, calma e leitura";
+}
+</script>
+</body>
+</html>

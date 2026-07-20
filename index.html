@@ -1116,6 +1116,8 @@ const AUTH_I18N = {
     resetSubtitle: "Digite seu e-mail e enviaremos um link para você criar uma nova senha.",
     resetBtn: "Enviar link de redefinição",
     resetSentMessage: "Enviamos um link para o seu e-mail. Verifique também a caixa de spam.",
+    confirmationSentMessage: "Quase lá! Enviamos um link de confirmação para o seu e-mail. Clique nele para ativar sua conta (confira também a caixa de spam).",
+    errorEmailNotConfirmed: "Seu e-mail ainda não foi confirmado. Confira sua caixa de entrada (e o spam) e clique no link que enviamos.",
     backToLogin: "← Voltar para o login",
     loadingLogin: "Entrando...",
     loadingSignup: "Criando conta...",
@@ -1170,6 +1172,8 @@ const AUTH_I18N = {
     resetSubtitle: "Inserisci la tua e-mail e ti invieremo un link per creare una nuova password.",
     resetBtn: "Invia link di reimpostazione",
     resetSentMessage: "Abbiamo inviato un link alla tua e-mail. Controlla anche nello spam.",
+    confirmationSentMessage: "Quasi fatto! Abbiamo inviato un link di conferma alla tua e-mail. Clicca sul link per attivare il tuo account (controlla anche lo spam).",
+    errorEmailNotConfirmed: "La tua email non è stata ancora confermata. Controlla la tua casella di posta (e lo spam) e clicca sul link che abbiamo inviato.",
     backToLogin: "← Torna al login",
     loadingLogin: "Accesso in corso...",
     loadingSignup: "Creazione account in corso...",
@@ -1226,14 +1230,6 @@ let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId
 
 let authMode = 'login'; // login, signup, reset
 let authUserType = 'family'; // family | professional
-// Auto-confirm is on for this project, so sb.auth.signUp() establishes a
-// session immediately and fires onAuthStateChange before our own code gets
-// a chance to insert the professionals row. While true, onAuthStateChange's
-// family/professional routing is skipped entirely - the professional signup
-// handler manages state itself instead, so it can never race the "create a
-// families row if none exists yet" fallback and turn a professional into a
-// family by accident.
-let suppressAutoRouting = false;
 
 function setAuthLang(l) {
   state.lang = l; // one language drives the whole app, from the login screen onward
@@ -1305,6 +1301,8 @@ function openDeleteAccountModal({ warningHtml, onConfirm }){
 function getAuthErrorMsg(errCode) {
   const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
   if (!errCode) return t.errorGeneric;
+  const lower = errCode.toLowerCase();
+  if (lower.includes('email_not_confirmed') || lower.includes('email not confirmed')) return t.errorEmailNotConfirmed;
   if (errCode.includes('invalid_credentials')) return t.errorInvalidCredentials;
   if (errCode.includes('user_already_exists')) return t.errorEmailInUse;
   if (errCode.includes('weak_password')) return t.errorWeakPassword;
@@ -1477,7 +1475,6 @@ async function handleGoogleLogin() {
 }
 
 sb.auth.onAuthStateChange(async (event, session) => {
-  if (suppressAutoRouting) return;
   if (session) {
     state.authUserId = session.user.id;
 
@@ -1487,6 +1484,44 @@ sb.auth.onAuthStateChange(async (event, session) => {
       state.isProfessional = true;
       profDashboardSelectedId = null;
       openProfessionalDashboard();
+      return;
+    }
+
+    // First session ever seen for a professional signup (whether that's
+    // immediate, with email confirmation off, or delayed until the user
+    // clicks the confirmation link): the row couldn't be created at signUp
+    // time because no session - and therefore no RLS-usable auth.uid() -
+    // existed yet, so it's created here from the metadata signUp() stashed.
+    if (session.user.user_metadata?.signup_type === 'professional') {
+      const meta = session.user.user_metadata;
+      const profPayload = {
+        auth_user_id: session.user.id,
+        full_name: meta.full_name,
+        role: meta.role,
+        license_number: meta.license_number || null,
+        organization_name: meta.organization_name || null,
+      };
+      let { error: profError } = await sb.from('professionals').insert(profPayload);
+      const isDuplicate = (err) => err?.message?.includes('duplicate key');
+      if (profError && !isDuplicate(profError)) {
+        // Best-effort single retry for a transient failure; a duplicate-key
+        // error means another onAuthStateChange firing already created it
+        // (harmless - the unique constraint on auth_user_id makes that safe).
+        ({ error: profError } = await sb.from('professionals').insert(profPayload));
+      }
+      if (!profError || isDuplicate(profError)) {
+        state.isProfessional = true;
+        profDashboardSelectedId = null;
+        openProfessionalDashboard();
+        return;
+      }
+      // Genuine, non-duplicate failure: don't fall through to family
+      // creation below - that would silently turn a professional signup
+      // into a stray family account instead of surfacing the real problem.
+      showError((AUTH_I18N[state.lang] || AUTH_I18N.pt).errorProfOrphaned);
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-auth').classList.add('active');
+      renderAuthScreen();
       return;
     }
     state.isProfessional = false;
@@ -1546,8 +1581,22 @@ async function handleAuthSubmit() {
 
   let error = null;
   if (authMode === 'signup') {
-    const res = await sb.auth.signUp({ email, password });
+    const res = await sb.auth.signUp({ email, password, options: { data: { signup_type: 'family' } } });
     error = res.error;
+    // With email confirmation required, signUp() succeeds but returns no
+    // session until the link is clicked - onAuthStateChange won't fire, so
+    // nothing else happens automatically here. Tell the user to go check
+    // their inbox instead of leaving them looking at an unchanged screen.
+    if (!error && !res.data?.session) {
+      errEl.style.color = '#B8E8B0';
+      errEl.style.backgroundColor = 'rgba(124,197,118,.2)';
+      errEl.style.borderColor = 'var(--success)';
+      errEl.textContent = t.confirmationSentMessage;
+      errEl.style.display = 'block';
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
+    }
   } else if (authMode === 'login') {
     const res = await sb.auth.signInWithPassword({ email, password });
     error = res.error;
@@ -1611,13 +1660,24 @@ async function handleProfessionalSignup(){
   btn.textContent = t.proLoadingSignup;
   btn.disabled = true;
 
-  // See suppressAutoRouting's declaration: with auto-confirm on, signUp()
-  // below establishes a session and fires onAuthStateChange immediately,
-  // which would otherwise race this function's own professionals insert
-  // and create a stray families row instead.
-  suppressAutoRouting = true;
   try{
-    const { data: authData, error: authError } = await sb.auth.signUp({ email, password });
+    // The professionals row isn't created here - it's created by
+    // onAuthStateChange from this metadata, the first time a real session
+    // shows up for this user (immediately if email confirmation is off,
+    // or after they click the confirmation link if it's on). That's the
+    // only point a session - and therefore an RLS-usable auth.uid() - is
+    // guaranteed to exist, and it works the same way regardless of the
+    // project's confirm-email setting.
+    const { data: authData, error: authError } = await sb.auth.signUp({
+      email, password,
+      options: { data: {
+        signup_type: 'professional',
+        full_name: fullName,
+        role,
+        license_number: license || null,
+        organization_name: org || null,
+      } }
+    });
     if(authError){
       errEl.style.color = '#FFA3B1';
       errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
@@ -1627,34 +1687,18 @@ async function handleProfessionalSignup(){
       return;
     }
 
-    const profPayload = {
-      auth_user_id: authData.user.id,
-      full_name: fullName,
-      role,
-      license_number: license || null,
-      organization_name: org || null
-    };
-    let { error: profError } = await sb.from('professionals').insert(profPayload);
-    if(profError){
-      // Best-effort single retry: the auth account already exists at this
-      // point, so silently giving up here would strand the user as neither
-      // family nor professional the next time they log in.
-      ({ error: profError } = await sb.from('professionals').insert(profPayload));
-    }
-    if(profError){
-      errEl.style.color = '#FFA3B1';
-      errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
-      errEl.style.borderColor = 'var(--berry)';
-      errEl.textContent = t.errorProfOrphaned;
+    if(!authData.session){
+      errEl.style.color = '#B8E8B0';
+      errEl.style.backgroundColor = 'rgba(124,197,118,.2)';
+      errEl.style.borderColor = 'var(--success)';
+      errEl.textContent = t.confirmationSentMessage;
       errEl.style.display = 'block';
       return;
     }
-
-    state.authUserId = authData.user.id;
-    state.isProfessional = true;
-    openProfessionalDashboard();
+    // Auto-confirm is on: a session already exists, so onAuthStateChange
+    // has already started (or is about to) creating the professionals row
+    // and routing to the dashboard on its own - nothing left to do here.
   } finally {
-    suppressAutoRouting = false;
     btn.textContent = originalText;
     btn.disabled = false;
   }

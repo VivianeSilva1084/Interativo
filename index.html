@@ -1755,7 +1755,7 @@ async function loadProfileData(id){
     if(error) throw error;
     if(data) {
        return {
-         name: data.name, avatar: data.avatar, lang: data.lang,
+         name: data.name, avatar: AVATARS.includes(data.avatar) ? data.avatar : AVATARS[0], lang: data.lang,
          seeds: data.seeds, starsByGame: data.stars_by_game, difficultyByGame: data.difficulty_by_game,
          unlockedStickers: data.unlocked_stickers || []
        };
@@ -1851,7 +1851,7 @@ async function renderProfilesScreen(){
     const card = document.createElement('div');
     card.className = 'profile-card';
     card.innerHTML = `<button class="del-x" title="excluir" onclick="event.stopPropagation(); removeProfile('${p.id}')">✕</button>
-      <div class="avatar">${p.avatar}</div><div class="pname">${p.name}</div>
+      <div class="avatar">${AVATARS.includes(p.avatar) ? p.avatar : AVATARS[0]}</div><div class="pname">${p.name}</div>
       <div class="plang">${p.lang==='pt'?'🇧🇷 PT':'🇮🇹 IT'}</div>`;
     card.onclick = ()=>selectProfile(p.id);
     grid.appendChild(card);
@@ -3654,7 +3654,8 @@ function renderParentsChildTabs(){
   parentsChildren.forEach(c=>{
     const btn = document.createElement('button');
     btn.className = 'diff-btn' + (c.id === parentsActiveChildId ? ' selected' : '');
-    btn.textContent = `${c.avatar} ${c.name}`;
+    const av = AVATARS.includes(c.avatar) ? c.avatar : AVATARS[0];
+    btn.textContent = `${av} ${c.name}`;
     btn.onclick = async ()=>{
       parentsActiveChildId = c.id;
       renderParentsChildTabs();

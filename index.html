@@ -370,7 +370,25 @@
   .prof-dash-row-label { color: #8A8067; }
   .prof-dash-row-value { font-weight: 700; color: #1F2E29; }
   .prof-dash-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .prof-dash-footer { border-top: 1px solid #E7DCC0; padding: 12px 28px; font-size: 11.5px; color: #8A8067; }
+  .prof-dash-footer { border-top: 1px solid #E7DCC0; padding: 12px 28px; font-size: 11.5px; color: #8A8067; display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; justify-content:space-between; }
+  .prof-dash-methodology-link { background:none; border:none; color:#8A8067; font-size:11.5px; font-weight:800; text-decoration:underline; cursor:pointer; padding:2px; opacity:.85; font-family:inherit; }
+  .prof-dash-methodology-link:hover { opacity:1; color:#123C3E; }
+
+  .methodology-modal-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:10000; padding:20px; }
+  .methodology-modal{ background:var(--cream); color:var(--ink); border-radius:var(--radius-lg); padding:28px 26px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:var(--shadow); }
+  .methodology-modal h3{ margin:0 0 6px; font-size:19px; color:var(--berry); font-family:'Baloo 2',cursive; }
+  .methodology-modal .methodology-intro{ font-size:13px; color:#6b6350; margin:0 0 18px; line-height:1.5; }
+  .methodology-modal table{ width:100%; border-collapse:collapse; margin-bottom:20px; font-size:12.5px; }
+  .methodology-modal th{ text-align:left; padding:8px 10px; background:rgba(11,61,46,.06); font-family:'Baloo 2',cursive; font-weight:700; font-size:12.5px; color:var(--ink); }
+  .methodology-modal td{ padding:9px 10px; border-top:1px solid rgba(11,61,46,.08); vertical-align:top; line-height:1.45; }
+  .methodology-modal td.mth-report{ font-weight:800; white-space:nowrap; }
+  .methodology-modal .methodology-disclaimers{ list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:8px; }
+  .methodology-modal .methodology-disclaimers li{ font-size:12.5px; line-height:1.5; background:rgba(199,154,61,.12); border-left:3px solid var(--sand); padding:8px 12px; border-radius:6px; }
+  .methodology-modal .methodology-graphs-title{ font-family:'Baloo 2',cursive; font-size:15px; color:var(--berry); margin:0 0 6px; }
+  .methodology-modal .methodology-graphs-intro{ font-size:12.5px; margin:0 0 8px; }
+  .methodology-modal .methodology-graphs ul{ margin:0; padding-left:18px; font-size:12.5px; line-height:1.6; }
+  .methodology-modal-close{ margin-top:20px; width:100%; background:var(--berry); color:#fff; border:none; font-weight:800; padding:11px; border-radius:12px; cursor:pointer; font-size:14px; font-family:inherit; }
+  @media (max-width:600px){ .methodology-modal table, .methodology-modal thead, .methodology-modal tbody, .methodology-modal th, .methodology-modal td, .methodology-modal tr{ display:block; } .methodology-modal thead{ display:none; } .methodology-modal tr{ margin-bottom:12px; border-top:1px solid rgba(11,61,46,.08); padding-top:8px; } .methodology-modal td{ border-top:none; padding:2px 0; } .methodology-modal td.mth-report{ color:var(--berry); } }
   .prof-dash-bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 100px; padding-top: 10px; }
   .prof-dash-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .prof-dash-bar { width: 100%; background: #6FA287; border-radius: 4px 4px 0 0; min-height: 2px; }
@@ -932,6 +950,30 @@ const I18N = {
       instructionTitle:"Seguir instruções", instructionAccuracy:"Taxa de acerto",
       seconds:"s", ms:"ms", noDataGeneric:"Ainda sem dado suficiente.",
       aiSummaryTitle:"Resumo Clínico", aiSummaryDisclaimer:"Não constitui diagnóstico",
+      methodologyLinkLabel:"Metodologia", methodologyModalTitle:"Metodologia",
+      methodologyIntro:"Como os relatórios e índices deste painel são calculados a partir dos dados de jogo.",
+      methodologyTableReportCol:"Relatório", methodologyTableBasisCol:"Base metodológica",
+      methodologyReports:[
+        ["Atenção sustentada","Tempo entre primeira e última resposta por sessão, com detecção de inatividade — proxy comportamental de atenção sustentada, similar ao Continuous Performance Test (CPT) na literatura."],
+        ["Índice de impulsividade","Fórmula própria ponderando cliques prematuros, respostas antes de instrução terminar, abandonos e toques repetitivos — inspirada nas dimensões de impulsividade motora/cognitiva da escala de Barratt (BIS-11)."],
+        ["Memória de trabalho","Maior sequência reproduzida corretamente — equivalente comportamental ao Digit Span do WISC/WAIS."],
+        ["Flexibilidade cognitiva","Tempo de adaptação após mudança de regra — equivalente ao Wisconsin Card Sorting Test em formato simplificado."],
+        ["Análise fonética","Taxa de acerto por sílaba, classificação de erro por tipo (omissão/substituição/inversão/acréscimo) — alinhada com o modelo de análise fonológica de Yavas, Hernandorena & Lamprecht, referência no Brasil."],
+        ["Tolerância à frustração","Proporção de abandonos vs. tentativas de novo — indicador comportamental validado em literatura de autorregulação."]
+      ],
+      methodologyDisclaimers:[
+        "São dados comportamentais de jogo, não escores psicométricos — o que significa que não substituem uma avaliação formal, mas complementam o acompanhamento entre sessões.",
+        "A fórmula do índice de impulsividade foi desenvolvida internamente e ainda não tem validação clínica publicada.",
+        "O valor clínico está na evolução ao longo do tempo, não no número absoluto de uma sessão."
+      ],
+      methodologyGraphsTitle:"Gráficos de evolução (Ilha do Foco)",
+      methodologyGraphsIntro:"No dashboard dos pais, cada minijogo da Ilha do Foco mostra um card com:",
+      methodologyGraphsBullets:[
+        "Título e dificuldade atual (badge laranja: Fácil/Médio/Difícil) — é a dificuldade adaptativa implementada, funcionando de verdade.",
+        "Gráfico de linha — cada ponto é uma sessão jogada; o eixo Y representa as estrelas obtidas (0–3). A linha sobe quando a criança vai melhorando, desce quando teve dificuldade.",
+        "Lista das últimas 3 sessões, com data, estrelas e dificuldade."
+      ],
+      methodologyCloseBtn:"Fechar",
       deleteAccountBtn:"Excluir minha conta",
       deleteAccountWarning:"Isso vai apagar permanentemente sua conta profissional e todos os vínculos com as crianças que você acompanha. Essa ação não pode ser desfeita.",
       accountDeletedMsg:"Sua conta foi excluída.",
@@ -1076,6 +1118,30 @@ const I18N = {
       instructionTitle:"Seguire le istruzioni", instructionAccuracy:"Tasso di successo",
       seconds:"s", ms:"ms", noDataGeneric:"Dati ancora insufficienti.",
       aiSummaryTitle:"Riepilogo Clinico", aiSummaryDisclaimer:"Non costituisce una diagnosi",
+      methodologyLinkLabel:"Metodologia", methodologyModalTitle:"Metodologia",
+      methodologyIntro:"Come vengono calcolati i referti e gli indici di questo pannello a partire dai dati di gioco.",
+      methodologyTableReportCol:"Referto", methodologyTableBasisCol:"Base metodologica",
+      methodologyReports:[
+        ["Attenzione sostenuta","Tempo tra la prima e l'ultima risposta per sessione, con rilevamento di inattività — proxy comportamentale dell'attenzione sostenuta, simile al Continuous Performance Test (CPT) nella letteratura."],
+        ["Indice di impulsività","Formula propria che pondera clic prematuri, risposte prima della fine dell'istruzione, abbandoni e tocchi ripetitivi — ispirata alle dimensioni di impulsività motoria/cognitiva della scala di Barratt (BIS-11)."],
+        ["Memoria di lavoro","Sequenza più lunga riprodotta correttamente — equivalente comportamentale al Digit Span del WISC/WAIS."],
+        ["Flessibilità cognitiva","Tempo di adattamento dopo il cambio di regola — equivalente al Wisconsin Card Sorting Test in formato semplificato."],
+        ["Analisi fonetica","Tasso di accuratezza per sillaba, classificazione dell'errore per tipo (omissione/sostituzione/inversione/aggiunta) — allineata al modello di analisi fonologica di Yavas, Hernandorena & Lamprecht, riferimento in Brasile."],
+        ["Tolleranza alla frustrazione","Proporzione di abbandoni vs. nuovi tentativi — indicatore comportamentale validato nella letteratura sull'autoregolazione."]
+      ],
+      methodologyDisclaimers:[
+        "Sono dati comportamentali di gioco, non punteggi psicometrici — questo significa che non sostituiscono una valutazione formale, ma completano il monitoraggio tra le sessioni.",
+        "La formula dell'indice di impulsività è stata sviluppata internamente e non ha ancora validazione clinica pubblicata.",
+        "Il valore clinico sta nell'evoluzione nel tempo, non nel numero assoluto di una singola sessione."
+      ],
+      methodologyGraphsTitle:"Grafici di evoluzione (Isola del Focus)",
+      methodologyGraphsIntro:"Nella dashboard dei genitori, ogni minigioco dell'Isola del Focus mostra una card con:",
+      methodologyGraphsBullets:[
+        "Titolo e difficoltà attuale (badge arancione: Facile/Medio/Difficile) — è la difficoltà adattiva implementata, e funziona davvero.",
+        "Grafico a linee — ogni punto è una sessione giocata; l'asse Y rappresenta le stelle ottenute (0–3). La linea sale quando il bambino migliora, scende quando ha avuto difficoltà.",
+        "Elenco delle ultime 3 sessioni, con data, stelle e difficoltà."
+      ],
+      methodologyCloseBtn:"Chiudi",
       deleteAccountBtn:"Elimina il mio account",
       deleteAccountWarning:"Questo eliminerà permanentemente il tuo account professionale e tutti i collegamenti con i bambini che segui. Questa azione non può essere annullata.",
       accountDeletedMsg:"Il tuo account è stato eliminato.",
@@ -1296,6 +1362,40 @@ function openDeleteAccountModal({ warningHtml, onConfirm }){
     confirmBtn.textContent = t.deleting;
     await onConfirm(close);
   };
+}
+
+// Explains to linked professionals how each clinical-panel metric is derived from
+// raw gameplay data, and which established assessment instrument (if any) it echoes.
+// Content mirrors state.lang so it stays in sync with the rest of the professional panel.
+function openMethodologyModal(){
+  const t = L().prof;
+  const overlay = document.createElement('div');
+  overlay.className = 'methodology-modal-overlay';
+  overlay.innerHTML = `
+    <div class="methodology-modal">
+      <h3>📋 ${t.methodologyModalTitle}</h3>
+      <p class="methodology-intro">${t.methodologyIntro}</p>
+      <table>
+        <thead><tr><th>${t.methodologyTableReportCol}</th><th>${t.methodologyTableBasisCol}</th></tr></thead>
+        <tbody>
+          ${t.methodologyReports.map(([name, basis])=>`<tr><td class="mth-report">${name}</td><td>${basis}</td></tr>`).join('')}
+        </tbody>
+      </table>
+      <ul class="methodology-disclaimers">
+        ${t.methodologyDisclaimers.map(d=>`<li>⚠️ ${d}</li>`).join('')}
+      </ul>
+      <div class="methodology-graphs">
+        <h4 class="methodology-graphs-title">${t.methodologyGraphsTitle}</h4>
+        <p class="methodology-graphs-intro">${t.methodologyGraphsIntro}</p>
+        <ul>${t.methodologyGraphsBullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+      </div>
+      <button type="button" class="methodology-modal-close" data-action="close">${t.methodologyCloseBtn}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').onclick = close;
 }
 
 function getAuthErrorMsg(errCode) {
@@ -2982,11 +3082,16 @@ async function renderProfDashboardFrame(container){
           <div style="color:#8A8067; text-align:center; margin-top:40px;">${t.selectChild}</div>
         </div>
       </div>
-      <div class="prof-dash-footer">🛡️ ${t.accessNote}</div>
+      <div class="prof-dash-footer">
+        <span>🛡️ ${t.accessNote}</span>
+        <button type="button" class="prof-dash-methodology-link" id="profMethodologyLink">📋 ${t.methodologyLinkLabel}</button>
+      </div>
     </div>
   `;
 
   renderProfSidebarList(container);
+
+  container.querySelector('#profMethodologyLink').addEventListener('click', openMethodologyModal);
 
   container.querySelector('#profDashLangToggle').addEventListener('click', async ()=>{
     state.lang = state.lang === 'it' ? 'pt' : 'it';

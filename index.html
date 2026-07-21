@@ -1716,6 +1716,11 @@ sb.auth.onAuthStateChange(async (event, session) => {
       const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id, parent_pin_hash').single();
       if(newFamily){ state.familyId = newFamily.id; state.familyPinHash = newFamily.parent_pin_hash || null; }
     }
+    if(localStorage.getItem('ilhaDoFoco_landOnParents') === '1'){
+      localStorage.removeItem('ilhaDoFoco_landOnParents');
+      openParents();
+      return;
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-profiles').classList.add('active');
     renderProfilesScreen();
@@ -2319,6 +2324,13 @@ async function startSessionRow(gameKey, sessionId){
   }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
 }
 function goHub(){
+  // No active child profile happens when a parent lands straight in the
+  // parents area (via ?parents=1) without ever picking/creating one - there's
+  // no hub to show them, so send them to pick/create a profile instead.
+  if(!state.profile){
+    goProfiles();
+    return;
+  }
   flushSessionLog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-hub').classList.add('active');
@@ -4502,11 +4514,22 @@ function renderTrendChart(container, sessions){
 // Lets vendas.html link straight into the signup form instead of login -
 // authMode is read whenever renderAuthScreen() first runs, so setting it
 // here (synchronous, top of the auth-state check) is enough.
+// landOnParents is stashed in localStorage (not a plain variable) because a
+// fresh signup has no session yet - the user has to go confirm their email
+// first, which lands them back here on an entirely new page load once they
+// click that link, and a mid-air variable wouldn't survive that round trip.
 (function openSignupFromQueryParam(){
-  if(new URLSearchParams(window.location.search).get('signup') === '1'){
+  const params = new URLSearchParams(window.location.search);
+  let touched = false;
+  if(params.get('signup') === '1'){
     authMode = 'signup';
-    history.replaceState({}, '', window.location.pathname);
+    touched = true;
   }
+  if(params.get('parents') === '1'){
+    localStorage.setItem('ilhaDoFoco_landOnParents', '1');
+    touched = true;
+  }
+  if(touched) history.replaceState({}, '', window.location.pathname);
 })();
 
 /* ========================= CHECKOUT REDIRECT ========================= */

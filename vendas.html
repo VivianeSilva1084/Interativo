@@ -128,6 +128,31 @@
   .demo-cta-wrap{ text-align:center; margin-top:20px; }
   @media (max-width:520px){ .demo-cols{ grid-template-columns:1fr; gap:10px; } }
 
+  /* ---------- Professional dashboard demo ---------- */
+  .demo-pro-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
+  .demo-pro-card{ position:relative; background:#FBF8F1; color:#1F2E29; border-radius: var(--radius-lg); max-width:640px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
+  .demo-pro-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
+  .demo-pro-header{ background:#123C3E; color:#fff; padding:14px 76px 14px 20px; font-family:'Baloo 2',cursive; font-weight:700; font-size:14px; }
+  .demo-pro-body{ display:flex; flex-wrap:wrap; }
+  .demo-pro-sidebar{ width:170px; border-right:1px solid #E7DCC0; padding:14px 0; flex-shrink:0; }
+  .demo-pro-sidebar .label{ font-size:10.5px; font-weight:800; color:#8A7F63; text-transform:uppercase; letter-spacing:.4px; padding:0 16px 8px; }
+  .demo-pro-child{ display:flex; align-items:center; gap:8px; padding:9px 16px; border-left:3px solid transparent; font-size:12.5px; font-weight:700; color:#4A4536; }
+  .demo-pro-child.active{ background:#F5E6C8; border-left-color:#FF6F59; color:#1F2E29; }
+  .demo-pro-main{ flex:1; min-width:260px; padding:18px 20px; }
+  .demo-pro-main h6{ font-family:'Baloo 2',cursive; font-size:13.5px; margin:0 0 10px; color:#1F2E29; }
+  .demo-pro-card-box{ background:#fff; border:1px solid #E7DCC0; border-radius:14px; padding:14px 16px; margin-bottom:12px; }
+  .demo-pro-card-box h6{ font-family:'Baloo 2',cursive; font-size:12.5px; margin:0 0 8px; color:var(--berry); }
+  .demo-pro-index-value{ font-family:'Baloo 2',cursive; font-size:24px; text-align:center; color:#1F2E29; }
+  .demo-pro-index-label{ font-size:11.5px; text-align:center; color:#6b6350; margin-top:2px; }
+  .demo-pro-row{ display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:3px 0; color:#4A4536; }
+  .demo-pro-summary{ font-size:12px; font-style:italic; color:#4A4536; line-height:1.55; margin:0; }
+  @media (max-width:560px){
+    .demo-pro-body{ flex-direction:column; }
+    .demo-pro-sidebar{ width:100%; border-right:none; border-bottom:1px solid #E7DCC0; display:flex; align-items:center; gap:6px; padding:10px 16px; }
+    .demo-pro-sidebar .label{ display:none; }
+    .demo-pro-row{ flex-direction:column; gap:2px; }
+  }
+
   /* ---------- Pricing ---------- */
   .pricing-wrap{ display:flex; justify-content:center; }
   .pricing-card{ background: linear-gradient(160deg, rgba(240,200,120,.14), rgba(255,255,255,.03)); border:2px solid var(--sand); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
@@ -344,6 +369,51 @@
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Para fonoaudiólogos, psicólogos e professores</h2>
+    <p class="section-sub">Acompanhe seus pacientes entre as sessões, com dados reais de cada interação.</p>
+    <div class="demo-pro-wrap">
+      <div class="demo-pro-card">
+        <span class="demo-pro-badge">DEMO</span>
+        <div class="demo-pro-header">🔬 Painel profissional · Fonoaudióloga</div>
+        <div class="demo-pro-body">
+          <div class="demo-pro-sidebar">
+            <div class="label">Crianças</div>
+            <div class="demo-pro-child active">✅ Sofia</div>
+            <div class="demo-pro-child">⏳ Pedro (pendente)</div>
+          </div>
+          <div class="demo-pro-main">
+            <h6>👧 Sofia</h6>
+            <div class="demo-pro-card-box">
+              <h6>🛡️ Índice de controle inibitório</h6>
+              <div class="demo-pro-index-value">77 / 100</div>
+              <div class="demo-pro-index-label">Impulsividade ocasional</div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>🔬 Análise fonética</h6>
+              <div class="demo-pro-row"><span>Sílabas com dificuldade</span><span>PRA (48%) · PLA (36%) · GUA (30%)</span></div>
+              <div class="demo-pro-row"><span>Troca mais frequente</span><span>R → L · 3x</span></div>
+              <div class="demo-pro-row"><span>Tipos de erro</span><span>Substituição: 5 · Omissão: 3</span></div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>📅 Adesão (últimas 4 semanas)</h6>
+              <div class="demo-pro-row"><span>Aventura das Letras</span><span>100%</span></div>
+              <div class="demo-pro-row"><span>Ilha do Foco</span><span>75%</span></div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>✨ Resumo clínico</h6>
+              <p class="demo-pro-summary">"Sofia manteve uma frequência excelente nas últimas semanas (100% das metas atingidas). Troca fonológica mais frequente: R → L (3 ocorrências). O índice de controle inibitório está em 77/100, com impulsividade ocasional."</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cta-wrap">
+      <p style="font-size:13px; color:rgba(255,248,237,.75); margin-bottom:10px;">Sou fonoaudiólogo, psicólogo ou professor · Acesso gratuito para profissionais vinculados</p>
+      <a class="btn-primary" href="index.html?pro=1">Criar conta profissional →</a>
+    </div>
+  </section>
+
+  <section class="wrap">
     <h2 class="section-title">Grátis pra começar, Premium pra ir a fundo</h2>
     <p class="section-sub">Uma só assinatura. Dois apps!</p>
     <table class="compare-table">
@@ -554,6 +624,51 @@
     </div>
     <div class="demo-cta-wrap">
       <a class="btn-primary" href="index.html?signup=1&parents=1">Crea il tuo account gratuito e vedi i progressi di tuo figlio →</a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Per logopedisti, psicologi e insegnanti</h2>
+    <p class="section-sub">Segui i tuoi pazienti tra le sessioni, con dati reali di ogni interazione.</p>
+    <div class="demo-pro-wrap">
+      <div class="demo-pro-card">
+        <span class="demo-pro-badge">DEMO</span>
+        <div class="demo-pro-header">🔬 Pannello professionale · Logopedista</div>
+        <div class="demo-pro-body">
+          <div class="demo-pro-sidebar">
+            <div class="label">Bambini</div>
+            <div class="demo-pro-child active">✅ Sofia</div>
+            <div class="demo-pro-child">⏳ Pedro (in attesa)</div>
+          </div>
+          <div class="demo-pro-main">
+            <h6>👧 Sofia</h6>
+            <div class="demo-pro-card-box">
+              <h6>🛡️ Indice di controllo inibitorio</h6>
+              <div class="demo-pro-index-value">77 / 100</div>
+              <div class="demo-pro-index-label">Impulsività occasionale</div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>🔬 Analisi fonetica</h6>
+              <div class="demo-pro-row"><span>Sillabe con difficoltà</span><span>PRA (48%) · PLA (36%) · GUA (30%)</span></div>
+              <div class="demo-pro-row"><span>Scambio più frequente</span><span>R → L · 3x</span></div>
+              <div class="demo-pro-row"><span>Tipi di errore</span><span>Sostituzione: 5 · Omissione: 3</span></div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>📅 Aderenza (ultime 4 settimane)</h6>
+              <div class="demo-pro-row"><span>Avventura delle Lettere</span><span>100%</span></div>
+              <div class="demo-pro-row"><span>Isola del Focus</span><span>75%</span></div>
+            </div>
+            <div class="demo-pro-card-box">
+              <h6>✨ Riepilogo clinico</h6>
+              <p class="demo-pro-summary">"Sofia ha mantenuto una frequenza eccellente nelle ultime settimane (100% degli obiettivi raggiunti). Scambio fonologico più frequente: R → L (3 occorrenze). L'indice di controllo inibitorio è 77/100, con impulsività occasionale."</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cta-wrap">
+      <p style="font-size:13px; color:rgba(255,248,237,.75); margin-bottom:10px;">Sono logopedista, psicologo o insegnante · Accesso gratuito per i professionisti collegati</p>
+      <a class="btn-primary" href="index.html?pro=1">Crea account professionale →</a>
     </div>
   </section>
 

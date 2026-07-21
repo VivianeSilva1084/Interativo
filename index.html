@@ -4644,6 +4644,11 @@ function renderTrendChart(container, sessions){
     localStorage.setItem('ilhaDoFoco_landOnParents', '1');
     touched = true;
   }
+  if(params.get('pro') === '1'){
+    authUserType = 'professional';
+    authMode = 'signup';
+    touched = true;
+  }
   if(touched) history.replaceState({}, '', window.location.pathname);
 })();
 

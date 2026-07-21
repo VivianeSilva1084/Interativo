@@ -306,6 +306,23 @@
   .parents-clinical-locked .locked-icon{ font-size:32px; margin-bottom:8px; }
   .parents-clinical-locked .locked-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:8px; }
   .parents-clinical-locked .locked-desc{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 auto 18px; max-width:420px; }
+  .payment-method-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .payment-method-row .big-cta{ font-size:14px; padding:12px 20px; }
+  .payment-method-row .big-cta.pix-btn{ background: var(--leaf); }
+
+  .pix-cpf-input{ width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; border:2px solid rgba(11,61,46,.25); font-size:15px; font-weight:700; letter-spacing:.5px; margin:6px 0 4px; font-family:'Nunito',sans-serif; }
+  .pix-cpf-hint{ font-size:11.5px; color:#8A8067; margin:0 0 16px; }
+  .pix-cpf-error{ font-size:12.5px; color:var(--berry); font-weight:700; margin:-10px 0 14px; display:none; }
+
+  .pix-modal{ background:var(--cream); color:var(--ink); border-radius:var(--radius-lg); padding:26px 24px; max-width:360px; width:100%; box-shadow:var(--shadow); text-align:center; }
+  .pix-modal h3{ margin:0 0 12px; font-size:18px; color:var(--berry); font-family:'Baloo 2',cursive; }
+  .pix-modal p{ margin:0 0 16px; font-size:13.5px; line-height:1.5; }
+  .pix-modal .pix-qr-img{ width:200px; height:200px; margin:0 auto 16px; border-radius:12px; border:2px solid rgba(11,61,46,.12); }
+  .pix-modal .pix-copy-code{ width:100%; box-sizing:border-box; padding:10px 12px; border-radius:10px; border:2px solid rgba(11,61,46,.2); font-size:11px; font-family:monospace; color:var(--ink); background:rgba(11,61,46,.04); resize:none; margin-bottom:10px; }
+  .pix-modal .pix-copy-btn{ background: var(--leaf); color:#fff; border:none; font-weight:800; padding:9px 18px; border-radius:12px; cursor:pointer; font-size:13.5px; margin-bottom:16px; }
+  .pix-modal .pix-status{ font-size:12.5px; font-weight:700; color:#8A8067; margin-bottom:14px; }
+  .pix-modal .pix-status.confirmed{ color:var(--leaf); }
+  .pix-modal-close{ width:100%; background:transparent; border:2px solid rgba(11,61,46,.2); color:var(--ink); font-weight:800; padding:9px; border-radius:12px; cursor:pointer; font-size:13.5px; font-family:inherit; }
 
   .parents-danger-zone{ background: rgba(229,85,110,.08); border:2px solid rgba(229,85,110,.4); border-radius:18px; padding:18px 20px; text-align:center; }
   .parents-danger-zone .danger-desc{ font-size:12.5px; color:var(--cream); opacity:.85; line-height:1.5; margin:0 auto 14px; max-width:420px; }
@@ -911,6 +928,16 @@ const I18N = {
       clinicalReportLockedTitle:"Relatório Clínico — recurso Premium",
       clinicalReportLockedDesc:"Assine o Premium para ver o índice de controle inibitório e um relatório completo, pronto para compartilhar com quem acompanha seu filho.",
       upgradeBtn:"Conhecer o Premium",
+      upgradeBtnCard:"💳 Cartão de crédito", upgradeBtnPix:"⚡ Pix",
+      pixCpfModalTitle:"Pagar com Pix", pixCpfLabel:"CPF ou CNPJ",
+      pixCpfPlaceholder:"Só números", pixCpfHint:"Necessário para gerar a cobrança Pix.",
+      pixCpfInvalid:"CPF/CNPJ inválido. Confira os números.",
+      pixCpfContinueBtn:"Continuar", pixCpfCancelBtn:"Cancelar", pixGenerating:"Gerando...",
+      pixModalTitle:"Pague com Pix", pixModalInstructions:"Escaneie o QR code com o app do seu banco, ou copie o código abaixo.",
+      pixCopyBtn:"Copiar código", pixCopiedLabel:"Copiado! ✓",
+      pixWaitingPayment:"Aguardando confirmação do pagamento...",
+      pixPaymentConfirmed:"Pagamento confirmado! Premium ativado 🎉",
+      pixError:"Não consegui gerar o Pix. Tente de novo.", pixCloseBtn:"Fechar",
       dangerZoneTitle:"Zona de risco",
       resetProgressDesc:"Apaga sementes, estrelas, figurinhas, histórico de sessões e progresso de leitura. A criança começa do zero. Essa ação não pode ser desfeita.",
       resetProgressBtn:(name)=>`Zerar evolução de ${name}`,
@@ -1082,6 +1109,16 @@ const I18N = {
       clinicalReportLockedTitle:"Referto Clinico — funzione Premium",
       clinicalReportLockedDesc:"Passa a Premium per vedere l'indice di controllo inibitorio e un referto completo, pronto da condividere con chi segue tuo figlio.",
       upgradeBtn:"Scopri Premium",
+      upgradeBtnCard:"💳 Carta di credito", upgradeBtnPix:"⚡ Pix",
+      pixCpfModalTitle:"Paga con Pix", pixCpfLabel:"CPF o CNPJ",
+      pixCpfPlaceholder:"Solo numeri", pixCpfHint:"Necessario per generare l'addebito Pix.",
+      pixCpfInvalid:"CPF/CNPJ non valido. Controlla i numeri.",
+      pixCpfContinueBtn:"Continua", pixCpfCancelBtn:"Annulla", pixGenerating:"Generazione...",
+      pixModalTitle:"Paga con Pix", pixModalInstructions:"Scansiona il QR code con l'app della tua banca, oppure copia il codice qui sotto.",
+      pixCopyBtn:"Copia codice", pixCopiedLabel:"Copiato! ✓",
+      pixWaitingPayment:"In attesa di conferma del pagamento...",
+      pixPaymentConfirmed:"Pagamento confermato! Premium attivato 🎉",
+      pixError:"Non sono riuscito a generare il Pix. Riprova.", pixCloseBtn:"Chiudi",
       dangerZoneTitle:"Zona a rischio",
       resetProgressDesc:"Cancella semi, stelle, figurine, cronologia delle sessioni e progressi di lettura. Il bambino/a riparte da zero. Questa azione non può essere annullata.",
       resetProgressBtn:(name)=>`Azzera i progressi di ${name}`,
@@ -3794,6 +3831,12 @@ function renderParentsChildTabs(){
     wrap.appendChild(btn);
   });
 }
+// Best-effort locale sniff (no billing address is collected today) used to decide
+// BRL vs EUR Stripe pricing, and now also whether to offer Pix as a payment method
+// at all - Pix only makes sense for Brazilian users, so it stays hidden elsewhere.
+function isBrazil(){
+  return navigator.language.toLowerCase().startsWith('pt');
+}
 async function startCheckout(btn){
   const t = L();
   const originalLabel = btn.textContent;
@@ -3802,7 +3845,7 @@ async function startCheckout(btn){
   try{
     const { data: { session } } = await sb.auth.getSession();
     if(!session) throw new Error('no-session');
-    const country = navigator.language.toLowerCase().startsWith('pt') ? 'BR' : 'INT';
+    const country = isBrazil() ? 'BR' : 'INT';
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
@@ -3816,6 +3859,127 @@ async function startCheckout(btn){
     btn.textContent = originalLabel;
     showError(t.parents.checkoutError);
   }
+}
+
+// Validates a CPF using the standard mod-11 check-digit algorithm (rejects
+// all-same-digit strings like 111.111.111-11, a common invalid placeholder).
+// CNPJ (14 digits) is only length-checked - Asaas validates it authoritatively.
+function isValidCpfCnpj(digits){
+  if(digits.length === 14) return true;
+  if(digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+  const calcCheckDigit = (base) => {
+    let sum = 0;
+    for(let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (base.length + 1 - i);
+    const rest = (sum * 10) % 11;
+    return rest === 10 ? 0 : rest;
+  };
+  const d1 = calcCheckDigit(digits.slice(0, 9));
+  const d2 = calcCheckDigit(digits.slice(0, 10));
+  return d1 === parseInt(digits[9], 10) && d2 === parseInt(digits[10], 10);
+}
+
+function openPixCpfModal(){
+  const t = L().parents;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <h3>⚡ ${t.pixCpfModalTitle}</h3>
+      <p style="margin-bottom:6px;">${t.pixCpfLabel}</p>
+      <input type="text" class="pix-cpf-input" id="pixCpfInput" inputmode="numeric" placeholder="${t.pixCpfPlaceholder}" autocomplete="off">
+      <p class="pix-cpf-hint">${t.pixCpfHint}</p>
+      <p class="pix-cpf-error" id="pixCpfError">${t.pixCpfInvalid}</p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.pixCpfCancelBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" style="background:var(--leaf);" data-action="continue">${t.pixCpfContinueBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="cancel"]').onclick = close;
+  const input = overlay.querySelector('#pixCpfInput');
+  const errEl = overlay.querySelector('#pixCpfError');
+  const continueBtn = overlay.querySelector('[data-action="continue"]');
+  input.focus();
+  continueBtn.onclick = async ()=>{
+    const digits = input.value.replace(/\D/g, '');
+    if(!isValidCpfCnpj(digits)){
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    continueBtn.disabled = true;
+    continueBtn.textContent = t.pixGenerating;
+    await startPixCheckout(digits, ()=>{ continueBtn.disabled = false; continueBtn.textContent = t.pixCpfContinueBtn; });
+    close();
+  };
+}
+
+async function startPixCheckout(cpfCnpj, onError){
+  const t = L().parents;
+  try{
+    const { data: { session } } = await sb.auth.getSession();
+    if(!session) throw new Error('no-session');
+    const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-pix-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ cpfCnpj }),
+    });
+    const result = await response.json();
+    if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');
+    openPixQrModal(result);
+  }catch(err){
+    if(onError) onError();
+    showError(t.pixError);
+  }
+}
+
+function openPixQrModal({ qrCodeImage, copyPasteCode }){
+  const t = L().parents;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="pix-modal">
+      <h3>⚡ ${t.pixModalTitle}</h3>
+      <p>${t.pixModalInstructions}</p>
+      <img class="pix-qr-img" src="data:image/png;base64,${qrCodeImage}" alt="QR code Pix">
+      <textarea class="pix-copy-code" id="pixCopyCode" rows="3" readonly>${copyPasteCode}</textarea>
+      <div><button type="button" class="pix-copy-btn" id="pixCopyBtn">${t.pixCopyBtn}</button></div>
+      <div class="pix-status" id="pixStatus">⏳ ${t.pixWaitingPayment}</div>
+      <button type="button" class="pix-modal-close" data-action="close">${t.pixCloseBtn}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  let stopped = false;
+  const close = ()=>{ stopped = true; overlay.remove(); };
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').onclick = close;
+
+  overlay.querySelector('#pixCopyBtn').onclick = async ()=>{
+    await navigator.clipboard.writeText(copyPasteCode);
+    overlay.querySelector('#pixCopyBtn').textContent = t.pixCopiedLabel;
+    setTimeout(()=>{ if(!stopped) overlay.querySelector('#pixCopyBtn').textContent = t.pixCopyBtn; }, 2000);
+  };
+
+  // Pix has no redirect-back step like Stripe Checkout, so this polls our own
+  // subscriptions row (readable by the family via RLS) until the webhook
+  // (triggered by Asaas once the payment settles) flips plan to 'premium'.
+  (async function poll(){
+    for(let i = 0; i < 75 && !stopped; i++){ // ~5 minutes at 4s intervals
+      await new Promise(r=>setTimeout(r, 4000));
+      if(stopped) return;
+      const { data } = await sb.from('subscriptions').select('plan').eq('family_id', state.familyId).maybeSingle();
+      if(data?.plan === 'premium'){
+        const statusEl = overlay.querySelector('#pixStatus');
+        if(statusEl){ statusEl.textContent = `✅ ${t.pixPaymentConfirmed}`; statusEl.classList.add('confirmed'); }
+        setTimeout(()=>{ if(!stopped){ close(); renderParentsDashboardBody(); } }, 2500);
+        return;
+      }
+    }
+  })();
 }
 async function manageSubscription(btn){
   const t = L();
@@ -4155,9 +4319,14 @@ async function renderParentsDashboardBody(){
       <div class="locked-icon">🔒</div>
       <div class="locked-title">${t.parents.clinicalReportLockedTitle}</div>
       <p class="locked-desc">${t.parents.clinicalReportLockedDesc}</p>
-      <button class="big-cta">${t.parents.upgradeBtn}</button>
+      <div class="payment-method-row">
+        <button class="big-cta" data-method="card">${isBrazil() ? t.parents.upgradeBtnCard : t.parents.upgradeBtn}</button>
+        ${isBrazil() ? `<button class="big-cta pix-btn" data-method="pix">${t.parents.upgradeBtnPix}</button>` : ''}
+      </div>
     `;
-    lockedCard.querySelector('.big-cta').addEventListener('click', (e)=> startCheckout(e.currentTarget));
+    lockedCard.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget));
+    const pixBtn = lockedCard.querySelector('[data-method="pix"]');
+    if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal());
     body.appendChild(lockedCard);
   }
 

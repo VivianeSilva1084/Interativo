@@ -914,6 +914,7 @@ const I18N = {
       kapiTipTitle:"Dica do Kapi",
       kapiTip:(name,count)=>`${name} já domina ${count} sílabas. Que tal celebrar com uma leitura em voz alta juntos?`,
       ilhaDoFocoTitle:"Ilha do Foco", ilhaDoFocoSubtitle:"Atenção e função executiva",
+      ilhaDoFocoOpenBtn:"Abrir Ilha do Foco ↗",
       readingTitle:"Aventura das Letras", readingSubtitle:"Alfabetização e leitura",
       readingMasteredLabel:"Sílabas dominadas", readingWordsRead:"Palavras lidas", readingChallenges:"Desafios concluídos",
       readingOpenBtn:"Abrir Aventura das Letras ↗",
@@ -1100,6 +1101,7 @@ const I18N = {
       kapiTipTitle:"Consiglio di Kapi",
       kapiTip:(name,count)=>`${name} padroneggia già ${count} sillabe. Perché non festeggiare leggendo insieme ad alta voce?`,
       ilhaDoFocoTitle:"Isola della Concentrazione", ilhaDoFocoSubtitle:"Attenzione e funzione esecutiva",
+      ilhaDoFocoOpenBtn:"Apri Isola della Concentrazione ↗",
       readingTitle:"Avventura delle Lettere", readingSubtitle:"Alfabetizzazione e lettura",
       readingMasteredLabel:"Sillabe padroneggiate", readingWordsRead:"Parole lette", readingChallenges:"Sfide completate",
       readingOpenBtn:"Apri Avventura delle Lettere ↗",
@@ -4151,6 +4153,14 @@ async function renderParentsDashboardBody(){
   gridSubtitle.className = 'parents-section-subtitle';
   gridSubtitle.textContent = t.parents.ilhaDoFocoSubtitle;
   body.appendChild(gridSubtitle);
+
+  const ilhaDoFocoOpenLink = document.createElement('a');
+  ilhaDoFocoOpenLink.className = 'parents-reading-open-btn';
+  ilhaDoFocoOpenLink.href = 'https://interativo-pi.vercel.app/';
+  ilhaDoFocoOpenLink.target = '_blank';
+  ilhaDoFocoOpenLink.rel = 'noopener';
+  ilhaDoFocoOpenLink.textContent = t.parents.ilhaDoFocoOpenBtn;
+  body.appendChild(ilhaDoFocoOpenLink);
 
   if(ilhaDoFocoSessions.length === 0){
     const empty = document.createElement('p');

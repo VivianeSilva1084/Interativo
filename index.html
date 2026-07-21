@@ -306,6 +306,15 @@
   .parents-clinical-locked .locked-icon{ font-size:32px; margin-bottom:8px; }
   .parents-clinical-locked .locked-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:8px; }
   .parents-clinical-locked .locked-desc{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 auto 18px; max-width:420px; }
+  .parents-conversion-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:22px; }
+  .parents-conversion-card .conversion-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:14px; text-align:center; }
+  .conversion-stat-box{ display:flex; align-items:center; gap:12px; background: rgba(255,209,102,.12); border:2px solid rgba(255,209,102,.3); border-radius:14px; padding:12px 16px; margin-bottom:14px; }
+  .conversion-stat-box .stat-emoji{ font-size:26px; }
+  .conversion-stat-number{ font-family:'Baloo 2',cursive; font-size:16px; color:var(--cream); }
+  .conversion-stat-sub{ font-size:11.5px; color:var(--lilac); font-weight:600; }
+  .conversion-body{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 0 18px; text-align:center; }
+  .conversion-empty-body{ font-size:13.5px; color:var(--cream); opacity:.85; text-align:center; padding:6px 0; }
+  .conversion-footer{ font-size:11.5px; color:#8A8067; opacity:.85; text-align:center; margin:14px 0 0; }
   .payment-method-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .payment-method-row .big-cta{ font-size:14px; padding:12px 20px; }
   .payment-method-row .big-cta.pix-btn{ background: var(--leaf); }
@@ -925,8 +934,13 @@ const I18N = {
       inviteCodeError:"Não consegui gerar o código. Tente de novo.",
       impulsivityIndex:"Índice de controle inibitório",
       clinicalReportTitle:"Relatório Clínico",
-      clinicalReportLockedTitle:"Relatório Clínico — recurso Premium",
-      clinicalReportLockedDesc:"Assine o Premium para ver o índice de controle inibitório e um relatório completo, pronto para compartilhar com quem acompanha seu filho.",
+      clinicalConversionTitle:"Relatório clínico completo",
+      clinicalConversionInteractions:(n)=>`${n} interações registradas`,
+      clinicalConversionLast7Days:"nos últimos 7 dias",
+      clinicalConversionBody:"Esses dados incluem padrões de atenção, controle de impulsividade e análise fonética que só aparecem no plano Premium.",
+      clinicalConversionFooterBRL:"R$ 24,90/mês · Cancele quando quiser",
+      clinicalConversionFooterEUR:"€ 4,99/mês · Cancele quando quiser",
+      clinicalConversionEmptyBody:"Jogue pelo menos uma sessão para começar a gerar o relatório clínico.",
       upgradeBtn:"Conhecer o Premium",
       upgradeBtnCard:"💳 Cartão de crédito", upgradeBtnPix:"⚡ Pix",
       pixCpfModalTitle:"Pagar com Pix", pixCpfLabel:"CPF ou CNPJ",
@@ -1106,8 +1120,13 @@ const I18N = {
       inviteCodeError:"Non sono riuscito a generare il codice. Riprova.",
       impulsivityIndex:"Indice di controllo inibitorio",
       clinicalReportTitle:"Referto Clinico",
-      clinicalReportLockedTitle:"Referto Clinico — funzione Premium",
-      clinicalReportLockedDesc:"Passa a Premium per vedere l'indice di controllo inibitorio e un referto completo, pronto da condividere con chi segue tuo figlio.",
+      clinicalConversionTitle:"Report clinico completo",
+      clinicalConversionInteractions:(n)=>`${n} interazioni registrate`,
+      clinicalConversionLast7Days:"negli ultimi 7 giorni",
+      clinicalConversionBody:"Questi dati includono pattern di attenzione, controllo dell'impulsività e analisi fonetica disponibili solo nel piano Premium.",
+      clinicalConversionFooterBRL:"R$ 24,90/mese · Cancella quando vuoi",
+      clinicalConversionFooterEUR:"€ 4,99/mese · Cancella quando vuoi",
+      clinicalConversionEmptyBody:"Gioca almeno una sessione per iniziare a generare il report clinico.",
       upgradeBtn:"Scopri Premium",
       upgradeBtnCard:"💳 Carta di credito", upgradeBtnPix:"⚡ Pix",
       pixCpfModalTitle:"Paga con Pix", pixCpfLabel:"CPF o CNPJ",
@@ -4313,21 +4332,43 @@ async function renderParentsDashboardBody(){
     summaryCard.innerHTML = `<div style="font-size:13.5px; color:var(--cream); line-height:1.6; font-style:italic;">${summaryText}</div>`;
     body.appendChild(summaryCard);
   } else {
-    const lockedCard = document.createElement('div');
-    lockedCard.className = 'parents-clinical-locked';
-    lockedCard.innerHTML = `
-      <div class="locked-icon">🔒</div>
-      <div class="locked-title">${t.parents.clinicalReportLockedTitle}</div>
-      <p class="locked-desc">${t.parents.clinicalReportLockedDesc}</p>
-      <div class="payment-method-row">
-        <button class="big-cta" data-method="card">${isBrazil() ? t.parents.upgradeBtnCard : t.parents.upgradeBtn}</button>
-        ${isBrazil() ? `<button class="big-cta pix-btn" data-method="pix">${t.parents.upgradeBtnPix}</button>` : ''}
-      </div>
-    `;
-    lockedCard.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget));
-    const pixBtn = lockedCard.querySelector('[data-method="pix"]');
-    if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal());
-    body.appendChild(lockedCard);
+    const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const { count: totalEventos } = await sb.from('game_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', child.id)
+      .gte('occurred_at', sevenDaysAgo.toISOString());
+    const n = totalEventos || 0;
+
+    const conversionCard = document.createElement('div');
+    conversionCard.className = 'parents-conversion-card';
+    if(n === 0){
+      conversionCard.innerHTML = `
+        <div class="conversion-title">🔒 ${t.parents.clinicalConversionTitle}</div>
+        <p class="conversion-empty-body">${t.parents.clinicalConversionEmptyBody}</p>
+      `;
+    } else {
+      const footer = isBrazil() ? t.parents.clinicalConversionFooterBRL : t.parents.clinicalConversionFooterEUR;
+      conversionCard.innerHTML = `
+        <div class="conversion-title">🔒 ${t.parents.clinicalConversionTitle}</div>
+        <div class="conversion-stat-box">
+          <span class="stat-emoji">📊</span>
+          <div>
+            <div class="conversion-stat-number">${t.parents.clinicalConversionInteractions(n)}</div>
+            <div class="conversion-stat-sub">${t.parents.clinicalConversionLast7Days}</div>
+          </div>
+        </div>
+        <p class="conversion-body">${t.parents.clinicalConversionBody}</p>
+        <div class="payment-method-row">
+          <button class="big-cta" data-method="card">${isBrazil() ? t.parents.upgradeBtnCard : t.parents.upgradeBtn}</button>
+          ${isBrazil() ? `<button class="big-cta pix-btn" data-method="pix">${t.parents.upgradeBtnPix}</button>` : ''}
+        </div>
+        <p class="conversion-footer">${footer}</p>
+      `;
+      conversionCard.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget));
+      const pixBtn = conversionCard.querySelector('[data-method="pix"]');
+      if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal());
+    }
+    body.appendChild(conversionCard);
   }
 
   // ---- Danger zone: reset progress ----

@@ -106,6 +106,28 @@
   .pro-bridge{ background: rgba(143,166,205,.1); border:2px solid rgba(143,166,205,.3); border-radius: var(--radius-lg); padding:30px; text-align:center; max-width:680px; margin:0 auto; }
   .pro-bridge p{ font-size:14.5px; line-height:1.6; color:rgba(255,248,237,.9); }
 
+  /* ---------- Dashboard demo ---------- */
+  .demo-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
+  .demo-card{ position:relative; background: var(--cream); color:var(--ink); border-radius: var(--radius-lg); max-width:520px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
+  .demo-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
+  .demo-header{ background: var(--ink); color:#fff; padding:16px 76px 16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  .demo-header .child-name{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; }
+  .demo-header .premium-pill{ background:var(--sand); color:var(--ink); font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .demo-body{ padding:20px; }
+  .demo-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:6px; }
+  .demo-col h5{ font-family:'Baloo 2',cursive; font-size:13px; margin:0 0 8px; color:var(--ink); }
+  .demo-card .row{ display:flex; justify-content:space-between; gap:8px; font-size:12px; padding:4px 0; color:#4A4536; border-top:1px solid rgba(11,61,46,.08); }
+  .demo-col .row:first-of-type{ border-top:none; }
+  .demo-section-block{ border-top:1px solid rgba(11,61,46,.1); padding-top:14px; margin-top:14px; }
+  .demo-section-block h5{ font-family:'Baloo 2',cursive; font-size:13px; margin:0 0 10px; color:var(--berry); }
+  .demo-index-value{ font-family:'Baloo 2',cursive; font-size:28px; color:var(--ink); text-align:center; }
+  .demo-index-label{ font-size:12px; text-align:center; color:#6b6350; font-style:italic; margin-top:4px; }
+  .demo-bar-track{ background:rgba(11,61,46,.08); border-radius:999px; height:10px; overflow:hidden; margin:8px 0 6px; }
+  .demo-bar-fill{ background:var(--leaf); height:100%; border-radius:999px; }
+  .demo-bar-label{ font-size:12px; color:#6b6350; }
+  .demo-cta-wrap{ text-align:center; margin-top:20px; }
+  @media (max-width:520px){ .demo-cols{ grid-template-columns:1fr; gap:10px; } }
+
   /* ---------- Pricing ---------- */
   .pricing-wrap{ display:flex; justify-content:center; }
   .pricing-card{ background: linear-gradient(160deg, rgba(240,200,120,.14), rgba(255,255,255,.03)); border:2px solid var(--sand); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
@@ -274,6 +296,54 @@
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Veja como funciona o acompanhamento</h2>
+    <p class="section-sub">Exemplo com dados fictícios — assim que você criar sua conta, aqui aparecem os dados reais do seu filho.</p>
+    <div class="demo-wrap">
+      <div class="demo-card">
+        <span class="demo-badge">DEMO</span>
+        <div class="demo-header">
+          <span class="child-name">👧 Sofia · 7 anos</span>
+          <span class="premium-pill">⭐ Premium</span>
+        </div>
+        <div class="demo-body">
+          <div class="demo-cols">
+            <div class="demo-col">
+              <h5>🏝️ Ilha do Foco</h5>
+              <div class="row"><span>Memória da Kapi</span><span>★★★</span></div>
+              <div class="row"><span>Caça ao Alvo</span><span>★★★</span></div>
+              <div class="row"><span>Semáforo</span><span>★★☆</span></div>
+            </div>
+            <div class="demo-col">
+              <h5>📖 Aventura das Letras</h5>
+              <div class="row"><span>Sílabas dominadas</span><span>14</span></div>
+              <div class="row"><span>Palavras lidas</span><span>8</span></div>
+              <div class="row"><span>Desafios</span><span>21</span></div>
+            </div>
+          </div>
+          <div class="demo-section-block">
+            <h5>🛡️ Índice de controle inibitório</h5>
+            <div class="demo-index-value">77 / 100</div>
+            <div class="demo-index-label">"Dentro do esperado, com impulsividade ocasional"</div>
+          </div>
+          <div class="demo-section-block">
+            <h5>🔬 Análise fonética</h5>
+            <div class="row" style="border-top:none;"><span>Sílaba com mais dificuldade</span><span>PRA (48%)</span></div>
+            <div class="row"><span>Troca mais frequente</span><span>/R/ → /L/ (3x)</span></div>
+          </div>
+          <div class="demo-section-block">
+            <h5>📅 Adesão · últimas 4 semanas</h5>
+            <div class="demo-bar-track"><div class="demo-bar-fill" style="width:75%"></div></div>
+            <div class="demo-bar-label">75% (3 de 4 semanas com meta batida)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cta-wrap">
+      <a class="btn-primary" href="index.html?signup=1">Crie sua conta grátis e veja os dados do seu filho →</a>
+    </div>
+  </section>
+
+  <section class="wrap">
     <h2 class="section-title">Grátis pra começar, Premium pra ir a fundo</h2>
     <p class="section-sub">Uma só assinatura. Dois apps!</p>
     <table class="compare-table">
@@ -436,6 +506,54 @@
     <div class="pro-bridge">
       <h2 class="section-title" style="margin-bottom:14px;">Vuoi coinvolgere chi segue tuo figlio?</h2>
       <p>Puoi invitare un logopedista, uno psicologo o un insegnante a vedere i report di progresso — solo dopo la tua approvazione, e puoi revocare l'accesso quando vuoi. Ogni accesso viene registrato, in conformità al GDPR.</p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Scopri come funziona il monitoraggio</h2>
+    <p class="section-sub">Esempio con dati fittizi — appena crei il tuo account, qui appariranno i dati reali di tuo figlio.</p>
+    <div class="demo-wrap">
+      <div class="demo-card">
+        <span class="demo-badge">DEMO</span>
+        <div class="demo-header">
+          <span class="child-name">👧 Sofia · 7 anni</span>
+          <span class="premium-pill">⭐ Premium</span>
+        </div>
+        <div class="demo-body">
+          <div class="demo-cols">
+            <div class="demo-col">
+              <h5>🏝️ Isola del Focus</h5>
+              <div class="row"><span>La Memoria di Kapi</span><span>★★★</span></div>
+              <div class="row"><span>Caccia al Bersaglio</span><span>★★★</span></div>
+              <div class="row"><span>Il Semaforo dell'Attesa</span><span>★★☆</span></div>
+            </div>
+            <div class="demo-col">
+              <h5>📖 Avventura delle Lettere</h5>
+              <div class="row"><span>Sillabe padroneggiate</span><span>14</span></div>
+              <div class="row"><span>Parole lette</span><span>8</span></div>
+              <div class="row"><span>Sfide completate</span><span>21</span></div>
+            </div>
+          </div>
+          <div class="demo-section-block">
+            <h5>🛡️ Indice di controllo inibitorio</h5>
+            <div class="demo-index-value">77 / 100</div>
+            <div class="demo-index-label">"Nella norma, con impulsività occasionale"</div>
+          </div>
+          <div class="demo-section-block">
+            <h5>🔬 Analisi fonetica</h5>
+            <div class="row" style="border-top:none;"><span>Sillaba con più difficoltà</span><span>PRA (48%)</span></div>
+            <div class="row"><span>Scambio più frequente</span><span>/R/ → /L/ (3x)</span></div>
+          </div>
+          <div class="demo-section-block">
+            <h5>📅 Aderenza · ultime 4 settimane</h5>
+            <div class="demo-bar-track"><div class="demo-bar-fill" style="width:75%"></div></div>
+            <div class="demo-bar-label">75% (3 di 4 settimane con obiettivo raggiunto)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-cta-wrap">
+      <a class="btn-primary" href="index.html?signup=1">Crea il tuo account gratuito e vedi i progressi di tuo figlio →</a>
     </div>
   </section>
 

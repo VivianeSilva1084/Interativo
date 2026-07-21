@@ -284,6 +284,13 @@
   .parents-professionals-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; }
   .parents-professionals-card .txt{ font-size:13px; color:var(--cream); opacity:.85; max-width:340px; text-align:left; }
   .parents-invite-btn{ background: var(--papaya); color:#fff; border:none; border-radius:12px; padding:9px 16px; font-weight:800; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .parents-add-profile-btn{ background: var(--papaya); color:#fff; border:none; border-radius:999px; padding:10px 20px; font-weight:800; font-size:13.5px; cursor:pointer; }
+  .parents-add-profile-modal label{ display:block; font-weight:800; font-size:13px; color:var(--berry); margin:0 0 6px; }
+  .parents-add-profile-modal .avatar-row, .parents-add-profile-modal .lang-row{ margin-bottom:16px; }
+  .parents-add-profile-modal .avatar-choice{ background: rgba(11,61,46,.06); border-color: transparent; color: var(--ink); }
+  .parents-add-profile-modal .avatar-choice.selected{ border-color: var(--berry); background: rgba(229,85,110,.12); }
+  .parents-add-profile-modal .lang-choice{ background: rgba(11,61,46,.06); border-color: rgba(11,61,46,.15); color: var(--ink); }
+  .parents-add-profile-modal .lang-choice.selected{ border-color: var(--berry); background: rgba(229,85,110,.12); }
   .parents-invite-btn:disabled{ opacity:.6; cursor:default; }
 
   .parents-pending-requests{ display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
@@ -726,6 +733,9 @@
 
       <div id="parentsDashboard" style="display:none;">
         <div id="parentsChildTabs" class="diff-row"></div>
+        <div style="text-align:center; margin:0 0 20px;">
+          <button type="button" class="parents-add-profile-btn" id="parentsAddProfileBtn" onclick="openAddChildProfileModal()"></button>
+        </div>
         <div id="parentsDashboardBody"></div>
       </div>
     </div>
@@ -3831,6 +3841,7 @@ function renderWeeklyChart(container, minutesByDay, dayLabels){
 async function parentsOpenDashboard(){
   document.getElementById('parentsGate').style.display = 'none';
   document.getElementById('parentsDashboard').style.display = 'block';
+  document.getElementById('parentsAddProfileBtn').textContent = '➕ ' + L().addProfileBtn;
   parentsChildren = await loadProfilesList();
   const tabsWrap = document.getElementById('parentsChildTabs');
   const body = document.getElementById('parentsDashboardBody');
@@ -3864,6 +3875,99 @@ function renderParentsChildTabs(){
     wrap.appendChild(btn);
   });
 }
+
+// Lets parents create a child profile from inside the (PIN-gated) parents
+// dashboard, for families who land here straight from the marketing funnel
+// (?parents=1) and never touch the child-facing "Quem vai jogar hoje?"
+// screen - profile creation should be a parent action, not a child one.
+function openAddChildProfileModal(){
+  const t = L();
+  let selectedAvatar = AVATARS[0];
+  let selectedLang = state.lang === 'it' ? 'it' : 'pt';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal parents-add-profile-modal">
+      <h3>➕ ${t.addProfileBtn}</h3>
+      <label>${t.labelName}</label>
+      <input type="text" class="pix-cpf-input" id="parentsNewProfileName" maxlength="20" placeholder="${t.namePlaceholder}">
+      <label style="margin-top:14px;">${t.labelAvatar}</label>
+      <div class="avatar-row" id="parentsNewProfileAvatarRow"></div>
+      <label>${t.labelLang}</label>
+      <div class="lang-row" id="parentsNewProfileLangRow">
+        <div class="lang-choice ${selectedLang==='pt'?'selected':''}" data-lang="pt">🇧🇷 Português</div>
+        <div class="lang-choice ${selectedLang==='it'?'selected':''}" data-lang="it">🇮🇹 Italiano</div>
+      </div>
+      <p class="pix-cpf-error" id="parentsNewProfileError"></p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.parents.pixCpfCancelBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" style="background:var(--leaf);" data-action="create">${t.createProfileBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="cancel"]').onclick = close;
+
+  const avatarRow = overlay.querySelector('#parentsNewProfileAvatarRow');
+  AVATARS.forEach((a,i)=>{
+    const el = document.createElement('div');
+    el.className = 'avatar-choice' + (i===0 ? ' selected' : '');
+    el.textContent = a;
+    el.onclick = ()=>{
+      selectedAvatar = a;
+      avatarRow.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    avatarRow.appendChild(el);
+  });
+  overlay.querySelectorAll('#parentsNewProfileLangRow .lang-choice').forEach(el=>{
+    el.onclick = ()=>{
+      selectedLang = el.dataset.lang;
+      overlay.querySelectorAll('#parentsNewProfileLangRow .lang-choice').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+  });
+
+  const nameInput = overlay.querySelector('#parentsNewProfileName');
+  const errEl = overlay.querySelector('#parentsNewProfileError');
+  const createBtn = overlay.querySelector('[data-action="create"]');
+  nameInput.focus();
+  createBtn.onclick = async ()=>{
+    const name = nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    errEl.style.display = 'none';
+    createBtn.disabled = true;
+    createBtn.textContent = '...';
+    const data = defaultProfileData(name, selectedAvatar, selectedLang);
+    try{
+      const { data: newRow, error } = await sb.from('child_profiles').insert({
+        family_id: state.familyId,
+        name: name,
+        avatar: selectedAvatar,
+        lang: selectedLang,
+        seeds: data.seeds,
+        stars_by_game: data.starsByGame,
+        difficulty_by_game: data.difficultyByGame,
+        unlocked_stickers: data.unlockedStickers
+      }).select().single();
+      if(error) throw error;
+      close();
+      parentsChildren = await loadProfilesList();
+      parentsActiveChildId = newRow.id;
+      renderParentsChildTabs();
+      await renderParentsDashboardBody();
+    }catch(e){
+      errEl.textContent = t.parents.dashboardError;
+      errEl.style.display = 'block';
+      createBtn.disabled = false;
+      createBtn.textContent = t.createProfileBtn;
+    }
+  };
+}
+
 // Best-effort locale sniff (no billing address is collected today) used to decide
 // BRL vs EUR Stripe pricing, and now also whether to offer Pix as a payment method
 // at all - Pix only makes sense for Brazilian users, so it stays hidden elsewhere.

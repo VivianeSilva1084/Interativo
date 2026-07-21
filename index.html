@@ -1651,11 +1651,22 @@ async function handleGoogleLogin() {
     // there's no session to handle here - onAuthStateChange picks it up
     // (via detectSessionInUrl) the same way it already does for email
     // login, once Google redirects back.
+    //
+    // The ?parents=1 intent (set in localStorage by openSignupFromQueryParam)
+    // is re-attached to the redirect URL here rather than trusted to survive
+    // in localStorage alone - Google's full-page redirect round trip is a much
+    // bigger detour than email/password login ever takes, so the URL itself
+    // carries the intent back too. Requires the wildcard entry
+    // "https://interativo-pi.vercel.app/**" in Supabase's Redirect URLs list
+    // (added alongside the pre-existing exact, no-wildcard entry).
+    // Only append anything when the flag is set - otherwise this must stay
+    // byte-for-byte window.location.origin (no trailing slash) to keep
+    // matching the pre-existing exact, no-wildcard allow-list entry.
+    const wantsParents = localStorage.getItem('ilhaDoFoco_landOnParents') === '1';
+    const redirectTo = window.location.origin + (wantsParents ? '/?parents=1' : '');
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      // Matches the exact (no trailing slash, no wildcard) entry already
-      // whitelisted in Supabase's Redirect URLs for this domain.
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo },
     });
     if (error) throw error;
   } catch (err) {

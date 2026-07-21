@@ -64,6 +64,19 @@
   .problem-card p{ font-size:14.5px; line-height:1.5; color:rgba(255,248,237,.9); }
   .bridge-line{ text-align:center; font-weight:800; color:var(--sand); font-size:17px; margin-top:30px; }
 
+  /* ---------- Vs. traditional comparison ---------- */
+  .vs-table{ width:100%; max-width:760px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow); }
+  .vs-table th{ font-family:'Baloo 2',cursive; font-weight:700; font-size:14.5px; text-align:left; padding:16px 18px; color:#fff; }
+  .vs-table th.vs-col-label{ background: var(--ink); width:30%; }
+  .vs-table th.vs-col-us{ background: var(--leaf); }
+  .vs-table th.vs-col-them{ background:#5C7A70; }
+  .vs-table td{ padding:13px 18px; font-size:13px; color:var(--ink); border-top:1px solid rgba(0,0,0,.06); }
+  .vs-table td.vs-label{ font-weight:800; background: rgba(0,0,0,.02); }
+  .vs-table td.vs-us{ background: rgba(76,154,92,.1); font-weight:600; }
+  .vs-table td.vs-them{ color:#8A7F63; }
+  .vs-table tr:first-child td{ border-top:none; }
+  @media (max-width:600px){ .vs-table{ font-size:12px; } .vs-table th, .vs-table td{ padding:10px 10px; } }
+
   /* ---------- Two-app cards ---------- */
   .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
   .app-card{ background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border:2px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); padding:28px; }
@@ -178,6 +191,21 @@
       <div class="problem-card"><span class="emoji">🤔</span><p>Você quer ajudar, mas não tem como saber, de fato, o que está funcionando.</p></div>
     </div>
     <p class="bridge-line">A gente transforma isso em jogo — e em dado real pra você acompanhar.</p>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Ilha do Foco vs. método tradicional</h2>
+    <p class="section-sub">Por que o formato digital funciona melhor para crianças com TDAH</p>
+    <table class="vs-table">
+      <tr><th class="vs-col-label"></th><th class="vs-col-us">🌴 Ilha do Foco</th><th class="vs-col-them">Apostila/caderno</th></tr>
+      <tr><td class="vs-label">Formato</td><td class="vs-us">Interativo, jogo digital</td><td class="vs-them">Papel e caneta, repetitivo</td></tr>
+      <tr><td class="vs-label">Duração por sessão</td><td class="vs-us">10–15 min, no ritmo da criança</td><td class="vs-them">30–60 min, sessão única longa</td></tr>
+      <tr><td class="vs-label">Engajamento</td><td class="vs-us">Alto — recompensas visuais imediatas</td><td class="vs-them">Variável, percebido como cansativo</td></tr>
+      <tr><td class="vs-label">Feedback</td><td class="vs-us">Imediato, a cada resposta</td><td class="vs-them">Atrasado, só na correção</td></tr>
+      <tr><td class="vs-label">Acompanhamento clínico</td><td class="vs-us">Relatórios automáticos e atualizados</td><td class="vs-them">Elaboração manual, mais lenta</td></tr>
+      <tr><td class="vs-label">Acesso</td><td class="vs-us">Qualquer dispositivo, de casa</td><td class="vs-them">Requer presença e material impresso</td></tr>
+      <tr><td class="vs-label">Adesão</td><td class="vs-us">Rastreada automaticamente, dado real</td><td class="vs-them">Difícil de medir com consistência</td></tr>
+    </table>
   </section>
 
   <section class="wrap">
@@ -315,6 +343,21 @@
       <div class="problem-card"><span class="emoji">🤔</span><p>Vuoi aiutare, ma non hai modo di sapere davvero cosa funziona.</p></div>
     </div>
     <p class="bridge-line">Noi trasformiamo tutto questo in gioco — e in dati reali da monitorare.</p>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Isola del Focus vs. metodo tradizionale</h2>
+    <p class="section-sub">Perché il formato digitale funziona meglio per bambini con ADHD</p>
+    <table class="vs-table">
+      <tr><th class="vs-col-label"></th><th class="vs-col-us">🌴 Isola del Focus</th><th class="vs-col-them">Quaderno/scheda</th></tr>
+      <tr><td class="vs-label">Formato</td><td class="vs-us">Interattivo, gioco digitale</td><td class="vs-them">Carta e penna, ripetitivo</td></tr>
+      <tr><td class="vs-label">Durata per sessione</td><td class="vs-us">10–15 min, al ritmo del bambino</td><td class="vs-them">30–60 min, sessione unica lunga</td></tr>
+      <tr><td class="vs-label">Coinvolgimento</td><td class="vs-us">Alto — ricompense visive immediate</td><td class="vs-them">Variabile, percepito come faticoso</td></tr>
+      <tr><td class="vs-label">Feedback</td><td class="vs-us">Immediato, ad ogni risposta</td><td class="vs-them">Ritardato, solo alla correzione</td></tr>
+      <tr><td class="vs-label">Monitoraggio clinico</td><td class="vs-us">Report automatici e aggiornati</td><td class="vs-them">Elaborazione manuale, più lenta</td></tr>
+      <tr><td class="vs-label">Accesso</td><td class="vs-us">Qualsiasi dispositivo, da casa</td><td class="vs-them">Richiede presenza e materiale stampato</td></tr>
+      <tr><td class="vs-label">Aderenza</td><td class="vs-us">Tracciata automaticamente, dato reale</td><td class="vs-them">Difficile da misurare con costanza</td></tr>
+    </table>
   </section>
 
   <section class="wrap">

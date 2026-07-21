@@ -79,6 +79,13 @@
   .tile p{ margin:0; font-size:13.5px; color:var(--lilac); font-weight:600; line-height:1.4;}
   .tile .stars-earned{ margin-top:4px; font-size:14px; }
 
+  .hub-reading-banner{ margin-top:18px; display:flex; align-items:center; justify-content:space-between; gap:14px; background: linear-gradient(160deg, rgba(255,209,102,.16), rgba(255,255,255,.03)); border:2px solid rgba(255,209,102,.35); border-radius: var(--radius-lg); padding:16px 20px; text-decoration:none; transition: transform .15s ease, border-color .15s ease; }
+  .hub-reading-banner:hover, .hub-reading-banner:focus-visible{ transform: translateY(-2px); border-color: var(--sand); outline:none; }
+  .hub-reading-banner .txt{ display:flex; flex-direction:column; gap:2px; }
+  .hub-reading-banner .title{ font-family:'Baloo 2',cursive; font-size:16px; color:var(--cream); }
+  .hub-reading-banner .desc{ font-size:12.5px; color:var(--lilac); font-weight:600; }
+  .hub-reading-banner .btn{ background: var(--sand); color:var(--bg-deep); font-weight:800; font-size:13px; padding:8px 16px; border-radius:999px; white-space:nowrap; }
+
   .screen{ display:none; } .screen.active{ display:block; }
   .game-shell{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 24px; min-height: 420px; position:relative; }
   .top-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:10px; flex-wrap:wrap;}
@@ -256,6 +263,8 @@
   .parents-section-subtitle{ font-size:12px; font-weight:700; color:var(--lilac); margin:-8px 0 12px; }
 
   .parents-reading-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:16px; }
+  .parents-reading-open-btn{ display:inline-block; background: var(--papaya); color:#fff; font-weight:800; font-size:13px; padding:9px 16px; border-radius:999px; text-decoration:none; margin-bottom:12px; }
+  .parents-reading-open-btn:hover{ filter:brightness(1.05); }
   .syllable-chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
   .syllable-chip{ background:var(--cream); color:var(--leaf-dark); font-weight:800; font-size:12.5px; padding:3px 10px; border-radius:8px; }
   .parents-reading-row{ display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; color:var(--cream); margin-top:8px; }
@@ -520,6 +529,13 @@
       <div class="speech" id="mascotSpeech">...</div>
     </div>
     <div class="grid" id="hubGrid"></div>
+    <a class="hub-reading-banner" id="hubReadingBanner" href="https://jogo-pra-tdh.vercel.app/" target="_blank" rel="noopener">
+      <span class="txt">
+        <span class="title" id="hubReadingBannerTitle"></span>
+        <span class="desc" id="hubReadingBannerDesc"></span>
+      </span>
+      <span class="btn" id="hubReadingBannerBtn"></span>
+    </a>
   </div>
 
   <!-- ===================== GAME: SEMÁFORO ===================== -->
@@ -828,6 +844,8 @@ const I18N = {
     footer:"Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto",
     mascotHub:(n)=>`Oi, ${n}! Eu sou a Kapi 🌿 Escolhe uma aventura pra gente jogar juntos!`,
     mascotGood:"Show de bola! Você é demais! 🌟", mascotTry:"Sem problema, todo mundo erra! Bora tentar de novo? 💛",
+    hubReadingBannerTitle:"📖 Aventura das Letras", hubReadingBannerDesc:"O jogo de alfabetização e leitura, no mesmo login.",
+    hubReadingBannerBtn:"Abrir ↗",
     tiles:{
       semaforo:{emoji:"🚦",skill:"Autocontrole",title:"Luz da Espera",desc:"Espera o verde antes de agir. Treina segurar o impulso."},
       memoria:{emoji:"🍃",skill:"Memória de trabalho",title:"Memória da Kapi",desc:"Repete a sequência de folhinhas coloridas."},
@@ -872,6 +890,7 @@ const I18N = {
       ilhaDoFocoTitle:"Ilha do Foco", ilhaDoFocoSubtitle:"Atenção e função executiva",
       readingTitle:"Aventura das Letras", readingSubtitle:"Alfabetização e leitura",
       readingMasteredLabel:"Sílabas dominadas", readingWordsRead:"Palavras lidas", readingChallenges:"Desafios concluídos",
+      readingOpenBtn:"Abrir Aventura das Letras ↗",
       notPlayedHere:"Ainda não jogou aqui.",
       weeklyUsageTitle:"Tempo de tela — últimos 7 dias",
       dayLabels:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
@@ -996,6 +1015,8 @@ const I18N = {
     footer:"Fatto con cura per bambini curiosi 🌱 — gioca sempre insieme a un adulto",
     mascotHub:(n)=>`Ciao, ${n}! Sono Kapi 🌿 Scegli un'avventura da giocare insieme!`,
     mascotGood:"Fantastico! Sei bravissimo/a! 🌟", mascotTry:"Nessun problema, capita a tutti! Proviamo ancora? 💛",
+    hubReadingBannerTitle:"📖 Avventura delle Lettere", hubReadingBannerDesc:"Il gioco di alfabetizzazione e lettura, con lo stesso login.",
+    hubReadingBannerBtn:"Apri ↗",
     tiles:{
       semaforo:{emoji:"🚦",skill:"Autocontrollo",title:"Il Semaforo dell'Attesa",desc:"Aspetta il verde prima di agire. Allena l'autocontrollo."},
       memoria:{emoji:"🍃",skill:"Memoria di lavoro",title:"La Memoria di Kapi",desc:"Ripeti la sequenza di foglioline colorate."},
@@ -1040,6 +1061,7 @@ const I18N = {
       ilhaDoFocoTitle:"Isola della Concentrazione", ilhaDoFocoSubtitle:"Attenzione e funzione esecutiva",
       readingTitle:"Avventura delle Lettere", readingSubtitle:"Alfabetizzazione e lettura",
       readingMasteredLabel:"Sillabe padroneggiate", readingWordsRead:"Parole lette", readingChallenges:"Sfide completate",
+      readingOpenBtn:"Apri Avventura delle Lettere ↗",
       notPlayedHere:"Non ha ancora giocato qui.",
       weeklyUsageTitle:"Tempo di gioco — ultimi 7 giorni",
       dayLabels:["Dom","Lun","Mar","Mer","Gio","Ven","Sab"],
@@ -2165,6 +2187,9 @@ function renderHub(){
     grid.appendChild(div);
   });
   renderHubTileStars();
+  document.getElementById('hubReadingBannerTitle').textContent = t.hubReadingBannerTitle;
+  document.getElementById('hubReadingBannerDesc').textContent = t.hubReadingBannerDesc;
+  document.getElementById('hubReadingBannerBtn').textContent = t.hubReadingBannerBtn;
 }
 
 function renderDiffRow(containerId, gameKey, onChange){
@@ -3909,6 +3934,14 @@ async function renderParentsDashboardBody(){
   readingSubtitle.className = 'parents-section-subtitle';
   readingSubtitle.textContent = t.parents.readingSubtitle;
   body.appendChild(readingSubtitle);
+
+  const readingOpenLink = document.createElement('a');
+  readingOpenLink.className = 'parents-reading-open-btn';
+  readingOpenLink.href = 'https://jogo-pra-tdh.vercel.app/';
+  readingOpenLink.target = '_blank';
+  readingOpenLink.rel = 'noopener';
+  readingOpenLink.textContent = t.parents.readingOpenBtn;
+  body.appendChild(readingOpenLink);
 
   const readingCard = document.createElement('div');
   readingCard.className = 'parents-reading-card';

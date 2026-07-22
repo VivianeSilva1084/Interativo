@@ -747,6 +747,11 @@ function setDocLang(l){
     ? "Isola del Focus + Avventura delle Lettere — Giochi per attenzione, calma e lettura"
     : "Ilha do Foco + Aventura das Letras — Jogos para foco, calma e leitura";
 }
+// Lets links (e.g. from the Italian version of the lifecycle emails) land
+// directly on the right language instead of always defaulting to PT.
+(function applyLangFromHash(){
+  if(window.location.hash === '#lang=it') setDocLang('it');
+})();
 </script>
 </body>
 </html>

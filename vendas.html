@@ -789,6 +789,28 @@ function setDocLang(l){
     if(target) setTimeout(()=>target.scrollIntoView({behavior:'smooth'}), 300);
   }
 })();
+
+// Attribution: a visitor arriving from a lifecycle email/WhatsApp link carries
+// ?lead_id=<uuid>. We log the visit and stash the id in localStorage (same
+// origin as index.html) so it survives all the way to checkout, which only
+// happens much later, deep inside the parents dashboard.
+(function trackLeadVisit(){
+  const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
+  const leadId = new URLSearchParams(window.location.search).get('lead_id');
+  if(!leadId) return;
+  localStorage.setItem('ilhaDoFoco_leadId', leadId);
+  fetch(`${SUPABASE_URL}/rest/v1/lead_events`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({ id: crypto.randomUUID(), lead_id: leadId, event_type: 'sales_page_visited', channel: 'site' }),
+  }).catch(()=>{});
+})();
 </script>
 </body>
 </html>

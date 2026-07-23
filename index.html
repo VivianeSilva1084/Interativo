@@ -3985,6 +3985,23 @@ function openAddChildProfileModal(){
 function isBrazil(){
   return navigator.language.toLowerCase().startsWith('pt');
 }
+// Fire-and-forget: logs a lead_events row via direct REST (same public-insert
+// pattern used by the quiz funnel) so a checkout attempt is attributable even
+// if the checkout itself fails or is abandoned before any webhook fires.
+function logLeadCheckoutStarted(leadId){
+  if(!leadId) return;
+  fetch(`${SUPABASE_URL}/rest/v1/lead_events`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({ id: crypto.randomUUID(), lead_id: leadId, event_type: 'checkout_started', channel: 'site' }),
+  }).catch(()=>{});
+}
+
 async function startCheckout(btn){
   const t = L();
   const originalLabel = btn.textContent;
@@ -3994,10 +4011,12 @@ async function startCheckout(btn){
     const { data: { session } } = await sb.auth.getSession();
     if(!session) throw new Error('no-session');
     const country = isBrazil() ? 'BR' : 'INT';
+    const leadId = localStorage.getItem('ilhaDoFoco_leadId');
+    logLeadCheckoutStarted(leadId);
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ country }),
+      body: JSON.stringify({ country, leadId: leadId || undefined }),
     });
     const result = await response.json();
     if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
@@ -4070,10 +4089,12 @@ async function startPixCheckout(cpfCnpj, onError){
   try{
     const { data: { session } } = await sb.auth.getSession();
     if(!session) throw new Error('no-session');
+    const leadId = localStorage.getItem('ilhaDoFoco_leadId');
+    logLeadCheckoutStarted(leadId);
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-pix-subscription', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ cpfCnpj }),
+      body: JSON.stringify({ cpfCnpj, leadId: leadId || undefined }),
     });
     const result = await response.json();
     if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');
@@ -4647,6 +4668,11 @@ function renderTrendChart(container, sessions){
   if(params.get('pro') === '1'){
     authUserType = 'professional';
     authMode = 'signup';
+    touched = true;
+  }
+  const leadId = params.get('lead_id');
+  if(leadId){
+    localStorage.setItem('ilhaDoFoco_leadId', leadId);
     touched = true;
   }
   if(touched) history.replaceState({}, '', window.location.pathname);

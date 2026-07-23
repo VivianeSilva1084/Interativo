@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilha do Foco — CRM</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --ink:#123C3E; --cream:#FBF8F1; --line:#E7DCC0; --sand:#D9A441;
+    --text:#1F2E29; --muted:#6b6350; --leaf:#4C9A5C; --berry:#E5556E;
+    --shadow: 0 8px 24px rgba(0,0,0,.08);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:'Segoe UI',Nunito,Arial,sans-serif;
+    background:var(--cream); color:var(--text); min-height:100vh;
+  }
+  h1,h2,h3{ margin:0; }
+  .hidden{ display:none !important; }
+
+  /* ---------- Login screen ---------- */
+  #loginScreen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .login-card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:34px 30px; max-width:360px; width:100%; box-shadow:var(--shadow); text-align:center; }
+  .login-card h1{ font-size:19px; color:var(--ink); margin-bottom:6px; }
+  .login-card p{ font-size:13.5px; color:var(--muted); margin-bottom:20px; line-height:1.5; }
+  .login-card input{ width:100%; padding:11px 14px; border:1px solid var(--line); border-radius:10px; font-size:14px; margin-bottom:12px; }
+  .login-card button{ width:100%; padding:11px 14px; border:none; border-radius:10px; background:var(--ink); color:#fff; font-weight:700; font-size:14px; cursor:pointer; }
+  .login-card button:disabled{ opacity:.6; cursor:default; }
+  .login-msg{ font-size:12.5px; margin-top:12px; line-height:1.5; }
+  .login-msg.ok{ color:var(--leaf); }
+  .login-msg.err{ color:var(--berry); }
+
+  /* ---------- App shell ---------- */
+  header{ background:var(--ink); color:#fff; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  header h1{ font-size:16px; }
+  header .who{ font-size:12.5px; color:rgba(255,255,255,.7); display:flex; align-items:center; gap:14px; }
+  header button{ background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff; padding:6px 14px; border-radius:999px; font-size:12.5px; cursor:pointer; }
+  main{ max-width:1280px; margin:0 auto; padding:22px 20px 60px; }
+
+  /* ---------- Metrics ---------- */
+  .metrics{ display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:24px; }
+  .metric-card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
+  .metric-card .label{ font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.3px; margin-bottom:6px; }
+  .metric-card .value{ font-size:26px; font-weight:800; color:var(--ink); }
+  .metric-card .breakdown{ margin-top:8px; font-size:12px; color:var(--muted); }
+  .metric-card .breakdown div{ display:flex; justify-content:space-between; padding:2px 0; }
+
+  /* ---------- Kanban ---------- */
+  .board-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .board-toolbar button{ background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 16px; font-size:13px; cursor:pointer; color:var(--ink); font-weight:700; }
+  .board{ display:grid; grid-template-columns: repeat(5, minmax(220px,1fr)); gap:14px; overflow-x:auto; }
+  .board-col{ background:rgba(0,0,0,.03); border-radius:14px; padding:10px; min-height:200px; display:flex; flex-direction:column; }
+  .board-col.drag-over{ background:rgba(217,164,65,.18); outline:2px dashed var(--sand); }
+  .board-col-title{ font-size:12.5px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; color:var(--ink); padding:4px 6px 10px; display:flex; justify-content:space-between; }
+  .board-col-title .count{ background:var(--ink); color:#fff; border-radius:999px; padding:1px 8px; font-size:11px; }
+  .lead-card{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:11px 12px; margin-bottom:9px; cursor:grab; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .lead-card:active{ cursor:grabbing; }
+  .lead-card.dragging{ opacity:.4; }
+  .lead-card .name{ font-weight:700; font-size:13.5px; color:var(--text); margin-bottom:3px; }
+  .lead-card .meta{ font-size:11px; color:var(--muted); display:flex; justify-content:space-between; gap:6px; }
+  .lead-card .src-tag{ background:rgba(76,154,92,.12); color:var(--leaf); border-radius:999px; padding:1px 7px; font-weight:700; }
+  .empty-col{ font-size:12px; color:var(--muted); text-align:center; padding:14px 4px; }
+
+  /* ---------- Detail modal ---------- */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(18,60,62,.45); display:flex; align-items:center; justify-content:center; padding:16px; z-index:50; }
+  .modal{ background:#fff; border-radius:18px; max-width:520px; width:100%; max-height:88vh; overflow-y:auto; padding:26px; }
+  .modal h2{ font-size:18px; color:var(--ink); margin-bottom:2px; }
+  .modal .sub{ font-size:12.5px; color:var(--muted); margin-bottom:18px; }
+  .modal .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin-bottom:18px; }
+  .modal .field-grid .f{ font-size:12.5px; }
+  .modal .field-grid .f label{ display:block; color:var(--muted); font-size:10.5px; text-transform:uppercase; font-weight:700; margin-bottom:2px; }
+  .modal .stage-select-wrap{ margin-bottom:20px; }
+  .modal .stage-select-wrap label{ display:block; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+  .modal select{ width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:9px; font-size:13.5px; }
+  .modal .timeline-title{ font-size:13px; font-weight:800; color:var(--ink); margin-bottom:10px; }
+  .timeline{ list-style:none; margin:0; padding:0; }
+  .timeline li{ display:flex; gap:10px; padding:7px 0; border-top:1px solid var(--line); font-size:12.5px; }
+  .timeline li:first-child{ border-top:none; }
+  .timeline .dot{ width:8px; height:8px; border-radius:50%; background:var(--sand); margin-top:5px; flex-shrink:0; }
+  .timeline .ev-type{ font-weight:700; color:var(--text); }
+  .timeline .ev-when{ color:var(--muted); font-size:11px; }
+  .modal-close{ position:sticky; top:0; float:right; background:none; border:none; font-size:20px; cursor:pointer; color:var(--muted); margin-top:-8px; }
+
+  .loading-note, .denied-note{ text-align:center; padding:60px 20px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>Ilha do Foco — CRM</h1>
+    <p>Acesso restrito. Digite o e-mail cadastrado como administrador para receber um link de acesso.</p>
+    <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+    <button id="loginBtn" type="button">Enviar link mágico</button>
+    <p class="login-msg" id="loginMsg"></p>
+  </div>
+</div>
+
+<div id="appShell" class="hidden">
+  <header>
+    <h1>🌴 Ilha do Foco — CRM</h1>
+    <div class="who">
+      <span id="whoEmail"></span>
+      <button id="logoutBtn" type="button">Sair</button>
+    </div>
+  </header>
+  <main>
+    <div id="deniedNote" class="denied-note hidden">
+      Este e-mail não tem acesso ao CRM. Fale com o administrador se acha que isso é um engano.
+    </div>
+    <div id="crmContent" class="hidden">
+      <div class="metrics" id="metricsRow"></div>
+      <div class="board-toolbar">
+        <h2 style="font-size:15px;color:var(--ink);">Funil de leads</h2>
+        <button id="refreshBtn" type="button">↻ Atualizar</button>
+      </div>
+      <div class="board" id="board"></div>
+    </div>
+    <div id="loadingNote" class="loading-note">Carregando...</div>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const STAGES = [
+  { key: 'novo', label: 'Novo' },
+  { key: 'contatado', label: 'Contatado' },
+  { key: 'trial', label: 'Trial' },
+  { key: 'cliente', label: 'Cliente' },
+  { key: 'perdido', label: 'Perdido' },
+];
+
+let leadsCache = [];
+let draggedLeadId = null;
+
+function timeSince(iso){
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if(mins < 60) return `há ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if(hours < 24) return `há ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `há ${days}d`;
+}
+
+/* ========================= LOGIN ========================= */
+document.getElementById('loginBtn').addEventListener('click', async ()=>{
+  const email = document.getElementById('loginEmail').value.trim();
+  const msgEl = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
+  if(!email){ msgEl.textContent = 'Digite um e-mail.'; msgEl.className = 'login-msg err'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  btn.disabled = false;
+  btn.textContent = 'Enviar link mágico';
+  if(error){
+    msgEl.textContent = 'Não foi possível enviar o link. Tente novamente.';
+    msgEl.className = 'login-msg err';
+  }else{
+    msgEl.textContent = 'Link enviado! Confira seu e-mail (e a caixa de spam) e clique nele para entrar.';
+    msgEl.className = 'login-msg ok';
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+  window.location.reload();
+});
+
+/* ========================= AUTH ROUTER ========================= */
+sb.auth.onAuthStateChange(async (event, session)=>{
+  if(session){
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appShell').classList.remove('hidden');
+    document.getElementById('whoEmail').textContent = session.user.email;
+    await checkAdminAndLoad(session.user.email);
+  }else{
+    document.getElementById('appShell').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+  }
+});
+
+async function checkAdminAndLoad(email){
+  const { data: adminRow } = await sb.from('admins').select('email').eq('email', email).maybeSingle();
+  document.getElementById('loadingNote').classList.add('hidden');
+  if(!adminRow){
+    document.getElementById('deniedNote').classList.remove('hidden');
+    document.getElementById('crmContent').classList.add('hidden');
+    return;
+  }
+  document.getElementById('deniedNote').classList.add('hidden');
+  document.getElementById('crmContent').classList.remove('hidden');
+  await loadBoard();
+}
+
+document.getElementById('refreshBtn').addEventListener('click', loadBoard);
+
+/* ========================= DATA + RENDER ========================= */
+async function loadBoard(){
+  const { data, error } = await sb.from('leads').select('*').order('created_at', { ascending: false });
+  if(error){ console.error(error); return; }
+  leadsCache = data || [];
+  renderMetrics();
+  renderBoard();
+}
+
+function renderMetrics(){
+  const total = leadsCache.length;
+  const clientes = leadsCache.filter(l => l.funnel_stage === 'cliente').length;
+  const rate = total ? ((clientes / total) * 100).toFixed(1) : '0.0';
+
+  const bySource = {};
+  const byCampaign = {};
+  leadsCache.forEach(l => {
+    const src = l.utm_source || '(direto)';
+    const camp = l.utm_campaign || '(nenhuma)';
+    bySource[src] = (bySource[src] || 0) + 1;
+    byCampaign[camp] = (byCampaign[camp] || 0) + 1;
+  });
+  const topEntries = (obj) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+  const el = document.getElementById('metricsRow');
+  el.innerHTML = `
+    <div class="metric-card">
+      <div class="label">Total de leads</div>
+      <div class="value">${total}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Taxa de conversão</div>
+      <div class="value">${rate}%</div>
+      <div class="breakdown"><div><span>Clientes</span><span>${clientes}</span></div></div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Por origem (utm_source)</div>
+      <div class="breakdown">${topEntries(bySource).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><span>${v}</span></div>`).join('') || '<div>—</div>'}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Por campanha (utm_campaign)</div>
+      <div class="breakdown">${topEntries(byCampaign).map(([k,v])=>`<div><span>${escapeHtml(k)}</span><span>${v}</span></div>`).join('') || '<div>—</div>'}</div>
+    </div>
+  `;
+}
+
+function escapeHtml(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  STAGES.forEach(stage => {
+    const col = document.createElement('div');
+    col.className = 'board-col';
+    col.dataset.stage = stage.key;
+
+    const leadsInStage = leadsCache.filter(l => l.funnel_stage === stage.key);
+
+    const title = document.createElement('div');
+    title.className = 'board-col-title';
+    title.innerHTML = `<span>${stage.label}</span><span class="count">${leadsInStage.length}</span>`;
+    col.appendChild(title);
+
+    if(!leadsInStage.length){
+      const empty = document.createElement('div');
+      empty.className = 'empty-col';
+      empty.textContent = 'Sem leads';
+      col.appendChild(empty);
+    }
+
+    leadsInStage.forEach(lead => {
+      const card = document.createElement('div');
+      card.className = 'lead-card';
+      card.draggable = true;
+      card.dataset.leadId = lead.id;
+      card.innerHTML = `
+        <div class="name">${escapeHtml(lead.full_name || '(sem nome)')}</div>
+        <div class="meta">
+          <span class="src-tag">${escapeHtml(lead.utm_source || 'direto')}</span>
+          <span>${timeSince(lead.stage_changed_at)}</span>
+        </div>
+      `;
+      card.addEventListener('dragstart', (e)=>{
+        draggedLeadId = lead.id;
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
+      card.addEventListener('click', ()=> openLeadModal(lead.id));
+      col.appendChild(card);
+    });
+
+    col.addEventListener('dragover', (e)=>{ e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', ()=> col.classList.remove('drag-over'));
+    col.addEventListener('drop', async (e)=>{
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      if(draggedLeadId) await moveLead(draggedLeadId, stage.key);
+      draggedLeadId = null;
+    });
+
+    board.appendChild(col);
+  });
+}
+
+async function moveLead(leadId, newStage){
+  const { error } = await sb.from('leads').update({ funnel_stage: newStage }).eq('id', leadId);
+  if(error){ console.error(error); alert('Não foi possível mover o lead.'); return; }
+  await loadBoard();
+}
+
+/* ========================= DETAIL MODAL ========================= */
+async function openLeadModal(leadId){
+  const lead = leadsCache.find(l => l.id === leadId);
+  if(!lead) return;
+
+  const { data: events } = await sb.from('lead_events').select('*').eq('lead_id', leadId).order('occurred_at', { ascending: true });
+
+  const root = document.getElementById('modalRoot');
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <button class="modal-close" data-action="close">×</button>
+      <h2>${escapeHtml(lead.full_name || '(sem nome)')}</h2>
+      <div class="sub">Lead desde ${new Date(lead.created_at).toLocaleDateString('pt-BR')}</div>
+
+      <div class="field-grid">
+        <div class="f"><label>E-mail</label>${escapeHtml(lead.contact_email || '—')}</div>
+        <div class="f"><label>WhatsApp</label>${escapeHtml(lead.contact_whatsapp || '—')}</div>
+        <div class="f"><label>Instagram</label>${escapeHtml(lead.instagram_handle || '—')}</div>
+        <div class="f"><label>Idioma</label>${escapeHtml(lead.language || '—')}</div>
+        <div class="f"><label>Perfil (quiz)</label>${escapeHtml(lead.quiz_profile || '—')}</div>
+        <div class="f"><label>Origem</label>${escapeHtml(lead.utm_source || '—')}</div>
+        <div class="f"><label>Campanha</label>${escapeHtml(lead.utm_campaign || '—')}</div>
+        <div class="f"><label>Conteúdo</label>${escapeHtml(lead.utm_content || '—')}</div>
+      </div>
+
+      <div class="stage-select-wrap">
+        <label>Estágio do funil</label>
+        <select id="stageSelect">
+          ${STAGES.map(s => `<option value="${s.key}" ${s.key === lead.funnel_stage ? 'selected' : ''}>${s.label}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="timeline-title">Linha do tempo</div>
+      <ul class="timeline">
+        ${(events || []).map(ev => `
+          <li>
+            <span class="dot"></span>
+            <div>
+              <div class="ev-type">${escapeHtml(ev.event_type)}${ev.channel ? ` · ${escapeHtml(ev.channel)}` : ''}</div>
+              <div class="ev-when">${new Date(ev.occurred_at).toLocaleString('pt-BR')}</div>
+            </div>
+          </li>
+        `).join('') || '<li style="border-top:none;color:var(--muted);">Nenhum evento registrado ainda.</li>'}
+      </ul>
+    </div>
+  `;
+  root.appendChild(overlay);
+
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').addEventListener('click', close);
+  overlay.querySelector('#stageSelect').addEventListener('change', async (e)=>{
+    await moveLead(leadId, e.target.value);
+    close();
+  });
+}
+</script>
+</body>
+</html>

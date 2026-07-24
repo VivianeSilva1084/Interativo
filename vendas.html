@@ -6,6 +6,24 @@
 <title>Ilha do Foco + Aventura das Letras — Jogos para foco, calma e leitura</title>
 <meta name="description" content="Jogos pensados para crianças com TDAH e dificuldades de aprendizagem, com acompanhamento de progresso para pais e profissionais.">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1536179397966212');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1536179397966212&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -811,6 +829,17 @@ function setDocLang(l){
     body: JSON.stringify({ id: crypto.randomUUID(), lead_id: leadId, event_type: 'sales_page_visited', channel: 'site' }),
   }).catch(()=>{});
 })();
+
+// Meta Pixel: the real checkout only happens later, deep inside index.html's
+// parents dashboard (where checkout_started is already logged to lead_events)
+// - this page has no checkout of its own, so InitiateCheckout fires here on
+// the family signup/free-trial CTA click instead, as the closest "intent to
+// convert" signal available on a page that actually has the Pixel installed.
+document.querySelectorAll('a[href*="signup=1"]').forEach(el => {
+  el.addEventListener('click', () => {
+    if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+  });
+});
 </script>
 </body>
 </html>

@@ -29,6 +29,11 @@
   .login-card input{ width:100%; padding:11px 14px; border:1px solid var(--line); border-radius:10px; font-size:14px; margin-bottom:12px; }
   .login-card button{ width:100%; padding:11px 14px; border:none; border-radius:10px; background:var(--ink); color:#fff; font-weight:700; font-size:14px; cursor:pointer; }
   .login-card button:disabled{ opacity:.6; cursor:default; }
+  .login-card button.secondary{ background:transparent; color:var(--ink); border:1px solid var(--line); margin-top:8px; }
+  .login-divider{ display:flex; align-items:center; gap:10px; margin:16px 0 4px; color:var(--muted); font-size:11.5px; }
+  .login-divider::before, .login-divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+  .login-link{ font-size:12.5px; margin-top:14px; }
+  .login-link a{ color:var(--ink); font-weight:700; text-decoration:underline; cursor:pointer; }
   .login-msg{ font-size:12.5px; margin-top:12px; line-height:1.5; }
   .login-msg.ok{ color:var(--leaf); }
   .login-msg.err{ color:var(--berry); }
@@ -92,10 +97,25 @@
 <div id="loginScreen">
   <div class="login-card">
     <h1>Ilha do Foco — CRM</h1>
-    <p>Acesso restrito. Digite o e-mail cadastrado como administrador para receber um link de acesso.</p>
+    <p>Acesso restrito a administradores cadastrados.</p>
     <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
-    <button id="loginBtn" type="button">Enviar link mágico</button>
+    <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password">
+    <button id="loginPasswordBtn" type="button">Entrar</button>
+    <div class="login-divider">ou</div>
+    <button id="loginBtn" type="button" class="secondary">Enviar link mágico</button>
+    <p class="login-link"><a id="forgotPasswordLink">Esqueceu ou ainda não tem senha? Criar/redefinir</a></p>
     <p class="login-msg" id="loginMsg"></p>
+  </div>
+</div>
+
+<div id="setPasswordScreen" class="hidden">
+  <div class="login-card">
+    <h1>Definir senha</h1>
+    <p>Escolha uma senha para entrar direto da próxima vez, sem depender de link por e-mail.</p>
+    <input type="password" id="newPassword" placeholder="Nova senha (mín. 8 caracteres)" autocomplete="new-password">
+    <input type="password" id="newPasswordConfirm" placeholder="Confirmar senha" autocomplete="new-password">
+    <button id="savePasswordBtn" type="button">Salvar senha</button>
+    <p class="login-msg" id="setPasswordMsg"></p>
   </div>
 </div>
 
@@ -152,6 +172,24 @@ function timeSince(iso){
 }
 
 /* ========================= LOGIN ========================= */
+document.getElementById('loginPasswordBtn').addEventListener('click', async ()=>{
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const msgEl = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginPasswordBtn');
+  if(!email || !password){ msgEl.textContent = 'Preencha e-mail e senha.'; msgEl.className = 'login-msg err'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
+  if(error){
+    msgEl.textContent = 'E-mail ou senha incorretos.';
+    msgEl.className = 'login-msg err';
+  }
+  // On success, onAuthStateChange picks it up and swaps the screen.
+});
+
 document.getElementById('loginBtn').addEventListener('click', async ()=>{
   const email = document.getElementById('loginEmail').value.trim();
   const msgEl = document.getElementById('loginMsg');
@@ -166,9 +204,48 @@ document.getElementById('loginBtn').addEventListener('click', async ()=>{
     msgEl.textContent = 'Não foi possível enviar o link. Tente novamente.';
     msgEl.className = 'login-msg err';
   }else{
-    msgEl.textContent = 'Link enviado! Confira seu e-mail (e a caixa de spam) e clique nele para entrar.';
+    msgEl.textContent = 'Link enviado! Confira seu e-mail (e a caixa de spam) e clique nele uma única vez para entrar.';
     msgEl.className = 'login-msg ok';
   }
+});
+
+document.getElementById('forgotPasswordLink').addEventListener('click', async ()=>{
+  const email = document.getElementById('loginEmail').value.trim();
+  const msgEl = document.getElementById('loginMsg');
+  if(!email){ msgEl.textContent = 'Digite seu e-mail no campo acima primeiro.'; msgEl.className = 'login-msg err'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+  if(error){
+    msgEl.textContent = 'Não foi possível enviar o link de senha. Tente novamente.';
+    msgEl.className = 'login-msg err';
+  }else{
+    msgEl.textContent = 'Link enviado! Abra o e-mail e clique nele uma única vez para definir sua senha.';
+    msgEl.className = 'login-msg ok';
+  }
+});
+
+document.getElementById('savePasswordBtn').addEventListener('click', async ()=>{
+  const pw = document.getElementById('newPassword').value;
+  const pwConfirm = document.getElementById('newPasswordConfirm').value;
+  const msgEl = document.getElementById('setPasswordMsg');
+  const btn = document.getElementById('savePasswordBtn');
+  if(pw.length < 8){ msgEl.textContent = 'A senha precisa ter pelo menos 8 caracteres.'; msgEl.className = 'login-msg err'; return; }
+  if(pw !== pwConfirm){ msgEl.textContent = 'As senhas não coincidem.'; msgEl.className = 'login-msg err'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  const { error } = await sb.auth.updateUser({ password: pw });
+  btn.disabled = false;
+  btn.textContent = 'Salvar senha';
+  if(error){
+    msgEl.textContent = 'Não foi possível salvar a senha. Tente novamente.';
+    msgEl.className = 'login-msg err';
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  document.getElementById('setPasswordScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  document.getElementById('whoEmail').textContent = session.user.email;
+  await checkAdminAndLoad(session.user.email);
 });
 
 document.getElementById('logoutBtn').addEventListener('click', async ()=>{
@@ -177,14 +254,26 @@ document.getElementById('logoutBtn').addEventListener('click', async ()=>{
 });
 
 /* ========================= AUTH ROUTER ========================= */
+// PASSWORD_RECOVERY fires once, right after the reset-password email link is
+// clicked and its one-time token is consumed - the session exists at that
+// point, but we route to the "set new password" screen instead of straight
+// into the CRM, since the intent was to set a password, not just log in.
 sb.auth.onAuthStateChange(async (event, session)=>{
+  if(event === 'PASSWORD_RECOVERY'){
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appShell').classList.add('hidden');
+    document.getElementById('setPasswordScreen').classList.remove('hidden');
+    return;
+  }
   if(session){
+    document.getElementById('setPasswordScreen').classList.add('hidden');
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('appShell').classList.remove('hidden');
     document.getElementById('whoEmail').textContent = session.user.email;
     await checkAdminAndLoad(session.user.email);
   }else{
     document.getElementById('appShell').classList.add('hidden');
+    document.getElementById('setPasswordScreen').classList.add('hidden');
     document.getElementById('loginScreen').classList.remove('hidden');
   }
 });

@@ -1735,7 +1735,10 @@ sb.auth.onAuthStateChange(async (event, session) => {
       state.familyPinHash = family.parent_pin_hash || null;
     } else {
       const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id, parent_pin_hash').single();
-      if(newFamily){ state.familyId = newFamily.id; state.familyPinHash = newFamily.parent_pin_hash || null; }
+      if(newFamily){
+        state.familyId = newFamily.id; state.familyPinHash = newFamily.parent_pin_hash || null;
+        linkLeadSignup();
+      }
     }
     if(localStorage.getItem('ilhaDoFoco_landOnParents') === '1'){
       localStorage.removeItem('ilhaDoFoco_landOnParents');
@@ -4000,6 +4003,23 @@ function logLeadCheckoutStarted(leadId){
     },
     body: JSON.stringify({ id: crypto.randomUUID(), lead_id: leadId, event_type: 'checkout_started', channel: 'site' }),
   }).catch(()=>{});
+}
+
+// Fire-and-forget, called right after a brand-new family row is created.
+// leads has no self-service UPDATE policy (only admins can write to it), so
+// this goes through link-lead-signup, which does the privileged write with
+// the service role after verifying the caller's own session server-side.
+function linkLeadSignup(){
+  const leadId = localStorage.getItem('ilhaDoFoco_leadId');
+  if(!leadId) return;
+  sb.auth.getSession().then(({ data: { session } })=>{
+    if(!session) return;
+    fetch(`${SUPABASE_URL}/functions/v1/link-lead-signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ leadId }),
+    }).catch(()=>{});
+  });
 }
 
 async function startCheckout(btn){

@@ -56,7 +56,7 @@
   /* ---------- Kanban ---------- */
   .board-toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
   .board-toolbar button{ background:#fff; border:1px solid var(--line); border-radius:999px; padding:7px 16px; font-size:13px; cursor:pointer; color:var(--ink); font-weight:700; }
-  .board{ display:grid; grid-template-columns: repeat(5, minmax(220px,1fr)); gap:14px; overflow-x:auto; }
+  .board{ display:grid; grid-template-columns: repeat(6, minmax(220px,1fr)); gap:14px; overflow-x:auto; }
   .board-col{ background:rgba(0,0,0,.03); border-radius:14px; padding:10px; min-height:200px; display:flex; flex-direction:column; }
   .board-col.drag-over{ background:rgba(217,164,65,.18); outline:2px dashed var(--sand); }
   .board-col-title{ font-size:12.5px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; color:var(--ink); padding:4px 6px 10px; display:flex; justify-content:space-between; }
@@ -153,6 +153,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const STAGES = [
   { key: 'novo', label: 'Novo' },
   { key: 'contatado', label: 'Contatado' },
+  { key: 'cadastrado', label: 'Cadastrado' },
   { key: 'trial', label: 'Trial' },
   { key: 'cliente', label: 'Cliente' },
   { key: 'perdido', label: 'Perdido' },
@@ -306,6 +307,10 @@ function renderMetrics(){
   const total = leadsCache.length;
   const clientes = leadsCache.filter(l => l.funnel_stage === 'cliente').length;
   const rate = total ? ((clientes / total) * 100).toFixed(1) : '0.0';
+  // "Virou usuário" (grátis ou pago) vs. "taxa de conversão" (só pago, acima)
+  // - signup_family_id é preenchido no cadastro, independente de pagamento.
+  const cadastrados = leadsCache.filter(l => l.signup_family_id || ['cadastrado','trial','cliente'].includes(l.funnel_stage)).length;
+  const signupRate = total ? ((cadastrados / total) * 100).toFixed(1) : '0.0';
 
   const bySource = {};
   const byCampaign = {};
@@ -322,6 +327,11 @@ function renderMetrics(){
     <div class="metric-card">
       <div class="label">Total de leads</div>
       <div class="value">${total}</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Taxa de cadastro</div>
+      <div class="value">${signupRate}%</div>
+      <div class="breakdown"><div><span>Virou usuário</span><span>${cadastrados}</span></div></div>
     </div>
     <div class="metric-card">
       <div class="label">Taxa de conversão</div>

@@ -325,6 +325,9 @@
   .payment-method-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
   .payment-method-row .big-cta{ font-size:14px; padding:12px 20px; }
   .payment-method-row .big-cta.pix-btn{ background: var(--leaf); }
+  .plan-toggle-row{ display:flex; gap:8px; justify-content:center; margin-bottom:14px; }
+  .plan-toggle-btn{ background:transparent; border:2px solid rgba(255,255,255,.25); color:var(--cream); opacity:.65; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer; }
+  .plan-toggle-btn.active{ opacity:1; border-color:var(--sand); background:rgba(240,200,120,.14); color:var(--sand); }
 
   .pix-cpf-input{ width:100%; box-sizing:border-box; padding:10px 14px; border-radius:10px; border:2px solid rgba(11,61,46,.25); font-size:15px; font-weight:700; letter-spacing:.5px; margin:6px 0 4px; font-family:'Nunito',sans-serif; }
   .pix-cpf-hint{ font-size:11.5px; color:#8A8067; margin:0 0 16px; }
@@ -951,6 +954,9 @@ const I18N = {
       clinicalConversionBody:"Esses dados incluem padrões de atenção, controle de impulsividade e análise fonética que só aparecem no plano Premium.",
       clinicalConversionFooterBRL:"R$ 24,90/mês · Cancele quando quiser",
       clinicalConversionFooterEUR:"€ 4,99/mês · Cancele quando quiser",
+      clinicalConversionFooter30DaysBRL:"R$ 34,90 · pagamento único · acesso por 30 dias",
+      clinicalConversionFooter30DaysEUR:"€ 9,90 · pagamento único · acesso por 30 dias",
+      plan30DaysLabel:"30 dias", planMonthlyLabel:"Mensal",
       clinicalConversionEmptyBody:"Jogue pelo menos uma sessão para começar a gerar o relatório clínico.",
       upgradeBtn:"Conhecer o Premium",
       upgradeBtnCard:"💳 Cartão de crédito", upgradeBtnPix:"⚡ Pix",
@@ -1138,6 +1144,9 @@ const I18N = {
       clinicalConversionBody:"Questi dati includono pattern di attenzione, controllo dell'impulsività e analisi fonetica disponibili solo nel piano Premium.",
       clinicalConversionFooterBRL:"R$ 24,90/mese · Cancella quando vuoi",
       clinicalConversionFooterEUR:"€ 4,99/mese · Cancella quando vuoi",
+      clinicalConversionFooter30DaysBRL:"R$ 34,90 · pagamento unico · accesso per 30 giorni",
+      clinicalConversionFooter30DaysEUR:"€ 9,90 · pagamento unico · accesso per 30 giorni",
+      plan30DaysLabel:"30 giorni", planMonthlyLabel:"Mensile",
       clinicalConversionEmptyBody:"Gioca almeno una sessione per iniziare a generare il report clinico.",
       upgradeBtn:"Scopri Premium",
       upgradeBtnCard:"💳 Carta di credito", upgradeBtnPix:"⚡ Pix",
@@ -4022,7 +4031,7 @@ function linkLeadSignup(){
   });
 }
 
-async function startCheckout(btn){
+async function startCheckout(btn, plan){
   const t = L();
   const originalLabel = btn.textContent;
   btn.disabled = true;
@@ -4036,7 +4045,7 @@ async function startCheckout(btn){
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ country, leadId: leadId || undefined }),
+      body: JSON.stringify({ country, leadId: leadId || undefined, plan: plan || 'monthly' }),
     });
     const result = await response.json();
     if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
@@ -4065,7 +4074,7 @@ function isValidCpfCnpj(digits){
   return d1 === parseInt(digits[9], 10) && d2 === parseInt(digits[10], 10);
 }
 
-function openPixCpfModal(){
+function openPixCpfModal(plan){
   const t = L().parents;
   const overlay = document.createElement('div');
   overlay.className = 'confirm-modal-overlay';
@@ -4099,12 +4108,12 @@ function openPixCpfModal(){
     errEl.style.display = 'none';
     continueBtn.disabled = true;
     continueBtn.textContent = t.pixGenerating;
-    await startPixCheckout(digits, ()=>{ continueBtn.disabled = false; continueBtn.textContent = t.pixCpfContinueBtn; });
+    await startPixCheckout(digits, ()=>{ continueBtn.disabled = false; continueBtn.textContent = t.pixCpfContinueBtn; }, plan);
     close();
   };
 }
 
-async function startPixCheckout(cpfCnpj, onError){
+async function startPixCheckout(cpfCnpj, onError, plan){
   const t = L().parents;
   try{
     const { data: { session } } = await sb.auth.getSession();
@@ -4114,7 +4123,7 @@ async function startPixCheckout(cpfCnpj, onError){
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-pix-subscription', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ cpfCnpj, leadId: leadId || undefined }),
+      body: JSON.stringify({ cpfCnpj, leadId: leadId || undefined, plan: plan || 'monthly' }),
     });
     const result = await response.json();
     if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');
@@ -4525,7 +4534,11 @@ async function renderParentsDashboardBody(){
         <p class="conversion-empty-body">${t.parents.clinicalConversionEmptyBody}</p>
       `;
     } else {
-      const footer = isBrazil() ? t.parents.clinicalConversionFooterBRL : t.parents.clinicalConversionFooterEUR;
+      const footerFor = (plan) => {
+        if(plan === '30days') return isBrazil() ? t.parents.clinicalConversionFooter30DaysBRL : t.parents.clinicalConversionFooter30DaysEUR;
+        return isBrazil() ? t.parents.clinicalConversionFooterBRL : t.parents.clinicalConversionFooterEUR;
+      };
+      conversionCard.dataset.plan = '30days';
       conversionCard.innerHTML = `
         <div class="conversion-title">🔒 ${t.parents.clinicalConversionTitle}</div>
         <div class="conversion-stat-box">
@@ -4536,15 +4549,27 @@ async function renderParentsDashboardBody(){
           </div>
         </div>
         <p class="conversion-body">${t.parents.clinicalConversionBody}</p>
+        <div class="plan-toggle-row">
+          <button type="button" class="plan-toggle-btn active" data-plan="30days">${t.parents.plan30DaysLabel}</button>
+          <button type="button" class="plan-toggle-btn" data-plan="monthly">${t.parents.planMonthlyLabel}</button>
+        </div>
         <div class="payment-method-row">
           <button class="big-cta" data-method="card">${isBrazil() ? t.parents.upgradeBtnCard : t.parents.upgradeBtn}</button>
           ${isBrazil() ? `<button class="big-cta pix-btn" data-method="pix">${t.parents.upgradeBtnPix}</button>` : ''}
         </div>
-        <p class="conversion-footer">${footer}</p>
+        <p class="conversion-footer">${footerFor('30days')}</p>
       `;
-      conversionCard.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget));
+      const footerEl = conversionCard.querySelector('.conversion-footer');
+      conversionCard.querySelectorAll('.plan-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+          conversionCard.dataset.plan = btn.dataset.plan;
+          conversionCard.querySelectorAll('.plan-toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+          footerEl.textContent = footerFor(btn.dataset.plan);
+        });
+      });
+      conversionCard.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget, conversionCard.dataset.plan));
       const pixBtn = conversionCard.querySelector('[data-method="pix"]');
-      if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal());
+      if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal(conversionCard.dataset.plan));
     }
     body.appendChild(conversionCard);
   }

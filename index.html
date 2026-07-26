@@ -314,6 +314,9 @@
   .parents-clinical-locked .locked-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:8px; }
   .parents-clinical-locked .locked-desc{ font-size:13px; color:var(--cream); opacity:.85; line-height:1.55; margin:0 auto 18px; max-width:420px; }
   .parents-conversion-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius:18px; padding:22px; }
+  .paywall-wrap{ max-width:440px; margin:50px auto 0; }
+  .paywall-wrap .conversion-title{ font-size:20px; }
+  .paywall-intro{ text-align:center; font-size:14px; color:var(--cream); opacity:.85; margin-bottom:18px; line-height:1.5; }
   .parents-conversion-card .conversion-title{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; color:var(--sand); margin-bottom:14px; text-align:center; }
   .conversion-stat-box{ display:flex; align-items:center; gap:12px; background: rgba(255,209,102,.12); border:2px solid rgba(255,209,102,.3); border-radius:14px; padding:12px 16px; margin-bottom:14px; }
   .conversion-stat-box .stat-emoji{ font-size:26px; }
@@ -543,6 +546,14 @@
     </div>
     <div class="center-col" style="margin-top:20px;">
       <button class="big-cta secondary" id="addProfileToggleBtn" onclick="toggleNewProfileForm()">+ Novo perfil</button>
+    </div>
+  </div>
+
+  <!-- ===================== PAYWALL SCREEN (famílias novas, sem plano ativo) ===================== -->
+  <div class="screen" id="screen-paywall">
+    <button class="logout-btn" onclick="handleLogout()">Sair</button>
+    <div class="paywall-wrap">
+      <div class="parents-conversion-card" id="paywallCard"></div>
     </div>
   </div>
 
@@ -957,6 +968,8 @@ const I18N = {
       clinicalConversionFooter30DaysBRL:"R$ 34,90 · pagamento único · acesso por 30 dias",
       clinicalConversionFooter30DaysEUR:"€ 9,90 · pagamento único · acesso por 30 dias",
       plan30DaysLabel:"30 dias", planMonthlyLabel:"Mensal",
+      paywallTitle:"Escolha um plano pra começar",
+      paywallIntro:"Pra criar o perfil do seu filho e começar a jogar, escolha um dos planos abaixo.",
       clinicalConversionEmptyBody:"Jogue pelo menos uma sessão para começar a gerar o relatório clínico.",
       upgradeBtn:"Conhecer o Premium",
       upgradeBtnCard:"💳 Cartão de crédito", upgradeBtnPix:"⚡ Pix",
@@ -1147,6 +1160,8 @@ const I18N = {
       clinicalConversionFooter30DaysBRL:"R$ 34,90 · pagamento unico · accesso per 30 giorni",
       clinicalConversionFooter30DaysEUR:"€ 9,90 · pagamento unico · accesso per 30 giorni",
       plan30DaysLabel:"30 giorni", planMonthlyLabel:"Mensile",
+      paywallTitle:"Scegli un piano per iniziare",
+      paywallIntro:"Per creare il profilo di tuo figlio e iniziare a giocare, scegli uno dei piani qui sotto.",
       clinicalConversionEmptyBody:"Gioca almeno una sessione per iniziare a generare il report clinico.",
       upgradeBtn:"Scopri Premium",
       upgradeBtnCard:"💳 Carta di credito", upgradeBtnPix:"⚡ Pix",
@@ -1749,14 +1764,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
         linkLeadSignup();
       }
     }
-    if(localStorage.getItem('ilhaDoFoco_landOnParents') === '1'){
-      localStorage.removeItem('ilhaDoFoco_landOnParents');
-      openParents();
-      return;
-    }
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-profiles').classList.add('active');
-    renderProfilesScreen();
+    await routeFamilyAfterAccessCheck();
   } else {
     state.isProfessional = false;
     state.familyId = null;
@@ -1767,6 +1775,69 @@ sb.auth.onAuthStateChange(async (event, session) => {
     renderAuthScreen(); // Atualiza idiomas
   }
 });
+
+// Families created before the paywall existed are grandfathered (legacy_free_access
+// in the DB); everyone else needs an active plan before seeing anything past this
+// point. Also called after a Pix payment confirms from the paywall screen itself
+// (no page reload there, unlike Stripe's redirect-back which re-runs
+// onAuthStateChange and naturally re-evaluates this on its own).
+async function routeFamilyAfterAccessCheck(){
+  const { data: hasAccess } = await sb.rpc('family_has_access', { p_family_id: state.familyId });
+  if(!hasAccess){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-paywall').classList.add('active');
+    renderPaywallScreen();
+    return;
+  }
+  if(localStorage.getItem('ilhaDoFoco_landOnParents') === '1'){
+    localStorage.removeItem('ilhaDoFoco_landOnParents');
+    openParents();
+    return;
+  }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-profiles').classList.add('active');
+  renderProfilesScreen();
+}
+
+// Same plan-toggle + payment-method markup as the parents-dashboard upsell card
+// (renderParentsDashboardBody's conversionCard), standalone here since this runs
+// before there's any child profile or dashboard to attach it to. The Pix path
+// passes routeFamilyAfterAccessCheck as the on-success callback instead of the
+// dashboard's default (renderParentsDashboardBody) - Stripe's card path doesn't
+// need that, since its redirect-back reloads the page and re-runs the same check.
+function renderPaywallScreen(){
+  const t = L();
+  const card = document.getElementById('paywallCard');
+  const footerFor = (plan) => {
+    if(plan === '30days') return isBrazil() ? t.parents.clinicalConversionFooter30DaysBRL : t.parents.clinicalConversionFooter30DaysEUR;
+    return isBrazil() ? t.parents.clinicalConversionFooterBRL : t.parents.clinicalConversionFooterEUR;
+  };
+  card.dataset.plan = '30days';
+  card.innerHTML = `
+    <div class="conversion-title">🌴 ${t.parents.paywallTitle}</div>
+    <p class="paywall-intro">${t.parents.paywallIntro}</p>
+    <div class="plan-toggle-row">
+      <button type="button" class="plan-toggle-btn active" data-plan="30days">${t.parents.plan30DaysLabel}</button>
+      <button type="button" class="plan-toggle-btn" data-plan="monthly">${t.parents.planMonthlyLabel}</button>
+    </div>
+    <div class="payment-method-row">
+      <button class="big-cta" data-method="card">${isBrazil() ? t.parents.upgradeBtnCard : t.parents.upgradeBtn}</button>
+      ${isBrazil() ? `<button class="big-cta pix-btn" data-method="pix">${t.parents.upgradeBtnPix}</button>` : ''}
+    </div>
+    <p class="conversion-footer">${footerFor('30days')}</p>
+  `;
+  const footerEl = card.querySelector('.conversion-footer');
+  card.querySelectorAll('.plan-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      card.dataset.plan = btn.dataset.plan;
+      card.querySelectorAll('.plan-toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+      footerEl.textContent = footerFor(btn.dataset.plan);
+    });
+  });
+  card.querySelector('[data-method="card"]').addEventListener('click', (e)=> startCheckout(e.currentTarget, card.dataset.plan));
+  const pixBtn = card.querySelector('[data-method="pix"]');
+  if(pixBtn) pixBtn.addEventListener('click', ()=> openPixCpfModal(card.dataset.plan, routeFamilyAfterAccessCheck));
+}
 
 async function handleAuthSubmit() {
   if (authUserType === 'professional' && authMode === 'signup') {
@@ -4074,7 +4145,7 @@ function isValidCpfCnpj(digits){
   return d1 === parseInt(digits[9], 10) && d2 === parseInt(digits[10], 10);
 }
 
-function openPixCpfModal(plan){
+function openPixCpfModal(plan, onSuccess){
   const t = L().parents;
   const overlay = document.createElement('div');
   overlay.className = 'confirm-modal-overlay';
@@ -4108,12 +4179,12 @@ function openPixCpfModal(plan){
     errEl.style.display = 'none';
     continueBtn.disabled = true;
     continueBtn.textContent = t.pixGenerating;
-    await startPixCheckout(digits, ()=>{ continueBtn.disabled = false; continueBtn.textContent = t.pixCpfContinueBtn; }, plan);
+    await startPixCheckout(digits, ()=>{ continueBtn.disabled = false; continueBtn.textContent = t.pixCpfContinueBtn; }, plan, onSuccess);
     close();
   };
 }
 
-async function startPixCheckout(cpfCnpj, onError, plan){
+async function startPixCheckout(cpfCnpj, onError, plan, onSuccess){
   const t = L().parents;
   try{
     const { data: { session } } = await sb.auth.getSession();
@@ -4127,14 +4198,14 @@ async function startPixCheckout(cpfCnpj, onError, plan){
     });
     const result = await response.json();
     if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');
-    openPixQrModal(result);
+    openPixQrModal(result, onSuccess);
   }catch(err){
     if(onError) onError();
     showError(t.pixError);
   }
 }
 
-function openPixQrModal({ qrCodeImage, copyPasteCode }){
+function openPixQrModal({ qrCodeImage, copyPasteCode }, onSuccess){
   const t = L().parents;
   const overlay = document.createElement('div');
   overlay.className = 'confirm-modal-overlay';
@@ -4173,7 +4244,7 @@ function openPixQrModal({ qrCodeImage, copyPasteCode }){
       if(data?.plan === 'premium'){
         const statusEl = overlay.querySelector('#pixStatus');
         if(statusEl){ statusEl.textContent = `✅ ${t.pixPaymentConfirmed}`; statusEl.classList.add('confirmed'); }
-        setTimeout(()=>{ if(!stopped){ close(); renderParentsDashboardBody(); } }, 2500);
+        setTimeout(()=>{ if(!stopped){ close(); (onSuccess || renderParentsDashboardBody)(); } }, 2500);
         return;
       }
     }

@@ -896,7 +896,8 @@ const CHECKOUT_COPY = {
     pixModalTitle: 'Pague com Pix', pixInstructions: 'Escaneie o QR code ou copie o código abaixo no seu app do banco.',
     pixCopy: 'Copiar código', pixCopied: 'Copiado!', pixWaiting: 'Aguardando pagamento...', pixConfirmed: 'Pagamento confirmado! Verifique seu e-mail.',
     pixClose: 'Fechar', pixError: 'Não foi possível gerar o Pix. Tente novamente.',
-    successTitle: 'Pagamento confirmado! 🎉', successBody: 'Enviamos um link de acesso pro seu e-mail. Clique nele pra entrar na sua conta, já com tudo liberado.',
+    successTitle: 'Pagamento confirmado! 🎉', successBody: 'Enviamos um link de acesso pro seu e-mail. Clique nele pra entrar na sua conta, já com tudo liberado. Não encontrou? Confira a caixa de spam.',
+    confirming: 'Confirmando pagamento...',
     cancelledTitle: 'Pagamento não concluído', cancelledBody: 'Nenhuma cobrança foi feita. Quando quiser, é só tentar de novo.',
   },
   it: {
@@ -910,7 +911,8 @@ const CHECKOUT_COPY = {
     pixModalTitle: 'Paga con Pix', pixInstructions: 'Scansiona il QR code o copia il codice qui sotto nella tua app bancaria.',
     pixCopy: 'Copia codice', pixCopied: 'Copiato!', pixWaiting: 'In attesa del pagamento...', pixConfirmed: 'Pagamento confermato! Controlla la tua email.',
     pixClose: 'Chiudi', pixError: 'Impossibile generare il Pix. Riprova.',
-    successTitle: 'Pagamento confermato! 🎉', successBody: 'Ti abbiamo inviato un link di accesso via email. Cliccalo per entrare nel tuo account, già con tutto sbloccato.',
+    successTitle: 'Pagamento confermato! 🎉', successBody: 'Ti abbiamo inviato un link di accesso via email. Cliccalo per entrare nel tuo account, già con tutto sbloccato. Non lo trovi? Controlla lo spam.',
+    confirming: 'Confermando il pagamento...',
     cancelledTitle: 'Pagamento non completato', cancelledBody: 'Nessun addebito è stato effettuato. Quando vuoi, riprova pure.',
   },
 };
@@ -1077,8 +1079,17 @@ function openCheckoutPixQrModal(lang, { qrCodeImage, copyPasteCode, paymentId })
         });
         const data = await res.json();
         if(data.confirmed){
+          stopped = true;
           const statusEl = overlay.querySelector('#checkoutPixStatus');
           if(statusEl){ statusEl.textContent = `✅ ${t.pixConfirmed}`; statusEl.classList.add('confirmed'); }
+          // Fast path: check-pix-payment-status just provisioned the account and
+          // returned a fresh login link - redirect straight in from this same
+          // tab instead of making the user go open the e-mail. If for any reason
+          // no actionLink came back, the e-mail (already sent as a backup by
+          // asaas-webhook once it fires) remains the fallback.
+          if(data.actionLink){
+            setTimeout(() => { window.location.href = data.actionLink; }, 1200);
+          }
           return;
         }
       }catch(e){ /* transient network hiccup - just retry next tick */ }
@@ -1095,17 +1106,53 @@ setupCheckoutCard('it');
   const params = new URLSearchParams(window.location.search);
   const checkout = params.get('checkout');
   if(!checkout) return;
+  const sessionId = params.get('session_id');
   history.replaceState({}, '', window.location.pathname);
   const wantsIt = document.getElementById('btnIt')?.classList.contains('active');
   const t = CHECKOUT_COPY[wantsIt ? 'it' : 'pt'];
   const box = document.createElement('div');
   box.className = 'wrap';
-  const inner = checkout === 'success'
-    ? `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`
-    : `<div class="checkout-cancelled-box"><h3>${t.cancelledTitle}</h3><p>${t.cancelledBody}</p></div>`;
-  box.innerHTML = inner;
   const hero = document.querySelector(`[data-lang="${wantsIt ? 'it' : 'pt'}"] .hero`)?.parentElement;
+
+  if(checkout === 'cancelled'){
+    box.innerHTML = `<div class="checkout-cancelled-box"><h3>${t.cancelledTitle}</h3><p>${t.cancelledBody}</p></div>`;
+    if(hero) hero.insertAdjacentElement('afterend', box);
+    return;
+  }
+
+  // Fast path: check-checkout-session-status provisions the account (if
+  // needed) and hands back a fresh login link the moment Stripe reports the
+  // session as paid - normally resolves on the first try, since payment_status
+  // is already settled by the time Stripe redirects back here. Falls back to
+  // the "check your e-mail" message if no session_id came back for some
+  // reason, or the session isn't marked paid yet.
+  box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.confirming}</p></div>`;
   if(hero) hero.insertAdjacentElement('afterend', box);
+
+  if(!sessionId) return;
+  (async () => {
+    for(let i = 0; i < 5; i++){
+      try{
+        const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-checkout-session-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId }),
+        });
+        const data = await res.json();
+        if(data.confirmed){
+          if(data.actionLink){
+            window.location.href = data.actionLink;
+          }else{
+            box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
+          }
+          return;
+        }
+      }catch(e){ /* transient network hiccup - just retry next tick */ }
+      await new Promise(r => setTimeout(r, 1500));
+    }
+    // Gave up after a few tries - the webhook will still catch up and e-mail the link.
+    box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
+  })();
 })();
 </script>
 </body>

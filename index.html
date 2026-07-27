@@ -3378,6 +3378,24 @@ async function handleRedeemInviteCode(container){
   }
 }
 
+// Best-effort, fire-and-forget: tells notify-report-ready a premium report was
+// just shown to someone (parent or professional) so it can WhatsApp the family
+// if they're linked to a lead with opt-in - capped server-side to once per
+// ~20h per child, since this fires every time the report view opens, not just
+// on some notion of "freshly generated" (the report has no such event - it's
+// built client-side, from buildClinicalSummary(), every time it's viewed).
+function notifyReportReady(childProfileId){
+  if(!childProfileId) return;
+  sb.auth.getSession().then(({ data: { session } })=>{
+    if(!session) return;
+    fetch(`${SUPABASE_URL}/functions/v1/notify-report-ready`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ childProfileId }),
+    }).catch(()=>{});
+  });
+}
+
 async function loadAndRenderProfChildDetail(container){
   const t = L().prof;
   const detailEl = container.querySelector('#profDashDetail');
@@ -3601,6 +3619,7 @@ async function loadAndRenderProfChildDetail(container){
       </div>
     </div>
   `;
+  if(isPremium) notifyReportReady(profDashboardSelectedId);
 }
 
 /* ========================= PARENTS AREA ========================= */
@@ -4589,6 +4608,7 @@ async function renderParentsDashboardBody(){
     summaryCard.className = 'parents-card';
     summaryCard.innerHTML = `<div style="font-size:13.5px; color:var(--cream); line-height:1.6; font-style:italic;">${summaryText}</div>`;
     body.appendChild(summaryCard);
+    notifyReportReady(child.id);
   } else {
     const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const { count: totalEventos } = await sb.from('game_events')

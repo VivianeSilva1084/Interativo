@@ -272,7 +272,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <span class="hero-eyebrow">🌴 Ilha do Foco + 📖 Aventura das Letras</span>
       <h1>Ajude seu filho a treinar foco, calma e leitura — brincando</h1>
       <p class="hero-sub">Jogos pensados para crianças com TDAH e dificuldades de aprendizagem. Você acompanha o progresso de verdade — não só a sensação — e pode até convidar quem cuida do seu filho pra ver os relatórios.</p>
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Criar minha conta →</a>
+      <a class="btn-primary" href="#checkoutCard-pt">Criar minha conta →</a>
       <p class="micro-note">Comece agora e escolha o plano que preferir.</p>
     </div>
     <div class="hero-art"><img src="Kapi.png" alt="Kapi, a mascote da Ilha do Foco" loading="lazy"></div>
@@ -420,7 +420,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       </div>
     </div>
     <div class="demo-cta-wrap">
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Crie sua conta e veja os dados do seu filho →</a>
+      <a class="btn-primary" href="#checkoutCard-pt">Crie sua conta e veja os dados do seu filho →</a>
     </div>
   </section>
 
@@ -517,7 +517,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <div class="final-cta">
       <h2>Pronta(o) pra começar?</h2>
       <p>Leva menos de um minuto pra criar o perfil do seu filho.</p>
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Criar minha conta →</a>
+      <a class="btn-primary" href="#checkoutCard-pt">Criar minha conta →</a>
     </div>
   </section>
 
@@ -540,7 +540,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <span class="hero-eyebrow">🌴 Isola del Focus + 📖 Avventura delle Lettere</span>
       <h1>Aiuta tuo figlio ad allenare attenzione, calma e lettura — giocando</h1>
       <p class="hero-sub">Giochi pensati per bambini con ADHD e difficoltà di apprendimento. Monitori i progressi in modo concreto — non solo a sensazione — e puoi anche invitare chi segue tuo figlio a vedere i report.</p>
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Crea il mio account →</a>
+      <a class="btn-primary" href="#checkoutCard-it">Crea il mio account →</a>
       <p class="micro-note">Inizia ora e scegli il piano che preferisci.</p>
     </div>
     <div class="hero-art"><img src="Kapi.png" alt="Kapi, la mascotte dell'Isola del Focus" loading="lazy"></div>
@@ -688,7 +688,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       </div>
     </div>
     <div class="demo-cta-wrap">
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Crea il tuo account e vedi i progressi di tuo figlio →</a>
+      <a class="btn-primary" href="#checkoutCard-it">Crea il tuo account e vedi i progressi di tuo figlio →</a>
     </div>
   </section>
 
@@ -784,7 +784,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <div class="final-cta">
       <h2>Pronto/a per iniziare?</h2>
       <p>Bastano meno di un minuto per creare il profilo di tuo figlio.</p>
-      <a class="btn-primary" href="index.html?signup=1&parents=1">Crea il mio account →</a>
+      <a class="btn-primary" href="#checkoutCard-it">Crea il mio account →</a>
     </div>
   </section>
 
@@ -851,11 +851,11 @@ function setDocLang(l){
   }).catch(()=>{});
 })();
 
-// Meta Pixel: the hero/final-CTA links still just go to index.html's signup
-// (no checkout of their own), so InitiateCheckout fires on click there as the
-// closest "intent to convert" signal. The pricing card below has a real
-// checkout now, so it fires this itself, right as the payment call starts.
-document.querySelectorAll('a[href*="signup=1"]').forEach(el => {
+// Meta Pixel: the hero/demo/final CTAs just scroll down to the checkout card
+// (no checkout of their own), so this fires on click there as the closest
+// "intent to convert" signal. The checkout card's own buttons fire this again
+// themselves, right as the payment call actually starts (see setupCheckoutCard).
+document.querySelectorAll('a[href^="#checkoutCard"]').forEach(el => {
   el.addEventListener('click', () => {
     if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
   });

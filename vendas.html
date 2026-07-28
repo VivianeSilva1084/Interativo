@@ -188,7 +188,9 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .pricing-list li{ font-size:14px; padding:6px 0; color:rgba(255,248,237,.9); }
   .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:800; }
 
+  .plan-badge{ font-size:12px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.3px; margin:2px 0 8px; }
   .plan-toggle-row{ display:flex; gap:8px; justify-content:center; margin:4px 0 14px; }
+  .security-badge{ font-size:12px; color:#4A4536; display:flex; align-items:center; justify-content:center; gap:5px; margin-top:10px; }
   .plan-toggle-btn{ background:transparent; border:2px solid rgba(255,255,255,.25); color:var(--cream); opacity:.65; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer; }
   .plan-toggle-btn.active{ opacity:1; border-color:var(--sand); background:rgba(240,200,120,.14); color:var(--sand); }
   .checkout-email-input{ width:100%; max-width:320px; padding:12px 16px; border-radius:12px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:var(--cream); font-size:15px; font-family:'Nunito',sans-serif; margin-bottom:14px; }
@@ -511,6 +513,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
           <li>Compartilhar com profissionais vinculados</li>
           <li>Adesivos exclusivos e mais perfis de criança</li>
         </ul>
+        <p class="plan-badge">✨ Oferta especial: passe de 30 dias</p>
         <div class="plan-toggle-row">
           <button type="button" class="plan-toggle-btn active" data-plan="30days">30 dias</button>
           <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensal</button>
@@ -792,6 +795,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
           <li>Condivisione con professionisti collegati</li>
           <li>Adesivi esclusivi e più profili bambino</li>
         </ul>
+        <p class="plan-badge">✨ Offerta speciale: pass da 30 giorni</p>
         <div class="plan-toggle-row">
           <button type="button" class="plan-toggle-btn active" data-plan="30days">30 giorni</button>
           <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensile</button>
@@ -930,7 +934,7 @@ const CHECKOUT_COPY = {
     modalTitle: 'Quase lá!',
     emailPlaceholder: 'Seu melhor e-mail', phonePlaceholder: 'WhatsApp ou telefone (opcional)',
     cardLabel: 'Cartão', pixLabel: 'Pix', selectMethodError: 'Escolha uma forma de pagamento.',
-    finalizeLabel: 'Finalizar compra',
+    finalizeLabel: 'Finalizar compra', securityBadge: 'Pagamento 100% seguro',
     cpfModalTitle: 'Quase lá!', cpfLabel: 'Seu CPF ou CNPJ', cpfPlaceholder: '000.000.000-00',
     cpfInvalid: 'CPF/CNPJ inválido.', cpfCancel: 'Cancelar', cpfContinue: 'Gerar Pix', cpfGenerating: 'Gerando...',
     pixModalTitle: 'Pague com Pix', pixInstructions: 'Escaneie o QR code ou copie o código abaixo no seu app do banco.',
@@ -950,7 +954,7 @@ const CHECKOUT_COPY = {
     modalTitle: 'Quasi fatto!',
     emailPlaceholder: 'La tua migliore email', phonePlaceholder: 'WhatsApp o telefono (facoltativo)',
     cardLabel: 'Carta', pixLabel: 'Pix', selectMethodError: 'Scegli un metodo di pagamento.',
-    finalizeLabel: 'Completa l\'acquisto',
+    finalizeLabel: 'Completa l\'acquisto', securityBadge: 'Pagamento 100% sicuro',
     cpfModalTitle: 'Quasi fatto!', cpfLabel: 'Il tuo CPF o CNPJ', cpfPlaceholder: '000.000.000-00',
     cpfInvalid: 'CPF/CNPJ non valido.', cpfCancel: 'Annulla', cpfContinue: 'Genera Pix', cpfGenerating: 'Generazione...',
     pixModalTitle: 'Paga con Pix', pixInstructions: 'Scansiona il QR code o copia il codice qui sotto nella tua app bancaria.',
@@ -1008,6 +1012,7 @@ function openCheckoutModal(lang, plan){
         <button type="button" class="modal-btn-secondary" data-action="cancel">${t.cpfCancel}</button>
         <button type="button" class="modal-btn-primary" id="checkoutModalFinalize" disabled>${t.finalizeLabel}</button>
       </div>
+      <p class="security-badge">🔒 ${t.securityBadge}</p>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -1036,6 +1041,11 @@ function openCheckoutModal(lang, plan){
       clearError();
     });
   });
+  // Pre-select a sensible default so most people don't have to make an extra
+  // choice: Pix for Brazil (converts better there), card everywhere else -
+  // it's the only option for IT anyway, since Pix never renders there.
+  const defaultMethodBtn = overlay.querySelector(isBrazil() ? '[data-method="pix"]' : '[data-method="card"]');
+  if(defaultMethodBtn) defaultMethodBtn.click();
 
   finalizeBtn.onclick = async () => {
     clearError();

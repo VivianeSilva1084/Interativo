@@ -88,6 +88,8 @@
 
   .screen{ display:none; } .screen.active{ display:block; }
   .game-shell{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12); border-radius: var(--radius-lg); padding: 24px; min-height: 420px; position:relative; }
+  .game-badge{ position:absolute; top:14px; right:14px; width:64px; height:64px; object-fit:cover; border-radius:50%; box-shadow: 0 4px 10px rgba(0,0,0,.35); pointer-events:none; }
+  @media (max-width:480px){ .game-badge{ width:48px; height:48px; top:10px; right:10px; } }
   .top-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:10px; flex-wrap:wrap;}
   .back-btn{ background: rgba(255,255,255,.1); color:var(--cream); border:2px solid rgba(255,255,255,.2); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer; font-size:14px; }
   .back-btn:hover{ background: rgba(255,255,255,.2); }
@@ -588,6 +590,7 @@
   <!-- ===================== GAME: SEMÁFORO ===================== -->
   <div class="screen" id="screen-semaforo">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_luz-da-espera.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="semTitle"></h2></div>
       <div class="game-instructions" id="semInstructions"></div>
       <div class="pre-start" id="semPreStart">
@@ -605,6 +608,7 @@
   <!-- ===================== GAME: MEMÓRIA ===================== -->
   <div class="screen" id="screen-memoria">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_memoria-da-kapi.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="memTitle"></h2></div>
       <div class="game-instructions" id="memInstructions"></div>
       <div class="pre-start" id="memPreStart">
@@ -628,6 +632,7 @@
   <!-- ===================== GAME: HISTÓRIA ===================== -->
   <div class="screen" id="screen-historia">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_monte-a-historia.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="storyTitle"></h2></div>
       <div class="game-instructions" id="storyInstructions"></div>
       <div class="pre-start" id="storyPreStart">
@@ -646,6 +651,7 @@
   <!-- ===================== GAME: MINHA VEZ ===================== -->
   <div class="screen" id="screen-minhavez">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_minha-vez-sua-vez.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="chatTitle"></h2></div>
       <div class="game-instructions" id="chatInstructions"></div>
       <div class="pre-start" id="chatPreStart">
@@ -665,6 +671,7 @@
   <!-- ===================== GAME: CAÇA AO ALVO ===================== -->
   <div class="screen" id="screen-cacaalvo">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_caca-ao-alvo.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="huntTitle"></h2></div>
       <div class="game-instructions" id="huntInstructions"></div>
       <div class="pre-start" id="huntPreStart">
@@ -684,6 +691,7 @@
   <!-- ===================== GAME: TERMÔMETRO ===================== -->
   <div class="screen" id="screen-termometro">
     <div class="game-shell">
+      <img class="game-badge" src="assets/badge_termometro-das-emocoes.png" alt="">
       <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="thermoTitle"></h2></div>
       <div class="game-instructions" id="thermoInstructions"></div>
       <div class="pre-start" id="thermoPreStart">

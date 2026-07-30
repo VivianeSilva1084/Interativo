@@ -1159,6 +1159,11 @@ function openCheckoutPixQrModal(lang, { qrCodeImage, copyPasteCode, paymentId })
           stopped = true;
           const statusEl = overlay.querySelector('#checkoutPixStatus');
           if(statusEl){ statusEl.textContent = `✅ ${t.pixConfirmed}`; statusEl.classList.add('confirmed'); }
+          // Same event_id the server-side CAPI call in check-pix-payment-status
+          // uses for this payment - Meta dedupes the two into a single event.
+          if(typeof fbq !== 'undefined' && data.value != null){
+            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${paymentId}` });
+          }
           // Fast path: check-pix-payment-status just provisioned the account and
           // returned a fresh login link - redirect straight in from this same
           // tab instead of making the user go open the e-mail. If for any reason
@@ -1314,6 +1319,11 @@ setupLeadCaptureForm('it');
         });
         const data = await res.json();
         if(data.confirmed){
+          // Same event_id the server-side CAPI call in check-checkout-session-status
+          // uses for this session - Meta dedupes the two into a single event.
+          if(typeof fbq !== 'undefined' && data.value != null){
+            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${sessionId}` });
+          }
           if(data.actionLink){
             window.location.href = data.actionLink;
           }else{

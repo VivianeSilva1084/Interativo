@@ -23,11 +23,30 @@
   html,body{margin:0;padding:0;}
   body{
     font-family:'Nunito',sans-serif;
-    background:
-      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
-      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
-      var(--bg-deep);
+    background-repeat: no-repeat;
+    background-position: center, center, center, center top;
+    background-size: auto, auto, auto, cover;
+    background-attachment: fixed, fixed, fixed, fixed;
     color:var(--cream); min-height:100vh; overflow-x:hidden; position:relative;
+  }
+  /* Time-of-day background art, picked once at load (see inline script right
+     after <body>). bg_ilha-calma is a light pastel-sky image, so its scrim is
+     darker than the evening one's to guarantee the same text contrast. If
+     legibility ever turns out to be a problem on the day art, drop the
+     .time-day rule and always fall back to .time-night. */
+  body.time-day{
+    background-image:
+      linear-gradient(rgba(11,61,46,.93), rgba(11,61,46,.88) 200px, rgba(11,61,46,.82)),
+      radial-gradient(1200px 600px at 20% -10%, rgba(28,106,76,.55), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, rgba(21,86,63,.55), transparent 55%),
+      url('assets/bg_ilha-calma.png');
+  }
+  body.time-night{
+    background-image:
+      linear-gradient(rgba(11,61,46,.88), rgba(11,61,46,.8) 200px, rgba(11,61,46,.72)),
+      radial-gradient(1200px 600px at 20% -10%, rgba(28,106,76,.55), transparent 60%),
+      radial-gradient(1000px 500px at 100% 10%, rgba(21,86,63,.55), transparent 55%),
+      url('assets/bg_ilha-tarde-noite.png');
   }
   h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
   button{font-family:inherit;}
@@ -448,6 +467,15 @@
 </style>
 </head>
 <body>
+<script>
+  // Picked once, synchronously, before any content paints - avoids a flash of
+  // the wrong background. Day (calm, light sky) 6h-17h; otherwise night
+  // (sunset/dusk) - matches "de tarde usa tarde-noite, de dia usa calmo".
+  (function(){
+    var hour = new Date().getHours();
+    document.body.classList.add(hour >= 6 && hour < 17 ? 'time-day' : 'time-night');
+  })();
+</script>
 
 <div class="app">
 

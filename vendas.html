@@ -25,62 +25,64 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 /></noscript>
 <!-- End Meta Pixel Code -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg-deep:#0B3D2E; --bg-mid:#15563F; --bg-mid2:#1C6A4C;
-    --sand:#F0C878; --papaya:#F2703C; --lilac:#8FA6CD; --cream:#FFF8ED;
-    --leaf:#4C9A5C; --berry:#E5556E; --success:#7CC576; --ink:#0B3D2E;
-    --shadow: 0 10px 30px rgba(0,0,0,.25); --radius-lg: 28px; --radius-md:18px;
+    --bg-deep:#0A2C2D; --bg-mid:#0F3D3E; --bg-mid2:#14514F;
+    --sand:#C9A15E; --papaya:#8A5226; --lilac:#8496B5; --cream:#FFF8ED;
+    --leaf:#3F8657; --berry:#B23A55; --success:#3F8657; --ink:#14181B;
+    --ink-soft:#5B6570; --ink-faint:#8B958F; --bg:#FFFFFF; --bg-soft:#F7F7F4;
+    --line:#E7E7E2; --teal:#0F3D3E; --teal-deep:#0A2C2D;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F7ECE0;
+    --shadow: 0 1px 2px rgba(20,24,27,.04), 0 20px 44px rgba(20,24,27,.08);
+    --radius-lg: 20px; --radius-md:14px; --radius-sm:10px;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; scroll-behavior:smooth; }
   body{
-    font-family:'Nunito',sans-serif;
-    background:
-      radial-gradient(1200px 600px at 20% -10%, var(--bg-mid2), transparent 60%),
-      radial-gradient(1000px 500px at 100% 10%, var(--bg-mid), transparent 55%),
-      var(--bg-deep);
-    color:var(--cream); min-height:100vh; overflow-x:hidden;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    background: var(--bg-soft);
+    color:var(--ink-soft); min-height:100vh; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   }
-  h1,h2,h3{ font-family:'Baloo 2',cursive; color:var(--sand); margin:0; }
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.02em; color:var(--ink); margin:0; }
   p{ margin:0; }
   img{ max-width:100%; display:block; }
   a{ color:inherit; }
   .wrap{ max-width: 1080px; margin:0 auto; padding: 0 20px; }
 
   /* ---------- Top bar ---------- */
-  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 0; }
-  .brand{ display:flex; align-items:center; gap:10px; font-family:'Baloo 2',cursive; font-weight:700; font-size:18px; color:var(--cream); }
-  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:2px solid rgba(255,255,255,.15); }
-  .lang-toggle button{ background:transparent; border:none; font-size:17px; padding:6px 12px; border-radius:999px; cursor:pointer; opacity:.5; }
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px; background:var(--teal); }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-weight:600; font-size:17px; color:var(--cream); }
+  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:1px solid rgba(255,255,255,.15); }
+  .lang-toggle button{ background:transparent; border:none; font-size:16px; padding:6px 12px; border-radius:999px; cursor:pointer; opacity:.5; }
   .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
 
   /* ---------- Buttons ---------- */
-  .btn-primary{ display:inline-flex; align-items:center; gap:8px; background: var(--papaya); color:#fff; font-weight:800; font-size:16px; padding:15px 30px; border-radius:999px; text-decoration:none; box-shadow: var(--shadow); border:none; cursor:pointer; }
-  .btn-primary:hover{ transform: translateY(-1px); }
-  .btn-secondary{ display:inline-flex; align-items:center; gap:8px; background: transparent; color:var(--cream); font-weight:800; font-size:14.5px; padding:12px 22px; border-radius:999px; text-decoration:none; border:2px solid rgba(255,255,255,.3); }
-  .micro-note{ font-size:12.5px; color:rgba(255,255,255,.55); margin-top:10px; }
+  .btn-primary{ display:inline-flex; align-items:center; gap:8px; background: var(--teal); color:#fff; font-weight:700; font-size:15px; padding:14px 28px; border-radius:var(--radius-sm); text-decoration:none; box-shadow: var(--shadow); border:none; cursor:pointer; transition:background .15s ease, transform .15s ease; }
+  .btn-primary:hover{ background:var(--teal-deep); transform: translateY(-1px); }
+  .btn-secondary{ display:inline-flex; align-items:center; gap:8px; background: transparent; color:var(--ink); font-weight:700; font-size:14px; padding:12px 22px; border-radius:var(--radius-sm); text-decoration:none; border:1.5px solid var(--line); }
+  .micro-note{ font-size:12.5px; color:rgba(255,255,255,.6); margin-top:10px; }
 
   /* ---------- Hero ---------- */
-  .hero{ display:grid; grid-template-columns: 1.1fr .9fr; gap:40px; align-items:center; padding: 40px 0 70px; }
-  .hero-eyebrow{ display:inline-flex; gap:8px; background:rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.15); border-radius:999px; padding:6px 16px; font-size:13px; font-weight:800; color:var(--sand); margin-bottom:18px; }
-  .hero h1{ font-size:40px; line-height:1.15; margin-bottom:16px; }
-  .hero-sub{ font-size:16.5px; line-height:1.6; color:rgba(255,248,237,.9); max-width:520px; margin-bottom:26px; }
+  .hero{ display:grid; grid-template-columns: 1.1fr .9fr; gap:40px; align-items:center; padding: 48px 40px; background:linear-gradient(160deg, var(--teal) 0%, var(--teal-deep) 100%); border-radius:var(--radius-lg); margin-top:20px; }
+  .hero-eyebrow{ display:inline-flex; gap:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--cream); margin-bottom:18px; }
+  .hero h1{ font-size:38px; line-height:1.18; margin-bottom:16px; color:#fff; }
+  .hero-sub{ font-size:16px; line-height:1.6; color:rgba(255,248,237,.85); max-width:520px; margin-bottom:26px; }
   .hero-art{ display:flex; justify-content:center; }
-  .hero-art img{ width:100%; max-width:340px; border-radius:32px; filter:drop-shadow(0 20px 40px rgba(0,0,0,.35)); }
+  .hero-art img{ width:100%; max-width:320px; border-radius:24px; filter:drop-shadow(0 20px 40px rgba(0,0,0,.28)); }
 
   /* ---------- Sections generic ---------- */
   section{ padding: 50px 0; }
-  .section-title{ font-size:28px; text-align:center; margin-bottom:10px; }
-  .section-sub{ text-align:center; color:rgba(255,248,237,.75); font-size:15px; max-width:560px; margin: 0 auto 36px; line-height:1.5; }
+  .section-title{ font-size:26px; text-align:center; margin-bottom:10px; }
+  .section-sub{ text-align:center; color:var(--ink-soft); font-size:15px; max-width:560px; margin: 0 auto 36px; line-height:1.5; }
 
   /* ---------- Problem cards ---------- */
-  .problem-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
-  .problem-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius: var(--radius-md); padding:22px; text-align:center; }
-  .problem-card .emoji{ font-size:32px; display:block; margin-bottom:10px; }
-  .problem-card p{ font-size:14.5px; line-height:1.5; color:rgba(255,248,237,.9); }
-  .bridge-line{ text-align:center; font-weight:800; color:var(--sand); font-size:17px; margin-top:30px; }
+  .problem-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+  .problem-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:22px; text-align:center; box-shadow: var(--shadow); }
+  .problem-card .emoji{ font-size:30px; display:block; margin-bottom:10px; }
+  .problem-card p{ font-size:14.5px; line-height:1.5; color:var(--ink-soft); }
+  .bridge-line{ text-align:center; font-weight:700; color:var(--ink); font-size:16.5px; margin-top:30px; }
 
   /* ---------- Kapi video ---------- */
   .video-wrap{ display:flex; justify-content:center; }
@@ -89,61 +91,61 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
   /* ---------- Vs. traditional comparison ---------- */
   .vs-table{ width:100%; max-width:760px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow); }
-  .vs-table th{ font-family:'Baloo 2',cursive; font-weight:700; font-size:14.5px; text-align:left; padding:16px 18px; color:#fff; }
+  .vs-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; text-align:left; padding:16px 18px; color:#fff; }
   .vs-table th.vs-col-label{ background: var(--ink); width:30%; }
   .vs-table th.vs-col-us{ background: var(--leaf); }
   .vs-table th.vs-col-them{ background:#5C7A70; }
   .vs-table td{ padding:13px 18px; font-size:13px; color:var(--ink); border-top:1px solid rgba(0,0,0,.06); }
-  .vs-table td.vs-label{ font-weight:800; background: rgba(0,0,0,.02); }
-  .vs-table td.vs-us{ background: rgba(76,154,92,.1); font-weight:600; }
+  .vs-table td.vs-label{ font-weight:700; background: rgba(0,0,0,.02); }
+  .vs-table td.vs-us{ background: rgba(63,134,87,.1); font-weight:600; }
   .vs-table td.vs-them{ color:#8A7F63; }
   .vs-table tr:first-child td{ border-top:none; }
   @media (max-width:600px){ .vs-table{ font-size:12px; } .vs-table th, .vs-table td{ padding:10px 10px; } }
 
   /* ---------- Two-app cards ---------- */
-  .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:22px; }
-  .app-card{ background: linear-gradient(160deg, rgba(255,255,255,.09), rgba(255,255,255,.02)); border:2px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); padding:28px; }
-  .app-card .emoji{ font-size:38px; }
+  .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+  .app-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:28px; box-shadow: var(--shadow); }
+  .app-card .emoji{ font-size:36px; }
   .app-card .icon-img{ width:52px; height:52px; border-radius:14px; object-fit:cover; display:block; }
-  .app-card h3{ font-size:21px; margin:10px 0 4px; }
-  .app-card .app-tag{ font-size:12.5px; font-weight:800; color:var(--lilac); margin-bottom:12px; display:block; }
-  .app-card p{ font-size:14.5px; line-height:1.6; color:rgba(255,248,237,.88); }
+  .app-card h3{ font-size:20px; margin:10px 0 4px; }
+  .app-card .app-tag{ font-size:12px; font-weight:700; color:var(--caramel-deep); margin-bottom:12px; display:block; letter-spacing:.03em; }
+  .app-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
 
   /* ---------- Games grid ---------- */
-  .games-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:16px; }
-  .game-tile{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.1); border-radius: var(--radius-md); padding:20px; }
-  .game-tile .emoji{ font-size:30px; }
-  .game-tile h4{ font-family:'Baloo 2',cursive; color:var(--cream); font-size:16px; margin:8px 0 2px; }
-  .game-tile .skill{ font-size:11.5px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.3px; }
-  .game-tile p{ font-size:13.5px; color:rgba(255,248,237,.8); line-height:1.5; margin-top:6px; }
+  .games-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .game-tile{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:20px; box-shadow: var(--shadow); }
+  .game-tile .emoji{ font-size:28px; }
+  .game-tile h4{ font-family:'Fraunces', serif; font-weight:600; color:var(--ink); font-size:15.5px; margin:8px 0 2px; }
+  .game-tile .skill{ font-size:11px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.3px; }
+  .game-tile p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin-top:6px; }
 
   /* ---------- Feature list ---------- */
-  .feature-list{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
-  .feature-item{ display:flex; gap:14px; align-items:flex-start; background: rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.09); border-radius: var(--radius-md); padding:18px; }
-  .feature-item .emoji{ font-size:24px; flex-shrink:0; }
-  .feature-item strong{ display:block; color:var(--cream); font-size:14.5px; margin-bottom:3px; }
-  .feature-item span.desc{ font-size:13px; color:rgba(255,248,237,.75); line-height:1.5; }
-  .premium-tag{ display:inline-block; background:rgba(240,200,120,.2); border:1px solid var(--sand); color:var(--sand); font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
+  .feature-list{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+  .feature-item{ display:flex; gap:14px; align-items:flex-start; background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:18px; box-shadow: var(--shadow); }
+  .feature-item .emoji{ font-size:22px; flex-shrink:0; }
+  .feature-item strong{ display:block; color:var(--ink); font-size:14.5px; margin-bottom:3px; }
+  .feature-item span.desc{ font-size:13px; color:var(--ink-soft); line-height:1.5; }
+  .premium-tag{ display:inline-block; background:var(--caramel-tint); border:1px solid var(--caramel); color:var(--caramel-deep); font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
 
   /* ---------- Professional bridge ---------- */
-  .pro-bridge{ background: rgba(143,166,205,.1); border:2px solid rgba(143,166,205,.3); border-radius: var(--radius-lg); padding:30px; text-align:center; max-width:680px; margin:0 auto; }
-  .pro-bridge p{ font-size:14.5px; line-height:1.6; color:rgba(255,248,237,.9); }
+  .pro-bridge{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:30px; text-align:center; max-width:680px; margin:0 auto; box-shadow: var(--shadow); }
+  .pro-bridge p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
 
   /* ---------- Dashboard demo ---------- */
   .demo-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
   .demo-card{ position:relative; background: var(--cream); color:var(--ink); border-radius: var(--radius-lg); max-width:520px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
-  .demo-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
+  .demo-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
   .demo-header{ background: var(--ink); color:#fff; padding:16px 76px 16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-  .demo-header .child-name{ font-family:'Baloo 2',cursive; font-weight:700; font-size:16px; }
-  .demo-header .premium-pill{ background:var(--sand); color:var(--ink); font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .demo-header .child-name{ font-family:'Fraunces', serif; font-weight:600; font-size:15.5px; }
+  .demo-header .premium-pill{ background:var(--sand); color:var(--ink); font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
   .demo-body{ padding:20px; }
   .demo-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:6px; }
-  .demo-col h5{ font-family:'Baloo 2',cursive; font-size:13px; margin:0 0 8px; color:var(--ink); }
+  .demo-col h5{ font-family:'Fraunces', serif; font-weight:600; font-size:13px; margin:0 0 8px; color:var(--ink); }
   .demo-card .row{ display:flex; justify-content:space-between; gap:8px; font-size:12px; padding:4px 0; color:#4A4536; border-top:1px solid rgba(11,61,46,.08); }
   .demo-col .row:first-of-type{ border-top:none; }
   .demo-section-block{ border-top:1px solid rgba(11,61,46,.1); padding-top:14px; margin-top:14px; }
-  .demo-section-block h5{ font-family:'Baloo 2',cursive; font-size:13px; margin:0 0 10px; color:var(--berry); }
-  .demo-index-value{ font-family:'Baloo 2',cursive; font-size:28px; color:var(--ink); text-align:center; }
+  .demo-section-block h5{ font-family:'Fraunces', serif; font-weight:600; font-size:13px; margin:0 0 10px; color:var(--berry); }
+  .demo-index-value{ font-family:'Fraunces', serif; font-weight:600; font-size:26px; color:var(--ink); text-align:center; }
   .demo-index-label{ font-size:12px; text-align:center; color:#6b6350; font-style:italic; margin-top:4px; }
   .demo-bar-track{ background:rgba(11,61,46,.08); border-radius:999px; height:10px; overflow:hidden; margin:8px 0 6px; }
   .demo-bar-fill{ background:var(--leaf); height:100%; border-radius:999px; }
@@ -154,18 +156,18 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   /* ---------- Professional dashboard demo ---------- */
   .demo-pro-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
   .demo-pro-card{ position:relative; background:#FBF8F1; color:#1F2E29; border-radius: var(--radius-lg); max-width:640px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
-  .demo-pro-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:800; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
-  .demo-pro-header{ background:#123C3E; color:#fff; padding:14px 76px 14px 20px; font-family:'Baloo 2',cursive; font-weight:700; font-size:14px; }
+  .demo-pro-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
+  .demo-pro-header{ background:var(--teal); color:#fff; padding:14px 76px 14px 20px; font-family:'Fraunces', serif; font-weight:600; font-size:13.5px; }
   .demo-pro-body{ display:flex; flex-wrap:wrap; }
   .demo-pro-sidebar{ width:170px; border-right:1px solid #E7DCC0; padding:14px 0; flex-shrink:0; }
-  .demo-pro-sidebar .label{ font-size:10.5px; font-weight:800; color:#8A7F63; text-transform:uppercase; letter-spacing:.4px; padding:0 16px 8px; }
+  .demo-pro-sidebar .label{ font-size:10.5px; font-weight:700; color:#8A7F63; text-transform:uppercase; letter-spacing:.4px; padding:0 16px 8px; }
   .demo-pro-child{ display:flex; align-items:center; gap:8px; padding:9px 16px; border-left:3px solid transparent; font-size:12.5px; font-weight:700; color:#4A4536; }
-  .demo-pro-child.active{ background:#F5E6C8; border-left-color:#FF6F59; color:#1F2E29; }
+  .demo-pro-child.active{ background:#F5E6C8; border-left-color:var(--caramel); color:#1F2E29; }
   .demo-pro-main{ flex:1; min-width:260px; padding:18px 20px; }
-  .demo-pro-main h6{ font-family:'Baloo 2',cursive; font-size:13.5px; margin:0 0 10px; color:#1F2E29; }
+  .demo-pro-main h6{ font-family:'Fraunces', serif; font-weight:600; font-size:13.5px; margin:0 0 10px; color:#1F2E29; }
   .demo-pro-card-box{ background:#fff; border:1px solid #E7DCC0; border-radius:14px; padding:14px 16px; margin-bottom:12px; }
-  .demo-pro-card-box h6{ font-family:'Baloo 2',cursive; font-size:12.5px; margin:0 0 8px; color:var(--berry); }
-  .demo-pro-index-value{ font-family:'Baloo 2',cursive; font-size:24px; text-align:center; color:#1F2E29; }
+  .demo-pro-card-box h6{ font-family:'Fraunces', serif; font-weight:600; font-size:12.5px; margin:0 0 8px; color:var(--berry); }
+  .demo-pro-index-value{ font-family:'Fraunces', serif; font-weight:600; font-size:23px; text-align:center; color:#1F2E29; }
   .demo-pro-index-label{ font-size:11.5px; text-align:center; color:#6b6350; margin-top:2px; }
   .demo-pro-row{ display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:3px 0; color:#4A4536; }
   .demo-pro-summary{ font-size:12px; font-style:italic; color:#4A4536; line-height:1.55; margin:0; }
@@ -178,46 +180,45 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
   /* ---------- Pricing ---------- */
   .pricing-wrap{ display:flex; justify-content:center; }
-  .pricing-card{ background: linear-gradient(160deg, rgba(240,200,120,.14), rgba(255,255,255,.03)); border:2px solid var(--sand); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
-  .pricing-card .plan-name{ font-size:13px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.5px; }
-  .pricing-card .price{ font-family:'Baloo 2',cursive; font-size:46px; color:var(--cream); margin:10px 0 2px; }
-  .pricing-card .price span{ font-size:16px; font-weight:700; color:rgba(255,248,237,.7); }
-  .pricing-card .price-note{ font-size:12.5px; color:rgba(255,248,237,.6); margin-bottom:22px; }
-  .pricing-card .price-teaser{ font-family:'Baloo 2',cursive; font-size:19px; color:var(--cream); margin:10px 0 22px; line-height:1.35; }
+  .pricing-card{ background: linear-gradient(160deg, var(--caramel-tint), var(--bg)); border:1.5px solid var(--caramel); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
+  .pricing-card .plan-name{ font-size:12.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.05em; }
+  .pricing-card .price{ font-family:'Fraunces', serif; font-weight:600; font-size:42px; color:var(--ink); margin:10px 0 2px; }
+  .pricing-card .price span{ font-size:16px; font-weight:700; color:var(--ink-soft); }
+  .pricing-card .price-note{ font-size:12.5px; color:var(--ink-soft); margin-bottom:22px; }
+  .pricing-card .price-teaser{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--ink); margin:10px 0 22px; line-height:1.35; }
   .pricing-list{ list-style:none; padding:0; margin:0 0 26px; text-align:left; display:inline-block; }
-  .pricing-list li{ font-size:14px; padding:6px 0; color:rgba(255,248,237,.9); }
-  .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:800; }
+  .pricing-list li{ font-size:14px; padding:6px 0; color:var(--ink-soft); }
+  .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:700; }
 
-  .plan-badge{ font-size:12px; font-weight:800; color:var(--sand); text-transform:uppercase; letter-spacing:.3px; margin:2px 0 8px; }
+  .plan-badge{ font-size:11.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.03em; margin:2px 0 8px; }
   .plan-toggle-row{ display:flex; gap:8px; justify-content:center; margin:4px 0 14px; }
   .security-badge{ font-size:12px; color:#4A4536; display:flex; align-items:center; justify-content:center; gap:5px; margin-top:10px; }
-  .plan-toggle-btn{ background:transparent; border:2px solid rgba(255,255,255,.25); color:var(--cream); opacity:.65; font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer; }
-  .plan-toggle-btn.active{ opacity:1; border-color:var(--sand); background:rgba(240,200,120,.14); color:var(--sand); }
-  .checkout-email-input{ width:100%; max-width:320px; padding:12px 16px; border-radius:12px; border:2px solid rgba(255,255,255,.2); background:rgba(255,255,255,.06); color:var(--cream); font-size:15px; font-family:'Nunito',sans-serif; margin-bottom:14px; }
-  .checkout-email-input::placeholder{ color:rgba(255,248,237,.5); }
-  .big-cta{ display:block; width:100%; box-sizing:border-box; background: var(--papaya); color:#fff; font-weight:800; font-size:18px; padding:16px 24px; border-radius:999px; border:none; cursor:pointer; box-shadow: var(--shadow); margin-bottom:14px; animation: cta-pulse 2.2s ease-in-out infinite; }
-  .big-cta:hover{ transform: translateY(-1px); }
-  @keyframes cta-pulse{ 0%,100%{ box-shadow: var(--shadow), 0 0 0 0 rgba(255,141,90,.5); } 50%{ box-shadow: var(--shadow), 0 0 0 10px rgba(255,141,90,0); } }
+  .plan-toggle-btn{ background:transparent; border:1.5px solid var(--line); color:var(--ink-faint); font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer; transition:all .15s ease; }
+  .plan-toggle-btn.active{ border-color:var(--caramel); background:var(--caramel-tint); color:var(--caramel-deep); }
+  .checkout-email-input{ width:100%; max-width:320px; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; }
+  .checkout-email-input::placeholder{ color:var(--ink-faint); }
+  .big-cta{ display:block; width:100%; box-sizing:border-box; background: var(--teal); color:#fff; font-weight:700; font-size:16.5px; padding:15px 24px; border-radius:var(--radius-sm); border:none; cursor:pointer; box-shadow: var(--shadow); margin-bottom:14px; transition:background .15s ease, transform .15s ease; }
+  .big-cta:hover{ background:var(--teal-deep); transform: translateY(-1px); }
   .checkout-error{ font-size:13px; color:var(--berry); margin:6px 0 0; }
-  .lead-capture-card{ background: rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.15); border-radius: var(--radius-lg); padding:30px; max-width:420px; margin:0 auto; text-align:center; }
-  .lead-capture-consent{ display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; color:rgba(255,248,237,.8); margin:2px 0 16px; line-height:1.4; }
+  .lead-capture-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:30px; max-width:420px; margin:0 auto; text-align:center; box-shadow: var(--shadow); }
+  .lead-capture-consent{ display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; color:var(--ink-soft); margin:2px 0 16px; line-height:1.4; }
   .lead-capture-consent input{ margin-top:2px; flex-shrink:0; }
-  .lead-capture-success{ font-size:14px; color:var(--sand); font-weight:700; }
-  .checkout-success-box, .checkout-cancelled-box{ max-width:520px; margin:0 auto 30px; text-align:center; background:rgba(255,255,255,.06); border:2px solid var(--sand); border-radius:var(--radius-lg); padding:30px; }
-  .checkout-success-box h3, .checkout-cancelled-box h3{ font-size:20px; color:var(--sand); margin-bottom:10px; }
-  .checkout-success-box p, .checkout-cancelled-box p{ font-size:14px; color:rgba(255,248,237,.9); line-height:1.5; }
+  .lead-capture-success{ font-size:14px; color:var(--caramel-deep); font-weight:700; }
+  .checkout-success-box, .checkout-cancelled-box{ max-width:520px; margin:0 auto 30px; text-align:center; background:var(--bg); border:1.5px solid var(--caramel); border-radius:var(--radius-lg); padding:30px; box-shadow: var(--shadow); }
+  .checkout-success-box h3, .checkout-cancelled-box h3{ font-size:19px; color:var(--ink); margin-bottom:10px; }
+  .checkout-success-box p, .checkout-cancelled-box p{ font-size:14px; color:var(--ink-soft); line-height:1.5; }
 
-  .vendas-modal-overlay{ position:fixed; inset:0; background:rgba(11,61,46,.75); display:flex; align-items:center; justify-content:center; padding:16px; z-index:100; }
+  .vendas-modal-overlay{ position:fixed; inset:0; background:rgba(11,20,18,.7); display:flex; align-items:center; justify-content:center; padding:16px; z-index:100; }
   .vendas-modal{ background:var(--cream); color:var(--ink); border-radius:var(--radius-lg); max-width:380px; width:100%; padding:28px; text-align:center; }
   .vendas-modal h3{ font-size:18px; margin-bottom:10px; color:var(--ink); }
   .vendas-modal p{ font-size:13.5px; color:#4A4536; margin-bottom:10px; }
-  .vendas-modal input{ width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; border:2px solid rgba(11,61,46,.2); font-size:15px; margin-bottom:8px; font-family:'Nunito',sans-serif; }
+  .vendas-modal input{ width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; border:1.5px solid rgba(11,61,46,.2); font-size:15px; margin-bottom:8px; font-family:'Plus Jakarta Sans',sans-serif; }
   .vendas-modal .modal-error{ font-size:12.5px; color:var(--berry); display:none; margin-bottom:8px; }
   .vendas-modal .modal-actions{ display:flex; gap:10px; justify-content:center; margin-top:12px; }
-  .vendas-modal .modal-btn-secondary{ background:transparent; border:2px solid rgba(11,61,46,.3); color:var(--ink); font-weight:700; padding:10px 18px; border-radius:999px; cursor:pointer; }
-  .vendas-modal .modal-btn-primary{ background:var(--leaf); color:#fff; font-weight:800; border:none; padding:10px 18px; border-radius:999px; cursor:pointer; }
+  .vendas-modal .modal-btn-secondary{ background:transparent; border:1.5px solid rgba(11,61,46,.3); color:var(--ink); font-weight:700; padding:10px 18px; border-radius:999px; cursor:pointer; }
+  .vendas-modal .modal-btn-primary{ background:var(--leaf); color:#fff; font-weight:700; border:none; padding:10px 18px; border-radius:999px; cursor:pointer; }
   .vendas-modal .pix-qr-img{ width:200px; height:200px; margin:0 auto 12px; border-radius:10px; display:block; }
-  .vendas-modal textarea{ width:100%; box-sizing:border-box; padding:10px; border-radius:10px; border:2px solid rgba(11,61,46,.2); font-size:12px; font-family:monospace; margin-bottom:10px; resize:none; }
+  .vendas-modal textarea{ width:100%; box-sizing:border-box; padding:10px; border-radius:10px; border:1.5px solid rgba(11,61,46,.2); font-size:12px; font-family:monospace; margin-bottom:10px; resize:none; }
   .vendas-modal .pix-status{ font-size:13px; font-weight:700; margin-top:10px; }
   .vendas-modal .pix-status.confirmed{ color:var(--leaf); }
   .vendas-modal .checkout-product-summary{ font-weight:700; color:var(--ink); background:rgba(11,61,46,.06); border-radius:10px; padding:8px 12px; margin-bottom:14px; }
@@ -225,40 +226,40 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .vendas-modal .big-cta.active{ outline:2px solid var(--leaf); outline-offset:2px; }
   .vendas-modal .modal-btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
 
-  .compare-table{ width:100%; max-width:680px; margin:0 auto; border-collapse:separate; border-spacing:0; background:rgba(255,255,255,.05); border-radius:var(--radius-md); overflow:hidden; border:2px solid rgba(255,255,255,.1); }
-  .compare-table th{ font-family:'Baloo 2',cursive; font-size:14.5px; padding:14px 16px; text-align:left; color:var(--cream); background:rgba(255,255,255,.06); }
-  .compare-table th.col-premium{ color:var(--sand); }
-  .compare-table td{ padding:11px 16px; font-size:13.5px; border-top:1px solid rgba(255,255,255,.08); color:rgba(255,248,237,.9); }
-  .compare-table td.check{ text-align:center; font-weight:800; }
+  .compare-table{ width:100%; max-width:680px; margin:0 auto; border-collapse:separate; border-spacing:0; background:var(--bg); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--line); }
+  .compare-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; padding:14px 16px; text-align:left; color:var(--ink); background:var(--bg-soft); }
+  .compare-table th.col-premium{ color:var(--caramel-deep); }
+  .compare-table td{ padding:11px 16px; font-size:13.5px; border-top:1px solid var(--line); color:var(--ink-soft); }
+  .compare-table td.check{ text-align:center; font-weight:700; }
   .compare-table td.yes{ color:var(--success); }
-  .compare-table td.no{ color:rgba(255,248,237,.35); }
+  .compare-table td.no{ color:var(--ink-faint); }
 
   /* ---------- FAQ ---------- */
-  .faq-item{ border-bottom:1px solid rgba(255,255,255,.12); padding:16px 0; max-width:680px; margin:0 auto; }
-  .faq-item summary{ font-family:'Baloo 2',cursive; font-size:15.5px; color:var(--cream); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  .faq-item{ border-bottom:1px solid var(--line); padding:16px 0; max-width:680px; margin:0 auto; }
+  .faq-item summary{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; color:var(--ink); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
   .faq-item summary::-webkit-details-marker{ display:none; }
-  .faq-item summary::after{ content:"+"; font-size:20px; color:var(--sand); }
+  .faq-item summary::after{ content:"+"; font-size:19px; color:var(--caramel); }
   .faq-item[open] summary::after{ content:"–"; }
-  .faq-item p{ font-size:14px; line-height:1.6; color:rgba(255,248,237,.82); margin-top:10px; }
+  .faq-item p{ font-size:14px; line-height:1.6; color:var(--ink-soft); margin-top:10px; }
 
   /* ---------- Final CTA ---------- */
-  .final-cta{ text-align:center; background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:2px solid rgba(255,255,255,.14); border-radius: var(--radius-lg); padding:50px 30px; }
-  .final-cta h2{ font-size:26px; margin-bottom:10px; }
-  .final-cta p{ color:rgba(255,248,237,.8); font-size:14.5px; margin-bottom:24px; }
+  .final-cta{ text-align:center; background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:50px 30px; box-shadow: var(--shadow); }
+  .final-cta h2{ font-size:25px; margin-bottom:10px; }
+  .final-cta p{ color:var(--ink-soft); font-size:14.5px; margin-bottom:24px; }
 
   /* ---------- Footer ---------- */
   footer{ padding: 40px 0 50px; text-align:center; }
   footer .foot-links{ margin-bottom:14px; }
-  footer .foot-links a{ color:var(--sand); font-weight:700; font-size:13px; text-decoration:underline; margin:0 10px; }
-  footer .foot-disclaimer{ font-size:11.5px; color:rgba(255,255,255,.4); max-width:520px; margin:0 auto 8px; line-height:1.5; }
-  footer .foot-credit{ font-size:12px; color:rgba(255,255,255,.35); }
+  footer .foot-links a{ color:var(--caramel-deep); font-weight:700; font-size:13px; text-decoration:underline; margin:0 10px; }
+  footer .foot-disclaimer{ font-size:11.5px; color:var(--ink-faint); max-width:520px; margin:0 auto 8px; line-height:1.5; }
+  footer .foot-credit{ font-size:12px; color:var(--ink-faint); }
 
   [data-lang="it"]{ display:none; }
 
   @media (max-width: 760px){
-    .hero{ grid-template-columns: 1fr; text-align:center; }
+    .hero{ grid-template-columns: 1fr; text-align:center; padding:36px 24px; margin-top:12px; }
     .hero-sub{ margin:0 auto 26px; }
-    .hero h1{ font-size:30px; }
+    .hero h1{ font-size:28px; }
     .hero-art{ order:-1; }
     .hero-art img{ max-width:220px; }
     .pricing-card{ padding:28px 22px; }
@@ -269,7 +270,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
 <div class="wrap">
   <div class="topbar">
-    <div class="brand">🌴 Ilha do Foco</div>
+    <div class="brand">Ilha do Foco</div>
     <div class="lang-toggle">
       <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
       <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
@@ -291,7 +292,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
   <div class="wrap hero">
     <div>
-      <span class="hero-eyebrow">🌴 Ilha do Foco + 📖 Aventura das Letras</span>
+      <span class="hero-eyebrow">Ilha do Foco + Aventura das Letras</span>
       <h1>Ajude seu filho a treinar foco, calma e leitura — brincando</h1>
       <p class="hero-sub">Jogos pensados para crianças com TDAH e dificuldades de aprendizagem. Você acompanha o progresso de verdade — não só a sensação — e pode até convidar quem cuida do seu filho pra ver os relatórios.</p>
       <a class="btn-primary" href="#checkoutCard-pt">Criar minha conta →</a>
@@ -331,7 +332,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <h2 class="section-title">Ilha do Foco vs. método tradicional</h2>
     <p class="section-sub">Por que o formato digital funciona melhor para crianças com TDAH</p>
     <table class="vs-table">
-      <tr><th class="vs-col-label"></th><th class="vs-col-us">🌴 Ilha do Foco</th><th class="vs-col-them">Apostila/caderno</th></tr>
+      <tr><th class="vs-col-label"></th><th class="vs-col-us">Ilha do Foco</th><th class="vs-col-them">Apostila/caderno</th></tr>
       <tr><td class="vs-label">Formato</td><td class="vs-us">Interativo, jogo digital</td><td class="vs-them">Papel e caneta, repetitivo</td></tr>
       <tr><td class="vs-label">Duração por sessão</td><td class="vs-us">10–15 min, no ritmo da criança</td><td class="vs-them">30–60 min, sessão única longa</td></tr>
       <tr><td class="vs-label">Engajamento</td><td class="vs-us">Alto — recompensas visuais imediatas</td><td class="vs-them">Variável, percebido como cansativo</td></tr>
@@ -353,7 +354,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
         <p>6 minijogos que treinam autocontrole, memória de trabalho, atenção sustentada, sequenciamento, conversa por turnos e regulação emocional — a base das funções executivas.</p>
       </div>
       <div class="app-card">
-        <img class="icon-img" src="aventura-das-letras-floresta.jpg" alt="Floresta encantada do Aventura das Letras" loading="lazy">
+        <img class="icon-img" src="aventura-das-letras-icon.png" alt="Ícone do app Aventura das Letras" loading="lazy">
         <span class="app-tag">ALFABETIZAÇÃO E LEITURA</span>
         <h3>Aventura das Letras</h3>
         <p>7 mundos de aventura de leitura + 1 desafio bônus de consciência fonêmica, do reconhecimento de letras à leitura de palavras, no ritmo da própria criança — com adesivos pra colecionar.</p>
@@ -504,7 +505,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <p class="section-sub">Uma assinatura, dois apps — sem versão limitada</p>
     <div class="pricing-wrap">
       <div class="pricing-card" id="checkoutCard-pt" data-plan="30days">
-        <div class="plan-name">✨ Ilha do Foco + Aventura das Letras</div>
+        <div class="plan-name">Ilha do Foco + Aventura das Letras</div>
         <p class="price-teaser">Passe de 30 dias ou assinatura mensal</p>
         <ul class="pricing-list">
           <li>6 minijogos da Ilha do Foco</li>
@@ -516,7 +517,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
           <li>Compartilhar com profissionais vinculados</li>
           <li>Adesivos exclusivos e mais perfis de criança</li>
         </ul>
-        <p class="plan-badge">✨ Oferta especial: passe de 30 dias</p>
+        <p class="plan-badge">Oferta especial: passe de 30 dias</p>
         <div class="plan-toggle-row">
           <button type="button" class="plan-toggle-btn active" data-plan="30days">30 dias</button>
           <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensal</button>
@@ -554,7 +555,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <a href="https://www.instagram.com/visc.arekids/" target="_blank" rel="noopener">Instagram</a>
     </div>
     <p class="foot-disclaimer">Os relatórios desta plataforma são um apoio à observação e não constituem diagnóstico médico. Consulte sempre um profissional qualificado.</p>
-    <p class="foot-credit">Feito com carinho por Viscare Develops 🌱</p>
+    <p class="foot-credit">Feito com carinho por Viscare Develops</p>
   </footer>
 
 </div>
@@ -573,7 +574,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
   <div class="wrap hero">
     <div>
-      <span class="hero-eyebrow">🌴 Isola del Focus + 📖 Avventura delle Lettere</span>
+      <span class="hero-eyebrow">Isola del Focus + Avventura delle Lettere</span>
       <h1>Aiuta tuo figlio ad allenare attenzione, calma e lettura — giocando</h1>
       <p class="hero-sub">Giochi pensati per bambini con ADHD e difficoltà di apprendimento. Monitori i progressi in modo concreto — non solo a sensazione — e puoi anche invitare chi segue tuo figlio a vedere i report.</p>
       <a class="btn-primary" href="#checkoutCard-it">Crea il mio account →</a>
@@ -613,7 +614,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <h2 class="section-title">Isola del Focus vs. metodo tradizionale</h2>
     <p class="section-sub">Perché il formato digitale funziona meglio per bambini con ADHD</p>
     <table class="vs-table">
-      <tr><th class="vs-col-label"></th><th class="vs-col-us">🌴 Isola del Focus</th><th class="vs-col-them">Quaderno/scheda</th></tr>
+      <tr><th class="vs-col-label"></th><th class="vs-col-us">Isola del Focus</th><th class="vs-col-them">Quaderno/scheda</th></tr>
       <tr><td class="vs-label">Formato</td><td class="vs-us">Interattivo, gioco digitale</td><td class="vs-them">Carta e penna, ripetitivo</td></tr>
       <tr><td class="vs-label">Durata per sessione</td><td class="vs-us">10–15 min, al ritmo del bambino</td><td class="vs-them">30–60 min, sessione unica lunga</td></tr>
       <tr><td class="vs-label">Coinvolgimento</td><td class="vs-us">Alto — ricompense visive immediate</td><td class="vs-them">Variabile, percepito come faticoso</td></tr>
@@ -635,7 +636,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
         <p>6 minigiochi che allenano autocontrollo, memoria di lavoro, attenzione sostenuta, sequenza logica, conversazione a turni e regolazione emotiva — le basi delle funzioni esecutive.</p>
       </div>
       <div class="app-card">
-        <img class="icon-img" src="aventura-das-letras-floresta.jpg" alt="Foresta incantata di Avventura delle Lettere" loading="lazy">
+        <img class="icon-img" src="aventura-das-letras-icon.png" alt="Icona dell'app Avventura delle Lettere" loading="lazy">
         <span class="app-tag">ALFABETIZZAZIONE E LETTURA</span>
         <h3>Avventura delle Lettere</h3>
         <p>7 mondi di avventura nella lettura + 1 sfida bonus di consapevolezza fonemica, dal riconoscimento delle lettere alla lettura di parole, al ritmo del bambino stesso — con adesivi da collezionare.</p>
@@ -786,7 +787,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <p class="section-sub">Un solo abbonamento, due app — senza versione limitata</p>
     <div class="pricing-wrap">
       <div class="pricing-card" id="checkoutCard-it" data-plan="30days">
-        <div class="plan-name">✨ Isola del Focus + Avventura delle Lettere</div>
+        <div class="plan-name">Isola del Focus + Avventura delle Lettere</div>
         <p class="price-teaser">Pass da 30 giorni o abbonamento mensile</p>
         <ul class="pricing-list">
           <li>6 minigiochi dell'Isola del Focus</li>
@@ -798,7 +799,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
           <li>Condivisione con professionisti collegati</li>
           <li>Adesivi esclusivi e più profili bambino</li>
         </ul>
-        <p class="plan-badge">✨ Offerta speciale: pass da 30 giorni</p>
+        <p class="plan-badge">Offerta speciale: pass da 30 giorni</p>
         <div class="plan-toggle-row">
           <button type="button" class="plan-toggle-btn active" data-plan="30days">30 giorni</button>
           <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensile</button>
@@ -836,7 +837,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <a href="https://www.instagram.com/visc.arekids/" target="_blank" rel="noopener">Instagram</a>
     </div>
     <p class="foot-disclaimer">I report di questa piattaforma sono un supporto all'osservazione e non costituiscono una diagnosi medica. Consulta sempre un professionista qualificato.</p>
-    <p class="foot-credit">Realizzato con cura da Viscare Develops 🌱</p>
+    <p class="foot-credit">Realizzato con cura da Viscare Develops</p>
   </footer>
 
 </div>

@@ -971,6 +971,53 @@ const CHECKOUT_COPY = {
   },
 };
 
+// Ensures every checkout attempt has a `leads` row to attach the eventual
+// "cliente" conversion to - without this, someone who lands from an ad and
+// buys immediately (skipping the separate opt-in form, never clicking a
+// lifecycle link) has no lead row for asaas-webhook/check-pix-payment-status
+// to update, so the purchase never shows up in the CRM despite going through
+// fine. Reuses the existing ilhaDoFoco_leadId key, so it's a no-op for anyone
+// who already has one (from the opt-in form or a lifecycle link).
+async function ensureCheckoutLeadId(lang, email, phone){
+  const existing = localStorage.getItem('ilhaDoFoco_leadId');
+  if(existing) return existing;
+
+  const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
+  const leadId = crypto.randomUUID();
+  const params = new URLSearchParams(window.location.search);
+  const payload = {
+    id: leadId,
+    full_name: null,
+    contact_email: email,
+    contact_whatsapp: phone || null,
+    language: lang === 'it' ? 'it' : 'pt-BR', // leads.language is CHECK-constrained to exactly these two values
+    whatsapp_opt_in: false,
+    email_opt_in: false, // no consent checkbox in the checkout modal, unlike the opt-in form
+    utm_source: params.get('utm_source') || 'direto',
+    utm_medium: params.get('utm_medium') || null,
+    utm_campaign: params.get('utm_campaign') || null,
+    utm_content: params.get('utm_content') || null,
+  };
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(payload),
+    });
+    if(!res.ok) return null;
+    localStorage.setItem('ilhaDoFoco_leadId', leadId);
+    return leadId;
+  }catch(e){
+    return null; // best-effort - checkout must proceed even if this fails
+  }
+}
+
 function setupCheckoutCard(lang){
   const t = CHECKOUT_COPY[lang];
   const card = document.getElementById(`checkoutCard-${lang}`);
@@ -1064,7 +1111,7 @@ function openCheckoutModal(lang, plan){
       return;
     }
     const phone = phoneInput.value.trim() || null;
-    const leadId = localStorage.getItem('ilhaDoFoco_leadId');
+    const leadId = await ensureCheckoutLeadId(lang, email, phone);
     const originalLabel = finalizeBtn.textContent;
 
     if(selectedMethod === 'card'){

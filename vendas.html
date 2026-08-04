@@ -227,6 +227,50 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .vendas-modal .big-cta.active{ outline:2px solid var(--leaf); outline-offset:2px; }
   .vendas-modal .modal-btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
 
+  /* ---------- Checkout modal (redesign) ---------- */
+  /* Full-page takeover instead of a small floating dialog - matches the
+     reference checkout (own page, no dim backdrop), not a popup. Only the
+     identification/payment step uses this; the Pix QR follow-up keeps the
+     small .vendas-modal treatment since it's a brief "here's your code"
+     step, not a form. */
+  .checkout-page-overlay{ position:fixed; inset:0; background:var(--bg-soft); z-index:100; overflow-y:auto; padding:56px 20px 80px; }
+  /* No single boxed card wrapping everything - each section is its own
+     white block stacked on the page background, which is what makes it
+     read as a page instead of a shrunken popup. */
+  .checkout-modal-v2{ max-width:640px; margin:0 auto; text-align:left; padding:0; position:relative; background:transparent; }
+  .checkout-modal-v2 .checkout-modal-close{ position:absolute; top:-44px; right:0; background:#fff; border:1.5px solid var(--line); width:36px; height:36px; border-radius:50%; font-size:18px; line-height:1; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow); }
+  .checkout-summary{ display:flex; gap:20px; align-items:center; padding:28px 32px; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow); margin-bottom:18px; }
+  .checkout-summary-img{ width:150px; height:auto; border-radius:var(--radius-md); object-fit:contain; flex-shrink:0; }
+  .checkout-summary-name{ font-family:'Fraunces', serif; font-weight:600; font-size:19px; color:var(--ink); line-height:1.3; margin-bottom:8px; }
+  .checkout-summary-price{ font-family:'Fraunces', serif; font-weight:600; font-size:28px; color:var(--teal); }
+  .checkout-summary-note{ font-size:13.5px; color:var(--ink-faint); margin-top:4px; }
+  .checkout-modal-v2 .checkout-section{ padding:26px 32px; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow); margin-bottom:18px; }
+  .checkout-section-title{ font-size:14px; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:.3px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .checkout-modal-v2 input{ width:100%; box-sizing:border-box; padding:15px 18px; border-radius:var(--radius-sm); border:1.5px solid var(--line); font-size:16px; margin-bottom:14px; font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg-soft); color:var(--ink); }
+  .checkout-modal-v2 input:last-child{ margin-bottom:0; }
+  .checkout-bump{ margin:0 0 18px; background:var(--caramel-tint); border:1.5px solid var(--sand); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:22px 26px; position:relative; overflow:hidden; }
+  .checkout-bump-badge{ display:inline-block; background:var(--caramel); color:#fff; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; padding:4px 14px; border-radius:999px; margin-bottom:12px; }
+  .checkout-bump-title{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--caramel-deep); margin-bottom:14px; line-height:1.35; }
+  .checkout-bump-label{ display:flex; align-items:flex-start; gap:12px; font-size:15px; color:var(--ink); line-height:1.5; cursor:pointer; font-weight:600; }
+  .checkout-bump-label input{ margin-top:3px; width:19px; height:19px; flex-shrink:0; accent-color:var(--caramel); }
+  .payment-method-row{ display:flex; gap:12px; margin-bottom:14px; }
+  .payment-method-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--bg-soft); border:1.5px solid var(--line); color:var(--ink-soft); font-weight:700; font-size:15.5px; padding:16px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:all .15s ease; }
+  .payment-method-btn.active{ background:rgba(15,61,62,.06); border-color:var(--teal); color:var(--teal); }
+  .checkout-payment-info{ background:var(--bg-soft); border-radius:var(--radius-sm); padding:16px 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-top:6px; }
+  .checkout-payment-info strong{ display:block; color:var(--ink); font-size:14px; margin-bottom:6px; }
+  .checkout-modal-v2 .modal-error{ margin:0 0 14px; }
+  .checkout-finalize-btn{ display:block; width:100%; margin:6px 0 0; background:var(--teal); color:#fff; font-weight:700; font-size:17.5px; padding:18px 22px; border-radius:var(--radius-sm); border:none; cursor:pointer; transition:background .15s ease; }
+  .checkout-finalize-btn:hover{ background:var(--teal-deep); }
+  .checkout-finalize-btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .checkout-security-badge{ text-align:center; font-size:12.5px; color:var(--ink-faint); margin:16px 0 6px; }
+  .checkout-cancel-link{ display:block; width:100%; background:none; border:none; text-align:center; font-size:13px; color:var(--ink-faint); text-decoration:underline; cursor:pointer; padding:8px 0 20px; }
+  @media (max-width: 560px){
+    .checkout-summary{ padding:22px; gap:14px; }
+    .checkout-summary-img{ width:110px; height:auto; }
+    .checkout-modal-v2 .checkout-section{ padding:20px; }
+    .checkout-bump{ padding:18px; }
+  }
+
   .compare-table{ width:100%; max-width:680px; margin:0 auto; border-collapse:separate; border-spacing:0; background:var(--bg); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--line); }
   .compare-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; padding:14px 16px; text-align:left; color:var(--ink); background:var(--bg-soft); }
   .compare-table th.col-premium{ color:var(--caramel-deep); }
@@ -496,8 +540,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       </div>
     </div>
     <div class="demo-cta-wrap">
-      <p style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">Sou fonoaudiólogo, psicólogo ou professor · Acesso gratuito para profissionais vinculados</p>
-      <a class="btn-primary" href="index.html?pro=1">Criar conta profissional →</a>
+      <p style="font-size:13px; color:var(--ink-soft);">Esse acesso é sempre por convite dos pais, direto no painel da família — não existe cadastro próprio para profissionais.</p>
     </div>
   </section>
 
@@ -536,6 +579,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <details class="faq-item"><summary>Isso substitui terapia ou diagnóstico?</summary><p>Não. Os relatórios são um apoio à observação e ao acompanhamento — eles não constituem diagnóstico médico e não substituem avaliação de um profissional qualificado.</p></details>
     <details class="faq-item"><summary>Posso usar para mais de um filho?</summary><p>Sim, sua conta pode ter vários perfis de crianças, cada um com seu próprio progresso.</p></details>
     <details class="faq-item"><summary>Meus dados ficam seguros?</summary><p>Sim. Seguimos a LGPD e o GDPR — veja os detalhes na nossa Política de Privacidade.</p></details>
+    <details class="faq-item"><summary>Como convido um profissional de saúde pra acompanhar meu filho?</summary><p>Dentro do painel dos pais, você gera um código de convite específico pra criança e envia pro profissional (fonoaudiólogo, psicólogo ou professor) por WhatsApp ou e-mail. Ele usa esse código pra criar a conta profissional dele, e o acesso só é liberado depois da sua aprovação — você pode revogar quando quiser.</p></details>
     <details class="faq-item"><summary>Posso cancelar quando quiser?</summary><p>Sim, direto pelo botão "Gerenciar assinatura" dentro do app, sem precisar entrar em contato — vale pra assinatura mensal. O passe de 30 dias é um pagamento único, sem renovação automática, então não precisa cancelar nada.</p></details>
     <details class="faq-item"><summary>Funciona em português e italiano?</summary><p>Sim — jogos, relatórios e e-mails da plataforma estão disponíveis nos dois idiomas.</p></details>
     <details class="faq-item"><summary>Dá pra colocar na tela inicial do celular?</summary><p>Sim! Nosso jogo funciona direto pelo navegador, sem precisar baixar nada de loja de aplicativo. No Android (Chrome): toque no menu ⋮ e escolha "Adicionar à tela inicial" (ou "Instalar app"). No iPhone (Safari): toque no ícone de compartilhar 📤 e escolha "Adicionar à Tela de Início". Assim fica com um ícone igual um app, prontinho pra abrir.</p></details>
@@ -778,8 +822,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       </div>
     </div>
     <div class="demo-cta-wrap">
-      <p style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">Sono logopedista, psicologo o insegnante · Accesso gratuito per i professionisti collegati</p>
-      <a class="btn-primary" href="index.html?pro=1">Crea account professionale →</a>
+      <p style="font-size:13px; color:var(--ink-soft);">L'accesso avviene sempre su invito dei genitori, direttamente dal pannello famiglia — non esiste una registrazione autonoma per i professionisti.</p>
     </div>
   </section>
 
@@ -818,6 +861,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <details class="faq-item"><summary>Sostituisce la terapia o una diagnosi?</summary><p>No. I report sono un supporto all'osservazione e al monitoraggio — non costituiscono una diagnosi medica e non sostituiscono la valutazione di un professionista qualificato.</p></details>
     <details class="faq-item"><summary>Posso usarlo per più di un figlio?</summary><p>Sì, il tuo account può avere più profili bambino, ognuno con i propri progressi.</p></details>
     <details class="faq-item"><summary>I miei dati sono al sicuro?</summary><p>Sì. Rispettiamo il GDPR e la LGPD — trovi i dettagli nella nostra Informativa sulla Privacy.</p></details>
+    <details class="faq-item"><summary>Come invito un professionista sanitario a seguire mio figlio?</summary><p>Dal pannello genitori, generi un codice di invito specifico per il bambino e lo invii al professionista (logopedista, psicologo o insegnante) via WhatsApp o email. Lui usa quel codice per creare il proprio account professionale, e l'accesso viene attivato solo dopo la tua approvazione — puoi revocarlo quando vuoi.</p></details>
     <details class="faq-item"><summary>Posso annullare quando voglio?</summary><p>Sì, direttamente dal pulsante "Gestisci abbonamento" nell'app, senza doverci contattare — vale per l'abbonamento mensile. Il pass da 30 giorni è un pagamento unico, senza rinnovo automatico, quindi non c'è nulla da annullare.</p></details>
     <details class="faq-item"><summary>Funziona in portoghese e italiano?</summary><p>Sì — giochi, report ed email della piattaforma sono disponibili in entrambe le lingue.</p></details>
     <details class="faq-item"><summary>Posso aggiungerlo alla schermata home del telefono?</summary><p>Sì! Il nostro gioco funziona direttamente dal browser, senza bisogno di scaricare nulla dallo store. Su Android (Chrome): tocca il menu ⋮ e scegli "Aggiungi a schermata Home" (o "Installa app"). Su iPhone (Safari): tocca l'icona di condivisione 📤 e scegli "Aggiungi a Home". Avrai così un'icona come un'app vera, pronta da aprire.</p></details>
@@ -932,11 +976,20 @@ const CHECKOUT_COPY = {
   pt: {
     '30days': { price: 'R$ 34,90', note: 'pagamento único · acesso por 30 dias' },
     monthly: { price: 'R$ 24,90', note: '/mês · cancele quando quiser' },
+    bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
     invalidEmail: 'Digite um e-mail válido.',
     genericError: 'Não foi possível continuar. Tente novamente.',
     redirecting: 'Aguarde...',
     productName: 'Ilha do Foco + Aventura das Letras',
+    productImage: 'assets/cartoonPT.png',
     modalTitle: 'Quase lá!',
+    identificationTitle: 'Identificação',
+    paymentMethodTitle: 'Forma de pagamento',
+    bumpBadge: '🎉 Promoção do momento',
+    bumpOfferTitle: 'Você foi contemplado com uma condição especial!',
+    bumpOfferLabel: 'Ativar promoção — 30 dias de acesso por R$ 24,90 à vista, sem mensalidade',
+    pixInfoTitle: 'Pagamento somente à vista',
+    pixInfoBody: 'A liberação do acesso ocorre logo após a confirmação do pagamento. Fique atento à data de expiração do código.',
     emailPlaceholder: 'Seu melhor e-mail', phonePlaceholder: 'WhatsApp ou telefone (opcional)',
     cardLabel: 'Cartão', pixLabel: 'Pix', selectMethodError: 'Escolha uma forma de pagamento.',
     finalizeLabel: 'Finalizar compra', securityBadge: 'Pagamento 100% seguro',
@@ -952,11 +1005,20 @@ const CHECKOUT_COPY = {
   it: {
     '30days': { price: '€ 9,90', note: 'pagamento unico · accesso per 30 giorni' },
     monthly: { price: '€ 4,99', note: '/mese · annulla quando vuoi' },
+    bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
     invalidEmail: 'Inserisci un\'email valida.',
     genericError: 'Impossibile continuare. Riprova.',
     redirecting: 'Attendere...',
     productName: 'Isola del Focus + Avventura delle Lettere',
+    productImage: 'assets/cartonnIT.png',
     modalTitle: 'Quasi fatto!',
+    identificationTitle: 'Identificazione',
+    paymentMethodTitle: 'Metodo di pagamento',
+    bumpBadge: '🎉 Promozione del momento',
+    bumpOfferTitle: 'Sei stato selezionato per una condizione speciale!',
+    bumpOfferLabel: 'Attiva la promozione — 30 giorni di accesso a R$ 24,90 in un\'unica soluzione, senza abbonamento',
+    pixInfoTitle: 'Pagamento in un\'unica soluzione',
+    pixInfoBody: 'Lo sblocco avviene subito dopo la conferma del pagamento. Presta attenzione alla data di scadenza del codice.',
     emailPlaceholder: 'La tua migliore email', phonePlaceholder: 'WhatsApp o telefono (facoltativo)',
     cardLabel: 'Carta', pixLabel: 'Pix', selectMethodError: 'Scegli un metodo di pagamento.',
     finalizeLabel: 'Completa l\'acquisto', securityBadge: 'Pagamento 100% sicuro',
@@ -1046,31 +1108,60 @@ function setupCheckoutCard(lang){
 // created.
 function openCheckoutModal(lang, plan){
   const t = CHECKOUT_COPY[lang];
+  const showBump = isBrazil(); // bump30 only has BRL pricing - no EUR equivalent defined
   const overlay = document.createElement('div');
-  overlay.className = 'vendas-modal-overlay';
+  overlay.className = 'checkout-page-overlay';
   overlay.innerHTML = `
-    <div class="vendas-modal">
-      <h3>${t.modalTitle}</h3>
-      <p class="checkout-product-summary">${t.productName} — ${t[plan].price} ${t[plan].note}</p>
-      <input type="email" id="checkoutModalEmail" placeholder="${t.emailPlaceholder}" autocomplete="email">
-      <input type="text" id="checkoutModalPhone" placeholder="${t.phonePlaceholder}" autocomplete="tel">
-      <div class="payment-method-row">
-        <button type="button" class="big-cta" data-method="card">💳 ${t.cardLabel}</button>
-        ${isBrazil() ? `<button type="button" class="big-cta pix-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
+    <div class="vendas-modal checkout-modal-v2">
+      <button type="button" class="checkout-modal-close" data-action="cancel">×</button>
+      <div class="checkout-summary">
+        <img class="checkout-summary-img" src="${t.productImage}" alt="${t.productName}">
+        <div>
+          <div class="checkout-summary-name">${t.productName}</div>
+          <div class="checkout-summary-price" id="checkoutSummaryPrice">${t[plan].price}</div>
+          <div class="checkout-summary-note" id="checkoutSummaryNote">${t[plan].note}</div>
+        </div>
       </div>
-      <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
-      <p class="modal-error" id="checkoutModalError" style="display:block;"></p>
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-secondary" data-action="cancel">${t.cpfCancel}</button>
-        <button type="button" class="modal-btn-primary" id="checkoutModalFinalize" disabled>${t.finalizeLabel}</button>
+
+      <div class="checkout-section">
+        <div class="checkout-section-title">👤 ${t.identificationTitle}</div>
+        <input type="email" id="checkoutModalEmail" placeholder="${t.emailPlaceholder}" autocomplete="email">
+        <input type="text" id="checkoutModalPhone" placeholder="${t.phonePlaceholder}" autocomplete="tel">
       </div>
-      <p class="security-badge">🔒 ${t.securityBadge}</p>
+
+      ${showBump ? `
+      <div class="checkout-bump">
+        <div class="checkout-bump-badge">${t.bumpBadge}</div>
+        <div class="checkout-bump-title">${t.bumpOfferTitle}</div>
+        <label class="checkout-bump-label">
+          <input type="checkbox" id="checkoutBumpCheck">
+          <span>${t.bumpOfferLabel}</span>
+        </label>
+      </div>` : ''}
+
+      <div class="checkout-section">
+        <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
+        <div class="payment-method-row">
+          <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
+          ${isBrazil() ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
+        </div>
+        <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
+        <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
+          <strong>${t.pixInfoTitle}</strong>
+          ${t.pixInfoBody}
+        </div>
+      </div>
+
+      <p class="modal-error" id="checkoutModalError" style="display:none;"></p>
+      <button type="button" class="checkout-finalize-btn" id="checkoutModalFinalize" disabled>${t.finalizeLabel}</button>
+      <p class="checkout-security-badge">🔒 ${t.securityBadge}</p>
+      <button type="button" class="checkout-cancel-link" data-action="cancel">${t.cpfCancel}</button>
     </div>
   `;
   document.body.appendChild(overlay);
   const close = () => overlay.remove();
   overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
-  overlay.querySelector('[data-action="cancel"]').onclick = close;
+  overlay.querySelectorAll('[data-action="cancel"]').forEach(btn => { btn.onclick = close; });
 
   const emailInput = overlay.querySelector('#checkoutModalEmail');
   const phoneInput = overlay.querySelector('#checkoutModalPhone');
@@ -1078,10 +1169,26 @@ function openCheckoutModal(lang, plan){
   const errorEl = overlay.querySelector('#checkoutModalError');
   const finalizeBtn = overlay.querySelector('#checkoutModalFinalize');
   const methodBtns = overlay.querySelectorAll('[data-method]');
-  errorEl.style.display = 'none';
+  const paymentInfoEl = overlay.querySelector('#checkoutPaymentInfo');
+  const bumpCheck = overlay.querySelector('#checkoutBumpCheck');
+  const summaryPriceEl = overlay.querySelector('#checkoutSummaryPrice');
+  const summaryNoteEl = overlay.querySelector('#checkoutSummaryNote');
 
   const showError = (msg) => { errorEl.textContent = msg; errorEl.style.display = 'block'; };
   const clearError = () => { errorEl.style.display = 'none'; };
+
+  // The bump swaps which plan gets charged (avulso <-> mensal) instead of
+  // adding a second item - there's no multi-item cart here, just one
+  // subscription per family, so "add to order" isn't meaningful the way it
+  // is on the reference checkout this design is based on.
+  const getEffectivePlan = () => (bumpCheck && bumpCheck.checked) ? 'bump30' : plan;
+  if(bumpCheck){
+    bumpCheck.addEventListener('change', () => {
+      const effectivePlan = getEffectivePlan();
+      summaryPriceEl.textContent = t[effectivePlan].price;
+      summaryNoteEl.textContent = t[effectivePlan].note;
+    });
+  }
 
   let selectedMethod = null;
   methodBtns.forEach(btn => {
@@ -1089,6 +1196,7 @@ function openCheckoutModal(lang, plan){
       selectedMethod = btn.dataset.method;
       methodBtns.forEach(b => b.classList.toggle('active', b === btn));
       cpfInput.style.display = selectedMethod === 'pix' ? 'block' : 'none';
+      paymentInfoEl.style.display = selectedMethod === 'pix' ? 'block' : 'none';
       finalizeBtn.disabled = false;
       clearError();
     });
@@ -1112,6 +1220,7 @@ function openCheckoutModal(lang, plan){
     }
     const phone = phoneInput.value.trim() || null;
     const leadId = await ensureCheckoutLeadId(lang, email, phone);
+    const effectivePlan = getEffectivePlan();
     const originalLabel = finalizeBtn.textContent;
 
     if(selectedMethod === 'card'){
@@ -1122,7 +1231,7 @@ function openCheckoutModal(lang, plan){
         const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, country: isBrazil() ? 'BR' : 'INT', plan, leadId: leadId || undefined }),
+          body: JSON.stringify({ email, phone, country: isBrazil() ? 'BR' : 'INT', plan: effectivePlan, leadId: leadId || undefined }),
         });
         const result = await response.json();
         if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
@@ -1148,7 +1257,7 @@ function openCheckoutModal(lang, plan){
       const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-pix-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, phone, cpfCnpj: digits, plan, leadId: leadId || undefined }),
+        body: JSON.stringify({ email, phone, cpfCnpj: digits, plan: effectivePlan, leadId: leadId || undefined }),
       });
       const result = await response.json();
       if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');

@@ -38,11 +38,11 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     --radius-lg: 20px; --radius-md:14px; --radius-sm:10px;
   }
   *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; scroll-behavior:smooth; }
+  html,body{ margin:0; padding:0; scroll-behavior:smooth; overflow-x:hidden; }
   body{
     font-family:'Plus Jakarta Sans',sans-serif;
     background: var(--bg-soft);
-    color:var(--ink-soft); min-height:100vh; overflow-x:hidden;
+    color:var(--ink-soft); min-height:100vh; width:100%;
     -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
   }
   h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.02em; color:var(--ink); margin:0; }
@@ -92,7 +92,8 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .video-frame video{ width:100%; height:100%; object-fit:cover; display:block; }
 
   /* ---------- Vs. traditional comparison ---------- */
-  .vs-table{ width:100%; max-width:760px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow); }
+  .vs-table-scroll{ max-width:760px; margin:0 auto; overflow-x:auto; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+  .vs-table{ width:100%; min-width:480px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); box-shadow:none; }
   .vs-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; text-align:left; padding:16px 18px; color:#fff; }
   .vs-table th.vs-col-label{ background: var(--ink); width:30%; }
   .vs-table th.vs-col-us{ background: var(--leaf); }
@@ -106,16 +107,16 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
   /* ---------- Two-app cards ---------- */
   .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
-  .app-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:28px; box-shadow: var(--shadow); }
+  .app-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:28px; box-shadow: var(--shadow); text-align:center; }
   .app-card .emoji{ font-size:36px; }
-  .app-card .icon-img{ width:52px; height:52px; border-radius:14px; object-fit:cover; display:block; }
+  .app-card .icon-img{ width:52px; height:52px; border-radius:14px; object-fit:cover; display:block; margin:0 auto 12px; }
   .app-card h3{ font-size:20px; margin:10px 0 4px; }
   .app-card .app-tag{ font-size:12px; font-weight:700; color:var(--caramel-deep); margin-bottom:12px; display:block; letter-spacing:.03em; }
   .app-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
 
   /* ---------- Games grid ---------- */
   .games-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
-  .game-tile{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:20px; box-shadow: var(--shadow); }
+  .game-tile{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:20px; box-shadow: var(--shadow); text-align:center; }
   .game-tile .emoji{ font-size:28px; }
   .game-tile h4{ font-family:'Fraunces', serif; font-weight:600; color:var(--ink); font-size:15.5px; margin:8px 0 2px; }
   .game-tile .skill{ font-size:11px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.3px; }
@@ -380,6 +381,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   <section class="wrap">
     <h2 class="section-title">Ilha do Foco vs. método tradicional</h2>
     <p class="section-sub">Por que o formato digital funciona melhor para crianças com TDAH</p>
+    <div class="vs-table-scroll">
     <table class="vs-table">
       <tr><th class="vs-col-label"></th><th class="vs-col-us">Ilha do Foco</th><th class="vs-col-them">Apostila/caderno</th></tr>
       <tr><td class="vs-label">Formato</td><td class="vs-us">Interativo, jogo digital</td><td class="vs-them">Papel e caneta, repetitivo</td></tr>
@@ -390,6 +392,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <tr><td class="vs-label">Acesso</td><td class="vs-us">Qualquer dispositivo, de casa</td><td class="vs-them">Requer presença e material impresso</td></tr>
       <tr><td class="vs-label">Adesão</td><td class="vs-us">Rastreada automaticamente, dado real</td><td class="vs-them">Difícil de medir com consistência</td></tr>
     </table>
+    </div>
   </section>
 
   <section class="wrap">
@@ -664,6 +667,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   <section class="wrap">
     <h2 class="section-title">Isola del Focus vs. metodo tradizionale</h2>
     <p class="section-sub">Perché il formato digitale funziona meglio per bambini con ADHD</p>
+    <div class="vs-table-scroll">
     <table class="vs-table">
       <tr><th class="vs-col-label"></th><th class="vs-col-us">Isola del Focus</th><th class="vs-col-them">Quaderno/scheda</th></tr>
       <tr><td class="vs-label">Formato</td><td class="vs-us">Interattivo, gioco digitale</td><td class="vs-them">Carta e penna, ripetitivo</td></tr>
@@ -674,6 +678,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <tr><td class="vs-label">Accesso</td><td class="vs-us">Qualsiasi dispositivo, da casa</td><td class="vs-them">Richiede presenza e materiale stampato</td></tr>
       <tr><td class="vs-label">Aderenza</td><td class="vs-us">Tracciata automaticamente, dato reale</td><td class="vs-them">Difficile da misurare con costanza</td></tr>
     </table>
+    </div>
   </section>
 
   <section class="wrap">

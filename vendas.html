@@ -1119,7 +1119,11 @@ function openCheckoutModal(lang, plan){
   // locale - isBrazil() alone let a browser set to pt-BR show the BRL bump
   // (and Pix, and a BRL Stripe price) on top of the EUR-priced IT page if
   // the visitor had switched the page's language manually.
-  const showBump = lang === 'pt'; // bump30 only has BRL pricing - no EUR equivalent defined
+  // Only offered on the 30-day one-time plan - someone who already picked
+  // monthly has shown intent to become a recurring subscriber, so dangling
+  // a cheaper non-recurring option in front of them would just talk them
+  // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
+  const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
   const overlay = document.createElement('div');
   overlay.className = 'checkout-page-overlay';
   overlay.innerHTML = `

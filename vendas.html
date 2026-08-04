@@ -89,6 +89,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .video-wrap{ display:flex; justify-content:center; }
   .video-frame{ width:100%; max-width:340px; aspect-ratio:9/16; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:#000; }
   .video-frame iframe{ width:100%; height:100%; border:0; display:block; }
+  .video-frame video{ width:100%; height:100%; object-fit:cover; display:block; }
 
   /* ---------- Vs. traditional comparison ---------- */
   .vs-table{ width:100%; max-width:760px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); overflow:hidden; box-shadow: var(--shadow); }
@@ -248,6 +249,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .checkout-section-title{ font-size:14px; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:.3px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
   .checkout-modal-v2 input{ width:100%; box-sizing:border-box; padding:15px 18px; border-radius:var(--radius-sm); border:1.5px solid var(--line); font-size:16px; margin-bottom:14px; font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg-soft); color:var(--ink); }
   .checkout-modal-v2 input:last-child{ margin-bottom:0; }
+  .checkout-email-hint{ font-size:12px; color:var(--ink-faint); margin:-6px 0 14px; line-height:1.4; }
   .checkout-bump{ margin:0 0 18px; background:var(--caramel-tint); border:1.5px solid var(--sand); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:22px 26px; position:relative; overflow:hidden; }
   .checkout-bump-badge{ display:inline-block; background:var(--caramel); color:#fff; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; padding:4px 14px; border-radius:999px; margin-bottom:12px; }
   .checkout-bump-title{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--caramel-deep); margin-bottom:14px; line-height:1.35; }
@@ -330,7 +332,9 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <h2 class="section-title">Veja o Kapi em 40 segundos</h2>
     <div class="video-wrap">
       <div class="video-frame">
-        <iframe src="https://www.youtube.com/embed/ANUfYSGhFaU" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <video controls preload="metadata" playsinline>
+          <source src="https://pswmbqlafywaxphsrloe.supabase.co/storage/v1/object/public/site-videos/kapi-intro-pt.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>
@@ -612,7 +616,9 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <h2 class="section-title">Guarda Kapi in 40 secondi</h2>
     <div class="video-wrap">
       <div class="video-frame">
-        <iframe src="https://www.youtube.com/embed/Adg68W2LMrU" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <video controls preload="metadata" playsinline>
+          <source src="https://pswmbqlafywaxphsrloe.supabase.co/storage/v1/object/public/site-videos/kapi-intro-it.mp4" type="video/mp4">
+        </video>
       </div>
     </div>
   </section>
@@ -950,10 +956,6 @@ document.querySelectorAll('a[href^="#checkoutCard"]').forEach(el => {
 });
 
 /* ========================= Embedded checkout ========================= */
-function isBrazil(){
-  return navigator.language.toLowerCase().startsWith('pt');
-}
-
 // Validates a CPF using the standard mod-11 check-digit algorithm (rejects
 // all-same-digit strings like 111.111.111-11). CNPJ (14 digits) is only
 // length-checked - Asaas validates it authoritatively. Same function already
@@ -990,7 +992,7 @@ const CHECKOUT_COPY = {
     bumpOfferLabel: 'Ativar promoção — 30 dias de acesso por R$ 24,90 à vista, sem mensalidade',
     pixInfoTitle: 'Pagamento somente à vista',
     pixInfoBody: 'A liberação do acesso ocorre logo após a confirmação do pagamento. Fique atento à data de expiração do código.',
-    emailPlaceholder: 'Seu melhor e-mail', phonePlaceholder: 'WhatsApp ou telefone (opcional)',
+    emailPlaceholder: 'Seu melhor e-mail', emailHint: 'É nesse e-mail que você vai receber o acesso ao jogo.', phonePlaceholder: 'WhatsApp ou telefone (opcional)',
     cardLabel: 'Cartão', pixLabel: 'Pix', selectMethodError: 'Escolha uma forma de pagamento.',
     finalizeLabel: 'Finalizar compra', securityBadge: 'Pagamento 100% seguro',
     cpfModalTitle: 'Quase lá!', cpfLabel: 'Seu CPF ou CNPJ', cpfPlaceholder: '000.000.000-00',
@@ -1019,7 +1021,7 @@ const CHECKOUT_COPY = {
     bumpOfferLabel: 'Attiva la promozione — 30 giorni di accesso a R$ 24,90 in un\'unica soluzione, senza abbonamento',
     pixInfoTitle: 'Pagamento in un\'unica soluzione',
     pixInfoBody: 'Lo sblocco avviene subito dopo la conferma del pagamento. Presta attenzione alla data di scadenza del codice.',
-    emailPlaceholder: 'La tua migliore email', phonePlaceholder: 'WhatsApp o telefono (facoltativo)',
+    emailPlaceholder: 'La tua migliore email', emailHint: 'Riceverai l\'accesso al gioco proprio a questa email.', phonePlaceholder: 'WhatsApp o telefono (facoltativo)',
     cardLabel: 'Carta', pixLabel: 'Pix', selectMethodError: 'Scegli un metodo di pagamento.',
     finalizeLabel: 'Completa l\'acquisto', securityBadge: 'Pagamento 100% sicuro',
     cpfModalTitle: 'Quasi fatto!', cpfLabel: 'Il tuo CPF o CNPJ', cpfPlaceholder: '000.000.000-00',
@@ -1108,7 +1110,11 @@ function setupCheckoutCard(lang){
 // created.
 function openCheckoutModal(lang, plan){
   const t = CHECKOUT_COPY[lang];
-  const showBump = isBrazil(); // bump30 only has BRL pricing - no EUR equivalent defined
+  // Gated on the displayed product language, not the visitor's browser
+  // locale - isBrazil() alone let a browser set to pt-BR show the BRL bump
+  // (and Pix, and a BRL Stripe price) on top of the EUR-priced IT page if
+  // the visitor had switched the page's language manually.
+  const showBump = lang === 'pt'; // bump30 only has BRL pricing - no EUR equivalent defined
   const overlay = document.createElement('div');
   overlay.className = 'checkout-page-overlay';
   overlay.innerHTML = `
@@ -1126,6 +1132,7 @@ function openCheckoutModal(lang, plan){
       <div class="checkout-section">
         <div class="checkout-section-title">👤 ${t.identificationTitle}</div>
         <input type="email" id="checkoutModalEmail" placeholder="${t.emailPlaceholder}" autocomplete="email">
+        <p class="checkout-email-hint">${t.emailHint}</p>
         <input type="text" id="checkoutModalPhone" placeholder="${t.phonePlaceholder}" autocomplete="tel">
       </div>
 
@@ -1143,7 +1150,7 @@ function openCheckoutModal(lang, plan){
         <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
         <div class="payment-method-row">
           <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
-          ${isBrazil() ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
+          ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
         </div>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
         <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
@@ -1204,7 +1211,7 @@ function openCheckoutModal(lang, plan){
   // Pre-select a sensible default so most people don't have to make an extra
   // choice: Pix for Brazil (converts better there), card everywhere else -
   // it's the only option for IT anyway, since Pix never renders there.
-  const defaultMethodBtn = overlay.querySelector(isBrazil() ? '[data-method="pix"]' : '[data-method="card"]');
+  const defaultMethodBtn = overlay.querySelector(lang === 'pt' ? '[data-method="pix"]' : '[data-method="card"]');
   if(defaultMethodBtn) defaultMethodBtn.click();
 
   finalizeBtn.onclick = async () => {
@@ -1231,7 +1238,7 @@ function openCheckoutModal(lang, plan){
         const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, country: isBrazil() ? 'BR' : 'INT', plan: effectivePlan, leadId: leadId || undefined }),
+          body: JSON.stringify({ email, phone, country: lang === 'pt' ? 'BR' : 'INT', plan: effectivePlan, leadId: leadId || undefined }),
         });
         const result = await response.json();
         if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');

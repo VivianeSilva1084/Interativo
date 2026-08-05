@@ -28,18 +28,20 @@ async function asaasFetch(path: string, init: RequestInit = {}) {
 // Public counterpart to create-pix-subscription: no auth required, since the
 // visitor has no account yet - vendas.html collects only email (+ optional
 // phone) + CPF/CNPJ before payment. The Asaas customer/payment's
-// externalReference is 'pending:' + email + '|' + leadId (Asaas has no
-// generic metadata field, and leadId needs to travel alongside the email so
-// both asaas-webhook and check-pix-payment-status's fast path can mark the
-// lead converted once paid). asaas-webhook uses the 'pending:' prefix to
-// tell this apart from the authenticated flow's family.id reference, and
-// only provisions the account once the payment actually confirms.
+// externalReference is 'pending:' + email + '|' + leadId + '|' + fbc + '|' + fbp
+// (Asaas has no generic metadata field, so everything asaas-webhook and
+// check-pix-payment-status need after the redirect travels packed into this
+// one string). fbc/fbp let the later Purchase CAPI call match this sale back
+// to the ad that drove it - without them Meta only gets a hashed e-mail,
+// which isn't enough for ad-level attribution. asaas-webhook uses the
+// 'pending:' prefix to tell this apart from the authenticated flow's
+// family.id reference, and only provisions the account once payment confirms.
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
   try {
-    const { email, phone, cpfCnpj, plan, leadId } = await req.json();
+    const { email, phone, cpfCnpj, plan, leadId, fbc, fbp } = await req.json();
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -53,20 +55,28 @@ Deno.serve(async (req) => {
     // either way, so it shares the 30days branch below, only the value and
     // description differ.
     const isOneTime = plan === '30days' || plan === 'bump30';
-    const externalReference = `pending:${email}|${leadId || ''}`;
+    // Stable key used only to find-or-reuse the Asaas customer record across
+    // repeat checkout attempts - must NOT include fbc/fbp (those change on
+    // every visit/click, which would break the lookup and create a duplicate
+    // customer each time).
+    const customerExternalReference = `pending:${email}|${leadId || ''}`;
+    // What actually reaches asaas-webhook/check-pix-payment-status once this
+    // specific payment confirms - carries fbc/fbp so the Purchase CAPI call
+    // can match the sale back to the ad that drove it, not just a hashed e-mail.
+    const externalReference = `pending:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`;
 
     // phone is optional and only kept on the Asaas customer record for
     // support/contact reference - not stored anywhere in our own DB.
     const cleanPhone = phone ? String(phone).replace(/\D/g, '') : undefined;
 
     let customerId: string;
-    const existing = await asaasFetch(`/customers?externalReference=${encodeURIComponent(externalReference)}&limit=1`);
+    const existing = await asaasFetch(`/customers?externalReference=${encodeURIComponent(customerExternalReference)}&limit=1`);
     if (existing.data?.length) {
       customerId = existing.data[0].id;
     } else {
       const customer = await asaasFetch('/customers', {
         method: 'POST',
-        body: JSON.stringify({ name: email, email, cpfCnpj: cleanCpfCnpj, externalReference, ...(cleanPhone ? { mobilePhone: cleanPhone } : {}) }),
+        body: JSON.stringify({ name: email, email, cpfCnpj: cleanCpfCnpj, externalReference: customerExternalReference, ...(cleanPhone ? { mobilePhone: cleanPhone } : {}) }),
       });
       customerId = customer.id;
     }

@@ -17,7 +17,7 @@ const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
-    const { email, phone, country, plan, leadId } = await req.json();
+    const { email, phone, country, plan, leadId, fbc, fbp } = await req.json();
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -50,9 +50,15 @@ Deno.serve(async (req) => {
 
     // phone is optional and only kept as metadata for support/contact
     // reference in the Stripe dashboard - not stored anywhere in our own DB.
+    // fbc/fbp travel through metadata so stripe-webhook and
+    // check-checkout-session-status can attach them to the Purchase CAPI
+    // event later - without them Meta only gets a hashed e-mail to match on,
+    // which isn't enough to attribute the sale back to a specific ad.
     const metadata: Record<string, string> = { pending_email: email };
     if (leadId) metadata.lead_id = leadId;
     if (phone) metadata.phone = phone;
+    if (fbc) metadata.fbc = fbc;
+    if (fbp) metadata.fbp = fbp;
 
     const session = await stripe.checkout.sessions.create({
       mode: isOneTime ? 'payment' : 'subscription',

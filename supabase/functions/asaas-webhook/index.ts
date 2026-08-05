@@ -33,9 +33,17 @@ async function sha256Hex(value: string): Promise<string> {
 // the reliable source of truth (fires here regardless of whether the
 // customer's browser ever calls the fast-path status check), best-effort so
 // a CAPI hiccup never fails the webhook itself.
-async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string) {
+async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string, match?: { fbc?: string; fbp?: string; clientIp?: string; clientUserAgent?: string }) {
   if (!META_CAPI_ACCESS_TOKEN || !email) return;
   try {
+    // fbc/fbp (+ IP/UA when available) let Meta match this sale to the ad
+    // click that drove it - a hashed e-mail alone gives poor match quality
+    // and the sale won't attribute to a campaign even though the event lands.
+    const userData: Record<string, unknown> = { em: [await sha256Hex(email)] };
+    if (match?.fbc) userData.fbc = match.fbc;
+    if (match?.fbp) userData.fbp = match.fbp;
+    if (match?.clientIp) userData.client_ip_address = match.clientIp;
+    if (match?.clientUserAgent) userData.client_user_agent = match.clientUserAgent;
     const payload = {
       data: [{
         event_name: 'Purchase',
@@ -43,7 +51,7 @@ async function sendPurchaseCapi(eventId: string, email: string, value: number, c
         action_source: 'website',
         event_source_url: `${APP_ORIGIN}/vendas.html`,
         event_id: eventId,
-        user_data: { em: [await sha256Hex(email)] },
+        user_data: userData,
         custom_data: { value, currency },
       }],
     };
@@ -375,11 +383,16 @@ Deno.serve(async (req) => {
       let familyId: string | null = null;
       let linkedLeadId: string | null = null;
       let purchaseEmail: string | null = null;
+      let purchaseFbc: string | null = null;
+      let purchaseFbp: string | null = null;
       if (ref?.startsWith('pending:')) {
         // vendas.html's embedded checkout - no account existed before payment.
-        // Format is pending:<email>|<leadId> - leadId may be empty if there was none.
-        const [pendingEmail, pendingLeadId] = ref.slice('pending:'.length).split('|');
+        // Format is pending:<email>|<leadId>|<fbc>|<fbp> - leadId/fbc/fbp may
+        // be empty if there was none (see create-public-pix-payment).
+        const [pendingEmail, pendingLeadId, pendingFbc, pendingFbp] = ref.slice('pending:'.length).split('|');
         purchaseEmail = pendingEmail;
+        purchaseFbc = pendingFbc || null;
+        purchaseFbp = pendingFbp || null;
         familyId = await provisionAccountAndNotify(supabase, pendingEmail);
         if (pendingLeadId) {
           linkedLeadId = pendingLeadId;
@@ -442,7 +455,9 @@ Deno.serve(async (req) => {
         // around, so it's looked up via the family's auth user.
         if (!purchaseEmail) purchaseEmail = await getFamilyEmail(supabase, familyId);
         if (purchaseEmail && typeof payment.value === 'number') {
-          await sendPurchaseCapi(`purchase_${payment.id}`, purchaseEmail, payment.value, 'BRL');
+          await sendPurchaseCapi(`purchase_${payment.id}`, purchaseEmail, payment.value, 'BRL', {
+            fbc: purchaseFbc ?? undefined, fbp: purchaseFbp ?? undefined,
+          });
         }
 
         if (typeof payment.value === 'number') {

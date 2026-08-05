@@ -37,9 +37,17 @@ async function sha256Hex(value: string): Promise<string> {
 // one is the reliable source of truth (fires here regardless of whether the
 // customer's browser ever calls the fast-path status check), best-effort so
 // a CAPI hiccup never fails the webhook itself.
-async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string) {
+async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string, match?: { fbc?: string; fbp?: string; clientIp?: string; clientUserAgent?: string }) {
   if (!META_CAPI_ACCESS_TOKEN || !email) return;
   try {
+    // fbc/fbp (+ IP/UA when available) let Meta match this sale to the ad
+    // click that drove it - a hashed e-mail alone gives poor match quality
+    // and the sale won't attribute to a campaign even though the event lands.
+    const userData: Record<string, unknown> = { em: [await sha256Hex(email)] };
+    if (match?.fbc) userData.fbc = match.fbc;
+    if (match?.fbp) userData.fbp = match.fbp;
+    if (match?.clientIp) userData.client_ip_address = match.clientIp;
+    if (match?.clientUserAgent) userData.client_user_agent = match.clientUserAgent;
     const payload = {
       data: [{
         event_name: 'Purchase',
@@ -47,7 +55,7 @@ async function sendPurchaseCapi(eventId: string, email: string, value: number, c
         action_source: 'website',
         event_source_url: `${APP_ORIGIN}/vendas.html`,
         event_id: eventId,
-        user_data: { em: [await sha256Hex(email)] },
+        user_data: userData,
         custom_data: { value, currency },
       }],
     };
@@ -408,7 +416,7 @@ Deno.serve(async (req) => {
         const currency = (session.currency || 'brl').toUpperCase();
         if (purchaseEmail) {
           const value = (session.amount_total ?? 0) / 100;
-          await sendPurchaseCapi(`purchase_${session.id}`, purchaseEmail, value, currency);
+          await sendPurchaseCapi(`purchase_${session.id}`, purchaseEmail, value, currency, { fbc: session.metadata?.fbc, fbp: session.metadata?.fbp });
         }
         if (typeof session.amount_total === 'number') {
           await notifyAdminsOfSale(supabase, session.amount_total / 100, currency);

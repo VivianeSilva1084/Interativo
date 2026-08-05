@@ -23,9 +23,17 @@ async function sha256Hex(value: string): Promise<string> {
 
 // Same event_id formula asaas-webhook uses for its own Purchase CAPI call -
 // Meta dedupes both into one event. Best-effort, never blocks this response.
-async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string) {
+async function sendPurchaseCapi(eventId: string, email: string, value: number, currency: string, match?: { fbc?: string; fbp?: string; clientIp?: string; clientUserAgent?: string }) {
   if (!META_CAPI_ACCESS_TOKEN || !email) return;
   try {
+    // fbc/fbp (+ IP/UA when available) let Meta match this sale to the ad
+    // click that drove it - a hashed e-mail alone gives poor match quality
+    // and the sale won't attribute to a campaign even though the event lands.
+    const userData: Record<string, unknown> = { em: [await sha256Hex(email)] };
+    if (match?.fbc) userData.fbc = match.fbc;
+    if (match?.fbp) userData.fbp = match.fbp;
+    if (match?.clientIp) userData.client_ip_address = match.clientIp;
+    if (match?.clientUserAgent) userData.client_user_agent = match.clientUserAgent;
     const payload = {
       data: [{
         event_name: 'Purchase',
@@ -33,7 +41,7 @@ async function sendPurchaseCapi(eventId: string, email: string, value: number, c
         action_source: 'website',
         event_source_url: `${APP_ORIGIN}/vendas.html`,
         event_id: eventId,
-        user_data: { em: [await sha256Hex(email)] },
+        user_data: userData,
         custom_data: { value, currency },
       }],
     };
@@ -110,7 +118,7 @@ Deno.serve(async (req) => {
       // only caller) - just report confirmed, no actionLink to give back.
       return new Response(JSON.stringify({ confirmed: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    const [email, leadId] = ref.slice('pending:'.length).split('|');
+    const [email, leadId, fbc, fbp] = ref.slice('pending:'.length).split('|');
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL') as string, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string);
     const { familyId, actionLink } = await provisionAccount(supabase, email);
@@ -135,8 +143,17 @@ Deno.serve(async (req) => {
       if (leadError) console.error('Failed to mark lead as converted:', leadError);
     }
 
+    // This endpoint is polled directly by the customer's own browser (unlike
+    // asaas-webhook, which only sees Asaas's IP/UA), so this is real
+    // client_ip_address/client_user_agent for match quality.
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
+    const clientUserAgent = req.headers.get('user-agent') ?? undefined;
+
     const value = typeof data.value === 'number' ? data.value : 0;
-    if (value) await sendPurchaseCapi(`purchase_${data.id}`, email, value, 'BRL');
+    if (value) {
+      await sendPurchaseCapi(`purchase_${data.id}`, email, value, 'BRL', { fbc: fbc || undefined, fbp: fbp || undefined, clientIp, clientUserAgent });
+    }
 
     return new Response(JSON.stringify({ confirmed: true, actionLink, value, currency: 'BRL' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {

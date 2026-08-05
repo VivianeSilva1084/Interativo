@@ -3,7 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string);
 const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' };
-const META_PIXEL_ID = '2860253607642609';
+const META_PIXEL_ID = '1359613756236046';
 const META_CAPI_ACCESS_TOKEN = Deno.env.get('META_CAPI_ACCESS_TOKEN') as string;
 // generateLink has no way to infer where the app actually lives - without an
 // explicit redirectTo it falls back to the Supabase project's configured Site

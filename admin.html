@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ilha do Foco — CRM</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="admin-manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CRM Ilha do Foco">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -88,6 +93,8 @@
   .timeline .ev-type{ font-weight:700; color:var(--text); }
   .timeline .ev-when{ color:var(--muted); font-size:11px; }
   .modal-close{ position:sticky; top:0; float:right; background:none; border:none; font-size:20px; cursor:pointer; color:var(--muted); margin-top:-8px; }
+  .modal-delete-btn{ display:block; width:100%; margin-top:18px; padding:10px; background:none; border:1.5px solid var(--berry); color:var(--berry); border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; }
+  .modal-delete-btn:hover{ background:rgba(229,85,110,.08); }
 
   .loading-note, .denied-note{ text-align:center; padding:60px 20px; color:var(--muted); font-size:14px; }
 </style>
@@ -124,6 +131,7 @@
     <h1>🌴 Ilha do Foco — CRM</h1>
     <div class="who">
       <span id="whoEmail"></span>
+      <button id="enableNotifsBtn" type="button" class="hidden">🔔 Ativar notificações</button>
       <button id="logoutBtn" type="button">Sair</button>
     </div>
   </header>
@@ -290,9 +298,61 @@ async function checkAdminAndLoad(email){
   document.getElementById('deniedNote').classList.add('hidden');
   document.getElementById('crmContent').classList.remove('hidden');
   await loadBoard();
+  await initPushNotifications(email);
 }
 
 document.getElementById('refreshBtn').addEventListener('click', loadBoard);
+
+/* ========================= PUSH NOTIFICATIONS ========================= */
+// Public key only - safe to ship in client code, it's what the browser uses
+// to verify pushes actually come from our VAPID private key, not a secret itself.
+const VAPID_PUBLIC_KEY = 'BMasgUwMr7RmdVvXyNBUn3J2wX27zdWdbHIs-FZx3ckT4hhL9VwsPEzsqOFu90rDSCWYmEdSFxjGuk1H2Q3OSVg';
+
+function urlBase64ToUint8Array(base64url){
+  const padding = '='.repeat((4 - (base64url.length % 4)) % 4);
+  const base64 = (base64url + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+// Only reachable on iOS if the CRM was opened from its home-screen icon
+// (installed via admin-manifest.json) - a plain Safari tab/bookmark doesn't
+// support the Push API there. Silently does nothing if unsupported, rather
+// than showing a button that would just fail.
+async function initPushNotifications(email){
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  const btn = document.getElementById('enableNotifsBtn');
+
+  const registration = await navigator.serviceWorker.register('admin-sw.js');
+  const existing = await registration.pushManager.getSubscription();
+  if(existing || Notification.permission === 'denied') return;
+
+  btn.classList.remove('hidden');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try{
+      const permission = await Notification.requestPermission();
+      if(permission !== 'granted'){ btn.disabled = false; return; }
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      const raw = subscription.toJSON();
+      const { error } = await sb.from('push_subscriptions').upsert({
+        admin_email: email,
+        endpoint: raw.endpoint,
+        p256dh: raw.keys.p256dh,
+        auth: raw.keys.auth,
+      }, { onConflict: 'endpoint' });
+      if(error){ console.error(error); alert('Não foi possível salvar a assinatura de notificações.'); btn.disabled = false; return; }
+      btn.classList.add('hidden');
+    }catch(err){
+      console.error(err);
+      alert('Não foi possível ativar as notificações.');
+      btn.disabled = false;
+    }
+  });
+}
 
 /* ========================= DATA + RENDER ========================= */
 async function loadBoard(){
@@ -462,6 +522,8 @@ async function openLeadModal(leadId){
           </li>
         `).join('') || '<li style="border-top:none;color:var(--muted);">Nenhum evento registrado ainda.</li>'}
       </ul>
+
+      <button type="button" class="modal-delete-btn" data-action="delete">🗑 Excluir lead</button>
     </div>
   `;
   root.appendChild(overlay);
@@ -473,6 +535,23 @@ async function openLeadModal(leadId){
     await moveLead(leadId, e.target.value);
     close();
   });
+  overlay.querySelector('[data-action="delete"]').addEventListener('click', async ()=>{
+    const label = lead.full_name || lead.contact_email || '(sem nome)';
+    if(!confirm(`Excluir o lead "${label}" permanentemente? Isso também apaga a linha do tempo dele. Não pode ser desfeito.`)) return;
+    await deleteLead(leadId);
+    close();
+  });
+}
+
+// Deletes lead_events first since it has a FK to leads with no cascade
+// configured - deleting the parent row first would fail with a foreign key
+// violation.
+async function deleteLead(leadId){
+  const { error: eventsError } = await sb.from('lead_events').delete().eq('lead_id', leadId);
+  if(eventsError){ console.error(eventsError); alert('Não foi possível excluir o histórico do lead.'); return; }
+  const { error: leadError } = await sb.from('leads').delete().eq('id', leadId);
+  if(leadError){ console.error(leadError); alert('Não foi possível excluir o lead.'); return; }
+  await loadBoard();
 }
 </script>
 </body>

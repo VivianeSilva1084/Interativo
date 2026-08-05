@@ -835,11 +835,19 @@ const STORY_BANK = {
     { title:"O crescimento da planta", cards:["🌱","🌿","🪴","🌳","🍎"] },
     { title:"O dia de manhã", cards:["😴","⏰","🪥","👕","🎒"] },
     { title:"A borboleta", cards:["🥚","🐛","🍃","🛖","🦋"] },
+    { title:"Fazendo um bolo", cards:["🥚","🥣","🧁","🎂","🥳"] },
+    { title:"Um dia de chuva", cards:["☁️","🌧️","☔","🌈","☀️"] },
+    { title:"A carta", cards:["✍️","✉️","📮","📬","📖"] },
+    { title:"O pintinho", cards:["🥚","🐣","🐥","🌽","🐔"] }
   ],
   it: [
     { title:"La crescita della pianta", cards:["🌱","🌿","🪴","🌳","🍎"] },
     { title:"Il mattino", cards:["😴","⏰","🪥","👕","🎒"] },
     { title:"La farfalla", cards:["🥚","🐛","🍃","🛖","🦋"] },
+    { title:"Facendo una torta", cards:["🥚","🥣","🧁","🎂","🥳"] },
+    { title:"Una giornata di pioggia", cards:["☁️","🌧️","☔","🌈","☀️"] },
+    { title:"La lettera", cards:["✍️","✉️","📮","📬","📖"] },
+    { title:"Il pulcino", cards:["🥚","🐣","🐥","🌽","🐔"] }
   ]
 };
 
@@ -865,6 +873,22 @@ const CHAT_SCRIPT = {
       options:[ {text:"Eu podia pedir com educação: 'Posso terminar de falar, por favor?'", ok:true},
                 {text:"Eu ia ficar quieto e nunca mais falar nada.", ok:false, hint:"(evita resolver a situação)"},
                 {text:"Eu ia falar mais alto ainda por cima da pessoa.", ok:false, hint:"(também corta a vez da outra pessoa)"} ]},
+    { line:"Kapi: Sabe, às vezes eu fico triste quando chove e não posso brincar lá fora. O que você faz quando não pode sair?",
+      options:[ {text:"Eu gosto de desenhar ou ler um livro legal dentro de casa.", ok:true},
+                {text:"Eu fico chorando muito até a chuva parar.", ok:false, hint:"(não ajuda a melhorar a situação)"},
+                {text:"Eu adoro pular corda! Quer ver como eu pulo bem alto?", ok:false, hint:"(ignora o que o Kapi falou sobre a chuva)"} ]},
+    { line:"Kapi: Qual foi a coisa mais engraçada que já aconteceu com você?",
+      options:[ {text:"Uma vez meu cachorro escorregou no tapete e ficou me olhando com uma cara engraçada!", ok:true},
+                {text:"Deixa eu te mostrar esse machucado que eu fiz no joelho.", ok:false, hint:"(muda de assunto para algo não engraçado)"},
+                {text:"Eu não quero falar com você.", ok:false, hint:"(encerra a conversa de forma rude)"} ]},
+    { line:"Kapi: Se você pudesse ter um superpoder, qual seria e por quê?",
+      options:[ {text:"Eu queria poder voar, assim eu chegaria super rápido em qualquer lugar!", ok:true},
+                {text:"E aí depois a gente vai jogar bola?", ok:false, hint:"(muda de assunto sem responder a pergunta)"},
+                {text:"Eu ia ter todos os poderes do mundo, e você não teria nenhum!", ok:false, hint:"(resposta que pode chatear o amigo)"} ]},
+    { line:"Kapi: E se a gente inventasse uma brincadeira nova agora? Como ela poderia ser?",
+      options:[ {text:"A gente podia brincar de ser explorador do espaço! O que acha?", ok:true},
+                {text:"Eu prefiro brincar de esconde-esconde e ponto final.", ok:false, hint:"(não escuta a ideia do amigo)"},
+                {text:"Olha o avião passando lá no céu!", ok:false, hint:"(muda de assunto do nada)"} ]},
   ],
   it: [
     { line:"Kapi: Ciao! Adoro nuotare nel fiume la mattina. E tu, a cosa ti piace giocare di più?",
@@ -887,6 +911,22 @@ const CHAT_SCRIPT = {
       options:[ {text:"Potrei chiedere gentilmente: 'Posso finire di parlare, per favore?'", ok:true},
                 {text:"Starei zitto/a e non parlerei mai più.", ok:false, hint:"(evita di risolvere la situazione)"},
                 {text:"Parlerei ancora più forte sopra l'altra persona.", ok:false, hint:"(toglie il turno anche all'altra persona)"} ]},
+    { line:"Kapi: Sai, a volte sono triste quando piove e non posso giocare fuori. Tu cosa fai quando non puoi uscire?",
+      options:[ {text:"Mi piace disegnare o leggere un bel libro in casa.", ok:true},
+                {text:"Piango tantissimo finché non smette di piovere.", ok:false, hint:"(non aiuta a migliorare la situazione)"},
+                {text:"Adoro saltare la corda! Vuoi vedere come salto in alto?", ok:false, hint:"(ignora quello che ha detto Kapi sulla pioggia)"} ]},
+    { line:"Kapi: Qual è la cosa più divertente che ti è mai successa?",
+      options:[ {text:"Una volta il mio cane è scivolato sul tappeto e mi ha guardato con una faccia buffissima!", ok:true},
+                {text:"Fammi farti vedere questa ferita che mi sono fatto sul ginocchio.", ok:false, hint:"(cambia argomento su qualcosa di non divertente)"},
+                {text:"Non voglio parlare con te.", ok:false, hint:"(chiude la conversazione in modo scortese)"} ]},
+    { line:"Kapi: Se potessi avere un superpotere, quale sarebbe e perché?",
+      options:[ {text:"Vorrei poter volare, così arriverei super veloce ovunque!", ok:true},
+                {text:"E poi dopo andiamo a giocare a palla?", ok:false, hint:"(cambia argomento senza rispondere alla domanda)"},
+                {text:"Avrei tutti i poteri del mondo, e tu non ne avresti nessuno!", ok:false, hint:"(risposta che potrebbe ferire l'amico)"} ]},
+    { line:"Kapi: E se inventassimo un gioco nuovo adesso? Come potrebbe essere?",
+      options:[ {text:"Potremmo giocare a fare gli esploratori dello spazio! Che ne dici?", ok:true},
+                {text:"Preferisco giocare a nascondino e basta.", ok:false, hint:"(non ascolta l'idea dell'amico)"},
+                {text:"Guarda quell'aereo che passa nel cielo!", ok:false, hint:"(cambia argomento all'improvviso)"} ]},
   ]
 };
 

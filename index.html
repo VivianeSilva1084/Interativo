@@ -582,6 +582,11 @@
         <div class="lang-choice selected" data-lang="pt" onclick="selectFormLang('pt')">🇧🇷 Português</div>
         <div class="lang-choice" data-lang="it" onclick="selectFormLang('it')">🇮🇹 Italiano</div>
       </div>
+      <label style="display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; font-weight:400; margin-top:6px;">
+        <input type="checkbox" id="newProfileConsentCheck" style="margin-top:2px; flex-shrink:0;">
+        <span id="newProfileConsentLabel"></span>
+      </label>
+      <p id="newProfileConsentError" style="display:none; color:#E5556E; font-size:12.5px; margin:2px 0 0;"></p>
       <button class="big-cta" id="createProfileBtn" onclick="submitNewProfile()">Criar perfil</button>
     </div>
     <div class="center-col" style="margin-top:20px;">
@@ -975,6 +980,8 @@ const I18N = {
     checkoutSuccessMsg:"Pagamento recebido! Seu Premium pode levar alguns instantes para aparecer — atualize a página se ainda não vir.",
     profilesTitle:"Quem vai jogar hoje?", profilesSubtitle:"Escolhe seu perfil ou cria um novo",
     labelName:"Nome da criança", namePlaceholder:"Nome", labelAvatar:"Escolhe um avatar", labelLang:"Escolhe o idioma",
+    parentalConsentLabel:'Confirmo que sou responsável legal por essa criança e concordo, em nome dela, com os <a href="termos-de-uso.html" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="politica-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.',
+    parentalConsentRequired:"Confirme o consentimento antes de criar o perfil.",
     createProfileBtn:"Criar perfil", addProfileBtn:"+ Novo perfil", confirmDelete:"Tem certeza que quer excluir esse perfil?",
     backLabel:"Voltar", startBtn:"Começar", playAgainBtn:"Jogar de novo", continueBtn:"Continuar", diff:{facil:"Fácil",medio:"Médio",dificil:"Difícil"},
     footer:"Feito com carinho para crianças curiosas 🌱 — jogue sempre junto de um adulto",
@@ -1167,6 +1174,8 @@ const I18N = {
     checkoutSuccessMsg:"Pagamento ricevuto! Il tuo Premium potrebbe richiedere qualche istante per apparire - aggiorna la pagina se ancora non lo vedi.",
     profilesTitle:"Chi gioca oggi?", profilesSubtitle:"Scegli il tuo profilo o creane uno nuovo",
     labelName:"Nome del bambino/a", namePlaceholder:"Nome", labelAvatar:"Scegli un avatar", labelLang:"Scegli la lingua",
+    parentalConsentLabel:'Confermo di essere il responsabile legale di questo bambino/a e accetto, a suo nome, i <a href="termos-de-uso.html" target="_blank" rel="noopener">Termini di Utilizzo</a> e l\'<a href="politica-privacidade.html" target="_blank" rel="noopener">Informativa sulla Privacy</a>.',
+    parentalConsentRequired:"Conferma il consenso prima di creare il profilo.",
     createProfileBtn:"Crea profilo", addProfileBtn:"+ Nuovo profilo", confirmDelete:"Sei sicuro/a di voler eliminare questo profilo?",
     backLabel:"Torna", startBtn:"Inizia", playAgainBtn:"Gioca ancora", continueBtn:"Continua", diff:{facil:"Facile",medio:"Medio",dificil:"Difficile"},
     footer:"Fatto con cura per bambini curiosi 🌱 — gioca sempre insieme a un adulto",
@@ -2184,16 +2193,25 @@ async function submitNewProfile(){
   const nameInput = document.getElementById('newProfileName');
   const name = nameInput.value.trim();
   if(!name) { nameInput.focus(); return; }
+  const consentCheck = document.getElementById('newProfileConsentCheck');
+  const consentError = document.getElementById('newProfileConsentError');
+  const t = L();
+  if(!consentCheck.checked){
+    consentError.textContent = t.parentalConsentRequired;
+    consentError.style.display = 'block';
+    return;
+  }
+  consentError.style.display = 'none';
   const avatarEl = document.querySelector('.avatar-choice.selected');
   const avatar = avatarEl ? avatarEl.textContent : AVATARS[0];
-  
+
   const data = defaultProfileData(name, avatar, formLang);
-  
+
   const btn = document.getElementById('createProfileBtn');
   const ogText = btn.textContent;
   btn.textContent = '...';
   btn.disabled = true;
-  
+
   try {
     const { data: newRow, error } = await sb.from('child_profiles').insert({
       family_id: state.familyId,
@@ -2205,10 +2223,22 @@ async function submitNewProfile(){
       difficulty_by_game: data.difficultyByGame,
       unlocked_stickers: data.unlockedStickers
     }).select().single();
-    
+
     if(error) throw error;
-    
+
+    // Records the consent as an actual act tied to this specific child, not
+    // just informational text - required by LGPD/GDPR for processing a
+    // child's data. Best-effort: a failure here shouldn't block the parent
+    // from using the profile they already paid for, but it is logged.
+    const { error: consentInsertError } = await sb.from('parental_consents').insert({
+      family_id: state.familyId,
+      child_profile_id: newRow.id,
+      terms_version: 'v1',
+    });
+    if(consentInsertError) console.error('Failed to record parental consent:', consentInsertError);
+
     nameInput.value = '';
+    consentCheck.checked = false;
     document.getElementById('newProfileForm').style.display = 'none';
     await enterProfile(newRow.id, data);
   } catch(e) {
@@ -2252,6 +2282,7 @@ function applyProfilesScreenI18n(){
   document.getElementById('newProfileName').placeholder = t.namePlaceholder;
   document.getElementById('labelAvatar').textContent = t.labelAvatar;
   document.getElementById('labelLang').textContent = t.labelLang;
+  document.getElementById('newProfileConsentLabel').innerHTML = t.parentalConsentLabel;
   document.getElementById('createProfileBtn').textContent = t.createProfileBtn;
   document.getElementById('addProfileToggleBtn').textContent = t.addProfileBtn;
   document.querySelectorAll('.logout-btn').forEach(b => b.textContent = ta.logoutBtn);
@@ -4107,6 +4138,10 @@ function openAddChildProfileModal(){
         <div class="lang-choice ${selectedLang==='pt'?'selected':''}" data-lang="pt">🇧🇷 Português</div>
         <div class="lang-choice ${selectedLang==='it'?'selected':''}" data-lang="it">🇮🇹 Italiano</div>
       </div>
+      <label style="display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; font-weight:400; margin-top:6px;">
+        <input type="checkbox" id="parentsNewProfileConsentCheck" style="margin-top:2px; flex-shrink:0;">
+        <span>${t.parentalConsentLabel}</span>
+      </label>
       <p class="pix-cpf-error" id="parentsNewProfileError"></p>
       <div class="confirm-modal-actions">
         <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.parents.pixCpfCancelBtn}</button>
@@ -4140,12 +4175,18 @@ function openAddChildProfileModal(){
   });
 
   const nameInput = overlay.querySelector('#parentsNewProfileName');
+  const consentCheck = overlay.querySelector('#parentsNewProfileConsentCheck');
   const errEl = overlay.querySelector('#parentsNewProfileError');
   const createBtn = overlay.querySelector('[data-action="create"]');
   nameInput.focus();
   createBtn.onclick = async ()=>{
     const name = nameInput.value.trim();
     if(!name){ nameInput.focus(); return; }
+    if(!consentCheck.checked){
+      errEl.textContent = t.parentalConsentRequired;
+      errEl.style.display = 'block';
+      return;
+    }
     errEl.style.display = 'none';
     createBtn.disabled = true;
     createBtn.textContent = '...';
@@ -4162,6 +4203,14 @@ function openAddChildProfileModal(){
         unlocked_stickers: data.unlockedStickers
       }).select().single();
       if(error) throw error;
+      // Best-effort, same as the child-facing "criar perfil" flow - a failure
+      // here shouldn't block the parent from using the profile, but is logged.
+      const { error: consentInsertError } = await sb.from('parental_consents').insert({
+        family_id: state.familyId,
+        child_profile_id: newRow.id,
+        terms_version: 'v1',
+      });
+      if(consentInsertError) console.error('Failed to record parental consent:', consentInsertError);
       close();
       parentsChildren = await loadProfilesList();
       parentsActiveChildId = newRow.id;

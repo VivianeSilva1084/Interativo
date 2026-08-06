@@ -1426,6 +1426,7 @@ function setupLeadCaptureForm(lang){
   const nameInput = card.querySelector('.lead-capture-name-input');
   const emailInput = card.querySelector('.lead-capture-email-input');
   const consentLabel = card.querySelector('.lead-capture-consent');
+  const consentCheck = card.querySelector('.lead-capture-consent-check');
   const submitBtn = card.querySelector('.lead-capture-submit');
   const errorEl = card.querySelector('.lead-capture-error');
   const successEl = card.querySelector('.lead-capture-success');
@@ -1450,7 +1451,7 @@ function setupLeadCaptureForm(lang){
       contact_whatsapp: null,
       language: lang === 'it' ? 'it' : 'pt-BR', // leads.language is CHECK-constrained to exactly these two values
       whatsapp_opt_in: false,
-      email_opt_in: true,
+      email_opt_in: !!consentCheck?.checked,
       utm_source: params.get('utm_source') || 'direto',
       utm_medium: params.get('utm_medium') || null,
       utm_campaign: params.get('utm_campaign') || null,
@@ -1476,6 +1477,20 @@ function setupLeadCaptureForm(lang){
       // in this browser, the existing conversion-marking logic picks this up
       // automatically, no changes needed there.
       localStorage.setItem('ilhaDoFoco_leadId', leadId);
+      // Ad optimization signal - without this the Meta algorithm has almost no
+      // conversion data to learn from (only Purchase, which is much rarer than
+      // a lead). Client Pixel + server CAPI, same fbc/fbp already captured for
+      // checkout so this lead can also be matched to the ad that drove it.
+      if(typeof fbq !== 'undefined') fbq('track', 'Lead');
+      fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/send-meta-capi-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          leadId, email,
+          fbc: getFbClickId() || undefined, fbp: getFbBrowserId() || undefined,
+          eventSourceUrl: window.location.href,
+        }),
+      }).catch(()=>{ /* best-effort - a failed CAPI call shouldn't affect the lead capture UX */ });
       nameInput.style.display = 'none';
       emailInput.style.display = 'none';
       consentLabel.style.display = 'none';

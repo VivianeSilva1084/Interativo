@@ -2226,7 +2226,7 @@ async function renderProfilesScreen(){
     const card = document.createElement('div');
     card.className = 'profile-card';
     card.innerHTML = `<button class="del-x" title="excluir" onclick="event.stopPropagation(); removeProfile('${p.id}')">✕</button>
-      <div class="avatar">${AVATARS.includes(p.avatar) ? p.avatar : AVATARS[0]}</div><div class="pname">${p.name}</div>
+      <div class="avatar">${AVATARS.includes(p.avatar) ? p.avatar : AVATARS[0]}</div><div class="pname">${escapeHtml(p.name)}</div>
       <div class="plang">${p.lang==='pt'?'🇧🇷 PT':'🇮🇹 IT'}</div>`;
     card.onclick = ()=>selectProfile(p.id);
     grid.appendChild(card);
@@ -2382,6 +2382,15 @@ function setChatBubble(text){
   span.textContent = text;
   el.appendChild(span);
   el.appendChild(makeTtsBtn(text, true));
+}
+// Names (child profile, professional full_name) are free text the account
+// owner controls, but they get rendered into other people's browsers -
+// professionals viewing linked children, parents viewing linked
+// professionals - so any HTML in a name would execute in their session.
+// Escape before every innerHTML/outerHTML interpolation of one; textContent
+// assignments elsewhere don't need this, they never parse HTML.
+function escapeHtml(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 function say(text){
   const el = document.getElementById('mascotSpeech');
@@ -3420,7 +3429,7 @@ function renderProfSidebarList(container){
       <button class="prof-dash-child-btn ${c.childId === profDashboardSelectedId ? 'active' : ''}"
         data-child-id="${c.childId}" ${c.status !== 'active' ? 'disabled' : ''}
         style="opacity:${c.status === 'active' ? 1 : 0.55}">
-        <span class="prof-dash-child-name">${c.name}</span>
+        <span class="prof-dash-child-name">${escapeHtml(c.name)}</span>
         ${c.status === 'pending' ? `<span class="prof-dash-pending-tag">${t.pending}</span>` : ''}
       </button>
     `).join('');
@@ -3930,7 +3939,7 @@ function buildClinicalSummary(detail, lang){
           syllableDifficulty, phonologicalSwaps, frustration,
           adherence, readingProgress } = detail;
 
-  const name = profile?.name || t.theChild;
+  const name = escapeHtml(profile?.name || t.theChild);
 
   // 1. Adesão
   const totalAdh = adherence || [];
@@ -4450,7 +4459,7 @@ async function renderParentsDashboardBody(){
   if(masteredSyllables.length > 0){
     const tip = document.createElement('div');
     tip.className = 'parents-tip';
-    tip.innerHTML = `<span class="tip-emoji">🦫</span><div><div class="tip-title">${t.parents.kapiTipTitle}</div><div class="tip-text">${t.parents.kapiTip(child.name, masteredSyllables.length)}</div></div>`;
+    tip.innerHTML = `<span class="tip-emoji">🦫</span><div><div class="tip-title">${t.parents.kapiTipTitle}</div><div class="tip-text">${t.parents.kapiTip(escapeHtml(child.name), masteredSyllables.length)}</div></div>`;
     body.appendChild(tip);
   }
 
@@ -4598,7 +4607,7 @@ async function renderParentsDashboardBody(){
     pendingRequests.forEach(req=>{
       const row = document.createElement('div');
       row.className = 'parents-pending-row';
-      const name = req.professionals?.full_name || '?';
+      const name = escapeHtml(req.professionals?.full_name || '?');
       const role = req.professionals?.role ? (t.parents.professionalRoles[req.professionals.role] || req.professionals.role) : '';
       row.innerHTML = `
         <div class="txt"><strong>${name}</strong>${role ? ` — ${role}` : ''}</div>
@@ -4626,8 +4635,8 @@ async function renderParentsDashboardBody(){
   const profCard = document.createElement('div');
   profCard.className = 'parents-professionals-card';
   const namesText = professionals.length
-    ? professionals.map(p=>p.professionals?.full_name).filter(Boolean).join(', ')
-    : t.parents.professionalsNone(child.name);
+    ? professionals.map(p=>escapeHtml(p.professionals?.full_name)).filter(Boolean).join(', ')
+    : t.parents.professionalsNone(escapeHtml(child.name));
   profCard.innerHTML = `<div class="txt">${namesText}</div><button class="parents-invite-btn">➕ ${t.parents.inviteBtn}</button>`;
   body.appendChild(profCard);
 
@@ -4761,7 +4770,7 @@ async function renderParentsDashboardBody(){
   dangerCard.className = 'parents-danger-zone';
   dangerCard.innerHTML = `
     <p class="danger-desc">${t.parents.resetProgressDesc}</p>
-    <button class="parents-reset-btn">${t.parents.resetProgressBtn(child.name)}</button>
+    <button class="parents-reset-btn">${t.parents.resetProgressBtn(escapeHtml(child.name))}</button>
     <div style="margin-top:14px;">
       <button type="button" class="delete-account-link">${t.parents.deleteAccountBtn}</button>
     </div>
@@ -4784,7 +4793,7 @@ async function renderParentsDashboardBody(){
   });
   dangerCard.querySelector('.delete-account-link').addEventListener('click', ()=>{
     openDeleteAccountModal({
-      warningHtml: t.parents.deleteAccountWarning(child.name),
+      warningHtml: t.parents.deleteAccountWarning(escapeHtml(child.name)),
       onConfirm: async (close)=>{
         try{
           const { data, error } = await sb.rpc('delete_my_account');

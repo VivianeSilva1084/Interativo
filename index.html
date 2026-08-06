@@ -5150,5 +5150,14 @@ function renderTrendChart(container, sessions){
 })();
 
 </script>
+<script>
+  // Offline play + faster repeat loads - see sw.js for the caching strategy.
+  // Registered after load, off the critical rendering path.
+  window.addEventListener('load', () => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  });
+</script>
 </body>
 </html>

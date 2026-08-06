@@ -1371,6 +1371,14 @@ function openCheckoutPixQrModal(lang, { qrCodeImage, copyPasteCode, paymentId })
           if(typeof fbq !== 'undefined' && data.value != null){
             fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${paymentId}` });
           }
+          if(typeof gtag !== 'undefined' && data.value != null){
+            gtag('event', 'conversion', {
+              'send_to': 'AW-18374065092/dWeCCPK7_9wcEMT3t7lE',
+              'value': data.value,
+              'currency': data.currency || 'BRL',
+              'transaction_id': `purchase_${paymentId}`,
+            });
+          }
           // Fast path: check-pix-payment-status just provisioned the account and
           // returned a fresh login link - redirect straight in from this same
           // tab instead of making the user go open the e-mail. If for any reason
@@ -1530,6 +1538,14 @@ setupLeadCaptureForm('it');
           // uses for this session - Meta dedupes the two into a single event.
           if(typeof fbq !== 'undefined' && data.value != null){
             fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${sessionId}` });
+          }
+          if(typeof gtag !== 'undefined' && data.value != null){
+            gtag('event', 'conversion', {
+              'send_to': 'AW-18374065092/dWeCCPK7_9wcEMT3t7lE',
+              'value': data.value,
+              'currency': data.currency || 'BRL',
+              'transaction_id': `purchase_${sessionId}`,
+            });
           }
           if(data.actionLink){
             window.location.href = data.actionLink;

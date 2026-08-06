@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "has": [{ "type": "header", "key": "host", "value": "viscarekids.com" }], "destination": "/vendas.html" },
-    { "source": "/", "has": [{ "type": "header", "key": "host", "value": "www.viscarekids.com" }], "destination": "/vendas.html" }
+    { "source": "/", "has": [{ "type": "host", "value": "viscarekids.com" }], "destination": "/vendas.html" },
+    { "source": "/", "has": [{ "type": "host", "value": "www.viscarekids.com" }], "destination": "/vendas.html" }
   ]
 }

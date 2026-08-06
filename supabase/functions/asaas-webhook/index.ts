@@ -229,6 +229,22 @@ async function notifyAdminsOfSale(supabase: ReturnType<typeof createClient>, val
   }
 }
 
+// A failed webhook still returns 500, but Asaas' retry window is finite and
+// a bug that keeps failing on every retry would otherwise sit unnoticed
+// until a customer complains about paying without getting access.
+// Best-effort, same pattern as notifyAdminsOfSale.
+async function notifyAdminsOfWebhookFailure(supabase: ReturnType<typeof createClient>, eventType: string, errorMessage: string) {
+  if (!VAPID_PRIVATE_KEY || !VAPID_PUBLIC_KEY) return;
+  try {
+    const { data: subs } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth');
+    if (!subs?.length) return;
+    const payload = { title: '⚠️ Falha no webhook do Asaas', body: `${eventType}: ${errorMessage.slice(0, 120)}`, url: 'admin.html' };
+    await Promise.all(subs.map((sub: any) => sendWebPush(sub, payload).catch((err) => console.error('Push send failed:', (err as Error).message))));
+  } catch (err) {
+    console.error('notifyAdminsOfWebhookFailure failed:', (err as Error).message);
+  }
+}
+
 // Resolves the buyer's e-mail for the authenticated (non-pending) path, where
 // there's no email sitting in externalReference - only used for the Purchase
 // CAPI call below, everything else in this flow already works without it.
@@ -490,6 +506,7 @@ Deno.serve(async (req) => {
     }
   } catch (err) {
     console.error(`Error handling ${event}:`, err);
+    await notifyAdminsOfWebhookFailure(supabase, event, (err as Error).message);
     return new Response('Internal error handling webhook', { status: 500 });
   }
 

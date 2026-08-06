@@ -232,6 +232,22 @@ async function notifyAdminsOfSale(supabase: ReturnType<typeof createClient>, val
   }
 }
 
+// A failed webhook still returns 500 so Stripe retries, but a bug that keeps
+// failing on every retry (not just a transient DB hiccup) would otherwise sit
+// unnoticed in Stripe's dashboard until a customer complains about paying
+// without getting access. Best-effort, same pattern as notifyAdminsOfSale.
+async function notifyAdminsOfWebhookFailure(supabase: ReturnType<typeof createClient>, eventType: string, errorMessage: string) {
+  if (!VAPID_PRIVATE_KEY || !VAPID_PUBLIC_KEY) return;
+  try {
+    const { data: subs } = await supabase.from('push_subscriptions').select('endpoint, p256dh, auth');
+    if (!subs?.length) return;
+    const payload = { title: '⚠️ Falha no webhook do Stripe', body: `${eventType}: ${errorMessage.slice(0, 120)}`, url: 'admin.html' };
+    await Promise.all(subs.map((sub: any) => sendWebPush(sub, payload).catch((err) => console.error('Push send failed:', (err as Error).message))));
+  } catch (err) {
+    console.error('notifyAdminsOfWebhookFailure failed:', (err as Error).message);
+  }
+}
+
 async function sendMagicLinkEmail(to: string, actionLink: string) {
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
     <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
@@ -469,6 +485,7 @@ Deno.serve(async (req) => {
     // Let this surface as a non-2xx so Stripe retries (transient DB hiccups
     // recover on their own); swallowing it would make a real bug invisible.
     console.error(`Error handling ${event.type}:`, err);
+    await notifyAdminsOfWebhookFailure(supabase, event.type, (err as Error).message);
     return new Response('Internal error handling webhook', { status: 500 });
   }
 

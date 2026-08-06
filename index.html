@@ -180,10 +180,17 @@
   @keyframes pulse{ 0%,100%{opacity:.4} 50%{opacity:1} }
 
   .hunt-header{ display:flex; justify-content:space-between; width:100%; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;}
-  .hunt-grid{ display:grid; gap:8px; width:min(460px,90vw); }
+  .hunt-target-chip{ display:inline-flex; align-items:center; gap:4px; background: rgba(255,255,255,.12); border-radius:999px; padding:4px 12px; font-size:14px; font-weight:700; }
+  .hunt-grid-wrap{ position:relative; width:min(460px,90vw); }
+  .hunt-grid{ display:grid; gap:8px; width:100%; }
   .hunt-cell{ aspect-ratio:1; background: rgba(255,255,255,.08); border:2px solid rgba(255,255,255,.12); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; cursor:pointer; transition: transform .08s; }
   .hunt-cell:hover{ transform: scale(1.06); }
   .hunt-cell.found{ background: rgba(124,197,118,.25); border-color: var(--success); cursor:default; }
+  .hunt-rule-cue{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; background: rgba(20,24,27,.6); border-radius:16px; opacity:0; pointer-events:none; transition: opacity .3s ease; z-index:5; }
+  .hunt-rule-cue.show{ opacity:1; }
+  .hunt-rule-cue-emoji{ font-size:56px; animation: huntCuePop .5s ease-out; }
+  .hunt-rule-cue-text{ color:#fff; font-weight:800; font-size:16px; text-align:center; padding:0 16px; }
+  @keyframes huntCuePop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.15); } 100%{ transform:scale(1); } }
   .timer-bar-wrap{ width:min(460px,90vw); height:12px; background: rgba(255,255,255,.12); border-radius:999px; overflow:hidden; }
   .timer-bar{ height:100%; background: var(--papaya); width:100%; transition: width 1s linear; }
 
@@ -722,9 +729,15 @@
         <button class="big-cta" id="huntStartBtn" onclick="huntStart()"></button>
       </div>
       <div class="center-col" id="huntPlayArea" style="display:none;">
-        <div class="hunt-header"><span id="huntFoundCount"></span><span id="huntTimeLeft"></span></div>
+        <div class="hunt-header"><span id="huntFoundCount"></span><span class="hunt-target-chip" id="huntTargetChip" style="display:none;"></span><span id="huntTimeLeft"></span></div>
         <div class="timer-bar-wrap"><div class="timer-bar" id="huntTimerBar"></div></div>
-        <div class="hunt-grid" id="huntGrid"></div>
+        <div class="hunt-grid-wrap">
+          <div class="hunt-grid" id="huntGrid"></div>
+          <div class="hunt-rule-cue" id="huntRuleCue">
+            <div class="hunt-rule-cue-emoji" id="huntRuleCueEmoji"></div>
+            <div class="hunt-rule-cue-text" id="huntRuleCueText"></div>
+          </div>
+        </div>
         <div class="feedback-banner" id="huntFeedback"></div>
         <button class="big-cta secondary" id="huntAgainBtn" style="display:none;" onclick="logGameEvent({eventType:'retry'}); huntShowPreStart()"></button>
       </div>
@@ -1010,7 +1023,7 @@ const I18N = {
       closing:"Kapi: Adorei nossa conversa! Obrigada por esperar sua vez e ficar no assunto 💛",
       result:(c,t)=>`Você acertou ${c} de ${t} respostas!`, turnLabel:"Esperando sua vez..." },
     hunt:{ title:"🔎 Caça ao Alvo", instr:"Encontra todas as folhinhas 🍀 escondidas entre os outros emojis!",
-      found:(f,t)=>`${f} / ${t} encontradas`, time:(s)=>`⏱ ${s}s`,
+      found:(f,t)=>`${f} / ${t} encontradas`, time:(s)=>`⏱ ${s}s`, newTargetCue:"Novo alvo!",
       resultAll:"Você achou todas as folhinhas! Incrível atenção! 🍀✨", resultPartial:(f,t)=>`Você achou ${f} de ${t} folhinhas. Bora tentar de novo?` },
     thermo:{ title:"🌈 Termômetro das Emoções", instr:"Lê a situação, escolhe como você acha que se sentiria, e uma forma de se acalmar.",
       step1:"Como você acha que se sentiria?", step2:"O que pode ajudar a se acalmar?",
@@ -1127,6 +1140,7 @@ const I18N = {
       responseTimeTitle:"Tempo de resposta", responseTimeAvg:"Média", responseTimeBest:"Melhor tempo",
       workingMemoryTitle:"Memória de trabalho", workingMemoryLongest:"Maior sequência lembrada", workingMemoryAvg:"Média",
       cognitiveFlexTitle:"Flexibilidade cognitiva", cognitiveFlexBody:"Tempo médio para se adaptar após mudança de regra",
+      cognitiveFlexPersev:(n)=>`Erros perseverativos (voltou pro alvo antigo): ${n}`,
       frustrationTitle:"Tolerância à frustração", frustrationAbandons:"Abandonos",
       frustrationHelp:"Pedidos de ajuda", frustrationRetries:"Tentativas de novo",
       waitTitle:"Cumprimento de espera", waitCorrect:"Esperou corretamente", waitEarly:"Clicou antes da hora",
@@ -1204,7 +1218,7 @@ const I18N = {
       closing:"Kapi: Mi è piaciuta la nostra conversazione! Grazie per aver aspettato il turno 💛",
       result:(c,t)=>`Hai risposto bene a ${c} di ${t} domande!`, turnLabel:"Aspettando il tuo turno..." },
     hunt:{ title:"🔎 Caccia al Bersaglio", instr:"Trova tutti i quadrifogli 🍀 nascosti tra le altre emoji!",
-      found:(f,t)=>`${f} / ${t} trovati`, time:(s)=>`⏱ ${s}s`,
+      found:(f,t)=>`${f} / ${t} trovati`, time:(s)=>`⏱ ${s}s`, newTargetCue:"Nuovo bersaglio!",
       resultAll:"Hai trovato tutti i quadrifogli! Attenzione incredibile! 🍀✨", resultPartial:(f,t)=>`Hai trovato ${f} di ${t} quadrifogli. Proviamo ancora?` },
     thermo:{ title:"🌈 Il Termometro delle Emozioni", instr:"Leggi la situazione, scegli come pensi che ti sentiresti, e un modo per calmarti.",
       step1:"Come pensi che ti sentiresti?", step2:"Cosa può aiutare a calmarti?",
@@ -1321,6 +1335,7 @@ const I18N = {
       responseTimeTitle:"Tempo di risposta", responseTimeAvg:"Media", responseTimeBest:"Tempo migliore",
       workingMemoryTitle:"Memoria di lavoro", workingMemoryLongest:"Sequenza più lunga ricordata", workingMemoryAvg:"Media",
       cognitiveFlexTitle:"Flessibilità cognitiva", cognitiveFlexBody:"Tempo medio di adattamento dopo un cambio di regola",
+      cognitiveFlexPersev:(n)=>`Errori perseverativi (tornato al bersaglio precedente): ${n}`,
       frustrationTitle:"Tolleranza alla frustrazione", frustrationAbandons:"Abbandoni",
       frustrationHelp:"Richieste di aiuto", frustrationRetries:"Nuovi tentativi",
       waitTitle:"Rispetto dell'attesa", waitCorrect:"Ha atteso correttamente", waitEarly:"Ha cliccato in anticipo",
@@ -2943,7 +2958,8 @@ function chatEnd(){
 }
 
 /* ========================= GAME 5: CAÇA AO ALVO ========================= */
-let hunt = { found:0, target:6, timeLeft:20, timerId:null, cfg:null };
+let hunt = { found:0, target:6, timeLeft:20, timerId:null, cfg:null,
+  switchEnabled:false, switchAtFound:0, switched:false, activeTarget:'🍀', newTarget:null, graceUntil:0, paused:false };
 function huntInit(){
   const t = L();
   document.getElementById('huntTitle').textContent = t.hunt.title;
@@ -2953,8 +2969,11 @@ function huntInit(){
   document.getElementById('huntPreStart').style.display = 'flex';
   document.getElementById('huntPlayArea').style.display = 'none';
   document.getElementById('huntAgainBtn').style.display = 'none';
+  document.getElementById('huntTargetChip').style.display = 'none';
+  document.getElementById('huntRuleCue').classList.remove('show');
   hideFeedback('huntFeedback');
   clearInterval(hunt.timerId);
+  hunt.paused = false;
   renderDiffRow('huntDiffRow', 'cacaalvo');
 }
 function huntShowPreStart(){
@@ -2964,9 +2983,16 @@ function huntShowPreStart(){
 function buildHuntGrid(active){
   const cfg = hunt.cfg;
   const totalCells = cfg.cols * cfg.rows;
+  // When the round includes a target swap, cells for the new target are
+  // reserved up front too - exactly (target - switchAtFound) of them, the
+  // same way the original target count is reserved, so the second half of
+  // the round is always completable regardless of the random distractor fill.
+  const remainingAfterSwitch = hunt.switchEnabled ? (hunt.target - hunt.switchAtFound) : 0;
   let cells = [];
   for(let i=0;i<cfg.targets;i++) cells.push('🍀');
-  for(let i=0;i<totalCells - cfg.targets;i++) cells.push(cfg.pool[Math.floor(Math.random()*cfg.pool.length)]);
+  for(let i=0;i<remainingAfterSwitch;i++) cells.push(hunt.newTarget);
+  const fillPool = hunt.switchEnabled ? cfg.pool.filter(e=>e!==hunt.newTarget) : cfg.pool;
+  for(let i=0;i<totalCells - cells.length;i++) cells.push(fillPool[Math.floor(Math.random()*fillPool.length)]);
   cells = cells.sort(()=>Math.random()-0.5);
   const grid = document.getElementById('huntGrid');
   grid.style.gridTemplateColumns = `repeat(${cfg.cols}, 1fr)`;
@@ -2982,19 +3008,29 @@ function buildHuntGrid(active){
 }
 function huntStart(){
   const t = L();
-  hunt.cfg = DIFF.cacaalvo[getDifficulty('cacaalvo')];
+  const diffKey = getDifficulty('cacaalvo');
+  hunt.cfg = DIFF.cacaalvo[diffKey];
   hunt.found = 0; hunt.target = hunt.cfg.targets; hunt.timeLeft = hunt.cfg.time;
+  hunt.activeTarget = '🍀'; hunt.switched = false; hunt.paused = false; hunt.graceUntil = 0;
+  // Only medio/dificil get the mid-round target swap ("Flexibilidade cognitiva"
+  // measurement) - facil stays a single fixed target, pure sustained attention.
+  hunt.switchEnabled = diffKey !== 'facil';
+  hunt.switchAtFound = hunt.switchEnabled ? Math.ceil(hunt.target/2) : 0;
+  hunt.newTarget = hunt.switchEnabled ? hunt.cfg.pool[Math.floor(Math.random()*hunt.cfg.pool.length)] : null;
   document.getElementById('huntPreStart').style.display = 'none';
   document.getElementById('huntPlayArea').style.display = 'flex';
   document.getElementById('huntAgainBtn').style.display = 'none';
   document.getElementById('huntFoundCount').textContent = t.hunt.found(0, hunt.target);
   document.getElementById('huntTimeLeft').textContent = t.hunt.time(hunt.timeLeft);
   document.getElementById('huntTimerBar').style.width = '100%';
+  document.getElementById('huntTargetChip').style.display = 'none';
+  document.getElementById('huntRuleCue').classList.remove('show');
   hideFeedback('huntFeedback');
   buildHuntGrid(true);
   window.instructionEndedAt = Date.now();
   clearInterval(hunt.timerId);
   hunt.timerId = setInterval(()=>{
+    if(hunt.paused) return;
     hunt.timeLeft--;
     document.getElementById('huntTimeLeft').textContent = t.hunt.time(hunt.timeLeft);
     document.getElementById('huntTimerBar').style.width = (hunt.timeLeft/hunt.cfg.time*100) + '%';
@@ -3003,23 +3039,69 @@ function huntStart(){
 }
 function huntClick(cell){
   if(cell.classList.contains('found')) return;
+  if(hunt.paused) return; // ignore taps while the "new target" cue is showing
+  const emoji = cell.dataset.emoji;
+
+  // Grace period right after a switch: a tap on the just-retired target is
+  // still very likely the tail end of the pre-switch motor plan, not a real
+  // perseverative error - forgiven silently (no log, no penalty) rather than
+  // counted against the child. Genuine perseveration (after the grace window)
+  // is still tracked below.
+  if(hunt.switched && emoji === '🍀' && Date.now() < hunt.graceUntil){
+    cell.style.transform = 'scale(0.9)';
+    setTimeout(()=>cell.style.transform='', 150);
+    return;
+  }
+
   const rt = Date.now() - (window.instructionEndedAt || Date.now());
   window.instructionEndedAt = Date.now();
-  const isTarget = cell.dataset.emoji === '🍀';
+  const isTarget = emoji === hunt.activeTarget;
   let errorType = null;
-  if (!isTarget && rt < 300) errorType = 'impulsiva';
-  logGameEvent({ eventType: 'answer', targetType: 'grid', target: '🍀', responseValue: cell.dataset.emoji, correct: isTarget, responseTimeMs: rt, errorType });
+  if(!isTarget){
+    if(hunt.switched && emoji === '🍀') errorType = 'perseverativa';
+    else if(rt < 300) errorType = 'impulsiva';
+  }
+  logGameEvent({ eventType: 'answer', targetType: 'grid', target: hunt.activeTarget, responseValue: emoji, correct: isTarget, responseTimeMs: rt, errorType });
 
   const t = L();
   if(isTarget){
     cell.classList.add('found');
     hunt.found++;
     document.getElementById('huntFoundCount').textContent = t.hunt.found(hunt.found, hunt.target);
+    if(hunt.switchEnabled && !hunt.switched && hunt.found === hunt.switchAtFound){
+      huntTriggerRuleChange();
+      return;
+    }
     if(hunt.found >= hunt.target) huntEnd(true);
   } else {
     cell.style.transform = 'scale(0.9)';
     setTimeout(()=>cell.style.transform='', 150);
   }
+}
+// Mid-round target swap that feeds the "Flexibilidade cognitiva" report
+// (v_rule_adaptation / v_perseverative_errors) - see clinical review: cued
+// (not silent) so the measurement is about shifting to the new rule, not
+// about noticing it changed. Timer pauses during the cue; taps are ignored
+// (hunt.paused) so the pause can't be gamed or unfairly cost a hit.
+function huntTriggerRuleChange(){
+  hunt.paused = true;
+  logGameEvent({ eventType: 'rule_change' });
+  const t = L();
+  hunt.activeTarget = hunt.newTarget;
+  hunt.switched = true;
+  const chip = document.getElementById('huntTargetChip');
+  chip.textContent = `🎯 ${hunt.newTarget}`;
+  chip.style.display = 'inline-flex';
+  document.getElementById('huntRuleCueEmoji').textContent = hunt.newTarget;
+  document.getElementById('huntRuleCueText').textContent = t.hunt.newTargetCue;
+  const cue = document.getElementById('huntRuleCue');
+  cue.classList.add('show');
+  setTimeout(()=>{
+    cue.classList.remove('show');
+    hunt.paused = false;
+    hunt.graceUntil = Date.now() + 800;
+    window.instructionEndedAt = Date.now();
+  }, 1300);
 }
 function huntEnd(allFound){
   clearInterval(hunt.timerId);
@@ -3315,7 +3397,7 @@ async function loadProfDashboardChildDetail(childId){
     { data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows },
     { data: swaps }, { data: errorTypes }, { data: syllableDifficulty },
     { data: focusEvolution }, { data: responseTime }, { data: workingMemory },
-    { data: ruleAdaptation }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing }
+    { data: ruleAdaptation }, { data: perseverativeErrors }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing }
   ] = await Promise.all([
     sb.from('child_profiles').select('*').eq('id', childId).single(),
     sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle(),
@@ -3333,6 +3415,7 @@ async function loadProfDashboardChildDetail(childId){
     sb.from('v_response_time_trend').select('game_key, month, avg_response_time_ms, best_response_time_ms').eq('profile_id', childId).order('month', { ascending:false }),
     sb.from('v_working_memory').select('game_key, longest_correct_sequence, avg_correct_length').eq('profile_id', childId),
     sb.from('v_rule_adaptation').select('game_key, time_to_adapt_ms').eq('profile_id', childId).not('time_to_adapt_ms', 'is', null),
+    sb.from('v_perseverative_errors').select('game_key, perseverative_count').eq('profile_id', childId),
     sb.from('v_frustration_raw').select('game_key, abandons, help_requests, retries').eq('profile_id', childId),
     sb.from('v_wait_task_compliance').select('game_key, waited_correctly, clicked_early, total_attempts').eq('profile_id', childId),
     sb.from('v_instruction_following').select('game_key, followed_correctly, total_instructions, accuracy_pct').eq('profile_id', childId)
@@ -3364,7 +3447,7 @@ async function loadProfDashboardChildDetail(childId){
     adherence: (adherenceRows || []).filter(a=>a.semanas_com_dado > 0),
     phonologicalSwaps: swaps || [], errorTypes: errorTypes || [], syllableDifficulty: syllableDifficulty || [],
     focusEvolution: focusEvolution || [], responseTime: responseTime || [], workingMemory: workingMemory || [],
-    ruleAdaptation: ruleAdaptation || [], frustration: frustration || [],
+    ruleAdaptation: ruleAdaptation || [], perseverativeErrors: perseverativeErrors || [], frustration: frustration || [],
     waitCompliance: waitCompliance || [], instructionFollowing: instructionFollowing || [],
     isPremium
   };
@@ -3555,7 +3638,7 @@ async function loadAndRenderProfChildDetail(container){
 
   const {
     profile, readingProgress, impulsivityIndex, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty,
-    focusEvolution, responseTime, workingMemory, ruleAdaptation, frustration, waitCompliance, instructionFollowing, isPremium
+    focusEvolution, responseTime, workingMemory, ruleAdaptation, perseverativeErrors, frustration, waitCompliance, instructionFollowing, isPremium
   } = detail;
   const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
   const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
@@ -3633,14 +3716,23 @@ async function loadAndRenderProfChildDetail(container){
   `).join('');
 
   // --- Flexibilidade cognitiva: média geral (não agrupado por jogo) ---
+  // Two numbers, not one - per clinical review, raw adaptation time alone
+  // can't distinguish "shifted quickly" from "got lucky right after the
+  // switch"; perseverative-error count (taps back on the retired target,
+  // outside the forgiveness grace window) is the more specific signal for
+  // set-shifting difficulty and is tracked separately.
   const ruleAdaptationList = (ruleAdaptation || []).filter(r=>r.time_to_adapt_ms != null);
   const avgAdaptMs = ruleAdaptationList.length
     ? Math.round(ruleAdaptationList.reduce((sum,r)=>sum + r.time_to_adapt_ms, 0) / ruleAdaptationList.length)
     : null;
+  const perseverationCount = (perseverativeErrors || []).reduce((sum,r)=>sum + (r.perseverative_count || 0), 0);
   let cognitiveFlexHtml;
   if(!isPremium) cognitiveFlexHtml = lockedNote;
   else if(avgAdaptMs === null) cognitiveFlexHtml = noDataNote;
-  else cognitiveFlexHtml = `<div style="font-size:12.5px; color:#1F2E29;">${t.cognitiveFlexBody}: <strong>${avgAdaptMs}${t.ms}</strong></div>`;
+  else cognitiveFlexHtml = `
+    <div style="font-size:12.5px; color:#1F2E29;">${t.cognitiveFlexBody}: <strong>${avgAdaptMs}${t.ms}</strong></div>
+    <div style="font-size:12.5px; color:#1F2E29; margin-top:4px;">${t.cognitiveFlexPersev(perseverationCount)}</div>
+  `;
 
   // --- Tolerância à frustração ---
   let frustrationHtml;

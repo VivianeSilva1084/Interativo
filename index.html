@@ -3186,12 +3186,30 @@ function flushSessionLog(){
     if(!sessionCompleted && sessionDirty[currentGameKey]) {
       logGameEvent({ eventType: 'abandon' });
     }
-    if (sessionDirty[currentGameKey]) logSession(currentGameKey, currentSessionId);
+    if (sessionDirty[currentGameKey]) logSession(currentGameKey, currentSessionId, sessionCompleted);
   }
   currentGameKey = null;
   currentSessionId = null;
 }
-async function logSession(gameKey, sessionId){
+// Safety net for a tab that's just closed or an app that's backgrounded on
+// mobile - neither reaches any of flushSessionLog()'s in-app navigation call
+// sites, so without this the session stays status='in_progress' forever
+// (this was the actual cause of most sessions never showing as completed or
+// abandoned). Unlike flushSessionLog(), this doesn't clear currentGameKey/
+// currentSessionId - gameplay continues normally if the tab comes back to
+// the foreground, and the eventual real flushSessionLog() (finishing the
+// activity or navigating away) overwrites this checkpoint with the accurate
+// final status/end_time.
+function checkpointSessionLog(){
+  if(currentGameKey && sessionDirty[currentGameKey]) {
+    logSession(currentGameKey, currentSessionId, sessionCompleted);
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'hidden') checkpointSessionLog();
+});
+window.addEventListener('pagehide', checkpointSessionLog);
+async function logSession(gameKey, sessionId, completed){
   sessionDirty[gameKey] = false;
   if(!state.profileId || !state.familyId || !state.profile || !sessionId) return;
   const stars = state.profile.starsByGame[gameKey] || 0;
@@ -3200,7 +3218,7 @@ async function logSession(gameKey, sessionId){
   const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
   try{
     const { error } = await sb.from('game_sessions')
-      .update({ difficulty, stars, seeds_earned: seedsEarned, end_time: new Date().toISOString() })
+      .update({ difficulty, stars, seeds_earned: seedsEarned, end_time: new Date().toISOString(), status: completed ? 'completed' : 'abandoned' })
       .eq('id', sessionId);
     if(error) throw error;
   }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }

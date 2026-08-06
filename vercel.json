@@ -1,3 +1,7 @@
 {
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "has": [{ "type": "host", "value": "viscarekids.com" }], "destination": "/vendas.html" },
+    { "source": "/", "has": [{ "type": "host", "value": "www.viscarekids.com" }], "destination": "/vendas.html" }
+  ]
 }

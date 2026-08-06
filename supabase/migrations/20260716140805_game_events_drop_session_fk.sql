@@ -1,0 +1,1 @@
+alter table game_events drop constraint if exists game_events_session_id_fkey;

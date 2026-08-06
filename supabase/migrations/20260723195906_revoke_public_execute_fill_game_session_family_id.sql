@@ -1,0 +1,1 @@
+revoke execute on function public.fill_game_session_family_id() from public;

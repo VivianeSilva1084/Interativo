@@ -1,0 +1,1 @@
+alter table game_sessions add column if not exists ended_at timestamptz;

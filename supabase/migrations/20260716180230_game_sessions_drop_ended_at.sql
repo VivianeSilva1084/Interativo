@@ -1,0 +1,1 @@
+alter table game_sessions drop column if exists ended_at;

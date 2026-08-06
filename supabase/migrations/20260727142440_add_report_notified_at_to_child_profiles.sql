@@ -1,0 +1,1 @@
+alter table public.child_profiles add column report_notified_at timestamptz;

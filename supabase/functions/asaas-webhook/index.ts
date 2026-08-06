@@ -14,8 +14,12 @@ const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') as string;
 // explicit redirectTo it falls back to the Supabase project's configured Site
 // URL, which here points at a stale, SSO-protected preview deployment instead
 // of production. Matches the exact origin index.html's Google login already
-// uses (window.location.origin, no trailing slash).
-const APP_ORIGIN = 'https://www.viscarekids.com';
+// uses (window.location.origin, no trailing slash). The game itself still
+// lives on the Vercel subdomain - only vendas.html moved to the custom domain.
+const APP_ORIGIN = 'https://interativo-pi.vercel.app';
+// vendas.html (checkout + Meta Pixel) now lives on the custom domain - used
+// only for the CAPI event_source_url below, never for the magic-link redirect.
+const SALES_ORIGIN = 'https://www.viscarekids.com';
 
 function firstName(fullName: string) {
   return (fullName || '').trim().split(/\s+/)[0] || fullName;
@@ -49,7 +53,7 @@ async function sendPurchaseCapi(eventId: string, email: string, value: number, c
         event_name: 'Purchase',
         event_time: Math.floor(Date.now() / 1000),
         action_source: 'website',
-        event_source_url: `${APP_ORIGIN}/vendas.html`,
+        event_source_url: `${SALES_ORIGIN}/vendas.html`,
         event_id: eventId,
         user_data: userData,
         custom_data: { value, currency },

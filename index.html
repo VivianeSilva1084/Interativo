@@ -1775,8 +1775,8 @@ async function handleGoogleLogin() {
     // is re-attached to the redirect URL here rather than trusted to survive
     // in localStorage alone - Google's full-page redirect round trip is a much
     // bigger detour than email/password login ever takes, so the URL itself
-    // carries the intent back too. Requires a wildcard entry
-    // "https://www.viscarekids.com/**" in Supabase's Redirect URLs list
+    // carries the intent back too. Requires the wildcard entry
+    // "https://interativo-pi.vercel.app/**" in Supabase's Redirect URLs list
     // (added alongside the pre-existing exact, no-wildcard entry).
     // Only append anything when the flag is set - otherwise this must stay
     // byte-for-byte window.location.origin (no trailing slash) to keep
@@ -4442,7 +4442,7 @@ async function manageSubscription(btn){
     const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-portal-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({ returnUrl: 'https://www.viscarekids.com' }),
+      body: JSON.stringify({ returnUrl: 'https://interativo-pi.vercel.app' }),
     });
     const result = await response.json();
     if(result.url){
@@ -4585,7 +4585,7 @@ async function renderParentsDashboardBody(){
 
   const ilhaDoFocoOpenLink = document.createElement('a');
   ilhaDoFocoOpenLink.className = 'parents-reading-open-btn';
-  ilhaDoFocoOpenLink.href = 'https://www.viscarekids.com/';
+  ilhaDoFocoOpenLink.href = 'https://interativo-pi.vercel.app/';
   ilhaDoFocoOpenLink.target = '_blank';
   ilhaDoFocoOpenLink.rel = 'noopener';
   ilhaDoFocoOpenLink.textContent = t.parents.ilhaDoFocoOpenBtn;

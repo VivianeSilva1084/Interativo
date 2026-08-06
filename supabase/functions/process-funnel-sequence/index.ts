@@ -3,7 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') as string;
 const FROM_ADDRESS = 'Kapi da Ilha do Foco <kapi@viscaree.com.br>';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') as string;
-const SITE_URL = 'https://interativo-pi.vercel.app';
+const SITE_URL = 'https://www.viscarekids.com';
 const BEAVER = String.fromCodePoint(0x1F9AB);
 const PALM = String.fromCodePoint(0x1F334);
 const PLAY = String.fromCodePoint(0x25B6);

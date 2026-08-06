@@ -2,7 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') as string;
 const FROM_ADDRESS = 'Kapi da Ilha do Foco <kapi@viscaree.com.br>';
-const APP_ORIGIN = 'https://interativo-pi.vercel.app';
+const APP_ORIGIN = 'https://www.viscarekids.com';
 
 async function sendMagicLinkEmail(to: string, actionLink: string) {
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">

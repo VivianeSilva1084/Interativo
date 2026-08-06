@@ -10,7 +10,7 @@ const META_CAPI_ACCESS_TOKEN = Deno.env.get('META_CAPI_ACCESS_TOKEN') as string;
 // URL, which here points at a stale, SSO-protected preview deployment instead
 // of production. Matches the exact origin index.html's Google login already
 // uses (window.location.origin, no trailing slash).
-const APP_ORIGIN = 'https://interativo-pi.vercel.app';
+const APP_ORIGIN = 'https://www.viscarekids.com';
 
 async function sha256Hex(value: string): Promise<string> {
   const data = new TextEncoder().encode(value.trim().toLowerCase());

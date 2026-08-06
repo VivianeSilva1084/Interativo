@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const baseUrl = 'https://interativo-pi.vercel.app/vendas.html';
+    const baseUrl = 'https://www.viscarekids.com/vendas.html';
     const isOneTime = plan === '30days' || plan === 'bump30';
 
     // bump30 is a checkout-only discounted one-time offer (see vendas.html's

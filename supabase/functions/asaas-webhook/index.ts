@@ -15,7 +15,7 @@ const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') as string;
 // URL, which here points at a stale, SSO-protected preview deployment instead
 // of production. Matches the exact origin index.html's Google login already
 // uses (window.location.origin, no trailing slash).
-const APP_ORIGIN = 'https://interativo-pi.vercel.app';
+const APP_ORIGIN = 'https://www.viscarekids.com';
 
 function firstName(fullName: string) {
   return (fullName || '').trim().split(/\s+/)[0] || fullName;

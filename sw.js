@@ -11,7 +11,7 @@
 // stale-while-revalidate, the standard safe choice for those. Supabase
 // traffic is never touched - a cached auth/game-progress response would be
 // actively harmful, not just stale.
-const CACHE_NAME = 'ilha-do-foco-v1';
+const CACHE_NAME = 'ilha-do-foco-v2';
 const NETWORK_TIMEOUT_MS = 3000;
 
 self.addEventListener('install', () => {

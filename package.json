@@ -1,0 +1,10 @@
+{
+  "name": "ilha-do-foco",
+  "private": true,
+  "scripts": {
+    "build": "node esbuild.config.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1"
+  }
+}

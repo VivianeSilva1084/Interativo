@@ -1,1 +1,3 @@
 dist-vendas/
+dist/
+node_modules/

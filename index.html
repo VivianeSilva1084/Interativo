@@ -20,6 +20,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0B3D2E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1521,9 +1522,7 @@ const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termom
 /* ============================================================
    SUPABASE + AUTH + STATE
    ============================================================ */
-const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
-
+// SUPABASE_URL/SUPABASE_ANON_KEY come from supabase-config.js, loaded above.
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null, isProfessional:false };

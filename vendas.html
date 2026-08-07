@@ -7,6 +7,7 @@
 <meta name="description" content="Jogos pensados para crianças com TDAH e dificuldades de aprendizagem, com acompanhamento de progresso para pais e profissionais.">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <meta name="facebook-domain-verification" content="7fynznkomhmnit0rvy9hcyq9coxoam" />
+<script src="supabase-config.js"></script>
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -944,8 +945,6 @@ function setDocLang(l){
 // origin as index.html) so it survives all the way to checkout, which only
 // happens much later, deep inside the parents dashboard.
 (function trackLeadVisit(){
-  const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
   const leadId = new URLSearchParams(window.location.search).get('lead_id');
   if(!leadId) return;
   localStorage.setItem('ilhaDoFoco_leadId', leadId);
@@ -1083,8 +1082,6 @@ async function ensureCheckoutLeadId(lang, email, phone){
   const existing = localStorage.getItem('ilhaDoFoco_leadId');
   if(existing) return existing;
 
-  const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
   const leadId = crypto.randomUUID();
   const params = new URLSearchParams(window.location.search);
   const payload = {
@@ -1441,8 +1438,6 @@ function setupLeadCaptureForm(lang){
       return;
     }
 
-    const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
     const leadId = crypto.randomUUID();
     const params = new URLSearchParams(window.location.search);
     const payload = {

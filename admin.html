@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="CRM Ilha do Foco">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 <style>
   :root{
     --ink:#123C3E; --cream:#FBF8F1; --line:#E7DCC0; --sand:#D9A441;
@@ -154,8 +155,7 @@
 <div id="modalRoot"></div>
 
 <script>
-const SUPABASE_URL = 'https://pswmbqlafywaxphsrloe.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q';
+// SUPABASE_URL/SUPABASE_ANON_KEY come from supabase-config.js, loaded above.
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STAGES = [

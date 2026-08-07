@@ -5,9 +5,11 @@
 // project's Build Command - vendas.html itself stays the single source of
 // truth, this just repackages it on every deploy.
 //
-// Images stay on the main game deployment rather than being duplicated
-// here (some are multiple MB, not worth doubling storage/bandwidth for) -
-// local references are rewritten to absolute URLs pointing at it.
+// Images and supabase-config.js stay on the main game deployment rather
+// than being duplicated here (images are multiple MB, not worth doubling
+// storage/bandwidth for; the config file is tiny but this way there's only
+// ever one copy to keep in sync if the anon key rotates) - local references
+// are rewritten to absolute URLs pointing at it.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,18 +18,19 @@ const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(repoRoot, 'dist-vendas');
 const GAME_ORIGIN = 'https://interativo-pi.vercel.app';
 
-const localImageRefs = [
+const localAssetRefs = [
   'icons/icon-32.png',
   'Kapi.png',
   'kapi-meditando.jpg',
   'aventura-das-letras-icon.png',
   'assets/cartoonPT.png',
   'assets/cartonnIT.png',
+  'supabase-config.js',
 ];
 
-function toAbsoluteImageUrls(html) {
+function toAbsoluteAssetUrls(html) {
   let out = html;
-  for (const ref of localImageRefs) {
+  for (const ref of localAssetRefs) {
     out = out.split(`"${ref}"`).join(`"${GAME_ORIGIN}/${ref}"`);
     out = out.split(`'${ref}'`).join(`'${GAME_ORIGIN}/${ref}'`);
   }
@@ -44,7 +47,7 @@ for (const [src, dest] of pages) {
   const html = readFileSync(join(repoRoot, src), 'utf8');
   const destPath = join(outDir, dest);
   mkdirSync(dirname(destPath), { recursive: true });
-  writeFileSync(destPath, toAbsoluteImageUrls(html));
+  writeFileSync(destPath, toAbsoluteAssetUrls(html));
 }
 
 console.log(`vendas.html site assembled in ${outDir} (${pages.length} pages, images pointed at ${GAME_ORIGIN})`);

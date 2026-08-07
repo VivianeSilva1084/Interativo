@@ -166,6 +166,11 @@
         <h2 style="font-size:15px;color:var(--ink);">Avaliações pendentes</h2>
       </div>
       <div class="reviews-list" id="reviewsList"></div>
+
+      <div class="reviews-toolbar">
+        <h2 style="font-size:15px;color:var(--ink);">Avaliações aprovadas</h2>
+      </div>
+      <div class="reviews-list" id="approvedReviewsList"></div>
     </div>
     <div id="loadingNote" class="loading-note">Carregando...</div>
   </main>
@@ -581,39 +586,60 @@ async function deleteLead(leadId){
 // Anyone can submit a review from vendas.html (no purchase/login check) -
 // this is the only gate before one becomes a public testimonial. Approving
 // sets approved_at too (not just status) so there's a record of when, not
-// just that, it went public.
+// just that, it went public. Approved ones stay listed (with a delete
+// option) so an approve-by-mistake is fixable without touching SQL directly.
 let reviewsCache = [];
 async function loadReviews(){
-  const { data, error } = await sb.from('app_reviews').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('app_reviews').select('*').in('status', ['pending', 'approved']).order('created_at', { ascending: false });
   if(error){ console.error(error); return; }
   reviewsCache = data || [];
   renderReviews();
 }
 
+function renderReviewCard(r, actionsHtml){
+  const card = document.createElement('div');
+  card.className = 'review-card';
+  card.innerHTML = `
+    <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+    <div class="name">${escapeHtml(r.name)}</div>
+    <div class="when">${timeSince(r.created_at)}</div>
+    ${r.comment ? `<div class="comment">"${escapeHtml(r.comment)}"</div>` : ''}
+    <div class="actions">${actionsHtml}</div>
+  `;
+  return card;
+}
+
 function renderReviews(){
-  const list = document.getElementById('reviewsList');
-  list.innerHTML = '';
-  if(!reviewsCache.length){
-    list.innerHTML = '<div class="empty-reviews">Nenhuma avaliação pendente.</div>';
-    return;
-  }
-  reviewsCache.forEach(r => {
-    const card = document.createElement('div');
-    card.className = 'review-card';
-    card.innerHTML = `
-      <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-      <div class="name">${escapeHtml(r.name)}</div>
-      <div class="when">${timeSince(r.created_at)}</div>
-      ${r.comment ? `<div class="comment">"${escapeHtml(r.comment)}"</div>` : ''}
-      <div class="actions">
+  const pending = reviewsCache.filter(r => r.status === 'pending');
+  const approved = reviewsCache.filter(r => r.status === 'approved');
+
+  const pendingList = document.getElementById('reviewsList');
+  pendingList.innerHTML = '';
+  if(!pending.length){
+    pendingList.innerHTML = '<div class="empty-reviews">Nenhuma avaliação pendente.</div>';
+  } else {
+    pending.forEach(r => {
+      const card = renderReviewCard(r, `
         <button type="button" class="review-approve-btn">Aprovar</button>
         <button type="button" class="review-reject-btn">Rejeitar</button>
-      </div>
-    `;
-    card.querySelector('.review-approve-btn').addEventListener('click', () => moderateReview(r.id, 'approved'));
-    card.querySelector('.review-reject-btn').addEventListener('click', () => moderateReview(r.id, 'rejected'));
-    list.appendChild(card);
-  });
+      `);
+      card.querySelector('.review-approve-btn').addEventListener('click', () => moderateReview(r.id, 'approved'));
+      card.querySelector('.review-reject-btn').addEventListener('click', () => moderateReview(r.id, 'rejected'));
+      pendingList.appendChild(card);
+    });
+  }
+
+  const approvedList = document.getElementById('approvedReviewsList');
+  approvedList.innerHTML = '';
+  if(!approved.length){
+    approvedList.innerHTML = '<div class="empty-reviews">Nenhuma avaliação aprovada ainda.</div>';
+  } else {
+    approved.forEach(r => {
+      const card = renderReviewCard(r, `<button type="button" class="review-reject-btn">Excluir</button>`);
+      card.querySelector('.review-reject-btn').addEventListener('click', () => deleteReview(r.id, r.name));
+      approvedList.appendChild(card);
+    });
+  }
 }
 
 async function moderateReview(reviewId, status){
@@ -621,6 +647,13 @@ async function moderateReview(reviewId, status){
   if(status === 'approved') update.approved_at = new Date().toISOString();
   const { error } = await sb.from('app_reviews').update(update).eq('id', reviewId);
   if(error){ console.error(error); alert('Não foi possível atualizar a avaliação.'); return; }
+  await loadReviews();
+}
+
+async function deleteReview(reviewId, name){
+  if(!confirm(`Excluir a avaliação de "${name}"? Ela some do site imediatamente e não dá pra desfazer.`)) return;
+  const { error } = await sb.from('app_reviews').delete().eq('id', reviewId);
+  if(error){ console.error(error); alert('Não foi possível excluir a avaliação.'); return; }
   await loadReviews();
 }
 </script>

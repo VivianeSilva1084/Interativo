@@ -4385,3 +4385,21 @@ function renderTrendChart(container, sessions){
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   });
+
+// index.html still calls dozens of these via inline onclick="..." (and a
+// couple onchange=) HTML attributes - the browser evaluates those in global
+// scope, which esbuild's IIFE bundle output does NOT leak function
+// declarations into (everything above lives inside the bundle's wrapper
+// closure). Without this, every button in the app would throw "X is not
+// defined" the instant esbuild started bundling instead of just concatenating.
+// List audited by scanning both index.html and this file's own generated-
+// HTML template strings for every on(click|change|input|...)="..." attribute.
+Object.assign(window, {
+  chatContinue, chatStart, goHub, goProfiles, handleAuthSubmit, handleForgotPassword,
+  handleGoogleLogin, handleLogout, huntShowPreStart, huntStart, huntTogglePace,
+  logGameEvent, openAddChildProfileModal, openAlbum, openParents, parentsCancelForgot,
+  parentsCheckPin, parentsForgotPin, parentsSavePin, removeProfile, selectFormLang,
+  semStart, semTap, setAuthLang, setLang, simonStart, storyInit, storyStart,
+  submitNewProfile, thermoStart, toggleAuthMode, toggleAuthUserType,
+  toggleNewProfileForm, toggleSound,
+});

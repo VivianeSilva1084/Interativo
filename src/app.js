@@ -1,3 +1,9 @@
+import { sb, state, session, getDifficulty } from './lib/session-state.js';
+import {
+  speak, makeTtsBtn, makeTtsIcon, makeHelpBtn, setInstructions, escapeHtml, say, blinkMascot,
+  isSoundEnabled, renderSoundToggle, toggleSound, playTone, hapticFeedback, showFeedback, hideFeedback,
+  logGameEvent, flushSessionLog, checkpointSessionLog,
+} from './lib/game-shared.js';
 /* ============================================================
    I18N CONTENT
    ============================================================ */
@@ -682,9 +688,7 @@ const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termom
    SUPABASE + AUTH + STATE
    ============================================================ */
 // SUPABASE_URL/SUPABASE_ANON_KEY come from supabase-config.js, loaded above.
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null, isProfessional:false };
 
 let authMode = 'login'; // login, signup, reset
 let authUserType = 'family'; // family | professional
@@ -1281,9 +1285,9 @@ async function handleLogout() {
   state.profileId = null;
   state.profile = null;
   document.getElementById('hubHeader').style.display = 'none';
-  currentGameKey = null;
-  sessionDirty = {};
-  sessionSeedsStart = {};
+  session.currentGameKey = null;
+  session.sessionDirty = {};
+  session.sessionSeedsStart = {};
   parentsChildren = [];
   parentsActiveChildId = null;
   parentsForcedSetup = false;
@@ -1527,60 +1531,6 @@ function applyGlobalI18n(){
   }
 }
 
-function speak(text, rate){
-  if(!('speechSynthesis' in window) || !text) return;
-  const clean = String(text)
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\p{Extended_Pictographic}/gu, '') // skip emoji (stars, hearts, etc.) so the voice doesn't try to describe them
-    .replace(/\s+/g,' ').trim();
-  if(!clean) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(clean);
-  u.lang = state.lang === 'it' ? 'it-IT' : 'pt-BR';
-  u.rate = rate || 0.9;
-  window.speechSynthesis.speak(u);
-}
-function makeTtsBtn(text, light){
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'tts-btn' + (light ? ' tts-btn-light' : '');
-  btn.setAttribute('aria-label', 'Ouvir');
-  btn.textContent = '🔊';
-  btn.onclick = (e)=>{ e.stopPropagation(); speak(text); };
-  return btn;
-}
-function makeTtsIcon(text){
-  const span = document.createElement('span');
-  span.className = 'tts-icon';
-  span.setAttribute('role', 'button');
-  span.setAttribute('aria-label', 'Ouvir');
-  span.textContent = '🔊';
-  span.onclick = (e)=>{ e.stopPropagation(); speak(text); };
-  return span;
-}
-function makeHelpBtn(instructionText){
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'help-btn';
-  btn.setAttribute('aria-label', L().helpBtnLabel);
-  btn.textContent = '💡';
-  btn.onclick = (e)=>{
-    e.stopPropagation();
-    logGameEvent({ eventType: 'help_request' }); // behavioral signal for the "Tolerância à frustração" report; the hint itself is intentionally simple
-    speak(instructionText, 0.65); // slower repeat of the instruction doubles as the "hint"
-  };
-  return btn;
-}
-function setInstructions(id, text, showHelp){
-  const el = document.getElementById(id);
-  el.innerHTML = '';
-  const span = document.createElement('span');
-  span.className = 'instr-text';
-  span.textContent = text;
-  el.appendChild(span);
-  el.appendChild(makeTtsBtn(text));
-  if(showHelp) el.appendChild(makeHelpBtn(text));
-}
 function setThermoStepLabel(id, text){
   const el = document.getElementById(id);
   el.innerHTML = '';
@@ -1598,31 +1548,6 @@ function setChatBubble(text){
   el.appendChild(span);
   el.appendChild(makeTtsBtn(text, true));
 }
-// Names (child profile, professional full_name) are free text the account
-// owner controls, but they get rendered into other people's browsers -
-// professionals viewing linked children, parents viewing linked
-// professionals - so any HTML in a name would execute in their session.
-// Escape before every innerHTML/outerHTML interpolation of one; textContent
-// assignments elsewhere don't need this, they never parse HTML.
-function escapeHtml(s){
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function say(text){
-  const el = document.getElementById('mascotSpeech');
-  el.innerHTML = '';
-  const span = document.createElement('span');
-  span.className = 'speech-text';
-  span.textContent = text;
-  el.appendChild(span);
-  el.appendChild(makeTtsBtn(text, true));
-}
-function blinkMascot(){
-  const l = document.getElementById('eyeL'), r = document.getElementById('eyeR');
-  if(!l||!r) return;
-  l.setAttribute('ry','1'); r.setAttribute('ry','1');
-  setTimeout(()=>{ l.setAttribute('ry','5'); r.setAttribute('ry','5'); }, 160);
-}
-setInterval(blinkMascot, 3500);
 
 function addSeeds(n){
   state.profile.seeds += n;
@@ -1633,13 +1558,12 @@ function setStars(gameKey, count){
   state.profile.starsByGame[gameKey] = Math.max(state.profile.starsByGame[gameKey], count);
   saveProfileData();
   renderHubTileStars();
-  sessionDirty[gameKey] = true;
+  session.sessionDirty[gameKey] = true;
 }
 function setDifficulty(gameKey, level){
   state.profile.difficultyByGame[gameKey] = level;
   saveProfileData();
 }
-function getDifficulty(gameKey){ return state.profile.difficultyByGame[gameKey] || 'medio'; }
 
 function renderHubTileStars(){
   GAME_KEYS.forEach(k=>{
@@ -1708,13 +1632,13 @@ async function openGame(key){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+key).classList.add('active');
   window.scrollTo({top:0, behavior:'smooth'});
-  currentGameKey = key;
-  sessionSeedsStart[key] = state.profile.seeds;
-  sessionDirty[key] = false;
-  currentSessionId = crypto.randomUUID();
-  sessionCompleted = false;
+  session.currentGameKey = key;
+  session.sessionSeedsStart[key] = state.profile.seeds;
+  session.sessionDirty[key] = false;
+  session.currentSessionId = crypto.randomUUID();
+  session.sessionCompleted = false;
   await adjustDifficultyForSession(key);
-  startSessionRow(key, currentSessionId);
+  startSessionRow(key, session.currentSessionId);
   if(key==='semaforo') semInit();
   if(key==='memoria') simonInit();
   if(key==='historia') storyInit();
@@ -1755,79 +1679,6 @@ function goHub(){
   clearInterval(window._huntTimer);
 }
 
-// Sound/vibration feedback - reviewed by the ADHD-UX agent. One global
-// on/off (not per-game, to avoid repeated decisions) persisted in
-// localStorage since it's a device/session preference, not profile data.
-function isSoundEnabled(){ return localStorage.getItem('ilha_sound_enabled') !== '0'; }
-function renderSoundToggle(){
-  const btn = document.getElementById('soundToggleBtn');
-  if(!btn) return;
-  const on = isSoundEnabled();
-  btn.textContent = on ? '🔊' : '🔇';
-  btn.setAttribute('aria-label', on ? 'Som ativado' : 'Som desativado');
-}
-function toggleSound(){
-  localStorage.setItem('ilha_sound_enabled', isSoundEnabled() ? '0' : '1');
-  renderSoundToggle();
-}
-let _audioCtx = null;
-function getAudioCtx(){
-  if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return _audioCtx;
-}
-function beep(ctx, freq, startTime, duration, waveType, gainValue){
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = waveType;
-  osc.frequency.value = freq;
-  gain.gain.setValueAtTime(gainValue, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.start(startTime); osc.stop(startTime + duration + 0.02);
-}
-// Short synthesized tones (no audio-file assets, no loading cost) for
-// correct/wrong/complete moments, layered on top of the existing visual
-// feedback. "wrong" is deliberately a single soft, neutral blip - never a
-// buzzer or descending tone - so getting something wrong stays low-stakes
-// instead of reinforcing shame/avoidance in kids who may already carry
-// frustration around mistakes. Skips entirely while the mascot is speaking
-// (TTS) so the two audio channels never overlap.
-function playTone(type){
-  if(!isSoundEnabled()) return;
-  if(window.speechSynthesis && window.speechSynthesis.speaking) return;
-  try{
-    const ctx = getAudioCtx();
-    const now = ctx.currentTime;
-    if(type === 'correct'){
-      beep(ctx, 660, now, 0.08, 'sine', 0.15);
-      beep(ctx, 880, now + 0.08, 0.10, 'sine', 0.15);
-    } else if(type === 'wrong'){
-      beep(ctx, 330, now, 0.12, 'sine', 0.08);
-    } else if(type === 'complete'){
-      beep(ctx, 523, now, 0.10, 'triangle', 0.2);
-      beep(ctx, 659, now + 0.10, 0.10, 'triangle', 0.2);
-      beep(ctx, 784, now + 0.20, 0.15, 'triangle', 0.2);
-    }
-  }catch(e){ /* Web Audio unsupported/blocked - sound is a bonus, never required */ }
-}
-// No vibration on 'wrong' - stacking a physical negative signal on top of
-// sound+visual would pile on for a single wrong answer; haptic stays
-// reserved for positive moments only.
-function hapticFeedback(type){
-  if(!isSoundEnabled()) return;
-  if(!navigator.vibrate) return;
-  if(type === 'correct') navigator.vibrate(30);
-  else if(type === 'complete') navigator.vibrate([40,50,40,50,60]);
-}
-function showFeedback(id, text, good){
-  const el = document.getElementById(id);
-  el.innerHTML = text;
-  el.className = 'feedback-banner show ' + (good ? 'good' : 'gentle');
-  el.appendChild(makeTtsBtn(el.textContent));
-  playTone(good ? 'correct' : 'wrong');
-  hapticFeedback(good ? 'correct' : 'wrong');
-}
-function hideFeedback(id){ document.getElementById(id).className = 'feedback-banner'; }
 
 /* ========================= GAME 1: SEMÁFORO ========================= */
 let sem = { round:0, hits:0, total:5, canGo:false, cfg:null };
@@ -1892,7 +1743,7 @@ function markRound(hit){
   setTimeout(()=>{ hideFeedback('semFeedback'); semNextRound(); }, 900);
 }
 function semEnd(){
-  sessionCompleted = true;
+  session.sessionCompleted = true;
   logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   const light = document.getElementById('semLight');
@@ -1994,7 +1845,7 @@ function simonInput(padIndex){
   if(simon.input.length === simon.sequence.length){
     simon.playing = true;
     if(simon.level >= simon.cfg.maxLevel){
-      sessionCompleted = true;
+      session.sessionCompleted = true;
       logGameEvent({ eventType: 'activity_complete' });
       showFeedback('simonFeedback', t.mem.mastery, true);
       setStars('memoria', 3); addSeeds(10); say(t.mascotGood);
@@ -2095,7 +1946,7 @@ function checkStory(){
   const ratio = correctCount/story.correct.length;
   const stars = ratio===1?3: ratio>=0.6?2: ratio>0?1:0;
   setStars('historia', stars);
-  sessionCompleted = true;
+  session.sessionCompleted = true;
   logGameEvent({ eventType: 'activity_complete' });
   story.lastWasPerfect = correctCount === story.correct.length;
   if(story.lastWasPerfect){
@@ -2179,7 +2030,7 @@ function chatContinue(){
   renderChatStep(); // same turn repeats if the last answer was wrong, otherwise moves on
 }
 function chatEnd(){
-  sessionCompleted = true;
+  session.sessionCompleted = true;
   logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   setChatBubble(t.chat.closing);
@@ -2382,7 +2233,7 @@ function huntTriggerRuleChange(){
 }
 function huntEnd(allFound){
   clearInterval(hunt.timerId);
-  sessionCompleted = true;
+  session.sessionCompleted = true;
   logGameEvent({ eventType: 'activity_complete' });
   const t = L();
   document.querySelectorAll('.hunt-cell').forEach(c=>c.onclick=null);
@@ -2423,7 +2274,7 @@ function thermoStart(){
 function thermoRenderRound(){
   const t = L();
   if(thermo.step >= thermo.rounds.length){
-    sessionCompleted = true;
+    session.sessionCompleted = true;
     logGameEvent({ eventType: 'activity_complete' });
     setStars('termometro', 3); say(t.mascotGood);
     return;
@@ -2495,97 +2346,9 @@ function thermoPickCalm(opt, btn){
 }
 
 /* ========================= SESSION LOGGING (for parents area) ========================= */
-let currentGameKey = null;
-let sessionDirty = {};
-let sessionSeedsStart = {};
-let currentSessionId = null;
-let sessionCompleted = false;
 
-async function logGameEvent({ eventType, target = null, targetType = null, responseValue = null, correct = null, responseTimeMs = null, errorType = null, emotion = null, context = null }) {
-  if (!state.profileId || !currentSessionId || !currentGameKey) return;
-  try {
-    const { error } = await sb.from('game_events').insert({
-      session_id: currentSessionId,
-      profile_id: state.profileId,
-      game_key: currentGameKey,
-      event_type: eventType,
-      target: target,
-      target_type: targetType,
-      response_value: responseValue,
-      correct: correct,
-      response_time_ms: responseTimeMs,
-      error_type: errorType,
-      emotion: emotion,
-      context: context
-    });
-    if (error) console.error('[gameEvents] falha ao gravar evento:', error);
-  } catch (e) {}
-}
 
-const repeatedTapTimestamps = {};
-function trackRepeatedTap(elementId) {
-  const now = Date.now();
-  if (!repeatedTapTimestamps[elementId]) repeatedTapTimestamps[elementId] = [];
-  repeatedTapTimestamps[elementId] = repeatedTapTimestamps[elementId].filter(t => now - t < 1000);
-  repeatedTapTimestamps[elementId].push(now);
-  if (repeatedTapTimestamps[elementId].length >= 3) {
-    logGameEvent({ eventType: 'repeated_tap', target: elementId });
-    repeatedTapTimestamps[elementId] = [];
-  }
-}
-document.addEventListener('pointerdown', (e) => {
-  if (!currentGameKey) return;
-  let id = null;
-  const btn = e.target.closest('button, .hunt-cell, .trail-pad, .story-card, .light-circle, .emo-btn');
-  if (btn) {
-    if (btn.id) id = btn.id;
-    else if (btn.className && typeof btn.className === 'string') id = btn.className.split(' ')[0];
-  }
-  if (id) trackRepeatedTap(id);
-});
 
-function flushSessionLog(){
-  if(currentGameKey) {
-    if(!sessionCompleted && sessionDirty[currentGameKey]) {
-      logGameEvent({ eventType: 'abandon' });
-    }
-    if (sessionDirty[currentGameKey]) logSession(currentGameKey, currentSessionId, sessionCompleted);
-  }
-  currentGameKey = null;
-  currentSessionId = null;
-}
-// Safety net for a tab that's just closed or an app that's backgrounded on
-// mobile - neither reaches any of flushSessionLog()'s in-app navigation call
-// sites, so without this the session stays status='in_progress' forever
-// (this was the actual cause of most sessions never showing as completed or
-// abandoned). Unlike flushSessionLog(), this doesn't clear currentGameKey/
-// currentSessionId - gameplay continues normally if the tab comes back to
-// the foreground, and the eventual real flushSessionLog() (finishing the
-// activity or navigating away) overwrites this checkpoint with the accurate
-// final status/end_time.
-function checkpointSessionLog(){
-  if(currentGameKey && sessionDirty[currentGameKey]) {
-    logSession(currentGameKey, currentSessionId, sessionCompleted);
-  }
-}
-document.addEventListener('visibilitychange', () => {
-  if(document.visibilityState === 'hidden') checkpointSessionLog();
-});
-window.addEventListener('pagehide', checkpointSessionLog);
-async function logSession(gameKey, sessionId, completed){
-  sessionDirty[gameKey] = false;
-  if(!state.profileId || !state.familyId || !state.profile || !sessionId) return;
-  const stars = state.profile.starsByGame[gameKey] || 0;
-  const difficulty = getDifficulty(gameKey);
-  const startSeeds = sessionSeedsStart[gameKey] ?? state.profile.seeds;
-  const seedsEarned = Math.max(0, state.profile.seeds - startSeeds);
-  try{
-    const { error } = await sb.from('game_sessions')
-      .update({ difficulty, stars, seeds_earned: seedsEarned, end_time: new Date().toISOString(), status: completed ? 'completed' : 'abandoned' })
-      .eq('id', sessionId);
-    if(error) throw error;
-  }catch(e){ /* best-effort; a failed log shouldn't block gameplay */ }
-}
 
 /* ========================= STICKER ALBUM ========================= */
 function openAlbum(){

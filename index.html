@@ -508,6 +508,7 @@
         <button id="langBtnIt" onclick="setLang('it')">🇮🇹</button>
       </div>
       <div class="seeds">🌰 <span id="seedCount">0</span> <span id="seedsLabel">sementes de foco</span></div>
+      <button class="icon-btn" id="soundToggleBtn" onclick="toggleSound()"></button>
       <div class="profile-chip"><span class="av" id="chipAvatar">🦫</span><span id="chipName">—</span></div>
       <button class="icon-btn" id="albumBtn" onclick="openAlbum()">🖼️ <span id="albumBtnLabel"></span></button>
       <button class="icon-btn" id="parentsAreaBtn" onclick="openParents()">🔒 <span id="parentsAreaBtnLabel"></span></button>
@@ -2355,6 +2356,7 @@ function applyGlobalI18n(){
   document.getElementById('appTag').textContent = t.appTag;
   document.getElementById('seedsLabel').textContent = t.seedsLabel;
   document.getElementById('switchProfileBtn').textContent = t.switchProfile;
+  renderSoundToggle();
   document.getElementById('parentsAreaBtnLabel').textContent = t.parents.areaTitle;
   document.getElementById('albumBtnLabel').textContent = t.album.title;
   document.getElementById('headerLogoutBtnLabel').textContent = t.logoutBtnLabel;
@@ -2595,11 +2597,77 @@ function goHub(){
   clearInterval(window._huntTimer);
 }
 
+// Sound/vibration feedback - reviewed by the ADHD-UX agent. One global
+// on/off (not per-game, to avoid repeated decisions) persisted in
+// localStorage since it's a device/session preference, not profile data.
+function isSoundEnabled(){ return localStorage.getItem('ilha_sound_enabled') !== '0'; }
+function renderSoundToggle(){
+  const btn = document.getElementById('soundToggleBtn');
+  if(!btn) return;
+  const on = isSoundEnabled();
+  btn.textContent = on ? '🔊' : '🔇';
+  btn.setAttribute('aria-label', on ? 'Som ativado' : 'Som desativado');
+}
+function toggleSound(){
+  localStorage.setItem('ilha_sound_enabled', isSoundEnabled() ? '0' : '1');
+  renderSoundToggle();
+}
+let _audioCtx = null;
+function getAudioCtx(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return _audioCtx;
+}
+function beep(ctx, freq, startTime, duration, waveType, gainValue){
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = waveType;
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(gainValue, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(startTime); osc.stop(startTime + duration + 0.02);
+}
+// Short synthesized tones (no audio-file assets, no loading cost) for
+// correct/wrong/complete moments, layered on top of the existing visual
+// feedback. "wrong" is deliberately a single soft, neutral blip - never a
+// buzzer or descending tone - so getting something wrong stays low-stakes
+// instead of reinforcing shame/avoidance in kids who may already carry
+// frustration around mistakes. Skips entirely while the mascot is speaking
+// (TTS) so the two audio channels never overlap.
+function playTone(type){
+  if(!isSoundEnabled()) return;
+  if(window.speechSynthesis && window.speechSynthesis.speaking) return;
+  try{
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+    if(type === 'correct'){
+      beep(ctx, 660, now, 0.08, 'sine', 0.15);
+      beep(ctx, 880, now + 0.08, 0.10, 'sine', 0.15);
+    } else if(type === 'wrong'){
+      beep(ctx, 330, now, 0.12, 'sine', 0.08);
+    } else if(type === 'complete'){
+      beep(ctx, 523, now, 0.10, 'triangle', 0.2);
+      beep(ctx, 659, now + 0.10, 0.10, 'triangle', 0.2);
+      beep(ctx, 784, now + 0.20, 0.15, 'triangle', 0.2);
+    }
+  }catch(e){ /* Web Audio unsupported/blocked - sound is a bonus, never required */ }
+}
+// No vibration on 'wrong' - stacking a physical negative signal on top of
+// sound+visual would pile on for a single wrong answer; haptic stays
+// reserved for positive moments only.
+function hapticFeedback(type){
+  if(!isSoundEnabled()) return;
+  if(!navigator.vibrate) return;
+  if(type === 'correct') navigator.vibrate(30);
+  else if(type === 'complete') navigator.vibrate([40,50,40,50,60]);
+}
 function showFeedback(id, text, good){
   const el = document.getElementById(id);
   el.innerHTML = text;
   el.className = 'feedback-banner show ' + (good ? 'good' : 'gentle');
   el.appendChild(makeTtsBtn(el.textContent));
+  playTone(good ? 'correct' : 'wrong');
+  hapticFeedback(good ? 'correct' : 'wrong');
 }
 function hideFeedback(id){ document.getElementById(id).className = 'feedback-banner'; }
 
@@ -3113,6 +3181,8 @@ function huntClick(cell){
   logGameEvent({ eventType: 'answer', targetType: 'grid', target: hunt.activeTarget, responseValue: emoji, correct: isTarget, responseTimeMs: rt, errorType });
 
   const t = L();
+  playTone(isTarget ? 'correct' : 'wrong');
+  hapticFeedback(isTarget ? 'correct' : 'wrong');
   if(isTarget){
     cell.classList.add('found');
     hunt.found++;

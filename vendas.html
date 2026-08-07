@@ -307,6 +307,21 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   .final-cta h2{ font-size:25px; margin-bottom:10px; }
   .final-cta p{ color:var(--ink-soft); font-size:14.5px; margin-bottom:24px; }
 
+  /* ---------- Testimonials ---------- */
+  .testimonials-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  .testimonial-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:22px; box-shadow: var(--shadow); }
+  .testimonial-stars{ color:var(--sand); font-size:16px; margin-bottom:8px; letter-spacing:1px; }
+  .testimonial-comment{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin-bottom:12px; font-style:italic; }
+  .testimonial-name{ font-size:12.5px; font-weight:700; color:var(--ink); }
+
+  /* ---------- Review form ---------- */
+  .review-form-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:32px 28px; max-width:460px; margin:0 auto; text-align:center; box-shadow: var(--shadow); }
+  .review-star-row{ display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+  .review-star-btn{ background:none; border:none; font-size:32px; cursor:pointer; opacity:.25; transition:opacity .15s ease, transform .1s ease; padding:2px; line-height:1; }
+  .review-star-btn:hover{ transform: scale(1.1); }
+  .review-star-btn.active{ opacity:1; }
+  .review-success{ font-size:14px; color:var(--caramel-deep); font-weight:700; }
+
   /* ---------- Footer ---------- */
   footer{ padding: 40px 0 50px; text-align:center; }
   footer .foot-links{ margin-bottom:14px; }
@@ -593,6 +608,11 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
+  <section class="wrap" id="testimonialsSection-pt" style="display:none;">
+    <h2 class="section-title">O que as famílias dizem</h2>
+    <div class="testimonials-grid" id="testimonialsGrid-pt"></div>
+  </section>
+
   <section class="wrap">
     <h2 class="section-title">Perguntas frequentes</h2>
     <details class="faq-item"><summary>Isso substitui terapia ou diagnóstico?</summary><p>Não. Os relatórios são um apoio à observação e ao acompanhamento — eles não constituem diagnóstico médico e não substituem avaliação de um profissional qualificado.</p></details>
@@ -609,6 +629,25 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <h2>Pronta(o) pra começar?</h2>
       <p>Leva menos de um minuto pra criar o perfil do seu filho.</p>
       <a class="btn-primary" href="#checkoutCard-pt">Criar minha conta →</a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Já usa a Ilha do Foco?</h2>
+    <p class="section-sub">Conta pra gente o que achou — sua avaliação nos ajuda (e ajuda outras famílias) a decidir.</p>
+    <div class="review-form-card" id="reviewFormCard-pt">
+      <div class="review-star-row" id="reviewStars-pt">
+        <button type="button" class="review-star-btn" data-value="1">★</button>
+        <button type="button" class="review-star-btn" data-value="2">★</button>
+        <button type="button" class="review-star-btn" data-value="3">★</button>
+        <button type="button" class="review-star-btn" data-value="4">★</button>
+        <button type="button" class="review-star-btn" data-value="5">★</button>
+      </div>
+      <input type="text" class="review-name-input checkout-email-input" placeholder="Seu nome">
+      <textarea class="review-comment-input" rows="3" placeholder="Conta como foi sua experiência (opcional)" style="width:100%; box-sizing:border-box; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; resize:vertical;"></textarea>
+      <button type="button" class="btn-primary review-submit-btn" style="width:100%; justify-content:center;">Enviar avaliação</button>
+      <p class="checkout-error review-error" style="display:none;"></p>
+      <p class="review-success" style="display:none;"></p>
     </div>
   </section>
 
@@ -879,6 +918,11 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
+  <section class="wrap" id="testimonialsSection-it" style="display:none;">
+    <h2 class="section-title">Cosa dicono le famiglie</h2>
+    <div class="testimonials-grid" id="testimonialsGrid-it"></div>
+  </section>
+
   <section class="wrap">
     <h2 class="section-title">Domande frequenti</h2>
     <details class="faq-item"><summary>Sostituisce la terapia o una diagnosi?</summary><p>No. I report sono un supporto all'osservazione e al monitoraggio — non costituiscono una diagnosi medica e non sostituiscono la valutazione di un professionista qualificato.</p></details>
@@ -895,6 +939,25 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <h2>Pronto/a per iniziare?</h2>
       <p>Bastano meno di un minuto per creare il profilo di tuo figlio.</p>
       <a class="btn-primary" href="#checkoutCard-it">Crea il mio account →</a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Usi già l'Isola del Focus?</h2>
+    <p class="section-sub">Raccontaci com'è andata — la tua opinione ci aiuta (e aiuta altre famiglie) a decidere.</p>
+    <div class="review-form-card" id="reviewFormCard-it">
+      <div class="review-star-row" id="reviewStars-it">
+        <button type="button" class="review-star-btn" data-value="1">★</button>
+        <button type="button" class="review-star-btn" data-value="2">★</button>
+        <button type="button" class="review-star-btn" data-value="3">★</button>
+        <button type="button" class="review-star-btn" data-value="4">★</button>
+        <button type="button" class="review-star-btn" data-value="5">★</button>
+      </div>
+      <input type="text" class="review-name-input checkout-email-input" placeholder="Il tuo nome">
+      <textarea class="review-comment-input" rows="3" placeholder="Raccontaci com'è andata la tua esperienza (facoltativo)" style="width:100%; box-sizing:border-box; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; resize:vertical;"></textarea>
+      <button type="button" class="btn-primary review-submit-btn" style="width:100%; justify-content:center;">Invia la tua valutazione</button>
+      <p class="checkout-error review-error" style="display:none;"></p>
+      <p class="review-success" style="display:none;"></p>
     </div>
   </section>
 
@@ -1411,6 +1474,30 @@ const LEAD_CAPTURE_COPY = {
   },
 };
 
+const REVIEW_COPY = {
+  pt: {
+    missingName: 'Digite seu nome.',
+    missingRating: 'Escolha de 1 a 5 estrelas.',
+    genericError: 'Não foi possível enviar. Tente novamente.',
+    sending: 'Enviando...',
+    success: 'Obrigada! Sua avaliação será revisada antes de aparecer aqui. 💛',
+  },
+  it: {
+    missingName: 'Inserisci il tuo nome.',
+    missingRating: 'Scegli da 1 a 5 stelle.',
+    genericError: 'Impossibile inviare. Riprova.',
+    sending: 'Invio...',
+    success: 'Grazie! La tua recensione sarà controllata prima di apparire qui. 💛',
+  },
+};
+
+// Free text a site visitor controls, rendered via innerHTML into the
+// testimonials grid below - same reasoning as index.html's escapeHtml
+// (fixed there for the same class of stored-XSS risk): never trust it raw.
+function escapeHtml(s){
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // Direct insert into `leads` with the anon key - same pattern the quiz already
 // used successfully (no Edge Function needed for a plain insert). Captures
 // UTMs from the URL, same fallback convention the quiz used (utm_source
@@ -1504,6 +1591,113 @@ function setupLeadCaptureForm(lang){
 
 setupLeadCaptureForm('pt');
 setupLeadCaptureForm('it');
+
+// Public review form - any visitor can submit (see the app_reviews RLS
+// policies: insert always forced to status='pending'), no purchase/login
+// check. Moderation before anything shows publicly is the only gate.
+function setupReviewForm(lang){
+  const t = REVIEW_COPY[lang];
+  const card = document.getElementById(`reviewFormCard-${lang}`);
+  if(!card) return;
+  const starRow = card.querySelector('.review-star-row');
+  const stars = [...starRow.querySelectorAll('.review-star-btn')];
+  const nameInput = card.querySelector('.review-name-input');
+  const commentInput = card.querySelector('.review-comment-input');
+  const submitBtn = card.querySelector('.review-submit-btn');
+  const errorEl = card.querySelector('.review-error');
+  const successEl = card.querySelector('.review-success');
+  let rating = 0;
+
+  function renderStars(){
+    stars.forEach((btn, i) => btn.classList.toggle('active', i < rating));
+  }
+  stars.forEach((btn, i) => {
+    btn.addEventListener('click', () => { rating = i + 1; renderStars(); });
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    errorEl.style.display = 'none';
+    if(!name){
+      errorEl.textContent = t.missingName;
+      errorEl.style.display = 'block';
+      return;
+    }
+    if(rating < 1){
+      errorEl.textContent = t.missingRating;
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const payload = {
+      name,
+      rating,
+      comment: commentInput.value.trim() || null,
+      status: 'pending',
+    };
+
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = t.sending;
+    try{
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      });
+      if(!res.ok) throw new Error('review_insert_failed');
+      starRow.style.display = 'none';
+      nameInput.style.display = 'none';
+      commentInput.style.display = 'none';
+      submitBtn.style.display = 'none';
+      successEl.textContent = t.success;
+      successEl.style.display = 'block';
+    }catch(e){
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+      errorEl.textContent = t.genericError;
+      errorEl.style.display = 'block';
+    }
+  });
+}
+setupReviewForm('pt');
+setupReviewForm('it');
+
+// Approved testimonials - fetched once and shown to everyone regardless of
+// interface language (a review is a review, not worth translating/filtering).
+// Section stays hidden (see the style="display:none" on both
+// testimonialsSection-* wrappers) until there's at least one to show, so an
+// empty grid never reads as "nobody's reviewed this."
+async function loadTestimonials(){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews?status=eq.approved&order=created_at.desc&limit=9&select=name,rating,comment`, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+    });
+    if(!res.ok) return;
+    const reviews = await res.json();
+    if(!Array.isArray(reviews) || !reviews.length) return;
+    const cardsHtml = reviews.map(r => `
+      <div class="testimonial-card">
+        <div class="testimonial-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+        ${r.comment ? `<p class="testimonial-comment">"${escapeHtml(r.comment)}"</p>` : ''}
+        <div class="testimonial-name">${escapeHtml(r.name)}</div>
+      </div>
+    `).join('');
+    for(const lang of ['pt', 'it']){
+      const grid = document.getElementById(`testimonialsGrid-${lang}`);
+      const section = document.getElementById(`testimonialsSection-${lang}`);
+      if(!grid || !section) continue;
+      grid.innerHTML = cardsHtml;
+      section.style.display = '';
+    }
+  }catch(e){ /* best-effort - no testimonials shown just means the section stays hidden */ }
+}
+loadTestimonials();
 
 // Handles the redirect back from Stripe's hosted checkout (the embedded Pix
 // flow never leaves this page, so it doesn't need this - see the polling above).

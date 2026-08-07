@@ -98,6 +98,20 @@
   .modal-delete-btn:hover{ background:rgba(229,85,110,.08); }
 
   .loading-note, .denied-note{ text-align:center; padding:60px 20px; color:var(--muted); font-size:14px; }
+
+  /* ---------- Reviews moderation ---------- */
+  .reviews-toolbar{ display:flex; justify-content:space-between; align-items:center; margin:32px 0 14px; }
+  .reviews-list{ display:grid; gap:10px; }
+  .review-card{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .review-card .stars{ color:var(--sand); font-size:14px; letter-spacing:1px; margin-bottom:4px; }
+  .review-card .name{ font-weight:700; font-size:13.5px; color:var(--text); }
+  .review-card .when{ font-size:11px; color:var(--muted); }
+  .review-card .comment{ font-size:13px; color:var(--text); line-height:1.5; margin:6px 0; font-style:italic; }
+  .review-card .actions{ display:flex; gap:8px; margin-top:8px; }
+  .review-card .actions button{ border-radius:999px; padding:6px 14px; font-size:12.5px; font-weight:700; cursor:pointer; border:1px solid var(--line); }
+  .review-approve-btn{ background:var(--leaf); color:#fff; border-color:var(--leaf) !important; }
+  .review-reject-btn{ background:#fff; color:var(--berry); border-color:var(--berry) !important; }
+  .empty-reviews{ font-size:13px; color:var(--muted); padding:10px 2px; }
 </style>
 </head>
 <body>
@@ -147,6 +161,11 @@
         <button id="refreshBtn" type="button">↻ Atualizar</button>
       </div>
       <div class="board" id="board"></div>
+
+      <div class="reviews-toolbar">
+        <h2 style="font-size:15px;color:var(--ink);">Avaliações pendentes</h2>
+      </div>
+      <div class="reviews-list" id="reviewsList"></div>
     </div>
     <div id="loadingNote" class="loading-note">Carregando...</div>
   </main>
@@ -298,10 +317,14 @@ async function checkAdminAndLoad(email){
   document.getElementById('deniedNote').classList.add('hidden');
   document.getElementById('crmContent').classList.remove('hidden');
   await loadBoard();
+  await loadReviews();
   await initPushNotifications(email);
 }
 
-document.getElementById('refreshBtn').addEventListener('click', loadBoard);
+document.getElementById('refreshBtn').addEventListener('click', async () => {
+  await loadBoard();
+  await loadReviews();
+});
 
 /* ========================= PUSH NOTIFICATIONS ========================= */
 // Public key only - safe to ship in client code, it's what the browser uses
@@ -552,6 +575,53 @@ async function deleteLead(leadId){
   const { error: leadError } = await sb.from('leads').delete().eq('id', leadId);
   if(leadError){ console.error(leadError); alert('Não foi possível excluir o lead.'); return; }
   await loadBoard();
+}
+
+/* ========================= REVIEWS MODERATION ========================= */
+// Anyone can submit a review from vendas.html (no purchase/login check) -
+// this is the only gate before one becomes a public testimonial. Approving
+// sets approved_at too (not just status) so there's a record of when, not
+// just that, it went public.
+let reviewsCache = [];
+async function loadReviews(){
+  const { data, error } = await sb.from('app_reviews').select('*').eq('status', 'pending').order('created_at', { ascending: false });
+  if(error){ console.error(error); return; }
+  reviewsCache = data || [];
+  renderReviews();
+}
+
+function renderReviews(){
+  const list = document.getElementById('reviewsList');
+  list.innerHTML = '';
+  if(!reviewsCache.length){
+    list.innerHTML = '<div class="empty-reviews">Nenhuma avaliação pendente.</div>';
+    return;
+  }
+  reviewsCache.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `
+      <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+      <div class="name">${escapeHtml(r.name)}</div>
+      <div class="when">${timeSince(r.created_at)}</div>
+      ${r.comment ? `<div class="comment">"${escapeHtml(r.comment)}"</div>` : ''}
+      <div class="actions">
+        <button type="button" class="review-approve-btn">Aprovar</button>
+        <button type="button" class="review-reject-btn">Rejeitar</button>
+      </div>
+    `;
+    card.querySelector('.review-approve-btn').addEventListener('click', () => moderateReview(r.id, 'approved'));
+    card.querySelector('.review-reject-btn').addEventListener('click', () => moderateReview(r.id, 'rejected'));
+    list.appendChild(card);
+  });
+}
+
+async function moderateReview(reviewId, status){
+  const update = { status };
+  if(status === 'approved') update.approved_at = new Date().toISOString();
+  const { error } = await sb.from('app_reviews').update(update).eq('id', reviewId);
+  if(error){ console.error(error); alert('Não foi possível atualizar a avaliação.'); return; }
+  await loadReviews();
 }
 </script>
 </body>

@@ -392,7 +392,7 @@ async function loadBoard(){
   // (compute_platform_metrics_daily) - this just reads yesterday's row,
   // never writes. Best-effort: a failure here shouldn't block the lead board.
   const { data: metricsRows } = await sb.from('platform_metrics_daily')
-    .select('mrr, mrr_unpriced_count, metric_date')
+    .select('mrr_brl, mrr_eur, mrr_unpriced_count, metric_date')
     .order('metric_date', { ascending: false }).limit(1);
   platformMetricsCache = metricsRows?.[0] || null;
   renderMetrics();
@@ -418,15 +418,22 @@ function renderMetrics(){
   });
   const topEntries = (obj) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);
 
-  const mrrValue = platformMetricsCache ? parseFloat(platformMetricsCache.mrr) || 0 : null;
+  // Kept as two separate currency totals, never summed into one number -
+  // BRL and EUR subscribers pay real amounts in their own currency, and
+  // adding them together without an exchange rate would be meaningless.
+  const mrrBrl = platformMetricsCache ? parseFloat(platformMetricsCache.mrr_brl) || 0 : null;
+  const mrrEur = platformMetricsCache ? parseFloat(platformMetricsCache.mrr_eur) || 0 : null;
   const mrrUnpriced = platformMetricsCache?.mrr_unpriced_count || 0;
 
   const el = document.getElementById('metricsRow');
   el.innerHTML = `
     <div class="metric-card">
       <div class="label">MRR (assinaturas recorrentes)</div>
-      <div class="value">${mrrValue === null ? '—' : `R$ ${mrrValue.toFixed(2).replace('.', ',')}`}</div>
-      ${mrrUnpriced > 0 ? `<div class="breakdown"><div><span>Sem preço cadastrado</span><span>${mrrUnpriced}</span></div></div>` : ''}
+      <div class="value">${mrrBrl === null ? '—' : `R$ ${mrrBrl.toFixed(2).replace('.', ',')}`}</div>
+      <div class="breakdown">
+        ${mrrEur > 0 ? `<div><span>MRR em EUR</span><span>€ ${mrrEur.toFixed(2).replace('.', ',')}</span></div>` : ''}
+        ${mrrUnpriced > 0 ? `<div><span>Sem preço cadastrado</span><span>${mrrUnpriced}</span></div>` : ''}
+      </div>
     </div>
     <div class="metric-card">
       <div class="label">Total de leads</div>

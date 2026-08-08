@@ -106,11 +106,14 @@
   .review-card .stars{ color:var(--sand); font-size:14px; letter-spacing:1px; margin-bottom:4px; }
   .review-card .name{ font-weight:700; font-size:13.5px; color:var(--text); }
   .review-card .when{ font-size:11px; color:var(--muted); }
-  .review-card .comment{ font-size:13px; color:var(--text); line-height:1.5; margin:6px 0; font-style:italic; }
+  .review-card .translations{ display:grid; gap:6px; margin:10px 0; }
+  .review-card .translation-field label{ display:block; font-size:11px; color:var(--muted); margin-bottom:2px; }
+  .review-card .translation-field textarea{ width:100%; font-family:inherit; font-size:12.5px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; resize:vertical; box-sizing:border-box; }
   .review-card .actions{ display:flex; gap:8px; margin-top:8px; }
   .review-card .actions button{ border-radius:999px; padding:6px 14px; font-size:12.5px; font-weight:700; cursor:pointer; border:1px solid var(--line); }
   .review-approve-btn{ background:var(--leaf); color:#fff; border-color:var(--leaf) !important; }
   .review-reject-btn{ background:#fff; color:var(--berry); border-color:var(--berry) !important; }
+  .review-save-translation-btn{ background:#fff; color:var(--ink); border-color:var(--line) !important; }
   .empty-reviews{ font-size:13px; color:var(--muted); padding:10px 2px; }
 </style>
 </head>
@@ -619,6 +622,10 @@ async function loadReviews(){
   renderReviews();
 }
 
+// Reviews are shown on both language sections of vendas.html, so whichever
+// language wasn't the original submission needs a manual translation before
+// it'll appear there (see loadTestimonials in vendas.html) - these two
+// fields are that translation step, editable independent of approve/reject.
 function renderReviewCard(r, actionsHtml){
   const card = document.createElement('div');
   card.className = 'review-card';
@@ -626,9 +633,35 @@ function renderReviewCard(r, actionsHtml){
     <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
     <div class="name">${escapeHtml(r.name)}</div>
     <div class="when">${timeSince(r.created_at)}</div>
-    ${r.comment ? `<div class="comment">"${escapeHtml(r.comment)}"</div>` : ''}
+    <div class="translations">
+      <div class="translation-field">
+        <label>🇧🇷 Português</label>
+        <textarea class="review-comment-pt" rows="2" placeholder="Sem comentário">${escapeHtml(r.comment_pt || '')}</textarea>
+      </div>
+      <div class="translation-field">
+        <label>🇮🇹 Italiano</label>
+        <textarea class="review-comment-it" rows="2" placeholder="Sem tradução ainda">${escapeHtml(r.comment_it || '')}</textarea>
+      </div>
+      <button type="button" class="review-save-translation-btn">Salvar traduções</button>
+    </div>
     <div class="actions">${actionsHtml}</div>
   `;
+  const saveBtn = card.querySelector('.review-save-translation-btn');
+  const ptInput = card.querySelector('.review-comment-pt');
+  const itInput = card.querySelector('.review-comment-it');
+  saveBtn.addEventListener('click', async () => {
+    const comment_pt = ptInput.value.trim() || null;
+    const comment_it = itInput.value.trim() || null;
+    saveBtn.disabled = true;
+    const originalLabel = saveBtn.textContent;
+    const { error } = await sb.from('app_reviews').update({ comment_pt, comment_it }).eq('id', r.id);
+    saveBtn.disabled = false;
+    if(error){ console.error(error); alert('Não foi possível salvar a tradução.'); return; }
+    r.comment_pt = comment_pt;
+    r.comment_it = comment_it;
+    saveBtn.textContent = 'Salvo ✓';
+    setTimeout(() => { saveBtn.textContent = originalLabel; }, 1500);
+  });
   return card;
 }
 

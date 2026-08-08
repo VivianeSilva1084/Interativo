@@ -1634,10 +1634,14 @@ function setupReviewForm(lang){
       return;
     }
 
+    // Written into the column matching the form's own language - the other
+    // language's column stays null until an admin adds a manual translation
+    // (see admin.html), so loadTestimonials() never shows this comment on
+    // the other language's page verbatim.
     const payload = {
       name,
       rating,
-      comment: commentInput.value.trim() || null,
+      [lang === 'it' ? 'comment_it' : 'comment_pt']: commentInput.value.trim() || null,
       status: 'pending',
     };
 
@@ -1673,31 +1677,36 @@ function setupReviewForm(lang){
 setupReviewForm('pt');
 setupReviewForm('it');
 
-// Approved testimonials - fetched once and shown to everyone regardless of
-// interface language (a review is a review, not worth translating/filtering).
+// Approved testimonials - fetched once, then rendered separately per
+// language: a review's comment only appears on a language section once
+// that language's column (comment_pt/comment_it) is filled in - either the
+// original (submitted through that language's form) or a manual admin
+// translation (see admin.html). Never shown untranslated on the other
+// section - the card still appears (stars + name), just without a quote,
+// until someone adds the missing translation.
 // Section stays hidden (see the style="display:none" on both
 // testimonialsSection-* wrappers) until there's at least one to show, so an
 // empty grid never reads as "nobody's reviewed this."
 async function loadTestimonials(){
   try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews?status=eq.approved&order=created_at.desc&limit=9&select=name,rating,comment`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews?status=eq.approved&order=created_at.desc&limit=9&select=name,rating,comment_pt,comment_it`, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
     });
     if(!res.ok) return;
     const reviews = await res.json();
     if(!Array.isArray(reviews) || !reviews.length) return;
-    const cardsHtml = reviews.map(r => `
-      <div class="testimonial-card">
-        <div class="testimonial-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-        ${r.comment ? `<p class="testimonial-comment">"${escapeHtml(r.comment)}"</p>` : ''}
-        <div class="testimonial-name">${escapeHtml(r.name)}</div>
-      </div>
-    `).join('');
     for(const lang of ['pt', 'it']){
       const grid = document.getElementById(`testimonialsGrid-${lang}`);
       const section = document.getElementById(`testimonialsSection-${lang}`);
       if(!grid || !section) continue;
-      grid.innerHTML = cardsHtml;
+      const commentField = lang === 'it' ? 'comment_it' : 'comment_pt';
+      grid.innerHTML = reviews.map(r => `
+        <div class="testimonial-card">
+          <div class="testimonial-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+          ${r[commentField] ? `<p class="testimonial-comment">"${escapeHtml(r[commentField])}"</p>` : ''}
+          <div class="testimonial-name">${escapeHtml(r.name)}</div>
+        </div>
+      `).join('');
       section.style.display = '';
     }
   }catch(e){ /* best-effort - no testimonials shown just means the section stays hidden */ }

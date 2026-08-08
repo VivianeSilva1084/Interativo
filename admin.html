@@ -383,10 +383,18 @@ async function initPushNotifications(email){
 }
 
 /* ========================= DATA + RENDER ========================= */
+let platformMetricsCache = null;
 async function loadBoard(){
   const { data, error } = await sb.from('leads').select('*').order('created_at', { ascending: false });
   if(error){ console.error(error); return; }
   leadsCache = data || [];
+  // platform_metrics_daily is computed every night by a pg_cron job
+  // (compute_platform_metrics_daily) - this just reads yesterday's row,
+  // never writes. Best-effort: a failure here shouldn't block the lead board.
+  const { data: metricsRows } = await sb.from('platform_metrics_daily')
+    .select('mrr, mrr_unpriced_count, metric_date')
+    .order('metric_date', { ascending: false }).limit(1);
+  platformMetricsCache = metricsRows?.[0] || null;
   renderMetrics();
   renderBoard();
 }
@@ -410,8 +418,16 @@ function renderMetrics(){
   });
   const topEntries = (obj) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);
 
+  const mrrValue = platformMetricsCache ? parseFloat(platformMetricsCache.mrr) || 0 : null;
+  const mrrUnpriced = platformMetricsCache?.mrr_unpriced_count || 0;
+
   const el = document.getElementById('metricsRow');
   el.innerHTML = `
+    <div class="metric-card">
+      <div class="label">MRR (assinaturas recorrentes)</div>
+      <div class="value">${mrrValue === null ? '—' : `R$ ${mrrValue.toFixed(2).replace('.', ',')}`}</div>
+      ${mrrUnpriced > 0 ? `<div class="breakdown"><div><span>Sem preço cadastrado</span><span>${mrrUnpriced}</span></div></div>` : ''}
+    </div>
     <div class="metric-card">
       <div class="label">Total de leads</div>
       <div class="value">${total}</div>

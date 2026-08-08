@@ -104,7 +104,7 @@ async function loadProfDashboardChildDetail(childId){
     sb.from('v_error_type_summary').select('error_type, occurrences').eq('profile_id', childId),
     sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 100).order('accuracy_pct', { ascending:true }).limit(5),
     sb.from('v_weekly_focus_evolution').select('game_key, week_start, avg_duration_seconds, max_duration_seconds, min_duration_seconds, avg_distractions').eq('profile_id', childId).order('week_start', { ascending:false }),
-    sb.from('v_response_time_trend').select('game_key, month, avg_response_time_ms, best_response_time_ms').eq('profile_id', childId).order('month', { ascending:false }),
+    sb.from('v_response_time_trend').select('game_key, month, avg_response_time_ms, best_response_time_ms, cv_response_time, n_trials').eq('profile_id', childId).order('month', { ascending:false }),
     sb.from('v_working_memory').select('game_key, longest_correct_sequence, avg_correct_length').eq('profile_id', childId),
     sb.from('v_rule_adaptation').select('game_key, time_to_adapt_ms').eq('profile_id', childId).not('time_to_adapt_ms', 'is', null),
     sb.from('v_perseverative_errors').select('game_key, perseverative_count').eq('profile_id', childId),
@@ -378,6 +378,7 @@ async function loadAndRenderProfChildDetail(container){
   else responseTimeHtml = Object.entries(responseByGame).map(([key, r])=>`
     <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(key)} — ${t.responseTimeAvg}</span><span class="prof-dash-row-value">${Math.round(r.avg_response_time_ms || 0)}${t.ms}</span></div>
     <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(key)} — ${t.responseTimeBest}</span><span class="prof-dash-row-value">${Math.round(r.best_response_time_ms || 0)}${t.ms}</span></div>
+    ${r.cv_response_time != null ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(key)} — ${t.responseTimeConsistency}</span><span class="prof-dash-row-value">${t.responseTimeConsistencyValue(r.cv_response_time, r.n_trials)}</span></div>` : ''}
   `).join('');
 
   // --- Memória de trabalho ---
@@ -479,7 +480,9 @@ async function loadAndRenderProfChildDetail(container){
     </div>
 
     <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
-      <div class="prof-dash-card-header">⚡ <span class="prof-dash-card-title">${t.responseTimeTitle}</span></div>
+      <div class="prof-dash-card-header">⚡ <span class="prof-dash-card-title">${t.responseTimeTitle}</span>
+        <span style="font-size:10px; color:#8A8067; margin-left:auto;">${t.responseTimeCaption}</span>
+      </div>
       ${responseTimeHtml}
     </div>
 

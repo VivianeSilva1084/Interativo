@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // front of it) - so this file needs the full chainable-and-awaitable
 // Supabase stub, configured per table/view/rpc. Inlined for the same
 // vi.hoisted-can't-reach-normal-imports reason as in parents-dashboard.test.js.
-const { sbStub, setPremium } = vi.hoisted(() => {
+const { sbStub, setPremium, setResponseTimeRows } = vi.hoisted(() => {
   function chainable(result){
     let proxy;
     const obj = { then(resolve){ resolve(result); return Promise.resolve(result); }, catch(){ return proxy; } };
@@ -13,6 +13,7 @@ const { sbStub, setPremium } = vi.hoisted(() => {
     return proxy;
   }
   let isPremium = true;
+  let responseTimeRows = [];
   const emptyView = { data: [], error: null };
   const tableResults = {
     professionals: { data: { id: 'prof-1' }, error: null },
@@ -22,20 +23,21 @@ const { sbStub, setPremium } = vi.hoisted(() => {
     v_impulsivity_index: { data: { indice: 85 }, error: null },
     v_adherence_summary: { data: [{ game_key: 'semaforo', semanas_com_dado: 3, semanas_com_meta_atingida: 2, taxa_adesao_pct: 66 }], error: null },
     v_phonological_swaps: emptyView, v_error_type_summary: emptyView, v_syllable_difficulty: emptyView,
-    v_weekly_focus_evolution: emptyView, v_response_time_trend: emptyView, v_working_memory: emptyView,
+    v_weekly_focus_evolution: emptyView, v_working_memory: emptyView,
     v_rule_adaptation: emptyView, v_perseverative_errors: emptyView, v_frustration_raw: emptyView,
     v_wait_task_compliance: emptyView, v_instruction_following: emptyView,
     game_sessions: emptyView,
   };
   return {
     setPremium: (v) => { isPremium = v; },
+    setResponseTimeRows: (rows) => { responseTimeRows = rows; },
     sbStub: {
       auth: {
         getUser: async () => ({ data: { user: { id: 'prof-user-id' } } }),
         getSession: async () => ({ data: { session: { access_token: 'test-token' } } }),
         signOut: async () => ({}),
       },
-      from: (table) => chainable(tableResults[table] ?? emptyView),
+      from: (table) => chainable(table === 'v_response_time_trend' ? { data: responseTimeRows, error: null } : (tableResults[table] ?? emptyView)),
       rpc: async (name) => {
         if (name === 'has_premium_access') return { data: isPremium, error: null };
         if (name === 'redeem_invite_code') return { data: { success: true, child_name: 'Beto' }, error: null };
@@ -73,6 +75,7 @@ describe('professional dashboard', () => {
     resetProfDashboardSelection();
     state.lang = 'pt';
     setPremium(true);
+    setResponseTimeRows([]);
     notifyReportReady.mockClear();
   });
 
@@ -105,6 +108,19 @@ describe('professional dashboard', () => {
     expect(notifyReportReady).not.toHaveBeenCalled();
     // At least one card gets the dashed "locked" styling used throughout for premium-gated sections.
     expect(document.getElementById('profDashDetail').innerHTML).toContain('dashed #C79A3D');
+  });
+
+  it('shows the response-time consistency (CV) line only for games with enough trials to compute it', async () => {
+    setResponseTimeRows([
+      { game_key: 'semaforo', month: '2026-08-01', avg_response_time_ms: 900, best_response_time_ms: 300, cv_response_time: 0.42, n_trials: 22 },
+      { game_key: 'cacaalvo', month: '2026-08-01', avg_response_time_ms: 700, best_response_time_ms: 200, cv_response_time: null, n_trials: 6 },
+    ]);
+    await openProfessionalDashboard();
+    await vi.waitFor(() => expect(document.querySelector('.prof-dash-child-btn')).not.toBeNull());
+
+    const html = document.getElementById('profDashDetail').innerHTML;
+    expect(html).toContain('0.42 · 22'); // semaforo: enough trials, CV rendered
+    expect(html).not.toContain('null'); // cacaalvo: below the 15-trial gate, no CV line at all
   });
 
   it('redeems an invite code and refreshes the sidebar with the newly-linked child', async () => {

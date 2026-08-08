@@ -158,6 +158,8 @@ export const I18N = {
       focusDuration:"Atenção sustentada", focusAvg:"Duração média de foco", focusMax:"Maior tempo de foco",
       focusMin:"Menor tempo de foco", focusDistractions:"Distrações por sessão (média)",
       responseTimeTitle:"Tempo de resposta", responseTimeAvg:"Média", responseTimeBest:"Melhor tempo",
+      responseTimeConsistency:"Variabilidade (CV)", responseTimeConsistencyValue:(cv,n)=>`${cv} · ${n} respostas`,
+      responseTimeCaption:"Variabilidade em contexto de jogo, não é um CPT padronizado",
       workingMemoryTitle:"Memória de trabalho", workingMemoryLongest:"Maior sequência lembrada", workingMemoryAvg:"Média",
       cognitiveFlexTitle:"Flexibilidade cognitiva", cognitiveFlexBody:"Tempo médio para se adaptar após mudança de regra",
       cognitiveFlexPersev:(n)=>`Erros perseverativos (voltou pro alvo antigo): ${n}`,
@@ -175,6 +177,7 @@ export const I18N = {
         ["Índice de impulsividade","Fórmula própria ponderando cliques prematuros, respostas antes de instrução terminar, abandonos e toques repetitivos — inspirada nas dimensões de impulsividade motora/cognitiva da escala de Barratt (BIS-11)."],
         ["Memória de trabalho","Maior sequência reproduzida corretamente — equivalente comportamental ao Digit Span do WISC/WAIS."],
         ["Flexibilidade cognitiva","Tempo de adaptação após mudança de regra — equivalente ao Wisconsin Card Sorting Test em formato simplificado."],
+        ["Variabilidade do tempo de resposta","Coeficiente de variação (desvio padrão ÷ média) do tempo de resposta por jogo, calculado só com 15+ respostas no mês — inspirado na variabilidade intraindividual (IIV) da literatura sobre TDAH, mas medida em contexto de jogo (dificuldade e demanda motora variam), não equivalente a um Continuous Performance Test padronizado."],
         ["Análise fonética","Taxa de acerto por sílaba, classificação de erro por tipo (omissão/substituição/inversão/acréscimo) — alinhada com o modelo de análise fonológica de Yavas, Hernandorena & Lamprecht, referência no Brasil."],
         ["Tolerância à frustração","Proporção de abandonos vs. tentativas de novo — indicador comportamental validado em literatura de autorregulação."]
       ],
@@ -355,6 +358,8 @@ export const I18N = {
       focusDuration:"Attenzione sostenuta", focusAvg:"Durata media di attenzione", focusMax:"Tempo massimo di attenzione",
       focusMin:"Tempo minimo di attenzione", focusDistractions:"Distrazioni per sessione (media)",
       responseTimeTitle:"Tempo di risposta", responseTimeAvg:"Media", responseTimeBest:"Tempo migliore",
+      responseTimeConsistency:"Variabilità (CV)", responseTimeConsistencyValue:(cv,n)=>`${cv} · ${n} risposte`,
+      responseTimeCaption:"Variabilità in contesto di gioco, non è un CPT standardizzato",
       workingMemoryTitle:"Memoria di lavoro", workingMemoryLongest:"Sequenza più lunga ricordata", workingMemoryAvg:"Media",
       cognitiveFlexTitle:"Flessibilità cognitiva", cognitiveFlexBody:"Tempo medio di adattamento dopo un cambio di regola",
       cognitiveFlexPersev:(n)=>`Errori perseverativi (tornato al bersaglio precedente): ${n}`,
@@ -372,6 +377,7 @@ export const I18N = {
         ["Indice di impulsività","Formula propria che pondera clic prematuri, risposte prima della fine dell'istruzione, abbandoni e tocchi ripetitivi — ispirata alle dimensioni di impulsività motoria/cognitiva della scala di Barratt (BIS-11)."],
         ["Memoria di lavoro","Sequenza più lunga riprodotta correttamente — equivalente comportamentale al Digit Span del WISC/WAIS."],
         ["Flessibilità cognitiva","Tempo di adattamento dopo il cambio di regola — equivalente al Wisconsin Card Sorting Test in formato semplificato."],
+        ["Variabilità del tempo di risposta","Coefficiente di variazione (deviazione standard ÷ media) del tempo di risposta per gioco, calcolato solo con 15+ risposte nel mese — ispirato alla variabilità intraindividuale (IIV) della letteratura sull'ADHD, ma misurata in contesto di gioco (difficoltà e richiesta motoria variano), non equivalente a un Continuous Performance Test standardizzato."],
         ["Analisi fonetica","Tasso di accuratezza per sillaba, classificazione dell'errore per tipo (omissione/sostituzione/inversione/aggiunta) — allineata al modello di analisi fonologica di Yavas, Hernandorena & Lamprecht, riferimento in Brasile."],
         ["Tolleranza alla frustrazione","Proporzione di abbandoni vs. nuovi tentativi — indicatore comportamentale validato nella letteratura sull'autoregolazione."]
       ],

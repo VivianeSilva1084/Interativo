@@ -64,7 +64,7 @@ function simonPlaySequence(){
   }
   setTimeout(step, 500);
 }
-function simonInput(padIndex){
+export function simonInput(padIndex){
   if(simon.playing || simon.locked) {
     if (simon.playing) logGameEvent({ eventType: 'premature_click' });
     return;

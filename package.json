@@ -2,9 +2,12 @@
   "name": "ilha-do-foco",
   "private": true,
   "scripts": {
-    "build": "node esbuild.config.mjs"
+    "build": "node esbuild.config.mjs",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.1",
+    "jsdom": "^28.1.0",
+    "vitest": "^4.1.10"
   }
 }

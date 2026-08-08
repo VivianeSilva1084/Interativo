@@ -18,7 +18,7 @@ async function sha256Hex(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-async function hashPin(pin){
+export async function hashPin(pin){
   const str = pin + ':' + state.authUserId;
   let hash = 2166136261;
   for (let i = 0; i < str.length; i++) {

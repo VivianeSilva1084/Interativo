@@ -7,8 +7,7 @@
 // - never the other way around, so there's no circular dependency.
 
 import { sb, state, session, getDifficulty } from './session-state.js';
-
-
+import { L } from './i18n.js';
 
 export function speak(text, rate){
   if(!('speechSynthesis' in window) || !text) return;
@@ -48,12 +47,7 @@ export function makeHelpBtn(instructionText){
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'help-btn';
-  // Inlined rather than imported from the app's L()/I18N system - that
-  // hasn't been extracted into its own module yet (this file only needs
-  // `state` for the language code, not the whole i18n object), and this is
-  // the one accessibility string this module needs. Revisit once i18n moves
-  // out of app.js.
-  btn.setAttribute('aria-label', state.lang === 'it' ? 'Ho bisogno di un aiuto' : 'Preciso de uma dica');
+  btn.setAttribute('aria-label', L().helpBtnLabel);
   btn.textContent = '💡';
   btn.onclick = (e)=>{
     e.stopPropagation();
@@ -82,6 +76,64 @@ export function setInstructions(id, text, showHelp){
 // assignments elsewhere don't need this, they never parse HTML.
 export function escapeHtml(s){
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+export function showError(msg) {
+  const el = document.getElementById('globalError');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+// Two-step "type the word to confirm" modal, used for irreversible actions
+// (account deletion) - shared by both dashboard modules, neither of which
+// can import the other or app.js.
+export function openDeleteAccountModal({ warningHtml, onConfirm }){
+  const t = L().deleteModal;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <div data-step="1">
+        <h3>⚠️ ${t.title}</h3>
+        <p>${warningHtml}</p>
+        <div class="confirm-modal-actions">
+          <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+          <button type="button" class="confirm-modal-btn-danger" data-action="continue">${t.continueBtn}</button>
+        </div>
+      </div>
+      <div data-step="2" style="display:none;">
+        <h3>⚠️ ${t.title}</h3>
+        <p>${t.typeToConfirmLabel}</p>
+        <input type="text" class="confirm-modal-input" id="deleteAccountConfirmInput" autocomplete="off" autocapitalize="characters">
+        <div class="confirm-modal-actions">
+          <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+          <button type="button" class="confirm-modal-btn-danger" data-action="confirm" disabled>${t.finalBtn}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelectorAll('[data-action="cancel"]').forEach(btn=> btn.onclick = close);
+  overlay.querySelector('[data-action="continue"]').onclick = ()=>{
+    overlay.querySelector('[data-step="1"]').style.display = 'none';
+    overlay.querySelector('[data-step="2"]').style.display = 'block';
+    overlay.querySelector('#deleteAccountConfirmInput').focus();
+  };
+
+  const input = overlay.querySelector('#deleteAccountConfirmInput');
+  const confirmBtn = overlay.querySelector('[data-action="confirm"]');
+  input.addEventListener('input', ()=>{
+    confirmBtn.disabled = input.value.trim().toUpperCase() !== t.confirmWord;
+  });
+  confirmBtn.onclick = async ()=>{
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = t.deleting;
+    await onConfirm(close);
+  };
 }
 
 export function say(text){

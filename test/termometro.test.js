@@ -71,12 +71,7 @@ describe('termometro (Termômetro das Emoções) game', () => {
 
     expect(addSeeds).toHaveBeenCalledTimes(2);
     expect(setStars).toHaveBeenCalledWith('termometro', 3);
-    // Finishing via thermoPickCalm's isLast branch never calls thermoRenderRound()
-    // again, and session.sessionCompleted is only ever set inside that
-    // function's own step>=rounds.length guard - so it stays false here even
-    // though the round set is genuinely complete. Asserting the actual
-    // current behavior, not necessarily the intended one - flagged upstream.
-    expect(session.sessionCompleted).toBe(false);
+    expect(session.sessionCompleted).toBe(true);
   });
 
   it('shows the breathing-circle extra only for the "breathe" calming strategy', () => {

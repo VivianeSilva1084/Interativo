@@ -132,12 +132,12 @@ function thermoPickCalm(opt, btn){
   const isLast = thermo.step >= thermo.rounds.length - 1;
   setTimeout(()=>{
     thermo.step++;
-    if(isLast){
-      const stars = 3;
-      setStars('termometro', stars);
-      say(t.mascotGood);
-    } else {
-      thermoRenderRound();
-    }
+    // Always route back through thermoRenderRound() - on the last round this
+    // hits its own step>=rounds.length branch, which is the only place that
+    // sets session.sessionCompleted and logs 'activity_complete'. A prior
+    // version duplicated the star/say calls here instead of calling it,
+    // which meant a normal finish never flipped sessionCompleted - completed
+    // Termômetro sessions could end up recorded as abandoned.
+    thermoRenderRound();
   }, isLast ? 1800 : 2200);
 }

@@ -573,6 +573,28 @@
     <div id="authLegalConsent" style="text-align:center; font-size:12px; color:rgba(255,255,255,0.55); max-width:380px; margin:10px auto 0; padding:0 20px; line-height:1.5;"></div>
     <div style="text-align:center; margin-top:20px; padding-bottom:20px;">
       <button class="auth-pro-toggle" id="authProToggle" onclick="toggleAuthUserType()">Entrar como profissional</button>
+      <br>
+      <button class="auth-pro-toggle" id="authCodeEntryToggle" onclick="showCodeEntryScreen()" style="margin-top:6px;">Tenho um código de acesso</button>
+    </div>
+  </div>
+
+  <!-- ===================== CODE ENTRY SCREEN =====================
+       Módulo 14 - login por código para perfis criados diretamente por um
+       profissional (sem conta de família). Isolada de propósito do resto do
+       fluxo de auth: onAuthStateChange trata sessão anônima num branch
+       próprio, nunca cai na lógica de família/profissional normal. -->
+  <div class="screen" id="screen-code-entry">
+    <div class="auth-box">
+      <h2 id="codeEntryTitle" style="font-family:'Nunito',sans-serif; font-weight:800;">Entrar com código</h2>
+      <p id="codeEntrySubtitle">Digite o código de acesso que você recebeu.</p>
+      <div class="auth-error" id="codeEntryError"></div>
+      <div class="auth-form">
+        <input type="text" id="codeEntryInput" placeholder="Ex: MAYA-7F3K" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;">
+        <div class="auth-actions">
+          <button class="big-cta" id="codeEntrySubmitBtn" onclick="handleRedeemAccessCode()">Entrar</button>
+          <button class="auth-toggle" id="codeEntryBackBtn" onclick="showAuthScreen()">← Voltar</button>
+        </div>
+      </div>
     </div>
   </div>
 

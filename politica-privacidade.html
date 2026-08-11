@@ -82,6 +82,13 @@
         <h3>2.3 Dados do profissional</h3>
         <ul>
           <li>Nome completo, função (fonoaudiólogo/psicólogo/professor/outro), registro profissional (quando informado), instituição/clínica (quando informada)</li>
+          <li>Dados de pagamento, quando aplicável — para profissionais que contratarem plano pago de capacidade (processados por terceiro — ver seção 6)</li>
+        </ul>
+        <h3>2.4 Dados de crianças cadastradas diretamente por profissionais (pacientes)</h3>
+        <ul>
+          <li>Mesmas categorias de dados descritas em 2.2 (nome/apelido, idioma, avatar, progresso, dados comportamentais granulares), coletadas sem que exista uma conta de responsável associada</li>
+          <li>Código de acesso da criança, armazenado de forma criptografada, funcionando como credencial equivalente a uma senha</li>
+          <li>Metadados da declaração de atestação de consentimento feita pelo profissional no momento da criação do perfil (identificação do profissional, data/hora, endereço IP da sessão e o texto exato da declaração aceita), retidos para fins de auditoria e responsabilização (ver seção 3)</li>
         </ul>
 
         <h2>3. Base legal para o tratamento (LGPD e GDPR)</h2>
@@ -91,6 +98,8 @@
           <li><strong>Legítimo interesse</strong>, para melhorias do produto com dados agregados e anonimizados</li>
         </ul>
         <p>Como a Plataforma trata dados de <strong>menores de idade</strong>, aplicamos cuidado adicional: nenhuma conta de criança é criada sem uma conta de responsável associada, e o compartilhamento de dados com profissionais exige aprovação explícita do responsável a cada vínculo.</p>
+        <p>A eventual contratação, pelo profissional, de um plano pago para ampliar sua capacidade de acompanhar mais crianças (ver Termos de Uso, seção 4) também se apoia em execução de contrato — um contrato distinto do contrato da família, entre o profissional e a Plataforma, referente apenas a capacidade e funcionalidades. Esse pagamento não é, em nenhuma hipótese, a base legal para o compartilhamento dos dados de uma criança específica: essa base continua sendo exclusivamente o consentimento explícito do responsável, aprovado vínculo a vínculo, independentemente do plano contratado pelo profissional.</p>
+        <p>Para os perfis de crianças criados diretamente por profissionais como pacientes (ver Termos de Uso, seção 5), a base legal continua sendo o <strong>consentimento do responsável legal</strong> — mas, nesse caso, obtido pelo profissional fora da Plataforma e atestado por ele no momento da criação do perfil, sob sua responsabilidade profissional e pessoal. A Plataforma não verifica de forma independente esse consentimento antes de criar o perfil; reserva-se, porém, o direito de exigir do profissional, a qualquer momento, evidência do consentimento obtido, de auditar essa evidência e de suspender ou excluir o perfil caso ela não seja apresentada. O responsável legal da criança pode, mesmo sem ter criado conta na Plataforma, exercer diretamente com a Plataforma os direitos descritos na seção 8, incluindo a exclusão dos dados, independentemente de qualquer ação do profissional.</p>
 
         <h2>4. Como os dados são usados</h2>
         <ul>
@@ -104,6 +113,10 @@
 
         <h2>5. Compartilhamento de dados com profissionais</h2>
         <p>O acesso de um profissional aos dados de uma criança <strong>só é liberado</strong> depois que o responsável aprova explicitamente o vínculo dentro da Plataforma. O responsável pode revogar esse acesso a qualquer momento. Todo acesso de um profissional aos dados é registrado (log de auditoria), para fins de conformidade e segurança.</p>
+        <p>O profissional pode estar sujeito a um limite de quantas crianças pode acompanhar simultaneamente, conforme o plano de capacidade contratado (ver Termos de Uso, seção 4). Reduções nessa capacidade não excluem nenhum dado nem revogam vínculos já aprovados sem aviso prévio — apenas suspendem o acesso do profissional, com aviso ao responsável e ao profissional. Os dados de um vínculo desativado continuam armazenados e só são excluídos mediante pedido expresso do profissional.</p>
+        <h3>5.1 Perfis criados diretamente pelo profissional (sem conta de família)</h3>
+        <p>Nesta modalidade, não há um "compartilhamento" de um perfil pré-existente: o próprio profissional origina o perfil da criança e passa a ter, sobre ele, os mesmos poderes de um responsável (criar, excluir, zerar progresso — ver Termos de Uso, seção 5). O acesso da criança se dá por código gerado nesse momento, e não por login de e-mail/senha vinculado a uma conta de família.</p>
+        <p>Perfis criados por esta via e que ficarem inativos, sem uso pelo profissional nem contato do responsável, podem ser anonimizados ou excluídos após período de inatividade prolongada, para evitar retenção indefinida de dado de criança sem uma parte ativa responsável por eles.</p>
 
         <h2>6. Terceiros que processam dados em nosso nome</h2>
         <table>
@@ -129,6 +142,7 @@
           <li><strong>Portar</strong> os dados para outro serviço, mediante solicitação</li>
         </ul>
         <p>A exclusão de conta é <strong>irreversível</strong> e remove todos os dados relacionados de forma permanente.</p>
+        <p>Quando a criança tiver sido cadastrada diretamente por um profissional, sem conta de família (ver seção 5.1), o responsável legal pode exercer os mesmos direitos acima — incluindo exclusão — <strong>diretamente com a Plataforma</strong>, por e-mail, ainda que nunca tenha usado a opção "Excluir minha conta" (que pressupõe uma conta própria). Nesse caso, a Plataforma pode solicitar documento que comprove a guarda/responsabilidade legal antes de agir sobre os dados, e informará o profissional responsável pelo perfil de que o acesso foi encerrado a pedido do responsável legal, sem prejuízo de eventual apuração quanto à existência do consentimento original.</p>
 
         <h2>9. Segurança</h2>
         <p>Os dados são protegidos por controle de acesso em nível de linha (Row Level Security), garantindo que cada família só acessa os dados dos próprios filhos, e que profissionais só acessam dados de crianças explicitamente vinculadas e aprovadas.</p>
@@ -169,6 +183,13 @@
         <h3>2.3 Dati del professionista</h3>
         <ul>
           <li>Nome completo, ruolo (logopedista/psicologo/insegnante/altro), numero di iscrizione all'albo (se fornito), istituzione/clinica (se fornita)</li>
+          <li>Dati di pagamento, quando applicabile — per i professionisti che sottoscrivono un piano a pagamento di capacità (elaborati da terzi — vedi sezione 6)</li>
+        </ul>
+        <h3>2.4 Dati di bambini registrati direttamente da professionisti (pazienti)</h3>
+        <ul>
+          <li>Stesse categorie di dati descritte al punto 2.2 (nome/soprannome, lingua, avatar, progressi, dati comportamentali granulari), raccolte senza che esista un account di un genitore/tutore associato</li>
+          <li>Codice di accesso del bambino, memorizzato in forma crittografata, che funziona come credenziale equivalente a una password</li>
+          <li>Metadati della dichiarazione di attestazione del consenso resa dal professionista al momento della creazione del profilo (identificazione del professionista, data/ora, indirizzo IP della sessione e il testo esatto della dichiarazione accettata), conservati a fini di audit e responsabilizzazione (vedi sezione 3)</li>
         </ul>
 
         <h2>3. Base giuridica del trattamento (GDPR e LGPD)</h2>
@@ -178,6 +199,8 @@
           <li><strong>Legittimo interesse</strong>, per il miglioramento del prodotto con dati aggregati e anonimizzati</li>
         </ul>
         <p>Poiché la Piattaforma tratta dati di <strong>minori</strong>, applichiamo una cura aggiuntiva: nessun account per un bambino viene creato senza un account di un genitore/tutore associato, e la condivisione dei dati con professionisti richiede l'approvazione esplicita del genitore/tutore per ogni collegamento.</p>
+        <p>L'eventuale sottoscrizione, da parte del professionista, di un piano a pagamento per ampliare la propria capacità di seguire più bambini (vedi Termini di Utilizzo, sezione 4) si basa anch'essa sull'esecuzione del contratto — un contratto distinto da quello della famiglia, tra il professionista e la Piattaforma, relativo solo a capacità e funzionalità. Questo pagamento non costituisce in nessun caso la base giuridica per la condivisione dei dati di un bambino specifico: tale base rimane esclusivamente il consenso esplicito del genitore/tutore, approvato collegamento per collegamento, indipendentemente dal piano sottoscritto dal professionista.</p>
+        <p>Per i profili di bambini creati direttamente dai professionisti come pazienti (vedi Termini di Utilizzo, sezione 5), la base giuridica rimane il <strong>consenso del genitore/tutore legale</strong> — ma, in questo caso, ottenuto dal professionista al di fuori della Piattaforma e attestato da lui al momento della creazione del profilo, sotto la sua responsabilità professionale e personale. La Piattaforma non verifica in modo indipendente tale consenso prima di creare il profilo; si riserva tuttavia il diritto di richiedere al professionista, in qualsiasi momento, la prova del consenso ottenuto, di verificarla e di sospendere o eliminare il profilo qualora non venga presentata. Il genitore/tutore legale del bambino può, anche senza aver creato un account sulla Piattaforma, esercitare direttamente con la Piattaforma i diritti descritti nella sezione 8, inclusa l'eliminazione dei dati, indipendentemente da qualsiasi azione del professionista.</p>
 
         <h2>4. Come vengono utilizzati i dati</h2>
         <ul>
@@ -191,6 +214,10 @@
 
         <h2>5. Condivisione dei dati con i professionisti</h2>
         <p>L'accesso di un professionista ai dati di un bambino <strong>viene concesso solo</strong> dopo che il genitore/tutore approva esplicitamente il collegamento all'interno della Piattaforma. Il genitore/tutore può revocare questo accesso in qualsiasi momento. Ogni accesso di un professionista ai dati viene registrato (log di controllo), per finalità di conformità e sicurezza.</p>
+        <p>Il professionista può essere soggetto a un limite di quanti bambini può seguire contemporaneamente, in base al piano di capacità sottoscritto (vedi Termini di Utilizzo, sezione 4). Le riduzioni di questa capacità non eliminano alcun dato né revocano collegamenti già approvati senza preavviso — sospendono solo l'accesso del professionista, con avviso al genitore/tutore e al professionista. I dati di un collegamento disattivato restano archiviati e vengono eliminati solo su richiesta espressa del professionista.</p>
+        <h3>5.1 Profili creati direttamente dal professionista (senza account famiglia)</h3>
+        <p>In questa modalità non esiste una "condivisione" di un profilo preesistente: è il professionista stesso a creare il profilo del bambino, ottenendo su di esso gli stessi poteri di un genitore/tutore (creare, eliminare, azzerare i progressi — vedi Termini di Utilizzo, sezione 5). L'accesso del bambino avviene tramite un codice generato in quel momento, e non tramite login con email/password collegato a un account famiglia.</p>
+        <p>I profili creati tramite questa modalità che restano inattivi, senza utilizzo da parte del professionista né contatto da parte del genitore/tutore, possono essere anonimizzati o eliminati dopo un periodo di inattività prolungato, per evitare la conservazione indefinita di dati di un bambino senza una parte attiva responsabile per essi.</p>
 
         <h2>6. Terze parti che trattano dati per nostro conto</h2>
         <table>
@@ -216,6 +243,7 @@
           <li><strong>Portare</strong> i dati verso un altro servizio, su richiesta</li>
         </ul>
         <p>L'eliminazione dell'account è <strong>irreversibile</strong> e rimuove permanentemente tutti i dati correlati.</p>
+        <p>Quando il bambino è stato registrato direttamente da un professionista, senza account famiglia (vedi sezione 5.1), il genitore/tutore legale può esercitare gli stessi diritti sopra indicati — inclusa l'eliminazione — <strong>direttamente con la Piattaforma</strong>, via email, anche se non ha mai utilizzato l'opzione "Elimina il mio account" (che presuppone un account proprio). In questo caso, la Piattaforma può richiedere un documento che comprovi la tutela/responsabilità legale prima di agire sui dati, e informerà il professionista responsabile del profilo che l'accesso è stato interrotto su richiesta del genitore/tutore legale, fatta salva un'eventuale verifica circa l'esistenza del consenso originale.</p>
 
         <h2>9. Sicurezza</h2>
         <p>I dati sono protetti da controllo degli accessi a livello di riga (Row Level Security), garantendo che ogni famiglia acceda solo ai dati dei propri figli, e che i professionisti accedano solo ai dati dei bambini esplicitamente collegati e approvati.</p>

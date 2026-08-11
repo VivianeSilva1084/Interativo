@@ -345,6 +345,56 @@ async function notifyPaymentConfirmedWhatsApp(supabase: ReturnType<typeof create
   }
 }
 
+// Módulo 14 — checkout do plano de capacidade do profissional, criado por
+// create-professional-checkout-session (metadata.audience='professional').
+// Espelha a lógica de família logo abaixo, mas o profissional já tem conta
+// antes de pagar (create-professional-checkout-session recusa quem não é
+// profissional cadastrado), então não existe caminho "pending_email"/
+// provisionamento de conta aqui - só upsert em professional_subscriptions.
+async function handleProfessionalCheckoutCompleted(supabase: ReturnType<typeof createClient>, session: Stripe.Checkout.Session) {
+  const professionalId = session.metadata?.professional_id;
+  if (!professionalId) return;
+
+  let currentPeriodEnd: string | null = null;
+  let providerSubscriptionId: string | null = null;
+  if (session.mode === 'subscription' && session.subscription) {
+    providerSubscriptionId = session.subscription as string;
+    const sub = await stripe.subscriptions.retrieve(providerSubscriptionId);
+    // deno-lint-ignore no-explicit-any
+    const subAny = sub as any;
+    const periodEndTs = subAny.items?.data?.[0]?.current_period_end ?? subAny.current_period_end;
+    if (periodEndTs) currentPeriodEnd = new Date(periodEndTs * 1000).toISOString();
+  } else if (session.mode === 'payment') {
+    currentPeriodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  }
+
+  const extraChildren = Number(session.metadata?.extra_children) || 0;
+
+  const { error } = await supabase.from('professional_subscriptions').upsert({
+    professional_id: professionalId,
+    plan: 'capacity',
+    status: 'active',
+    provider: 'stripe',
+    provider_customer_id: session.customer as string,
+    provider_subscription_id: providerSubscriptionId,
+    current_period_end: currentPeriodEnd,
+    currency: (session.currency || 'eur').toUpperCase(),
+    extra_capacity: extraChildren,
+    grace_period_started_at: null, // renovou - zera qualquer carência em andamento
+  }, { onConflict: 'professional_id' });
+  if (error) throw error;
+
+  // Reativa vínculos/perfis que tinham sido suspensos/revogados por falta
+  // de capacidade, até a nova capacidade permitir (mais antigos primeiro -
+  // ver reactivate_professional_profiles no Módulo 14).
+  const { error: reactivateError } = await supabase.rpc('reactivate_professional_profiles', { p_professional_id: professionalId });
+  if (reactivateError) console.error('reactivate_professional_profiles failed:', reactivateError.message);
+
+  if (typeof session.amount_total === 'number') {
+    await notifyAdminsOfSale(supabase, session.amount_total / 100, (session.currency || 'eur').toUpperCase());
+  }
+}
+
 Deno.serve(async (req) => {
   const signature = req.headers.get('stripe-signature');
   // The raw body (not parsed JSON) is required for signature verification.
@@ -372,6 +422,12 @@ Deno.serve(async (req) => {
   try {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
+
+      if (session.metadata?.audience === 'professional') {
+        await handleProfessionalCheckoutCompleted(supabase, session);
+        return new Response('OK', { status: 200 });
+      }
+
       const userId = session.metadata?.supabase_user_id;
       const pendingEmail = session.metadata?.pending_email;
 
@@ -458,10 +514,19 @@ Deno.serve(async (req) => {
 
     if (event.type === 'customer.subscription.deleted') {
       const sub = event.data.object as Stripe.Subscription;
+      // Um provider_subscription_id só existe numa das duas tabelas (família
+      // OU profissional) - a outra chamada simplesmente não afeta nenhuma
+      // linha, sem erro. Mais simples que ramificar por metadata aqui, já
+      // que o evento de subscription não carrega o metadata original do
+      // Checkout Session.
       const { error } = await supabase.from('subscriptions')
         .update({ plan: 'free', status: 'canceled' })
         .eq('provider_subscription_id', sub.id);
       if (error) throw error;
+      const { error: profError } = await supabase.from('professional_subscriptions')
+        .update({ plan: 'free', status: 'canceled' })
+        .eq('provider_subscription_id', sub.id);
+      if (profError) throw profError;
     }
 
     if (event.type === 'customer.subscription.updated') {
@@ -480,6 +545,10 @@ Deno.serve(async (req) => {
         .update(update)
         .eq('provider_subscription_id', sub.id);
       if (error) throw error;
+      const { error: profError } = await supabase.from('professional_subscriptions')
+        .update(update)
+        .eq('provider_subscription_id', sub.id);
+      if (profError) throw profError;
     }
   } catch (err) {
     // Let this surface as a non-2xx so Stripe retries (transient DB hiccups

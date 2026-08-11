@@ -176,11 +176,12 @@ Deno.serve(async (req) => {
       if (callerTier !== 'super_admin') {
         return jsonResponse({ error: 'requires_super_admin' }, 403);
       }
-      const { provider, billing_type, price, currency, active } = payload ?? {};
+      const { provider, billing_type, price, currency, active, audience } = payload ?? {};
       if (
         (provider !== 'stripe' && provider !== 'asaas') ||
         (billing_type !== 'recurring' && billing_type !== 'one_time') ||
-        (currency !== 'BRL' && currency !== 'EUR')
+        (currency !== 'BRL' && currency !== 'EUR') ||
+        (audience !== undefined && audience !== 'family' && audience !== 'professional')
       ) {
         return jsonResponse({ error: 'invalid_provider_billing_type_or_currency' }, 400);
       }
@@ -191,13 +192,29 @@ Deno.serve(async (req) => {
           billing_type,
           price: price ?? null,
           currency,
+          audience: audience ?? 'family',
           active: active ?? true,
         },
-        { onConflict: 'provider,billing_type,currency' },
+        { onConflict: 'provider,billing_type,currency,audience' },
       );
       if (error) throw error;
 
       return jsonResponse({ success: true });
+    }
+
+    if (action === 'list_pending_professional_verifications') {
+      // Módulo 14 — professionals não tem policy de leitura pro admin comum
+      // (só o próprio profissional lê a própria linha), então isto passa
+      // pela service role aqui, mesmo padrão das outras actions deste
+      // roteador. Qualquer tier de admin pode revisar (mesmo comentário já
+      // existente em review_professional_verification, logo abaixo).
+      const { data, error } = await supabase
+        .from('professionals')
+        .select('id, full_name, role, license_number, organization_name, verification_document_path, created_at')
+        .eq('verification_status', 'pending')
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return jsonResponse({ success: true, professionals: data || [] });
     }
 
     if (action === 'review_professional_verification') {

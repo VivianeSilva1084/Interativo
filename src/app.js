@@ -249,8 +249,97 @@ async function handleGoogleLogin() {
   }
 }
 
+/* ========================= CODE ENTRY (Módulo 14) ========================= */
+// Login por código pra perfis criados diretamente por um profissional (sem
+// conta de família) - ver Termos de Uso seção 5. Chama signInAnonymously()
+// primeiro (gera um auth.uid() real, efêmero) e depois resgata o código via
+// RPC, que vincula esse auth.uid() ao child_profile_id certo. A partir daí,
+// onAuthStateChange's is_anonymous branch cuida do resto neste mesmo
+// dispositivo em visitas futuras, sem precisar digitar o código de novo.
+function showCodeEntryScreen(){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-code-entry').classList.add('active');
+  document.getElementById('codeEntryInput').focus();
+}
+function showAuthScreen(){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-auth').classList.add('active');
+}
+async function handleRedeemAccessCode(){
+  const input = document.getElementById('codeEntryInput');
+  const errEl = document.getElementById('codeEntryError');
+  const btn = document.getElementById('codeEntrySubmitBtn');
+  const code = input.value.trim();
+  errEl.style.display = 'none';
+  if(!code){ input.focus(); return; }
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = '...';
+  try{
+    const { error: anonError } = await sb.auth.signInAnonymously();
+    if(anonError) throw anonError;
+    const { data: childProfileId, error: redeemError } = await sb.rpc('redeem_profile_access_code', { p_code: code });
+    if(redeemError) throw redeemError;
+    // onAuthStateChange's is_anonymous branch already fires from
+    // signInAnonymously() above, but it ran before the code was redeemed
+    // (no child_access_sessions row existed yet), so it just showed this
+    // same screen again - enter the profile directly here instead of
+    // waiting for another auth event that won't come.
+    const data = await loadProfileData(childProfileId);
+    if(!data) throw new Error('profile_load_failed');
+    await enterProfile(childProfileId, data);
+  }catch(err){
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    errEl.textContent = 'Código inválido, expirado ou já revogado. Confira com quem te entregou o código.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ?codigo=1 mostra a tela de código em vez da tela de login normal -
+// mesmo padrão de openSignupFromQueryParam logo abaixo (lê o parâmetro,
+// aplica o efeito, limpa a URL). O parâmetro opcional c= pré-preenche (mas
+// não envia sozinho - login por código sempre exige uma ação explícita do
+// usuário) o código, para links tipo "clique aqui e confirme" vindos de
+// WhatsApp.
+let wantsCodeEntry = false;
+(function checkCodeEntryQueryParam(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('codigo') !== '1') return;
+  wantsCodeEntry = true;
+  const prefillCode = params.get('c');
+  history.replaceState({}, '', window.location.pathname);
+  // Troca a tela já aqui (não espera o primeiro fire de onAuthStateChange)
+  // pra não piscar a tela de login normal por um instante antes de trocar.
+  // O script roda no final do body (via dist/app.js), então o DOM já existe.
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-code-entry').classList.add('active');
+  if(prefillCode) document.getElementById('codeEntryInput').value = prefillCode.toUpperCase();
+})();
+
 sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
+    // Sessão anônima (Módulo 14 - login por código de perfil próprio de
+    // profissional) - isolada de propósito do resto deste handler, que
+    // assume toda sessão real é família ou profissional e faria lazy-insert
+    // de uma linha em `families` para qualquer sessão que não bata com
+    // nenhum dos dois (o que criaria famílias fantasmas para cada visitante
+    // anônimo). Nunca cai no branch de família/profissional abaixo.
+    if (session.user.is_anonymous) {
+      const { data: accessSession } = await sb.from('child_access_sessions')
+        .select('child_profile_id').eq('auth_user_id', session.user.id).maybeSingle();
+      if (accessSession) {
+        const data = await loadProfileData(accessSession.child_profile_id);
+        if (data) { await enterProfile(accessSession.child_profile_id, data); return; }
+      }
+      // Sessão anônima nova, ainda sem código resgatado - mostra a tela de
+      // código (cobre tanto quem chegou por ?codigo=1 quanto um retorno
+      // nesse mesmo dispositivo que por algum motivo não tem vínculo salvo).
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-code-entry').classList.add('active');
+      return;
+    }
+
     state.authUserId = session.user.id;
 
     // -- Verificação de profissional (antes da lógica de família) --
@@ -321,6 +410,10 @@ sb.auth.onAuthStateChange(async (event, session) => {
     state.familyPinHash = null;
     state.authUserId = null;
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if(wantsCodeEntry){
+      document.getElementById('screen-code-entry').classList.add('active');
+      return;
+    }
     document.getElementById('screen-auth').classList.add('active');
     renderAuthScreen(); // Atualiza idiomas
   }
@@ -804,7 +897,12 @@ async function openGame(key){
   if(key==='termometro') thermoInit();
 }
 async function startSessionRow(gameKey, sessionId){
-  if(!state.profileId || !state.familyId) return;
+  // state.familyId fica null pra uma sessão de código (perfil próprio de
+  // profissional, Módulo 14) - o trigger fill_game_session_ownership no
+  // banco preenche family_id/professional_id sozinho a partir do
+  // child_profiles quando os dois vêm nulos aqui, então basta não bloquear
+  // o insert por causa de um family_id ausente.
+  if(!state.profileId) return;
   try{
     const { error } = await sb.from('game_sessions').insert({
       id: sessionId,
@@ -979,4 +1077,5 @@ Object.assign(window, {
   semStart, semTap, setAuthLang, setLang, simonStart, storyInit, storyStart,
   submitNewProfile, thermoStart, toggleAuthMode, toggleAuthUserType,
   toggleNewProfileForm, toggleSound,
+  handleRedeemAccessCode, showCodeEntryScreen, showAuthScreen,
 });

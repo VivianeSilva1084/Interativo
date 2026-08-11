@@ -115,6 +115,10 @@
   .review-reject-btn{ background:#fff; color:var(--berry); border-color:var(--berry) !important; }
   .review-save-translation-btn{ background:#fff; color:var(--ink); border-color:var(--line) !important; }
   .empty-reviews{ font-size:13px; color:var(--muted); padding:10px 2px; }
+
+  /* ---------- Professional verification review (Módulo 14) ---------- */
+  .verification-card .field-grid{ margin:8px 0 10px; }
+  .verification-doc-link{ display:inline-block; margin:4px 0 10px; font-size:12.5px; font-weight:700; color:var(--ink); text-decoration:underline; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -174,6 +178,11 @@
         <h2 style="font-size:15px;color:var(--ink);">Avaliações aprovadas</h2>
       </div>
       <div class="reviews-list" id="approvedReviewsList"></div>
+
+      <div class="reviews-toolbar">
+        <h2 style="font-size:15px;color:var(--ink);">Verificação de profissionais</h2>
+      </div>
+      <div class="reviews-list" id="verificationsList"></div>
     </div>
     <div id="loadingNote" class="loading-note">Carregando...</div>
   </main>
@@ -326,13 +335,30 @@ async function checkAdminAndLoad(email){
   document.getElementById('crmContent').classList.remove('hidden');
   await loadBoard();
   await loadReviews();
+  await loadVerifications();
   await initPushNotifications(email);
 }
 
 document.getElementById('refreshBtn').addEventListener('click', async () => {
   await loadBoard();
   await loadReviews();
+  await loadVerifications();
 });
+
+// Mesmo padrão de fetch autenticado já usado em src/lib/billing.js pro
+// resto da plataforma (Authorization: Bearer <access_token> da própria
+// sessão) - admin-operations confere o tier internamente, service role.
+async function callAdminOperations(action, payload){
+  const { data: { session } } = await sb.auth.getSession();
+  const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/admin-operations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+    body: JSON.stringify({ action, payload }),
+  });
+  const data = await res.json();
+  if(!res.ok || data.error) throw new Error(data.error || `http_${res.status}`);
+  return data;
+}
 
 /* ========================= PUSH NOTIFICATIONS ========================= */
 // Public key only - safe to ship in client code, it's what the browser uses
@@ -711,6 +737,77 @@ async function deleteReview(reviewId, name){
   const { error } = await sb.from('app_reviews').delete().eq('id', reviewId);
   if(error){ console.error(error); alert('Não foi possível excluir a avaliação.'); return; }
   await loadReviews();
+}
+
+/* ========================= PROFESSIONAL VERIFICATION (Módulo 14) ========================= */
+// professionals não tem policy de leitura pro admin comum, então a listagem
+// passa pela Edge Function (service role) - mesmo motivo por trás de
+// review_professional_verification já existir antes desta sessão. O
+// documento em si (bucket privado professional-verification-docs) é lido
+// direto pelo client via createSignedUrl, coberto pela RLS de storage.objects
+// "admin reads verification docs" (Módulo 14) - não precisa passar pela Edge
+// Function pra isso.
+let verificationsCache = [];
+async function loadVerifications(){
+  try{
+    const { professionals } = await callAdminOperations('list_pending_professional_verifications');
+    verificationsCache = professionals || [];
+  }catch(err){
+    console.error(err);
+    verificationsCache = [];
+  }
+  renderVerifications();
+}
+
+function renderVerifications(){
+  const listEl = document.getElementById('verificationsList');
+  listEl.innerHTML = '';
+  if(!verificationsCache.length){
+    listEl.innerHTML = '<div class="empty-reviews">Nenhuma verificação pendente.</div>';
+    return;
+  }
+  const roleLabels = { logopedista:'Fonoaudiólogo(a)', psicologo:'Psicólogo(a)', professor:'Professor(a)', outro:'Outro' };
+  verificationsCache.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'review-card verification-card';
+    card.innerHTML = `
+      <div class="name">${escapeHtml(p.full_name)}</div>
+      <div class="when">${roleLabels[p.role] || escapeHtml(p.role)} · enviado ${timeSince(p.created_at)}</div>
+      <div class="field-grid">
+        <div class="f"><label>Registro profissional</label>${escapeHtml(p.license_number || '—')}</div>
+        <div class="f"><label>Instituição/clínica</label>${escapeHtml(p.organization_name || '—')}</div>
+      </div>
+      ${p.verification_document_path
+        ? `<span class="verification-doc-link" data-path="${escapeHtml(p.verification_document_path)}">📄 Ver comprovante enviado</span>`
+        : `<div style="font-size:12.5px; color:var(--berry);">Nenhum documento anexado ainda.</div>`}
+      <div class="actions">
+        <button type="button" class="review-approve-btn">Aprovar</button>
+        <button type="button" class="review-reject-btn">Rejeitar</button>
+      </div>
+    `;
+    const docLink = card.querySelector('.verification-doc-link');
+    if(docLink){
+      docLink.addEventListener('click', async () => {
+        const { data, error } = await sb.storage.from('professional-verification-docs').createSignedUrl(docLink.dataset.path, 3600);
+        if(error || !data?.signedUrl){ alert('Não foi possível abrir o documento.'); return; }
+        window.open(data.signedUrl, '_blank', 'noopener');
+      });
+    }
+    card.querySelector('.review-approve-btn').addEventListener('click', () => reviewProfessionalVerification(p.id, 'verified'));
+    card.querySelector('.review-reject-btn').addEventListener('click', () => reviewProfessionalVerification(p.id, 'rejected'));
+    listEl.appendChild(card);
+  });
+}
+
+async function reviewProfessionalVerification(professionalId, status){
+  try{
+    await callAdminOperations('review_professional_verification', { professional_id: professionalId, status });
+  }catch(err){
+    console.error(err);
+    alert('Não foi possível atualizar a verificação.');
+    return;
+  }
+  await loadVerifications();
 }
 </script>
 </body>

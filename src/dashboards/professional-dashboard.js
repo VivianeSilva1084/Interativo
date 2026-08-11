@@ -12,6 +12,14 @@ import { flushSessionLog, showError, escapeHtml, openDeleteAccountModal } from '
 import { L } from '../lib/i18n.js';
 import { GAME_KEYS } from '../lib/game-progress.js';
 import { buildClinicalSummary, notifyReportReady } from '../lib/clinical-summary.js';
+import { AVATARS } from '../lib/parents-data.js';
+
+// Versão da declaração de atestação de consentimento exibida na criação de
+// perfil próprio (Módulo 14) - gravada em parental_consents.terms_version
+// via create_owned_child_profile. Trocar este identificador se o TEXTO da
+// declaração em i18n.js (consentAttestationLabel) mudar de sentido jurídico,
+// para manter rastreável qual versão cada profissional aceitou de fato.
+const CONSENT_ATTESTATION_VERSION = 'professional-attestation-v1';
 
 // Explains to linked professionals how each clinical-panel metric is derived from
 // raw gameplay data, and which established assessment instrument (if any) it echoes.
@@ -55,9 +63,45 @@ function openMethodologyModal(){
    created directly for now. */
 let profDashboardChildren = [];
 let profDashboardSelectedId = null;
+let profActiveTab = 'linked'; // 'linked' | 'owned'
+let profOwnedProfiles = [];
+let profCapacity = { used: 0, limit: 3 };
+let profSelectedIsOwned = false;
 // Called right before opening the dashboard on a fresh login, so a
 // previous session's selected child doesn't leak into this one.
-export function resetProfDashboardSelection(){ profDashboardSelectedId = null; }
+export function resetProfDashboardSelection(){ profDashboardSelectedId = null; profActiveTab = 'linked'; profOwnedProfiles = []; profSelectedIsOwned = false; }
+
+async function getOwnProfessionalId(){
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) throw new Error('no-session');
+  const { data: professional, error } = await sb.from('professionals').select('id').eq('auth_user_id', user.id).single();
+  if(error) throw error;
+  return professional.id;
+}
+
+let profVerificationStatus = 'unverified';
+
+async function loadProfVerificationStatus(){
+  const { data: { user } } = await sb.auth.getUser();
+  if(!user) throw new Error('no-session');
+  const { data, error } = await sb.from('professionals').select('verification_status').eq('auth_user_id', user.id).single();
+  if(error) throw error;
+  return data.verification_status;
+}
+
+async function loadProfOwnedProfiles(){
+  const professionalId = await getOwnProfessionalId();
+  const [{ data: profiles, error }, { data: used }, { data: limit }] = await Promise.all([
+    sb.from('child_profiles').select('id, name, avatar, access_suspended_at').eq('professional_id', professionalId).order('created_at', { ascending:true }),
+    sb.rpc('professional_capacity_used', { p_professional_id: professionalId }),
+    sb.rpc('professional_capacity_limit', { p_professional_id: professionalId }),
+  ]);
+  if(error) throw error;
+  profCapacity = { used: used ?? 0, limit: limit ?? 3 };
+  return (profiles || []).map(p=>({
+    childId: p.id, name: p.name, avatar: p.avatar, suspended: !!p.access_suspended_at
+  }));
+}
 
 export function openProfessionalDashboard(){
   flushSessionLog();
@@ -164,6 +208,15 @@ async function renderProfDashboardBody(container){
   }
 
   profDashboardChildren = children;
+
+  // Best-effort - se falhar, a aba "Meus perfis" só aparece vazia/com erro
+  // ao clicar, mas o fluxo de vínculo por convite (já existente) continua
+  // funcionando normalmente.
+  try{
+    profOwnedProfiles = await loadProfOwnedProfiles();
+    profVerificationStatus = await loadProfVerificationStatus();
+  }catch(e){ profOwnedProfiles = []; }
+
   if(!profDashboardSelectedId && children.some(c=>c.status === 'active')){
     profDashboardSelectedId = children.find(c=>c.status === 'active').childId;
   }
@@ -184,14 +237,11 @@ async function renderProfDashboardFrame(container){
       </div>
       <div class="prof-dash-body">
         <div class="prof-dash-sidebar">
-          <div class="prof-dash-sidebar-label">${t.linkedChildren}</div>
-          <div id="profSidebarList"></div>
-          <div class="prof-dash-redeem">
-            <div class="prof-dash-sidebar-label">${t.redeemLabel}</div>
-            <input type="text" id="profRedeemInput" class="prof-dash-redeem-input" placeholder="${t.redeemPlaceholder}">
-            <button class="prof-dash-redeem-btn" id="profRedeemBtn">${t.redeemBtn}</button>
-            <div id="profRedeemMsg" class="prof-dash-redeem-msg"></div>
+          <div style="display:flex; gap:6px; padding:0 18px 12px;">
+            <button type="button" class="diff-btn${profActiveTab==='linked' ? ' selected' : ''}" id="profTabLinked" style="flex:1;">${t.linkedTab}</button>
+            <button type="button" class="diff-btn${profActiveTab==='owned' ? ' selected' : ''}" id="profTabOwned" style="flex:1;">${t.ownedTab}</button>
           </div>
+          <div id="profSidebarPane"></div>
           <div style="padding:18px 18px 0; text-align:center;">
             <button type="button" class="delete-account-link" id="profDeleteAccountBtn">${t.deleteAccountBtn}</button>
           </div>
@@ -207,7 +257,18 @@ async function renderProfDashboardFrame(container){
     </div>
   `;
 
-  renderProfSidebarList(container);
+  renderProfSidebarPane(container);
+
+  container.querySelector('#profTabLinked').addEventListener('click', async ()=>{
+    if(profActiveTab === 'linked') return;
+    profActiveTab = 'linked';
+    await renderProfDashboardFrame(container);
+  });
+  container.querySelector('#profTabOwned').addEventListener('click', async ()=>{
+    if(profActiveTab === 'owned') return;
+    profActiveTab = 'owned';
+    await renderProfDashboardFrame(container);
+  });
 
   container.querySelector('#profMethodologyLink').addEventListener('click', openMethodologyModal);
 
@@ -215,11 +276,6 @@ async function renderProfDashboardFrame(container){
     state.lang = state.lang === 'it' ? 'pt' : 'it';
     await renderProfDashboardFrame(container);
     if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
-  });
-
-  container.querySelector('#profRedeemBtn').addEventListener('click', ()=>handleRedeemInviteCode(container));
-  container.querySelector('#profRedeemInput').addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter') handleRedeemInviteCode(container);
   });
 
   container.querySelector('#profDeleteAccountBtn').addEventListener('click', ()=>{
@@ -243,10 +299,43 @@ async function renderProfDashboardFrame(container){
   if(profDashboardSelectedId) await loadAndRenderProfChildDetail(container);
 }
 
-function renderProfSidebarList(container){
+function renderProfSidebarPane(container){
+  const pane = container.querySelector('#profSidebarPane');
+  if(!pane) return;
+  if(profActiveTab === 'owned'){
+    renderProfOwnedPane(pane, container);
+  } else {
+    renderProfLinkedPane(pane, container);
+  }
+}
+
+function renderProfLinkedPane(pane, container){
   const t = L().prof;
-  const listEl = container.querySelector('#profSidebarList');
-  if(!listEl) return;
+  pane.innerHTML = `
+    <div class="prof-dash-sidebar-label">${t.linkedChildren}</div>
+    <div id="profSidebarList"></div>
+    <div class="prof-dash-redeem">
+      <div class="prof-dash-sidebar-label">${t.redeemLabel}</div>
+      <input type="text" id="profRedeemInput" class="prof-dash-redeem-input" placeholder="${t.redeemPlaceholder}">
+      <button class="prof-dash-redeem-btn" id="profRedeemBtn">${t.redeemBtn}</button>
+      <div id="profRedeemMsg" class="prof-dash-redeem-msg"></div>
+    </div>
+  `;
+
+  refreshProfLinkedList(pane, container);
+
+  pane.querySelector('#profRedeemBtn').addEventListener('click', ()=>handleRedeemInviteCode(container));
+  pane.querySelector('#profRedeemInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') handleRedeemInviteCode(container);
+  });
+}
+
+// Só o miolo da lista (#profSidebarList) - reaproveitado depois de resgatar
+// um código, pra não recriar a caixa de convite inteira e apagar a mensagem
+// de sucesso que acabou de ser escrita nela (renderProfLinkedPane faz isso).
+function refreshProfLinkedList(pane, container){
+  const t = L().prof;
+  const listEl = pane.querySelector('#profSidebarList');
   listEl.innerHTML = profDashboardChildren.length === 0
     ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.noChildren}</div>`
     : profDashboardChildren.map(c=>`
@@ -261,9 +350,94 @@ function renderProfSidebarList(container){
   listEl.querySelectorAll('.prof-dash-child-btn:not([disabled])').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
       profDashboardSelectedId = btn.dataset.childId;
+      profSelectedIsOwned = false;
       await renderProfDashboardFrame(container); // already calls loadAndRenderProfChildDetail when profDashboardSelectedId is set
     });
   });
+}
+
+async function handleUploadVerificationDoc(container, pane){
+  const t = L().prof;
+  const fileInput = pane.querySelector('#profVerificationFile');
+  const btn = pane.querySelector('#profVerificationUploadBtn');
+  const msgEl = pane.querySelector('#profVerificationMsg');
+  const file = fileInput.files[0];
+  if(!file){ return; }
+  btn.disabled = true;
+  msgEl.textContent = '';
+  msgEl.className = 'prof-dash-redeem-msg';
+  try{
+    const professionalId = await getOwnProfessionalId();
+    const path = `${professionalId}/${Date.now()}-${file.name}`;
+    const { error: uploadError } = await sb.storage.from('professional-verification-docs').upload(path, file, { upsert: true });
+    if(uploadError) throw uploadError;
+
+    const { error: updateError } = await sb.from('professionals')
+      .update({ verification_status: 'pending', verification_document_path: path })
+      .eq('id', professionalId);
+    if(updateError) throw updateError;
+
+    profVerificationStatus = 'pending';
+    renderProfSidebarPane(container);
+  }catch(e){
+    msgEl.textContent = t.error;
+    msgEl.className = 'prof-dash-redeem-msg error';
+    btn.disabled = false;
+  }
+}
+
+function renderProfOwnedPane(pane, container){
+  const t = L().prof;
+
+  if(profVerificationStatus !== 'verified'){
+    pane.innerHTML = `
+      <div class="prof-dash-sidebar-label">${t.verificationLabel}</div>
+      <div style="padding:0 18px 14px; font-size:12.5px; color:#8A8067; line-height:1.5;">
+        ${t.verificationStatusBody[profVerificationStatus] || t.verificationStatusBody.unverified}
+      </div>
+      ${profVerificationStatus !== 'pending' ? `
+        <div style="padding:0 18px 14px;">
+          <input type="file" id="profVerificationFile" accept="image/*,application/pdf" style="width:100%; font-size:12px; margin-bottom:8px;">
+          <button type="button" class="prof-dash-redeem-btn" id="profVerificationUploadBtn" style="width:100%;">${t.verificationUploadBtn}</button>
+          <div id="profVerificationMsg" class="prof-dash-redeem-msg"></div>
+        </div>
+      ` : ''}
+    `;
+    const uploadBtn = pane.querySelector('#profVerificationUploadBtn');
+    if(uploadBtn) uploadBtn.addEventListener('click', ()=>handleUploadVerificationDoc(container, pane));
+    return;
+  }
+
+  pane.innerHTML = `
+    <div class="prof-dash-sidebar-label">${t.capacityLabel(profCapacity.used, profCapacity.limit)}</div>
+    <div style="padding:0 18px 12px; display:flex; flex-direction:column; gap:8px;">
+      <button type="button" class="prof-dash-redeem-btn" id="profNewProfileBtn">${t.newProfileBtn}</button>
+      <button type="button" class="prof-dash-redeem-btn" id="profExpandCapacityBtn" style="background:transparent; color:var(--ink,#1F2E29); border:1.5px solid #D9CBA3;">${t.expandCapacityBtn}</button>
+    </div>
+    <div id="profOwnedList"></div>
+  `;
+
+  pane.querySelector('#profExpandCapacityBtn').addEventListener('click', openExpandCapacityModal);
+
+  const listEl = pane.querySelector('#profOwnedList');
+  listEl.innerHTML = profOwnedProfiles.length === 0
+    ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.ownedNoProfiles}</div>`
+    : profOwnedProfiles.map(p=>`
+      <button class="prof-dash-child-btn ${p.childId === profDashboardSelectedId ? 'active' : ''}" data-child-id="${p.childId}">
+        <span class="prof-dash-child-name">${escapeHtml(p.avatar || '')} ${escapeHtml(p.name)}</span>
+        ${p.suspended ? `<span class="prof-dash-pending-tag">${t.suspendedBadge}</span>` : ''}
+      </button>
+    `).join('');
+
+  listEl.querySelectorAll('.prof-dash-child-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      profDashboardSelectedId = btn.dataset.childId;
+      profSelectedIsOwned = true;
+      await renderProfDashboardFrame(container);
+    });
+  });
+
+  pane.querySelector('#profNewProfileBtn').addEventListener('click', ()=>openCreateOwnedProfileModal(container));
 }
 
 async function handleRedeemInviteCode(container){
@@ -284,7 +458,7 @@ async function handleRedeemInviteCode(container){
       msgEl.className = 'prof-dash-redeem-msg success';
       input.value = '';
       profDashboardChildren = await loadProfDashboardChildren();
-      renderProfSidebarList(container);
+      refreshProfLinkedList(container.querySelector('#profSidebarPane'), container);
     } else {
       msgEl.textContent = t.redeemErrors[data?.error] || t.error;
       msgEl.className = 'prof-dash-redeem-msg error';
@@ -533,4 +707,339 @@ async function loadAndRenderProfChildDetail(container){
     </div>
   `;
   if(isPremium) notifyReportReady(profDashboardSelectedId);
+
+  if(profSelectedIsOwned){
+    renderOwnedManagementBar(container, detailEl, profDashboardSelectedId);
+  }
+}
+
+/* ========================= "Meus perfis" (Módulo 14) =========================
+   Autonomia total do profissional sobre perfis que ele mesmo cria (sem conta
+   de família), com login por código - ver Termos de Uso seção 5. */
+
+function renderOwnedManagementBar(container, detailEl, childId){
+  const t = L().prof;
+  const bar = document.createElement('div');
+  bar.className = 'prof-dash-card';
+  bar.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; border-left:3px solid #4F7C64;';
+  bar.innerHTML = `
+    <button type="button" class="prof-dash-redeem-btn" id="profManageCodeBtn">🔑 ${t.manageCodeBtn}</button>
+    <button type="button" class="prof-dash-redeem-btn" id="profResetBtn">🔄 ${t.resetProgressBtn}</button>
+    <button type="button" class="prof-dash-redeem-btn" id="profDeleteProfileBtn" style="background:#B23A55;">🗑️ ${t.deleteProfileBtn}</button>
+  `;
+  detailEl.insertAdjacentElement('afterbegin', bar);
+
+  bar.querySelector('#profManageCodeBtn').addEventListener('click', ()=>openAccessCodeManageModal(childId));
+  bar.querySelector('#profResetBtn').addEventListener('click', ()=>{
+    openSimpleConfirmModal({
+      bodyHtml: t.resetProgressConfirm,
+      danger: true,
+      onConfirm: async (close)=>{
+        try{
+          const { error } = await sb.rpc('reset_child_progress', { p_child_profile_id: childId });
+          if(error) throw error;
+          close();
+          alert(t.resetProgressSuccess);
+          await loadAndRenderProfChildDetail(container);
+        }catch(e){
+          close();
+          showError(t.error);
+        }
+      }
+    });
+  });
+  bar.querySelector('#profDeleteProfileBtn').addEventListener('click', ()=>{
+    openSimpleConfirmModal({
+      bodyHtml: t.deleteProfileConfirmWarning,
+      danger: true,
+      onConfirm: async (close)=>{
+        try{
+          const { error } = await sb.rpc('delete_owned_child_profile', { p_child_profile_id: childId });
+          if(error) throw error;
+          close();
+          profDashboardSelectedId = null;
+          profOwnedProfiles = await loadProfOwnedProfiles();
+          await renderProfDashboardFrame(container);
+        }catch(e){
+          close();
+          showError(t.error);
+        }
+      }
+    });
+  });
+}
+
+// Modal de confirmação leve (uma etapa), reaproveitando as classes CSS de
+// confirm-modal já usadas em openAddChildProfileModal/openDeleteAccountModal
+// - diferente daquele, que é sempre de duas etapas e sobre a CONTA inteira.
+function openSimpleConfirmModal({ bodyHtml, danger, onConfirm }){
+  const t = L().prof;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <h3>⚠️</h3>
+      <p>${bodyHtml}</p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" data-action="confirm">${t.deleteProfileBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="cancel"]').onclick = close;
+  overlay.querySelector('[data-action="confirm"]').onclick = ()=> onConfirm(close);
+}
+
+async function openAccessCodeManageModal(childId){
+  const t = L().prof;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <h3>🔑 ${t.manageCodeBtn}</h3>
+      <button type="button" class="prof-dash-redeem-btn" id="profRotateCodeBtn" style="width:100%; margin-bottom:14px;">${t.rotateCodeBtn}</button>
+      <div class="prof-dash-sidebar-label">${t.devicesLabel}</div>
+      <div id="profDeviceList" style="text-align:left; margin:8px 0 14px;">…</div>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="close">${t.accessCodeCloseBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').onclick = close;
+
+  async function refreshDevices(){
+    const listEl = overlay.querySelector('#profDeviceList');
+    const { data: devices } = await sb.from('child_access_sessions')
+      .select('auth_user_id, device_label, last_seen_at').eq('child_profile_id', childId);
+    listEl.innerHTML = !devices || devices.length === 0
+      ? `<span style="font-size:12.5px; color:#8A8067;">${t.noDevices}</span>`
+      : devices.map(d=>`
+        <div class="prof-dash-row">
+          <span class="prof-dash-row-label">${escapeHtml(d.device_label || new Date(d.last_seen_at).toLocaleDateString())}</span>
+          <button type="button" class="delete-account-link" data-auth-user-id="${d.auth_user_id}">${t.disconnectBtn}</button>
+        </div>
+      `).join('');
+    listEl.querySelectorAll('[data-auth-user-id]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        await sb.from('child_access_sessions').delete().eq('auth_user_id', btn.dataset.authUserId);
+        refreshDevices();
+      });
+    });
+  }
+  await refreshDevices();
+
+  overlay.querySelector('#profRotateCodeBtn').addEventListener('click', async ()=>{
+    if(!confirm(t.rotateCodeConfirm)) return;
+    try{
+      const { data: code, error } = await sb.rpc('rotate_access_code', { p_child_profile_id: childId });
+      if(error) throw error;
+      close();
+      openAccessCodeDisplayModal(code);
+    }catch(e){
+      showError(t.error);
+    }
+  });
+}
+
+function openAccessCodeDisplayModal(code){
+  const t = L().prof;
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <h3>🔑 ${t.accessCodeModalTitle}</h3>
+      <p>${t.accessCodeModalBody}</p>
+      <div style="font-size:28px; font-weight:800; letter-spacing:2px; text-align:center; padding:16px; background:#F6EFDF; border-radius:12px; margin:14px 0;">${escapeHtml(code)}</div>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" id="profCopyCodeBtn">${t.accessCodeCopyBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" style="background:var(--leaf);" data-action="close">${t.accessCodeCloseBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').onclick = close;
+  overlay.querySelector('#profCopyCodeBtn').addEventListener('click', async ()=>{
+    try{ await navigator.clipboard.writeText(code); }catch(e){ /* clipboard API unavailable - user still sees the code on screen */ }
+    const btn = overlay.querySelector('#profCopyCodeBtn');
+    btn.textContent = t.accessCodeCopiedMsg;
+    setTimeout(()=>{ btn.textContent = t.accessCodeCopyBtn; }, 2000);
+  });
+}
+
+function openCreateOwnedProfileModal(container){
+  const t = L().prof;
+  let selectedAvatar = AVATARS[0];
+  let selectedLang = state.lang === 'it' ? 'it' : 'pt';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal parents-add-profile-modal">
+      <h3>${t.newProfileBtn}</h3>
+      <label>${t.labelName}</label>
+      <input type="text" class="pix-cpf-input" id="profNewProfileName" maxlength="20" placeholder="${t.namePlaceholder}">
+      <label style="margin-top:14px;">${t.labelAvatar}</label>
+      <div class="avatar-row" id="profNewProfileAvatarRow"></div>
+      <label>${t.labelLang}</label>
+      <div class="lang-row" id="profNewProfileLangRow">
+        <div class="lang-choice ${selectedLang==='pt'?'selected':''}" data-lang="pt">🇧🇷 Português</div>
+        <div class="lang-choice ${selectedLang==='it'?'selected':''}" data-lang="it">🇮🇹 Italiano</div>
+      </div>
+      <label style="display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; font-weight:400; margin-top:6px;">
+        <input type="checkbox" id="profNewProfileConsentCheck" style="margin-top:2px; flex-shrink:0;">
+        <span>${t.consentAttestationLabel}</span>
+      </label>
+      <p class="pix-cpf-error" id="profNewProfileError"></p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" style="background:var(--leaf);" data-action="create">${t.createBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="cancel"]').onclick = close;
+
+  const avatarRow = overlay.querySelector('#profNewProfileAvatarRow');
+  AVATARS.forEach((a,i)=>{
+    const el = document.createElement('div');
+    el.className = 'avatar-choice' + (i===0 ? ' selected' : '');
+    el.textContent = a;
+    el.onclick = ()=>{
+      selectedAvatar = a;
+      avatarRow.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    avatarRow.appendChild(el);
+  });
+  overlay.querySelectorAll('#profNewProfileLangRow .lang-choice').forEach(el=>{
+    el.onclick = ()=>{
+      selectedLang = el.dataset.lang;
+      overlay.querySelectorAll('#profNewProfileLangRow .lang-choice').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+  });
+
+  const nameInput = overlay.querySelector('#profNewProfileName');
+  const consentCheck = overlay.querySelector('#profNewProfileConsentCheck');
+  const errEl = overlay.querySelector('#profNewProfileError');
+  const createBtn = overlay.querySelector('[data-action="create"]');
+  nameInput.focus();
+  createBtn.onclick = async ()=>{
+    const name = nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    if(!consentCheck.checked){
+      errEl.textContent = t.consentAttestationRequired;
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    createBtn.disabled = true;
+    createBtn.textContent = '...';
+    try{
+      const { data, error } = await sb.rpc('create_owned_child_profile', {
+        p_name: name, p_avatar: selectedAvatar, p_lang: selectedLang, p_terms_version: CONSENT_ATTESTATION_VERSION
+      });
+      if(error) throw error;
+      close();
+      profOwnedProfiles = await loadProfOwnedProfiles();
+      profDashboardSelectedId = data.child_profile_id;
+      profSelectedIsOwned = true;
+      await renderProfDashboardFrame(container);
+      openAccessCodeDisplayModal(data.access_code);
+    }catch(err){
+      createBtn.disabled = false;
+      createBtn.textContent = t.createBtn;
+      errEl.textContent = (err?.message || '').includes('capacity') ? t.capacityExceededError : t.error;
+      errEl.style.display = 'block';
+    }
+  };
+}
+
+// Mesmo padrão de checkout já usado em src/lib/billing.js (startCheckout)
+// pro plano de família - aqui chamando create-professional-checkout-session
+// em vez de create-checkout-session. Preço é o mesmo (€9,90) pro passe
+// avulso e pro mensal (decisão já tomada); a única variável do lado do
+// cliente é quantas crianças extras além das 8 incluídas ele quer comprar.
+function openExpandCapacityModal(){
+  const t = L().prof;
+  const BASE_PRICE = 9.90;
+  const EXTRA_CHILD_PRICE = 3.00;
+  let selectedPlan = '30days';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'confirm-modal-overlay';
+  overlay.innerHTML = `
+    <div class="confirm-modal">
+      <h3>💳 ${t.expandCapacityModalTitle}</h3>
+      <div class="lang-row" id="profPlanRow" style="margin-bottom:14px;">
+        <div class="lang-choice selected" data-plan="30days">${t.planLabel30Days}</div>
+        <div class="lang-choice" data-plan="monthly">${t.planLabelMonthly}</div>
+      </div>
+      <label style="display:block; text-align:left; font-size:12.5px; margin-bottom:6px;">${t.extraChildrenLabel}</label>
+      <input type="number" id="profExtraChildrenInput" class="pix-cpf-input" min="0" step="1" value="0">
+      <p style="text-align:left; font-weight:700; margin:12px 0 0;" id="profCheckoutTotal">${t.checkoutTotalLabel(BASE_PRICE)}</p>
+      <p class="pix-cpf-error" id="profExpandCapacityError"></p>
+      <div class="confirm-modal-actions">
+        <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
+        <button type="button" class="confirm-modal-btn-danger" style="background:var(--leaf);" data-action="continue">${t.continueToPaymentBtn}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="cancel"]').onclick = close;
+
+  const totalEl = overlay.querySelector('#profCheckoutTotal');
+  const extraInput = overlay.querySelector('#profExtraChildrenInput');
+  function updateTotal(){
+    const extra = Math.max(0, parseInt(extraInput.value, 10) || 0);
+    totalEl.textContent = t.checkoutTotalLabel(BASE_PRICE + extra * EXTRA_CHILD_PRICE);
+  }
+  extraInput.addEventListener('input', updateTotal);
+
+  overlay.querySelectorAll('#profPlanRow .lang-choice').forEach(el=>{
+    el.onclick = ()=>{
+      selectedPlan = el.dataset.plan;
+      overlay.querySelectorAll('#profPlanRow .lang-choice').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+  });
+
+  const continueBtn = overlay.querySelector('[data-action="continue"]');
+  const errEl = overlay.querySelector('#profExpandCapacityError');
+  continueBtn.onclick = async ()=>{
+    errEl.style.display = 'none';
+    continueBtn.disabled = true;
+    const originalLabel = continueBtn.textContent;
+    continueBtn.textContent = t.checkoutRedirecting;
+    try{
+      const { data: { session } } = await sb.auth.getSession();
+      if(!session) throw new Error('no-session');
+      const extraChildren = Math.max(0, parseInt(extraInput.value, 10) || 0);
+      const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-professional-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ plan: selectedPlan, extraChildren }),
+      });
+      const result = await response.json();
+      if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
+      window.location.href = result.url;
+    }catch(err){
+      continueBtn.disabled = false;
+      continueBtn.textContent = originalLabel;
+      errEl.textContent = t.error;
+      errEl.style.display = 'block';
+    }
+  };
 }

@@ -301,7 +301,10 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', checkpointSessionLog);
 async function logSession(gameKey, sessionId, completed){
   session.sessionDirty[gameKey] = false;
-  if(!state.profileId || !state.familyId || !state.profile || !sessionId) return;
+  // state.familyId is null for a code-session (professional's own profile,
+  // Módulo 14) - not required here, ownership is already fixed at insert
+  // time in startSessionRow (app.js), this just updates the same row by id.
+  if(!state.profileId || !state.profile || !sessionId) return;
   const stars = state.profile.starsByGame[gameKey] || 0;
   const difficulty = getDifficulty(gameKey);
   const startSeeds = session.sessionSeedsStart[gameKey] ?? state.profile.seeds;

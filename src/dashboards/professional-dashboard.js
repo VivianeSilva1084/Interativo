@@ -13,6 +13,7 @@ import { L } from '../lib/i18n.js';
 import { GAME_KEYS } from '../lib/game-progress.js';
 import { buildClinicalSummary, notifyReportReady } from '../lib/clinical-summary.js';
 import { AVATARS } from '../lib/parents-data.js';
+import { avatarImageSrc, normalizeAvatarKey } from '../lib/avatars.js';
 
 // Versão da declaração de atestação de consentimento exibida na criação de
 // perfil próprio (Módulo 14) - gravada em parental_consents.terms_version
@@ -424,7 +425,7 @@ function renderProfOwnedPane(pane, container){
     ? `<div style="padding: 12px 18px; font-size: 12.5px; color: #8A8067;">${t.ownedNoProfiles}</div>`
     : profOwnedProfiles.map(p=>`
       <button class="prof-dash-child-btn ${p.childId === profDashboardSelectedId ? 'active' : ''}" data-child-id="${p.childId}">
-        <span class="prof-dash-child-name">${escapeHtml(p.avatar || '')} ${escapeHtml(p.name)}</span>
+        <span class="prof-dash-child-name"><img src="${avatarImageSrc(p.avatar)}" alt="" class="prof-dash-child-avatar-img"> ${escapeHtml(p.name)}</span>
         ${p.suspended ? `<span class="prof-dash-pending-tag">${t.suspendedBadge}</span>` : ''}
       </button>
     `).join('');
@@ -913,7 +914,7 @@ function openCreateOwnedProfileModal(container){
   AVATARS.forEach((a,i)=>{
     const el = document.createElement('div');
     el.className = 'avatar-choice' + (i===0 ? ' selected' : '');
-    el.textContent = a;
+    el.innerHTML = `<img src="${avatarImageSrc(a)}" alt="" class="avatar-choice-img">`;
     el.onclick = ()=>{
       selectedAvatar = a;
       avatarRow.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected'));

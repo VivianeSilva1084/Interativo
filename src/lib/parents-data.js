@@ -5,8 +5,9 @@
 // here without either importing the other.
 import { sb, state } from './session-state.js';
 import { showError } from './game-shared.js';
+import { AVATAR_KEYS } from './avatars.js';
 
-export const AVATARS = ['🦫','🐢','🦥','🐸','🦔','🐨'];
+export const AVATARS = AVATAR_KEYS;
 
 export async function loadProfilesList(){
   if(!state.authUserId) return [];

@@ -19,6 +19,7 @@ import {
   loadLinkedProfessionals, loadPendingProfessionalRequests, generateInviteCode, respondToProfessionalLink,
   loadAdherence, loadImpulsivityIndex, loadClinicalSummaryExtras, computeWeeklyUsage,
 } from '../lib/parents-data.js';
+import { avatarImageSrc } from '../lib/avatars.js';
 
 let parentsChildren = [];
 let parentsActiveChildId = null;
@@ -73,8 +74,7 @@ function renderParentsChildTabs(){
   parentsChildren.forEach(c=>{
     const btn = document.createElement('button');
     btn.className = 'diff-btn' + (c.id === parentsActiveChildId ? ' selected' : '');
-    const av = AVATARS.includes(c.avatar) ? c.avatar : AVATARS[0];
-    btn.textContent = `${av} ${c.name}`;
+    btn.innerHTML = `<img src="${avatarImageSrc(c.avatar)}" alt="" class="child-tab-avatar-img"> ${escapeHtml(c.name)}`;
     btn.onclick = async ()=>{
       parentsActiveChildId = c.id;
       renderParentsChildTabs();
@@ -127,7 +127,7 @@ export function openAddChildProfileModal(){
   AVATARS.forEach((a,i)=>{
     const el = document.createElement('div');
     el.className = 'avatar-choice' + (i===0 ? ' selected' : '');
-    el.textContent = a;
+    el.innerHTML = `<img src="${avatarImageSrc(a)}" alt="" class="avatar-choice-img">`;
     el.onclick = ()=>{
       selectedAvatar = a;
       avatarRow.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected'));

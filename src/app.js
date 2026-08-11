@@ -14,6 +14,7 @@ import { chatInit, chatStart, chatContinue } from './games/minhavez.js';
 import { huntInit, huntStart, huntShowPreStart, huntTogglePace } from './games/cacaalvo.js';
 import { thermoInit, thermoStart } from './games/termometro.js';
 import { loadProfilesList, AVATARS } from './lib/parents-data.js';
+import { avatarImageSrc, normalizeAvatarKey } from './lib/avatars.js';
 import { openProfessionalDashboard, resetProfDashboardSelection } from './dashboards/professional-dashboard.js';
 import { parentsOpenDashboard, openAddChildProfileModal, resetParentsDashboardState } from './dashboards/parents-dashboard.js';
 import {
@@ -677,7 +678,7 @@ async function loadProfileData(id){
     if(error) throw error;
     if(data) {
        return {
-         name: data.name, avatar: AVATARS.includes(data.avatar) ? data.avatar : AVATARS[0], lang: data.lang,
+         name: data.name, avatar: normalizeAvatarKey(data.avatar), lang: data.lang,
          seeds: data.seeds, starsByGame: data.stars_by_game, difficultyByGame: data.difficulty_by_game,
          unlockedStickers: data.unlocked_stickers || []
        };
@@ -725,7 +726,7 @@ async function submitNewProfile(){
   }
   consentError.style.display = 'none';
   const avatarEl = document.querySelector('.avatar-choice.selected');
-  const avatar = avatarEl ? avatarEl.textContent : AVATARS[0];
+  const avatar = avatarEl ? avatarEl.dataset.avatar : AVATARS[0];
 
   const data = defaultProfileData(name, avatar, formLang);
 
@@ -778,7 +779,7 @@ async function renderProfilesScreen(){
     const card = document.createElement('div');
     card.className = 'profile-card';
     card.innerHTML = `<button class="del-x" title="excluir" onclick="event.stopPropagation(); removeProfile('${p.id}')">✕</button>
-      <div class="avatar">${AVATARS.includes(p.avatar) ? p.avatar : AVATARS[0]}</div><div class="pname">${escapeHtml(p.name)}</div>
+      <div class="avatar"><img src="${avatarImageSrc(p.avatar)}" alt="" class="avatar-img"></div><div class="pname">${escapeHtml(p.name)}</div>
       <div class="plang">${p.lang==='pt'?'🇧🇷 PT':'🇮🇹 IT'}</div>`;
     card.onclick = ()=>selectProfile(p.id);
     grid.appendChild(card);
@@ -788,7 +789,8 @@ async function renderProfilesScreen(){
   AVATARS.forEach((a,i)=>{
     const el = document.createElement('div');
     el.className = 'avatar-choice' + (i===0?' selected':'');
-    el.textContent = a;
+    el.dataset.avatar = a;
+    el.innerHTML = `<img src="${avatarImageSrc(a)}" alt="" class="avatar-choice-img">`;
     el.onclick = ()=>{ document.querySelectorAll('.avatar-choice').forEach(x=>x.classList.remove('selected')); el.classList.add('selected'); };
     avatarRow.appendChild(el);
   });
@@ -873,7 +875,7 @@ function applyGlobalI18n(){
   document.getElementById('footerNote').textContent = t.footer;
   document.querySelectorAll('.backLabel').forEach(el=>el.textContent = t.backLabel);
   if(state.profile){
-    document.getElementById('chipAvatar').textContent = state.profile.avatar;
+    document.getElementById('chipAvatar').innerHTML = `<img src="${avatarImageSrc(state.profile.avatar)}" alt="" class="chip-avatar-img">`;
     document.getElementById('chipName').textContent = state.profile.name;
     document.getElementById('seedCount').textContent = state.profile.seeds;
   }

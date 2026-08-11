@@ -5,5 +5,25 @@
       "source": "/sw.js",
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "viscarekids.com" },
+        { "type": "header", "key": "x-vercel-ip-country", "value": "IT" }
+      ],
+      "destination": "https://it.viscarekids.com/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "www.viscarekids.com" },
+        { "type": "header", "key": "x-vercel-ip-country", "value": "IT" }
+      ],
+      "destination": "https://it.viscarekids.com/:path*",
+      "permanent": false
+    }
   ]
 }

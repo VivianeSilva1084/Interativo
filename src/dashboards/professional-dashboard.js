@@ -969,7 +969,7 @@ function openCreateOwnedProfileModal(container){
 
 // Mesmo padrão de checkout já usado em src/lib/billing.js (startCheckout)
 // pro plano de família - aqui chamando create-professional-checkout-session
-// em vez de create-checkout-session. Preço é o mesmo (€9,90 / R$58,00) pro
+// em vez de create-checkout-session. Preço é o mesmo (€9,90 / R$58,90) pro
 // passe avulso e pro mensal em cada moeda (decisão já tomada); a única
 // variável do lado do cliente é quantas crianças extras além das 8
 // incluídas ele quer comprar. Moeda segue o mesmo isBrazil() (navigator.
@@ -979,7 +979,7 @@ function openExpandCapacityModal(){
   const t = L().prof;
   const country = isBrazil() ? 'BR' : 'INT';
   const symbol = country === 'BR' ? 'R$' : '€';
-  const BASE_PRICE = country === 'BR' ? 58.00 : 9.90;
+  const BASE_PRICE = country === 'BR' ? 58.90 : 9.90;
   const EXTRA_CHILD_PRICE = country === 'BR' ? 17.90 : 3.00;
   let selectedPlan = '30days';
 

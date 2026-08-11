@@ -6,7 +6,7 @@
 // loaded via its own <script src> tag before dist/app.js in index.html.
 export const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-export let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null, isProfessional:false };
+export let state = { lang: navigator.language.startsWith('it') ? 'it' : 'pt', profileId:null, profile:null, familyId:null, familyPinHash:null, authUserId:null, isProfessional:false, isCodeSession:false };
 
 export function getDifficulty(gameKey){ return state.profile.difficultyByGame[gameKey] || 'medio'; }
 

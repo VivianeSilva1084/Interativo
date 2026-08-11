@@ -29,6 +29,10 @@ export async function hashPin(pin){
 }
 
 export function openParents(){
+  // Sessão de código (Módulo 14) não tem família/PIN por trás - travado
+  // aqui também, não só escondendo o botão que chama isto (ver app.js
+  // applyGlobalI18n).
+  if(state.isCodeSession) return;
   flushSessionLog();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-parents').classList.add('active');

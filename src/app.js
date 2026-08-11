@@ -287,7 +287,7 @@ async function handleRedeemAccessCode(){
     // waiting for another auth event that won't come.
     const data = await loadProfileData(childProfileId);
     if(!data) throw new Error('profile_load_failed');
-    await enterProfile(childProfileId, data);
+    await enterProfile(childProfileId, data, true);
   }catch(err){
     btn.disabled = false;
     btn.textContent = originalLabel;
@@ -337,7 +337,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
         .select('child_profile_id').eq('auth_user_id', session.user.id).maybeSingle();
       if (accessSession) {
         const data = await loadProfileData(accessSession.child_profile_id);
-        if (data) { await enterProfile(accessSession.child_profile_id, data); return; }
+        if (data) { await enterProfile(accessSession.child_profile_id, data, true); return; }
       }
       // Sessão anônima nova, ainda sem código resgatado - mostra a tela de
       // código (cobre tanto quem chegou por ?codigo=1 quanto um retorno
@@ -652,6 +652,7 @@ async function handleLogout() {
   await sb.auth.signOut();
   state.profileId = null;
   state.profile = null;
+  state.isCodeSession = false;
   document.getElementById('hubHeader').style.display = 'none';
   session.currentGameKey = null;
   session.sessionDirty = {};
@@ -819,14 +820,21 @@ async function removeProfile(id){
   await deleteProfileData(id);
   renderProfilesScreen();
 }
-async function enterProfile(id, data){
+async function enterProfile(id, data, isCodeSession = false){
   state.profileId = id;
   state.profile = data;
   state.lang = data.lang || 'pt';
+  state.isCodeSession = isCodeSession;
   document.getElementById('hubHeader').style.display = 'flex';
   goHub();
 }
 function goProfiles(){
+  // Sessão de código (perfil próprio de profissional, Módulo 14) nunca deve
+  // ver o seletor de perfis da família nem o botão "+ Novo perfil" - o único
+  // perfil acessível é o vinculado ao código, e só o profissional cria/exclui
+  // perfis dessa modalidade (ver Termos de Uso seção 5). Trava aqui também,
+  // não só escondendo o botão que chama isto, contra chamadas diretas.
+  if(state.isCodeSession) return;
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-profiles').classList.add('active');
   document.getElementById('hubHeader').style.display = 'none';
@@ -852,6 +860,12 @@ function applyGlobalI18n(){
   document.getElementById('appTag').textContent = t.appTag;
   document.getElementById('seedsLabel').textContent = t.seedsLabel;
   document.getElementById('switchProfileBtn').textContent = t.switchProfile;
+  // Sessão de código (Módulo 14) não tem família nem PIN por trás - trocar
+  // de perfil ou entrar na área dos pais não fazem sentido nesse contexto,
+  // e o botão "Trocar perfil" é como um perfil novo/indevido poderia ser
+  // criado por quem só devia ter o código de um paciente específico.
+  document.getElementById('switchProfileBtn').style.display = state.isCodeSession ? 'none' : '';
+  document.getElementById('parentsAreaBtn').style.display = state.isCodeSession ? 'none' : '';
   renderSoundToggle();
   document.getElementById('parentsAreaBtnLabel').textContent = t.parents.areaTitle;
   document.getElementById('albumBtnLabel').textContent = t.album.title;

@@ -291,7 +291,14 @@ async function handleRedeemAccessCode(){
   }catch(err){
     btn.disabled = false;
     btn.textContent = originalLabel;
-    errEl.textContent = 'Código inválido, expirado ou já revogado. Confira com quem te entregou o código.';
+    const code = err?.code || err?.error_code || err?.message || '';
+    if(code === 'anonymous_provider_disabled'){
+      errEl.textContent = 'Login por código está temporariamente indisponível. Avise o suporte.';
+    } else if(code === 'invalid_or_revoked_code'){
+      errEl.textContent = 'Código inválido, expirado ou já revogado. Confira com quem te entregou o código.';
+    } else {
+      errEl.textContent = 'Não foi possível entrar agora. Tente novamente em instantes.';
+    }
     errEl.style.display = 'block';
   }
 }

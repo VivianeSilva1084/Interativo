@@ -14,6 +14,7 @@ import { GAME_KEYS } from '../lib/game-progress.js';
 import { buildClinicalSummary, notifyReportReady } from '../lib/clinical-summary.js';
 import { AVATARS } from '../lib/parents-data.js';
 import { avatarImageSrc, normalizeAvatarKey } from '../lib/avatars.js';
+import { isBrazil } from '../lib/billing.js';
 
 // Versão da declaração de atestação de consentimento exibida na criação de
 // perfil próprio (Módulo 14) - gravada em parental_consents.terms_version
@@ -968,13 +969,18 @@ function openCreateOwnedProfileModal(container){
 
 // Mesmo padrão de checkout já usado em src/lib/billing.js (startCheckout)
 // pro plano de família - aqui chamando create-professional-checkout-session
-// em vez de create-checkout-session. Preço é o mesmo (€9,90) pro passe
-// avulso e pro mensal (decisão já tomada); a única variável do lado do
-// cliente é quantas crianças extras além das 8 incluídas ele quer comprar.
+// em vez de create-checkout-session. Preço é o mesmo (€9,90 / R$58,00) pro
+// passe avulso e pro mensal em cada moeda (decisão já tomada); a única
+// variável do lado do cliente é quantas crianças extras além das 8
+// incluídas ele quer comprar. Moeda segue o mesmo isBrazil() (navigator.
+// language) já usado pro checkout de família - sem endereço de cobrança
+// coletado, é a mesma aproximação aceita lá.
 function openExpandCapacityModal(){
   const t = L().prof;
-  const BASE_PRICE = 9.90;
-  const EXTRA_CHILD_PRICE = 3.00;
+  const country = isBrazil() ? 'BR' : 'INT';
+  const symbol = country === 'BR' ? 'R$' : '€';
+  const BASE_PRICE = country === 'BR' ? 58.00 : 9.90;
+  const EXTRA_CHILD_PRICE = country === 'BR' ? 17.90 : 3.00;
   let selectedPlan = '30days';
 
   const overlay = document.createElement('div');
@@ -988,7 +994,7 @@ function openExpandCapacityModal(){
       </div>
       <label style="display:block; text-align:left; font-size:12.5px; margin-bottom:6px;">${t.extraChildrenLabel}</label>
       <input type="number" id="profExtraChildrenInput" class="pix-cpf-input" min="0" step="1" value="0">
-      <p style="text-align:left; font-weight:700; margin:12px 0 0;" id="profCheckoutTotal">${t.checkoutTotalLabel(BASE_PRICE)}</p>
+      <p style="text-align:left; font-weight:700; margin:12px 0 0;" id="profCheckoutTotal">${t.checkoutTotalLabel(BASE_PRICE, symbol)}</p>
       <p class="pix-cpf-error" id="profExpandCapacityError"></p>
       <div class="confirm-modal-actions">
         <button type="button" class="confirm-modal-btn-secondary" data-action="cancel">${t.cancelBtn}</button>
@@ -1005,7 +1011,7 @@ function openExpandCapacityModal(){
   const extraInput = overlay.querySelector('#profExtraChildrenInput');
   function updateTotal(){
     const extra = Math.max(0, parseInt(extraInput.value, 10) || 0);
-    totalEl.textContent = t.checkoutTotalLabel(BASE_PRICE + extra * EXTRA_CHILD_PRICE);
+    totalEl.textContent = t.checkoutTotalLabel(BASE_PRICE + extra * EXTRA_CHILD_PRICE, symbol);
   }
   extraInput.addEventListener('input', updateTotal);
 
@@ -1031,7 +1037,7 @@ function openExpandCapacityModal(){
       const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-professional-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({ plan: selectedPlan, extraChildren }),
+        body: JSON.stringify({ plan: selectedPlan, extraChildren, country }),
       });
       const result = await response.json();
       if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');

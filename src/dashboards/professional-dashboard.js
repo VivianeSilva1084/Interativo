@@ -238,8 +238,8 @@ async function renderProfDashboardFrame(container){
       <div class="prof-dash-body">
         <div class="prof-dash-sidebar">
           <div style="display:flex; gap:6px; padding:0 18px 12px;">
-            <button type="button" class="diff-btn${profActiveTab==='linked' ? ' selected' : ''}" id="profTabLinked" style="flex:1;">${t.linkedTab}</button>
-            <button type="button" class="diff-btn${profActiveTab==='owned' ? ' selected' : ''}" id="profTabOwned" style="flex:1;">${t.ownedTab}</button>
+            <button type="button" class="prof-dash-tab-btn${profActiveTab==='linked' ? ' selected' : ''}" id="profTabLinked" style="flex:1;">${t.linkedTab}</button>
+            <button type="button" class="prof-dash-tab-btn${profActiveTab==='owned' ? ' selected' : ''}" id="profTabOwned" style="flex:1;">${t.ownedTab}</button>
           </div>
           <div id="profSidebarPane"></div>
           <div style="padding:18px 18px 0; text-align:center;">

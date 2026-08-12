@@ -19,11 +19,17 @@ export const DIFF = {
   cacaalvo:{ facil:{cols:5, rows:5, targets:4, time:25, pool:['🍄','🌸','🪨','🐚']},
              medio:{cols:6, rows:5, targets:6, time:20, pool:['🍄','🌸','🍂','🪨','🐚','🍁','🌼','🍇']},
              dificil:{cols:7, rows:6, targets:8, time:18, pool:['🌿','🍃','☘️','🌱','🪴','🍂','🌸']} },
-  termometro:{ facil:{rounds:2}, medio:{rounds:3}, dificil:{rounds:4} }
+  termometro:{ facil:{rounds:2}, medio:{rounds:3}, dificil:{rounds:4} },
+  // genMoves do fácil é 1, não 2: com 2 cestas/2 frutas o grafo de estados
+  // alcançável a partir da meta tem diâmetro 1 (qualquer 2º passo volta pra
+  // meta, sempre) - 2 passos daria minMoves=0 de forma determinística, não
+  // aleatória. 1 passo garante minMoves=1, batendo com "resolvível em 1-2
+  // movimentos" da spec e reforçando o sucesso garantido no nível fácil.
+  cestas:{ facil:{fruits:2,capacities:[2,2],genMoves:1}, medio:{fruits:3,capacities:[3,2,1],genMoves:3}, dificil:{fruits:4,capacities:[3,3,2],genMoves:5} }
 };
 export const DIFF_LEVELS = ['facil','medio','dificil'];
 
-export const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro'];
+export const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro','cestas'];
 
 export function defaultProfileData(name, avatar, lang){
   const diffByGame = {}; GAME_KEYS.forEach(k=>diffByGame[k]='medio');

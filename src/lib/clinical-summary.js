@@ -25,7 +25,7 @@ const SUMMARY_STRINGS = {
     syllablesHard: (s) => `Sílabas com maior dificuldade: ${s}.`,
     syllablesMastered: (n) => `${n} sílabas já dominadas no Aventura das Letras.`,
     phoneticSwap: (e, a, n) => `Troca fonológica mais frequente: /${e}/ → /${a}/ (${n} ocorrências).`,
-    persistenceGood: (n, r) => `${n} demonstrou persistência, tentando novamente ${r} vezes após erros.`,
+    persistenceGood: (n, r) => `${n} demonstrou persistência, tentando de novo ou pedindo ajuda ${r} vezes em vez de desistir da atividade.`,
     persistenceLow: (n, a) => `Foram registrados ${a} abandonos de atividade nas últimas semanas.`,
   },
   it: {
@@ -44,7 +44,7 @@ const SUMMARY_STRINGS = {
     syllablesHard: (s) => `Sillabe con maggiore difficoltà: ${s}.`,
     syllablesMastered: (n) => `${n} sillabe già padroneggiate nell'Avventura delle Lettere.`,
     phoneticSwap: (e, a, n) => `Sostituzione fonologica più frequente: /${e}/ → /${a}/ (${n} occorrenze).`,
-    persistenceGood: (n, r) => `${n} ha dimostrato perseveranza, riprovando ${r} volte dopo gli errori.`,
+    persistenceGood: (n, r) => `${n} ha dimostrato perseveranza, riprovando o chiedendo aiuto ${r} volte invece di abbandonare l'attività.`,
     persistenceLow: (n, a) => `Sono stati registrati ${a} abbandoni di attività nelle ultime settimane.`,
   },
 };
@@ -117,10 +117,16 @@ export function buildClinicalSummary(detail, lang){
     lines.push(t.phoneticSwap(topSwap.expected, topSwap.answered, topSwap.occurrences));
   }
 
-  // 6. Tolerância à frustração
+  // 6. Tolerância à frustração - abandons é universal aos 7 jogos; retries
+  // (botão "Jogar de novo" de História/Caça ao Alvo) e help_requests (pedido
+  // de ajuda, vários jogos) são os dois sinais reais de persistência - nenhum
+  // dos dois é universal sozinho, então soma os dois pra não subestimar uma
+  // criança que só teve chance de mostrar um dos dois comportamentos.
   const totAbandons = (frustration || []).reduce((s, f) => s + (f.abandons || 0), 0);
+  const totHelpRequests = (frustration || []).reduce((s, f) => s + (f.help_requests || 0), 0);
   const totRetries = (frustration || []).reduce((s, f) => s + (f.retries || 0), 0);
-  if (totAbandons === 0 && totRetries > 0) lines.push(t.persistenceGood(name, totRetries));
+  const totPersistence = totHelpRequests + totRetries;
+  if (totAbandons === 0 && totPersistence > 0) lines.push(t.persistenceGood(name, totPersistence));
   else if (totAbandons > 2) lines.push(t.persistenceLow(name, totAbandons));
 
   if (lines.length === 0) return t.noData(name);

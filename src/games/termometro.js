@@ -91,8 +91,11 @@ function thermoRenderRound(){
     btn.innerHTML = `<span class="e">${opt.e}</span>${opt.label}`;
     btn.onclick = ()=>{
       const rt = Date.now() - (window.instructionEndedAt || Date.now());
+      // correct é intencionalmente omitido aqui - reconhecer uma emoção não
+      // tem gabarito, a mesma cena pode gerar sentimentos diferentes e
+      // igualmente válidos em crianças diferentes. Ver nota de metodologia
+      // do "Termômetro" no painel profissional.
       logGameEvent({ eventType: 'answer', targetType: 'emotion', target: thermo.rounds[thermo.step], responseValue: opt.label, responseTimeMs: rt });
-      logGameEvent({ eventType: 'emotion_check', emotion: opt.label, context: 'scenario' });
       document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
       thermo.emo = opt.label;
@@ -119,7 +122,10 @@ function thermoStep2(){
 }
 function thermoPickCalm(opt, btn){
   const rt = Date.now() - (window.instructionEndedAt || Date.now());
-  logGameEvent({ eventType: 'answer', targetType: 'strategy', responseValue: opt.label, responseTimeMs: rt });
+  // target = opt.id (não opt.label, que muda por idioma) permite agregar
+  // quantas das 4 estratégias distintas a criança já usou (v_thermo_strategy_diversity).
+  // correct omitido de propósito - nenhuma das 4 é "a errada" (ver metodologia).
+  logGameEvent({ eventType: 'answer', targetType: 'strategy', target: opt.id, responseValue: opt.label, responseTimeMs: rt });
   const t = L();
   document.querySelectorAll('#calmOptions .emo-btn').forEach(b=>b.style.pointerEvents='none');
   btn.classList.add('selected');

@@ -806,6 +806,26 @@
     </div>
   </div>
 
+  <!-- ===================== CESTAS DA ILHA ===================== -->
+  <div class="screen" id="screen-cestas">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="cestasTitle"></h2></div>
+      <div class="game-instructions" id="cestasInstructions"></div>
+      <div class="pre-start" id="cestasPreStart">
+        <div class="diff-row" id="cestasDiffRow"></div>
+        <button class="big-cta" id="cestasStartBtn" onclick="cestasStart()"></button>
+      </div>
+      <div class="center-col" id="cestasPlayArea" style="display:none;">
+        <p style="font-weight:800;color:var(--sand);margin-bottom:8px;" id="cestasGoalLabel"></p>
+        <div class="emo-options" id="cestasGoalBoard"></div>
+        <p style="font-weight:800;color:var(--sand);margin:14px 0 8px;" id="cestasBoardLabel"></p>
+        <div class="emo-options" id="cestasBoard"></div>
+        <button class="big-cta secondary" id="cestasRestartBtn" onclick="cestasRestart()"></button>
+        <div class="feedback-banner" id="cestasFeedback"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== ÁLBUM DE FIGURINHAS ===================== -->
   <div class="screen" id="screen-album">
     <div class="game-shell">

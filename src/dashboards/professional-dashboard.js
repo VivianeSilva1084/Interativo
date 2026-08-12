@@ -130,16 +130,74 @@ async function loadProfDashboardChildren(){
   }));
 }
 
+const INDICATORS_MIN_DAYS_PER_WINDOW = 3; // dias com dado não-nulo exigidos em cada janela de 7
+
+function indicatorsWindowAverage(rows, field, fromOffsetDays, toOffsetDays, today){
+  const from = new Date(today); from.setDate(from.getDate() - toOffsetDays);
+  const to = new Date(today); to.setDate(to.getDate() - fromOffsetDays);
+  const vals = rows.filter(r=>{
+    const d = new Date(r.metric_date);
+    return d >= from && d <= to && r[field] != null;
+  }).map(r=>r[field]);
+  if(vals.length < INDICATORS_MIN_DAYS_PER_WINDOW) return null;
+  return vals.reduce((s,v)=>s + v, 0) / vals.length;
+}
+
+// Relatório de Indicadores: agrega child_metrics_daily (calculado via pg_cron,
+// fórmulas unificadas com as views clínicas usadas no restante deste arquivo -
+// ver 20260812140000_unify_child_metrics_daily_formulas.sql) em duas janelas de
+// 7 dias - atual e 4 semanas atrás. Cada indicador tem seu próprio delta e seu
+// próprio piso de dado mínimo, em vez de um número composto único (constructos
+// diferentes não têm sentido clínico somados).
+async function loadIndicatorsReport(childId){
+  const today = new Date();
+  const from = new Date(today); from.setDate(from.getDate() - 27);
+  const { data: rows } = await sb.from('child_metrics_daily')
+    .select('metric_date, attention_index, impulsivity_index, memory_score')
+    .eq('child_profile_id', childId)
+    .gte('metric_date', from.toISOString().slice(0, 10))
+    .order('metric_date', { ascending: true });
+
+  const build = (field)=>{
+    const current = indicatorsWindowAverage(rows || [], field, 0, 6, today);
+    const prior = indicatorsWindowAverage(rows || [], field, 21, 27, today);
+    const delta = (current != null && prior != null) ? Math.round(current - prior) : null;
+    return { current: current != null ? Math.round(current) : null, delta };
+  };
+
+  return {
+    attention: build('attention_index'),
+    control: build('impulsivity_index'),
+    memory: build('memory_score')
+  };
+}
+
+// Auditoria de acesso profissional (LGPD art. 11/14 - promessa já feita em
+// politica-privacidade.html seção 5). Best-effort: um erro aqui não deve
+// travar a renderização do relatório.
+function logProfessionalAccess(childProfileId, action){
+  getOwnProfessionalId()
+    .then(professionalId=> sb.from('professional_access_log').insert({
+      professional_id: professionalId, child_profile_id: childProfileId, action
+    }))
+    .catch(()=>{});
+}
+
 async function loadProfDashboardChildDetail(childId){
   const [
-    { data: profile }, { data: readingProgress }, { data: impulsivity }, { data: adherenceRows },
-    { data: swaps }, { data: errorTypes }, { data: syllableDifficulty },
-    { data: focusEvolution }, { data: responseTime }, { data: workingMemory },
-    { data: ruleAdaptation }, { data: perseverativeErrors }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing }
+    [
+      { data: profile }, { data: readingProgress }, { data: adherenceRows },
+      { data: swaps }, { data: errorTypes }, { data: syllableDifficulty },
+      { data: focusEvolution }, { data: responseTime }, { data: workingMemory },
+      { data: ruleAdaptation }, { data: perseverativeErrors }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing },
+      { data: activityDifficulty }, { data: thermoResponseTime }, { data: thermoDiversity },
+      { data: cestasPlanningIndex }, { data: cestasDeliberation }, { data: cestasRestarts }
+    ],
+    indicatorsReport
   ] = await Promise.all([
+    Promise.all([
     sb.from('child_profiles').select('*').eq('id', childId).single(),
     sb.from('reading_progress').select('*').eq('child_profile_id', childId).maybeSingle(),
-    sb.from('v_impulsivity_index').select('indice').eq('profile_id', childId).maybeSingle(),
     sb.from('v_adherence_summary').select('game_key, semanas_com_dado, semanas_com_meta_atingida, taxa_adesao_pct').eq('profile_id', childId),
     // v_phonological_swaps/v_error_type_summary/v_syllable_difficulty, and all 7 clinical
     // views below, filter on has_premium_access(profile_id) at the DB level, so an empty
@@ -156,7 +214,15 @@ async function loadProfDashboardChildDetail(childId){
     sb.from('v_perseverative_errors').select('game_key, perseverative_count').eq('profile_id', childId),
     sb.from('v_frustration_raw').select('game_key, abandons, help_requests, retries').eq('profile_id', childId),
     sb.from('v_wait_task_compliance').select('game_key, waited_correctly, clicked_early, total_attempts').eq('profile_id', childId),
-    sb.from('v_instruction_following').select('game_key, followed_correctly, total_instructions, accuracy_pct').eq('profile_id', childId)
+    sb.from('v_instruction_following').select('game_key, followed_correctly, total_instructions, accuracy_pct').eq('profile_id', childId),
+    sb.from('v_activity_difficulty').select('game_key, activity_key, attempts, accuracy_pct').eq('profile_id', childId).order('accuracy_pct', { ascending:true }),
+    sb.from('v_thermo_response_time').select('target_type, avg_response_ms, n').eq('profile_id', childId),
+    sb.from('v_thermo_strategy_diversity').select('strategies_used, total_rounds').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cestas_planning_index').select('avg_efficiency, n').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cestas_deliberation_time').select('avg_response_ms, n').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cestas_voluntary_restarts').select('restarts').eq('profile_id', childId).maybeSingle()
+    ]),
+    loadIndicatorsReport(childId)
   ]);
 
   const sevenDaysAgo = new Date(); sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -180,13 +246,17 @@ async function loadProfDashboardChildDetail(childId){
   });
 
   return {
-    profile, readingProgress, impulsivityIndex: impulsivity?.indice ?? null,
+    profile, readingProgress, impulsivityIndex: indicatorsReport.control.current,
+    indicatorsReport,
     weeklyUsage: usageByDay.map(d=>({ ...d, minutes: Math.round(d.minutes) })),
     adherence: (adherenceRows || []).filter(a=>a.semanas_com_dado > 0),
     phonologicalSwaps: swaps || [], errorTypes: errorTypes || [], syllableDifficulty: syllableDifficulty || [],
     focusEvolution: focusEvolution || [], responseTime: responseTime || [], workingMemory: workingMemory || [],
     ruleAdaptation: ruleAdaptation || [], perseverativeErrors: perseverativeErrors || [], frustration: frustration || [],
     waitCompliance: waitCompliance || [], instructionFollowing: instructionFollowing || [],
+    activityDifficulty: activityDifficulty || [],
+    thermoResponseTime: thermoResponseTime || [], thermoDiversity: thermoDiversity || null,
+    cestasPlanningIndex: cestasPlanningIndex || null, cestasDeliberation: cestasDeliberation || null, cestasRestarts: cestasRestarts || null,
     isPremium
   };
 }
@@ -487,8 +557,10 @@ async function loadAndRenderProfChildDetail(container){
   }
 
   const {
-    profile, readingProgress, impulsivityIndex, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty,
-    focusEvolution, responseTime, workingMemory, ruleAdaptation, perseverativeErrors, frustration, waitCompliance, instructionFollowing, isPremium
+    profile, readingProgress, impulsivityIndex, indicatorsReport, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty,
+    focusEvolution, responseTime, workingMemory, ruleAdaptation, perseverativeErrors, frustration, waitCompliance, instructionFollowing,
+    activityDifficulty, thermoResponseTime, thermoDiversity,
+    cestasPlanningIndex, cestasDeliberation, cestasRestarts, isPremium
   } = detail;
   const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
   const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
@@ -528,6 +600,45 @@ async function loadAndRenderProfChildDetail(container){
         </div>` : ''}
     `;
   }
+
+  // --- Dificuldade por atividade: distingue os 8 minijogos de Aventura das Letras
+  // que hoje compartilham um único game_key (v_activity_difficulty, alimentada por
+  // activity_key em game_events - ver 20260812143000_add_activity_key_to_game_events).
+  const activityLabel = (key)=> t.activityLabels?.[key] || key;
+  let activityDifficultyHtml;
+  if(!isPremium) activityDifficultyHtml = lockedNote;
+  else if((activityDifficulty || []).length === 0) activityDifficultyHtml = noDataNote;
+  else activityDifficultyHtml = activityDifficulty.map(a=>`
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${activityLabel(a.activity_key)}</span><span class="prof-dash-row-value">${a.accuracy_pct}% (${a.attempts}×)</span></div>
+  `).join('');
+
+  // --- Termômetro das Emoções: tempo de decisão + repertório de estratégias.
+  // Sem "certo/errado" em nenhuma das duas escolhas de propósito - ver
+  // methodologyReports. Gate de n>=8 já aplicado em v_thermo_response_time/
+  // v_thermo_strategy_diversity (poucas rodadas por sessão, número instável
+  // antes disso).
+  const thermoByTarget = {};
+  (thermoResponseTime || []).forEach(r=>{ thermoByTarget[r.target_type] = r; });
+  let thermoHtml;
+  if(!isPremium) thermoHtml = lockedNote;
+  else if(Object.keys(thermoByTarget).length === 0 && !thermoDiversity) thermoHtml = noDataNote;
+  else thermoHtml = `
+    ${thermoByTarget.emotion ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.thermoEmotionTime}</span><span class="prof-dash-row-value">${Math.round(thermoByTarget.emotion.avg_response_ms)}${t.ms}</span></div>` : ''}
+    ${thermoByTarget.strategy ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.thermoStrategyTime}</span><span class="prof-dash-row-value">${Math.round(thermoByTarget.strategy.avg_response_ms)}${t.ms}</span></div>` : ''}
+    ${thermoDiversity ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.thermoStrategyDiversity}</span><span class="prof-dash-row-value">${thermoDiversity.strategies_used}/4</span></div>` : ''}
+  `;
+
+  // --- Cestas da Ilha: eficiência de planejamento (minMoves/movesUsed), tempo
+  // de deliberação inicial (sem timer no jogo - deliberação genuína) e
+  // reinícios voluntários. Gates de n mínimo já aplicados nas views.
+  let cestasHtml;
+  if(!isPremium) cestasHtml = lockedNote;
+  else if(!cestasPlanningIndex && !cestasDeliberation && !cestasRestarts) cestasHtml = noDataNote;
+  else cestasHtml = `
+    ${cestasPlanningIndex ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasPlanningIndex}</span><span class="prof-dash-row-value">${Math.round(cestasPlanningIndex.avg_efficiency * 100)}%</span></div>` : ''}
+    ${cestasDeliberation ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasDeliberationTime}</span><span class="prof-dash-row-value">${Math.round(cestasDeliberation.avg_response_ms)}${t.ms}</span></div>` : ''}
+    ${cestasRestarts ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasVoluntaryRestarts}</span><span class="prof-dash-row-value">${cestasRestarts.restarts}</span></div>` : ''}
+  `;
 
   // --- Atenção sustentada: semana mais recente por jogo (query já ordena week_start desc) ---
   const focusByGame = {};
@@ -615,7 +726,43 @@ async function loadAndRenderProfChildDetail(container){
     <div class="prof-dash-row"><span class="prof-dash-row-label">${gameTitle(i.game_key)} — ${t.instructionAccuracy}</span><span class="prof-dash-row-value">${i.accuracy_pct}%</span></div>
   `).join('');
 
+  // --- Relatório de Indicadores: leitura rápida de Atenção/Controle inibitório/
+  // Memória de trabalho + evolução em 3 deltas separados (não um número composto -
+  // ver metodologia). Mesmas janelas de child_metrics_daily calculadas em loadIndicatorsReport.
+  const indicatorDeltaLabel = (delta)=>{
+    if(delta === null) return t.indicatorsInsufficientData;
+    if(delta > 0) return t.indicatorsDeltaUp(delta);
+    if(delta < 0) return t.indicatorsDeltaDown(Math.abs(delta));
+    return t.indicatorsDeltaStable;
+  };
+  const indicatorValueRow = (label, ind)=> `
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${label}</span><span class="prof-dash-row-value">${ind.current !== null ? ind.current + '%' : t.indicatorsInsufficientData}</span></div>`;
+  const indicatorEvolutionRow = (label, ind)=> `
+    <div class="prof-dash-row"><span class="prof-dash-row-label">${label}</span><span class="prof-dash-row-value">${indicatorDeltaLabel(ind.delta)}</span></div>`;
+  let indicatorsReportHtml;
+  if(!isPremium){
+    indicatorsReportHtml = lockedNote;
+  } else {
+    indicatorsReportHtml = `
+      ${indicatorValueRow(t.indicatorsAttention, indicatorsReport.attention)}
+      ${indicatorValueRow(t.indicatorsControl, indicatorsReport.control)}
+      ${indicatorValueRow(t.indicatorsMemory, indicatorsReport.memory)}
+      <div style="margin-top:10px; padding-top:10px; border-top:1px solid #EDE6D3;">
+        <div style="font-size:11.5px; color:#8A8067; font-weight:700; margin-bottom:4px;">${t.indicatorsEvolutionTitle}</div>
+        ${indicatorEvolutionRow(t.indicatorsAttention, indicatorsReport.attention)}
+        ${indicatorEvolutionRow(t.indicatorsControl, indicatorsReport.control)}
+        ${indicatorEvolutionRow(t.indicatorsMemory, indicatorsReport.memory)}
+      </div>
+      <div style="font-size:10.5px; color:#8A8067; margin-top:8px;">${t.indicatorsLagNote}</div>
+    `;
+  }
+
   detailEl.innerHTML = `
+    <div class="prof-dash-card" style="border-left:3px solid #4F7C64;">
+      <div class="prof-dash-card-header">📊 <span class="prof-dash-card-title">${t.indicatorsReportTitle}</span></div>
+      ${indicatorsReportHtml}
+    </div>
+
     <div class="prof-dash-grid2">
       <div class="prof-dash-card">
         <div class="prof-dash-card-header">🧩 <span class="prof-dash-card-title">${t.focusIsland}</span></div>
@@ -634,13 +781,6 @@ async function loadAndRenderProfChildDetail(container){
     </div>
 
     <div class="prof-dash-card">
-      <div class="prof-dash-card-header">🛡️ <span class="prof-dash-card-title">${t.impulsivityIndex}</span></div>
-      <div class="prof-dash-impulsivity-badge" style="color:#4F7C64">
-        ${impulsivityIndex !== null ? impulsivityIndex + '/100' : t.none}
-      </div>
-    </div>
-
-    <div class="prof-dash-card">
       <div class="prof-dash-card-header">📅 <span class="prof-dash-card-title">${t.adherence}</span></div>
       ${adherenceRowsHtml || `<div style="font-size:12.5px; color:#8A8067;">${t.adherenceNoData}</div>`}
     </div>
@@ -648,6 +788,23 @@ async function loadAndRenderProfChildDetail(container){
     <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
       <div class="prof-dash-card-header">🔬 <span class="prof-dash-card-title">${t.phoneticAnalysis}</span></div>
       ${phoneticHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🧩 <span class="prof-dash-card-title">${t.activityDifficultyTitle}</span></div>
+      ${activityDifficultyHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🌡️ <span class="prof-dash-card-title">${t.thermoTitle}</span>
+        <span style="font-size:10px; color:#8A8067; margin-left:auto;">${t.thermoCaption}</span>
+      </div>
+      ${thermoHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🧺 <span class="prof-dash-card-title">${t.cestasTitle}</span></div>
+      ${cestasHtml}
     </div>
 
     <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
@@ -708,7 +865,10 @@ async function loadAndRenderProfChildDetail(container){
       </div>
     </div>
   `;
-  if(isPremium) notifyReportReady(profDashboardSelectedId);
+  if(isPremium){
+    notifyReportReady(profDashboardSelectedId);
+    logProfessionalAccess(profDashboardSelectedId, 'view_report');
+  }
 
   if(profSelectedIsOwned){
     renderOwnedManagementBar(container, detailEl, profDashboardSelectedId);

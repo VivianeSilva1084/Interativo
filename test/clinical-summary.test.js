@@ -64,11 +64,14 @@ describe('buildClinicalSummary', () => {
     expect(text).toContain('/r/ → /l/ (5 ocorrências)');
   });
 
-  it('reports persistence as positive only when there are retries and zero abandons', () => {
-    const positive = buildClinicalSummary({ profile: { name: 'Ana' }, frustration: [{ abandons: 0, retries: 3 }] }, 'pt');
-    expect(positive).toContain('demonstrou persistência');
+  it('reports persistence as positive when there are help requests and/or retries, with zero abandons', () => {
+    const positiveHelp = buildClinicalSummary({ profile: { name: 'Ana' }, frustration: [{ abandons: 0, help_requests: 3, retries: 0 }] }, 'pt');
+    expect(positiveHelp).toContain('demonstrou persistência');
 
-    const negative = buildClinicalSummary({ profile: { name: 'Ana' }, frustration: [{ abandons: 3, retries: 0 }] }, 'pt');
+    const positiveRetries = buildClinicalSummary({ profile: { name: 'Ana' }, frustration: [{ abandons: 0, help_requests: 0, retries: 2 }] }, 'pt');
+    expect(positiveRetries).toContain('demonstrou persistência');
+
+    const negative = buildClinicalSummary({ profile: { name: 'Ana' }, frustration: [{ abandons: 3, help_requests: 0, retries: 0 }] }, 'pt');
     expect(negative).toContain('3 abandonos de atividade');
   });
 

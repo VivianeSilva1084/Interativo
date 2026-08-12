@@ -94,7 +94,7 @@ export async function loadClinicalSummaryExtras(childId){
       sb.from('v_working_memory').select('*').eq('profile_id', childId),
       sb.from('v_phonological_swaps').select('expected, answered, occurrences').eq('profile_id', childId).order('occurrences', { ascending: false }).limit(3),
       sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 80).order('accuracy_pct', { ascending: true }).limit(3),
-      sb.from('v_frustration_raw').select('game_key, abandons, retries').eq('profile_id', childId),
+      sb.from('v_frustration_raw').select('game_key, abandons, help_requests, retries').eq('profile_id', childId),
     ]);
     return { focusEvolution: focusEvolution || [], workingMemory: workingMemory || [], phonologicalSwaps: phonologicalSwaps || [], syllableDifficulty: syllableDifficulty || [], frustration: frustration || [] };
   }catch(e){

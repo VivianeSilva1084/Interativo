@@ -7,7 +7,7 @@
 // e cestas-logic.js (BFS/geração de round, sem DOM, testável em isolado) -
 // nunca app.js, mesmo motivo dos outros jogos (evitar import circular).
 import { state, session, getDifficulty } from '../lib/session-state.js';
-import { setInstructions, hideFeedback, showFeedback, logGameEvent, say } from '../lib/game-shared.js';
+import { setInstructions, hideFeedback, showFeedback, logGameEvent, say, playTone } from '../lib/game-shared.js';
 import { L } from '../lib/i18n.js';
 import { DIFF, setStars, addSeeds, renderDiffRow } from '../lib/game-progress.js';
 import { cloneState, statesEqual, stateKey, bfsDistancesFromGoal, generateInitialState, computeStars, moveCap } from './cestas-logic.js';
@@ -113,7 +113,7 @@ function cestasPickBasket(idx){
     cestas.firstTapLogged = true;
   }
   if(cestas.selectedBasket === null){
-    if(cestas.current[idx].length === 0) return; // cesta vazia não pode ser origem - no-op silencioso
+    if(cestas.current[idx].length === 0){ playTone('wrong'); return; } // cesta vazia não pode ser origem - som neutro, sem texto/mensagem
     cestas.selectedBasket = idx;
     renderCurrentBoard();
     return;
@@ -124,7 +124,13 @@ function cestasPickBasket(idx){
     return;
   }
   if(cestas.current[idx].length >= cestas.capacities[idx]){
-    cestas.selectedBasket = null; // cesta destino cheia - no-op silencioso, nunca mensagem negativa
+    // cesta destino cheia - toque não teve efeito nenhum (nem visual, além da
+    // seleção sumir); sem esse som a criança não sabe se o toque "não fez
+    // nada" ou simplesmente não registrou, e acaba tocando de novo às cegas.
+    // playTone('wrong') é o mesmo blip suave e neutro já usado nos outros
+    // jogos - nunca mensagem/banner de texto.
+    playTone('wrong');
+    cestas.selectedBasket = null;
     renderCurrentBoard();
     return;
   }

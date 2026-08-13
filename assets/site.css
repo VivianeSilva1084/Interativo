@@ -57,6 +57,9 @@
   .hero::before{ width:280px; height:280px; background:var(--sand); opacity:.14; border-radius:62% 38% 55% 45% / 45% 55% 45% 55%; top:-70px; right:-70px; }
   .hero::after{ width:220px; height:220px; background:var(--leaf); opacity:.13; border-radius:38% 62% 45% 55% / 55% 45% 55% 45%; bottom:-80px; left:-50px; }
   .hero-eyebrow{ display:inline-flex; gap:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--cream); margin-bottom:18px; }
+  .hero-cta-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  .hero .btn-secondary{ color:#fff; border-color:rgba(255,255,255,.4); }
+  .hero .btn-secondary:hover{ background:rgba(255,255,255,.1); }
   .hero h1{ font-size:38px; line-height:1.18; margin-bottom:16px; color:#fff; }
   .hero-sub{ font-size:16px; line-height:1.6; color:rgba(255,248,237,.85); max-width:520px; margin-bottom:26px; }
   .hero-art{ display:flex; justify-content:center; }

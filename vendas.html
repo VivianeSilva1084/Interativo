@@ -37,335 +37,39 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg-deep:#0A2C2D; --bg-mid:#0F3D3E; --bg-mid2:#14514F;
-    --sand:#C9A15E; --papaya:#8A5226; --lilac:#8496B5; --cream:#FFF8ED;
-    --leaf:#3F8657; --berry:#B23A55; --success:#3F8657; --ink:#14181B;
-    --ink-soft:#5B6570; --ink-faint:#8B958F; --bg:#FFFFFF; --bg-soft:#F7F7F4;
-    --line:#E7E7E2; --teal:#0F3D3E; --teal-deep:#0A2C2D;
-    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F7ECE0;
-    --shadow: 0 1px 2px rgba(20,24,27,.04), 0 20px 44px rgba(20,24,27,.08);
-    --radius-lg: 20px; --radius-md:14px; --radius-sm:10px;
-  }
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; padding:0; scroll-behavior:smooth; overflow-x:hidden; }
-  body{
-    font-family:'Plus Jakarta Sans',sans-serif;
-    background: var(--bg-soft);
-    color:var(--ink-soft); min-height:100vh; width:100%;
-    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-  }
-  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-.02em; color:var(--ink); margin:0; }
-  p{ margin:0; }
-  img{ max-width:100%; display:block; }
-  a{ color:inherit; }
-  .wrap{ max-width: 1080px; margin:0 auto; padding: 0 20px; }
-
-  /* ---------- Top bar ---------- */
-  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px; background:var(--teal); }
-  .brand{ display:flex; align-items:center; gap:10px; font-family:'Fraunces', serif; font-weight:600; font-size:17px; color:var(--cream); }
-  .lang-toggle{ display:flex; gap:4px; background: rgba(255,255,255,.08); border-radius:999px; padding:4px; border:1px solid rgba(255,255,255,.15); }
-  .lang-toggle button{ background:transparent; border:none; font-size:16px; padding:6px 12px; border-radius:999px; cursor:pointer; opacity:.5; }
-  .lang-toggle button.active{ opacity:1; background: rgba(255,255,255,.18); }
-
-  /* ---------- Buttons ---------- */
-  .btn-primary{ display:inline-flex; align-items:center; gap:8px; background: var(--teal); color:#fff; font-weight:700; font-size:15px; padding:14px 28px; border-radius:var(--radius-sm); text-decoration:none; box-shadow: var(--shadow); border:none; cursor:pointer; transition:background .15s ease, transform .15s ease; }
-  .btn-primary:hover{ background:var(--teal-deep); transform: translateY(-1px); }
-  .btn-secondary{ display:inline-flex; align-items:center; gap:8px; background: transparent; color:var(--ink); font-weight:700; font-size:14px; padding:12px 22px; border-radius:var(--radius-sm); text-decoration:none; border:1.5px solid var(--line); }
-  .micro-note{ font-size:12.5px; color:rgba(255,255,255,.6); margin-top:10px; }
-  .pricing-card .micro-note{ color:var(--ink-faint); }
-
-  /* ---------- Hero ---------- */
-  .hero{ display:grid; grid-template-columns: 1.1fr .9fr; gap:40px; align-items:center; padding: 48px 40px; background:linear-gradient(160deg, var(--teal) 0%, var(--teal-deep) 100%); border-radius:var(--radius-lg); margin-top:20px; }
-  .hero-eyebrow{ display:inline-flex; gap:8px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:999px; padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--cream); margin-bottom:18px; }
-  .hero h1{ font-size:38px; line-height:1.18; margin-bottom:16px; color:#fff; }
-  .hero-sub{ font-size:16px; line-height:1.6; color:rgba(255,248,237,.85); max-width:520px; margin-bottom:26px; }
-  .hero-art{ display:flex; justify-content:center; }
-  .hero-art img{ width:100%; max-width:320px; border-radius:24px; filter:drop-shadow(0 20px 40px rgba(0,0,0,.28)); }
-
-  /* ---------- Sections generic ---------- */
-  section{ padding: 50px 0; }
-  .section-title{ font-size:26px; text-align:center; margin-bottom:10px; }
-  .section-sub{ text-align:center; color:var(--ink-soft); font-size:15px; max-width:560px; margin: 0 auto 36px; line-height:1.5; }
-
-  /* ---------- Problem cards ---------- */
-  .problem-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
-  .problem-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:22px; text-align:center; box-shadow: var(--shadow); }
-  .problem-card .emoji{ font-size:30px; display:block; margin-bottom:10px; }
-  .problem-card p{ font-size:14.5px; line-height:1.5; color:var(--ink-soft); }
-  .bridge-line{ text-align:center; font-weight:700; color:var(--ink); font-size:16.5px; margin-top:30px; }
-
-  /* ---------- Kapi video ---------- */
-  .video-wrap{ display:flex; justify-content:center; }
-  .video-frame{ width:100%; max-width:340px; aspect-ratio:9/16; border-radius:16px; overflow:hidden; box-shadow:var(--shadow); background:#000; }
-  .video-frame iframe{ width:100%; height:100%; border:0; display:block; }
-  .video-frame video{ width:100%; height:100%; object-fit:cover; display:block; }
-
-  /* ---------- Vs. traditional comparison ---------- */
-  .vs-table-scroll{ max-width:760px; margin:0 auto; overflow-x:auto; border-radius: var(--radius-lg); box-shadow: var(--shadow); }
-  .vs-table{ width:100%; min-width:480px; margin:0 auto; border-collapse:separate; border-spacing:0; background: var(--cream); border-radius: var(--radius-lg); box-shadow:none; }
-  .vs-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; text-align:left; padding:16px 18px; color:#fff; }
-  .vs-table th.vs-col-label{ background: var(--ink); width:30%; }
-  .vs-table th.vs-col-us{ background: var(--leaf); }
-  .vs-table th.vs-col-them{ background:#5C7A70; }
-  .vs-table td{ padding:13px 18px; font-size:13px; color:var(--ink); border-top:1px solid rgba(0,0,0,.06); }
-  .vs-table td.vs-label{ font-weight:700; background: rgba(0,0,0,.02); }
-  .vs-table td.vs-us{ background: rgba(63,134,87,.1); font-weight:600; }
-  .vs-table td.vs-them{ color:#8A7F63; }
-  .vs-table tr:first-child td{ border-top:none; }
-  @media (max-width:600px){ .vs-table{ font-size:12px; } .vs-table th, .vs-table td{ padding:10px 10px; } }
-
-  /* ---------- Two-app cards ---------- */
-  .apps-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
-  .app-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:28px; box-shadow: var(--shadow); text-align:center; }
-  .app-card .emoji{ font-size:36px; }
-  .app-card .icon-img{ width:52px; height:52px; border-radius:14px; object-fit:cover; display:block; margin:0 auto 12px; }
-  .app-card h3{ font-size:20px; margin:10px 0 4px; }
-  .app-card .app-tag{ font-size:12px; font-weight:700; color:var(--caramel-deep); margin-bottom:12px; display:block; letter-spacing:.03em; }
-  .app-card p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
-
-  /* ---------- Games grid ---------- */
-  .games-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
-  .game-tile{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:20px; box-shadow: var(--shadow); text-align:center; }
-  .game-tile .emoji{ font-size:28px; }
-  .game-tile h4{ font-family:'Fraunces', serif; font-weight:600; color:var(--ink); font-size:15.5px; margin:8px 0 2px; }
-  .game-tile .skill{ font-size:11px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.3px; }
-  .game-tile p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; margin-top:6px; }
-
-  /* ---------- Feature list ---------- */
-  .feature-list{ display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
-  .feature-item{ display:flex; gap:14px; align-items:flex-start; background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:18px; box-shadow: var(--shadow); }
-  .feature-item .emoji{ font-size:22px; flex-shrink:0; }
-  .feature-item strong{ display:block; color:var(--ink); font-size:14.5px; margin-bottom:3px; }
-  .feature-item span.desc{ font-size:13px; color:var(--ink-soft); line-height:1.5; }
-  .premium-tag{ display:inline-block; background:var(--caramel-tint); border:1px solid var(--caramel); color:var(--caramel-deep); font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
-
-  /* ---------- Professional bridge ---------- */
-  .pro-bridge{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:30px; text-align:center; max-width:680px; margin:0 auto; box-shadow: var(--shadow); }
-  .pro-bridge p{ font-size:14.5px; line-height:1.6; color:var(--ink-soft); }
-
-  /* ---------- Dashboard demo ---------- */
-  .demo-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
-  .demo-card{ position:relative; background: var(--cream); color:var(--ink); border-radius: var(--radius-lg); max-width:520px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
-  .demo-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
-  .demo-header{ background: var(--ink); color:#fff; padding:16px 76px 16px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
-  .demo-header .child-name{ font-family:'Fraunces', serif; font-weight:600; font-size:15.5px; }
-  .demo-header .premium-pill{ background:var(--sand); color:var(--ink); font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
-  .demo-body{ padding:20px; }
-  .demo-cols{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:6px; }
-  .demo-col h5{ font-family:'Fraunces', serif; font-weight:600; font-size:13px; margin:0 0 8px; color:var(--ink); }
-  .demo-card .row{ display:flex; justify-content:space-between; gap:8px; font-size:12px; padding:4px 0; color:#4A4536; border-top:1px solid rgba(11,61,46,.08); }
-  .demo-col .row:first-of-type{ border-top:none; }
-  .demo-section-block{ border-top:1px solid rgba(11,61,46,.1); padding-top:14px; margin-top:14px; }
-  .demo-section-block h5{ font-family:'Fraunces', serif; font-weight:600; font-size:13px; margin:0 0 10px; color:var(--berry); }
-  .demo-index-value{ font-family:'Fraunces', serif; font-weight:600; font-size:26px; color:var(--ink); text-align:center; }
-  .demo-index-label{ font-size:12px; text-align:center; color:#6b6350; font-style:italic; margin-top:4px; }
-  .demo-bar-track{ background:rgba(11,61,46,.08); border-radius:999px; height:10px; overflow:hidden; margin:8px 0 6px; }
-  .demo-bar-fill{ background:var(--leaf); height:100%; border-radius:999px; }
-  .demo-bar-label{ font-size:12px; color:#6b6350; }
-  .demo-cta-wrap{ text-align:center; margin-top:20px; }
-  @media (max-width:520px){ .demo-cols{ grid-template-columns:1fr; gap:10px; } }
-
-  /* ---------- Professional dashboard demo ---------- */
-  .demo-pro-wrap{ display:flex; justify-content:center; margin-bottom:22px; }
-  .demo-pro-card{ position:relative; background:#FBF8F1; color:#1F2E29; border-radius: var(--radius-lg); max-width:640px; width:100%; box-shadow:var(--shadow); overflow:hidden; pointer-events:none; user-select:none; }
-  .demo-pro-badge{ position:absolute; top:14px; right:14px; background:var(--berry); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.5px; padding:4px 10px; border-radius:999px; z-index:2; }
-  .demo-pro-header{ background:var(--teal); color:#fff; padding:14px 76px 14px 20px; font-family:'Fraunces', serif; font-weight:600; font-size:13.5px; }
-  .demo-pro-body{ display:flex; flex-wrap:wrap; }
-  .demo-pro-sidebar{ width:170px; border-right:1px solid #E7DCC0; padding:14px 0; flex-shrink:0; }
-  .demo-pro-sidebar .label{ font-size:10.5px; font-weight:700; color:#8A7F63; text-transform:uppercase; letter-spacing:.4px; padding:0 16px 8px; }
-  .demo-pro-child{ display:flex; align-items:center; gap:8px; padding:9px 16px; border-left:3px solid transparent; font-size:12.5px; font-weight:700; color:#4A4536; }
-  .demo-pro-child.active{ background:#F5E6C8; border-left-color:var(--caramel); color:#1F2E29; }
-  .demo-pro-main{ flex:1; min-width:260px; padding:18px 20px; }
-  .demo-pro-main h6{ font-family:'Fraunces', serif; font-weight:600; font-size:13.5px; margin:0 0 10px; color:#1F2E29; }
-  .demo-pro-card-box{ background:#fff; border:1px solid #E7DCC0; border-radius:14px; padding:14px 16px; margin-bottom:12px; }
-  .demo-pro-card-box h6{ font-family:'Fraunces', serif; font-weight:600; font-size:12.5px; margin:0 0 8px; color:var(--berry); }
-  .demo-pro-index-value{ font-family:'Fraunces', serif; font-weight:600; font-size:23px; text-align:center; color:#1F2E29; }
-  .demo-pro-index-label{ font-size:11.5px; text-align:center; color:#6b6350; margin-top:2px; }
-  .demo-pro-row{ display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:3px 0; color:#4A4536; }
-  .demo-pro-summary{ font-size:12px; font-style:italic; color:#4A4536; line-height:1.55; margin:0; }
-  @media (max-width:560px){
-    .demo-pro-body{ flex-direction:column; }
-    .demo-pro-sidebar{ width:100%; border-right:none; border-bottom:1px solid #E7DCC0; display:flex; align-items:center; gap:6px; padding:10px 16px; }
-    .demo-pro-sidebar .label{ display:none; }
-    .demo-pro-row{ flex-direction:column; gap:2px; }
-  }
-
-  /* ---------- Pricing ---------- */
-  .pricing-wrap{ display:flex; justify-content:center; }
-  .pricing-card{ background: linear-gradient(160deg, var(--caramel-tint), var(--bg)); border:1.5px solid var(--caramel); border-radius: var(--radius-lg); padding:36px 40px; text-align:center; max-width:420px; box-shadow:var(--shadow); }
-  .pricing-card .plan-name{ font-size:12.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.05em; }
-  .pricing-card .pricing-tagline{ display:inline-block; background:rgba(15,61,62,.08); color:var(--teal); font-weight:700; font-size:13px; padding:5px 14px; border-radius:999px; margin:8px 0 0; }
-  .pricing-card .price{ font-family:'Fraunces', serif; font-weight:600; font-size:42px; color:var(--ink); margin:10px 0 2px; }
-  .pricing-card .price span{ font-size:16px; font-weight:700; color:var(--ink-soft); }
-  .pricing-card .price-note{ font-size:12.5px; color:var(--ink-soft); margin-bottom:22px; }
-  .pricing-card .price-teaser{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--ink); margin:10px 0 22px; line-height:1.35; }
-  .pricing-list{ list-style:none; padding:0; margin:0 0 26px; text-align:left; display:inline-block; }
-  .pricing-list li{ font-size:14px; padding:6px 0; color:var(--ink-soft); }
-  .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:700; }
-
-  .plan-badge{ font-size:11.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.03em; margin:2px 0 8px; }
-  .plan-toggle-row{ display:flex; gap:8px; justify-content:center; margin:4px 0 14px; }
-  .security-badge{ font-size:12px; color:#4A4536; display:flex; align-items:center; justify-content:center; gap:5px; margin-top:10px; }
-  .plan-toggle-btn{ background:transparent; border:1.5px solid var(--line); color:var(--ink-faint); font-weight:700; font-size:13px; padding:8px 18px; border-radius:999px; cursor:pointer; transition:all .15s ease; }
-  .plan-toggle-btn.active{ border-color:var(--caramel); background:var(--caramel-tint); color:var(--caramel-deep); }
-  .checkout-email-input{ width:100%; max-width:320px; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:15px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; }
-  .checkout-email-input::placeholder{ color:var(--ink-faint); }
-  .big-cta{ display:block; width:100%; box-sizing:border-box; background: var(--teal); color:#fff; font-weight:700; font-size:16.5px; padding:15px 24px; border-radius:var(--radius-sm); border:none; cursor:pointer; box-shadow: var(--shadow); margin-bottom:14px; transition:background .15s ease, transform .15s ease; }
-  .big-cta:hover{ background:var(--teal-deep); transform: translateY(-1px); }
-  .checkout-error{ font-size:13px; color:var(--berry); margin:6px 0 0; }
-  .lead-capture-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:30px; max-width:420px; margin:0 auto; text-align:center; box-shadow: var(--shadow); }
-  .lead-capture-consent{ display:flex; align-items:flex-start; gap:8px; text-align:left; font-size:12.5px; color:var(--ink-soft); margin:2px 0 16px; line-height:1.4; }
-  .lead-capture-consent input{ margin-top:2px; flex-shrink:0; }
-  .lead-capture-success{ font-size:14px; color:var(--caramel-deep); font-weight:700; }
-  .checkout-success-box, .checkout-cancelled-box{ max-width:520px; margin:0 auto 30px; text-align:center; background:var(--bg); border:1.5px solid var(--caramel); border-radius:var(--radius-lg); padding:30px; box-shadow: var(--shadow); }
-  .checkout-success-box h3, .checkout-cancelled-box h3{ font-size:19px; color:var(--ink); margin-bottom:10px; }
-  .checkout-success-box p, .checkout-cancelled-box p{ font-size:14px; color:var(--ink-soft); line-height:1.5; }
-
-  .vendas-modal-overlay{ position:fixed; inset:0; background:rgba(11,20,18,.7); display:flex; align-items:center; justify-content:center; padding:16px; z-index:100; }
-  .vendas-modal{ background:var(--cream); color:var(--ink); border-radius:var(--radius-lg); max-width:380px; width:100%; padding:28px; text-align:center; }
-  .vendas-modal h3{ font-size:18px; margin-bottom:10px; color:var(--ink); }
-  .vendas-modal p{ font-size:13.5px; color:#4A4536; margin-bottom:10px; }
-  .vendas-modal input{ width:100%; box-sizing:border-box; padding:11px 14px; border-radius:10px; border:1.5px solid rgba(11,61,46,.2); font-size:15px; margin-bottom:8px; font-family:'Plus Jakarta Sans',sans-serif; }
-  .vendas-modal .modal-error{ font-size:12.5px; color:var(--berry); display:none; margin-bottom:8px; }
-  .vendas-modal .modal-actions{ display:flex; gap:10px; justify-content:center; margin-top:12px; }
-  .vendas-modal .modal-btn-secondary{ background:transparent; border:1.5px solid rgba(11,61,46,.3); color:var(--ink); font-weight:700; padding:10px 18px; border-radius:999px; cursor:pointer; }
-  .vendas-modal .modal-btn-primary{ background:var(--leaf); color:#fff; font-weight:700; border:none; padding:10px 18px; border-radius:999px; cursor:pointer; }
-  .vendas-modal .pix-qr-img{ width:200px; height:200px; margin:0 auto 12px; border-radius:10px; display:block; }
-  .vendas-modal textarea{ width:100%; box-sizing:border-box; padding:10px; border-radius:10px; border:1.5px solid rgba(11,61,46,.2); font-size:12px; font-family:monospace; margin-bottom:10px; resize:none; }
-  .vendas-modal .pix-status{ font-size:13px; font-weight:700; margin-top:10px; }
-  .vendas-modal .pix-status.confirmed{ color:var(--leaf); }
-  .vendas-modal .checkout-product-summary{ font-weight:700; color:var(--ink); background:rgba(11,61,46,.06); border-radius:10px; padding:8px 12px; margin-bottom:14px; }
-  .vendas-modal .payment-method-row{ display:flex; gap:8px; justify-content:center; margin-bottom:10px; }
-  .vendas-modal .big-cta.active{ outline:2px solid var(--leaf); outline-offset:2px; }
-  .vendas-modal .modal-btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
-
-  /* ---------- Checkout modal (redesign) ---------- */
-  /* Full-page takeover instead of a small floating dialog - matches the
-     reference checkout (own page, no dim backdrop), not a popup. Only the
-     identification/payment step uses this; the Pix QR follow-up keeps the
-     small .vendas-modal treatment since it's a brief "here's your code"
-     step, not a form. */
-  .checkout-page-overlay{ position:fixed; inset:0; background:var(--bg-soft); z-index:100; overflow-y:auto; padding:56px 20px 80px; }
-  /* No single boxed card wrapping everything - each section is its own
-     white block stacked on the page background, which is what makes it
-     read as a page instead of a shrunken popup. */
-  .checkout-modal-v2{ max-width:640px; margin:0 auto; text-align:left; padding:0; position:relative; background:transparent; }
-  .checkout-modal-v2 .checkout-modal-close{ position:absolute; top:-44px; right:0; background:#fff; border:1.5px solid var(--line); width:36px; height:36px; border-radius:50%; font-size:18px; line-height:1; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow); }
-  .checkout-summary{ display:flex; gap:20px; align-items:center; padding:28px 32px; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow); margin-bottom:18px; }
-  .checkout-summary-img{ width:150px; height:auto; border-radius:var(--radius-md); object-fit:contain; flex-shrink:0; }
-  .checkout-summary-name{ font-family:'Fraunces', serif; font-weight:600; font-size:19px; color:var(--ink); line-height:1.3; margin-bottom:8px; }
-  .checkout-summary-price{ font-family:'Fraunces', serif; font-weight:600; font-size:28px; color:var(--teal); }
-  .checkout-summary-note{ font-size:13.5px; color:var(--ink-faint); margin-top:4px; }
-  .checkout-modal-v2 .checkout-section{ padding:26px 32px; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow); margin-bottom:18px; }
-  .checkout-section-title{ font-size:14px; font-weight:800; color:var(--ink); text-transform:uppercase; letter-spacing:.3px; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-  .checkout-modal-v2 input{ width:100%; box-sizing:border-box; padding:15px 18px; border-radius:var(--radius-sm); border:1.5px solid var(--line); font-size:16px; margin-bottom:14px; font-family:'Plus Jakarta Sans',sans-serif; background:var(--bg-soft); color:var(--ink); }
-  .checkout-modal-v2 input:last-child{ margin-bottom:0; }
-  .checkout-email-hint{ font-size:12px; color:var(--ink-faint); margin:-6px 0 14px; line-height:1.4; }
-  .checkout-bump{ margin:0 0 18px; background:var(--caramel-tint); border:1.5px solid var(--sand); border-radius:var(--radius-lg); box-shadow:var(--shadow); padding:22px 26px; position:relative; overflow:hidden; }
-  .checkout-bump-badge{ display:inline-block; background:var(--caramel); color:#fff; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.3px; padding:4px 14px; border-radius:999px; margin-bottom:12px; }
-  .checkout-bump-title{ font-family:'Fraunces', serif; font-weight:600; font-size:18px; color:var(--caramel-deep); margin-bottom:14px; line-height:1.35; }
-  .checkout-bump-label{ display:flex; align-items:flex-start; gap:12px; font-size:15px; color:var(--ink); line-height:1.5; cursor:pointer; font-weight:600; }
-  .checkout-bump-label input{ margin-top:3px; width:19px; height:19px; flex-shrink:0; accent-color:var(--caramel); }
-  .payment-method-row{ display:flex; gap:12px; margin-bottom:14px; }
-  .payment-method-btn{ flex:1; display:flex; align-items:center; justify-content:center; gap:8px; background:var(--bg-soft); border:1.5px solid var(--line); color:var(--ink-soft); font-weight:700; font-size:15.5px; padding:16px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:all .15s ease; }
-  .payment-method-btn.active{ background:rgba(15,61,62,.06); border-color:var(--teal); color:var(--teal); }
-  .checkout-payment-info{ background:var(--bg-soft); border-radius:var(--radius-sm); padding:16px 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin-top:6px; }
-  .checkout-payment-info strong{ display:block; color:var(--ink); font-size:14px; margin-bottom:6px; }
-  .checkout-modal-v2 .modal-error{ margin:0 0 14px; }
-  .checkout-finalize-btn{ display:block; width:100%; margin:6px 0 0; background:var(--teal); color:#fff; font-weight:700; font-size:17.5px; padding:18px 22px; border-radius:var(--radius-sm); border:none; cursor:pointer; transition:background .15s ease; }
-  .checkout-finalize-btn:hover{ background:var(--teal-deep); }
-  .checkout-finalize-btn:disabled{ opacity:.5; cursor:not-allowed; }
-  .checkout-security-badge{ text-align:center; font-size:12.5px; color:var(--ink-faint); margin:16px 0 6px; }
-  .checkout-cancel-link{ display:block; width:100%; background:none; border:none; text-align:center; font-size:13px; color:var(--ink-faint); text-decoration:underline; cursor:pointer; padding:8px 0 20px; }
-  @media (max-width: 560px){
-    .checkout-summary{ padding:22px; gap:14px; }
-    .checkout-summary-img{ width:110px; height:auto; }
-    .checkout-modal-v2 .checkout-section{ padding:20px; }
-    .checkout-bump{ padding:18px; }
-  }
-
-  .compare-table{ width:100%; max-width:680px; margin:0 auto; border-collapse:separate; border-spacing:0; background:var(--bg); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--line); }
-  .compare-table th{ font-family:'Fraunces', serif; font-weight:600; font-size:14px; padding:14px 16px; text-align:left; color:var(--ink); background:var(--bg-soft); }
-  .compare-table th.col-premium{ color:var(--caramel-deep); }
-  .compare-table td{ padding:11px 16px; font-size:13.5px; border-top:1px solid var(--line); color:var(--ink-soft); }
-  .compare-table td.check{ text-align:center; font-weight:700; }
-  .compare-table td.yes{ color:var(--success); }
-  .compare-table td.no{ color:var(--ink-faint); }
-
-  /* ---------- FAQ ---------- */
-  .faq-item{ border-bottom:1px solid var(--line); padding:16px 0; max-width:680px; margin:0 auto; }
-  .faq-item summary{ font-family:'Fraunces', serif; font-weight:600; font-size:15px; color:var(--ink); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
-  .faq-item summary::-webkit-details-marker{ display:none; }
-  .faq-item summary::after{ content:"+"; font-size:19px; color:var(--caramel); }
-  .faq-item[open] summary::after{ content:"–"; }
-  .faq-item p{ font-size:14px; line-height:1.6; color:var(--ink-soft); margin-top:10px; }
-
-  /* ---------- Final CTA ---------- */
-  .final-cta{ text-align:center; background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:50px 30px; box-shadow: var(--shadow); }
-  .final-cta h2{ font-size:25px; margin-bottom:10px; }
-  .final-cta p{ color:var(--ink-soft); font-size:14.5px; margin-bottom:24px; }
-
-  /* ---------- Testimonials ---------- */
-  .testimonials-grid{ display:grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
-  .testimonial-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-md); padding:22px; box-shadow: var(--shadow); }
-  .testimonial-stars{ color:var(--sand); font-size:16px; margin-bottom:8px; letter-spacing:1px; }
-  .testimonial-comment{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin-bottom:12px; font-style:italic; }
-  .testimonial-name{ font-size:12.5px; font-weight:700; color:var(--ink); }
-
-  /* ---------- Review form ---------- */
-  .review-form-card{ background: var(--bg); border:1px solid var(--line); border-radius: var(--radius-lg); padding:32px 28px; max-width:460px; margin:0 auto; text-align:center; box-shadow: var(--shadow); }
-  .review-star-row{ display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
-  .review-star-btn{ background:none; border:none; font-size:32px; cursor:pointer; color:var(--line); transition:color .15s ease, transform .1s ease; padding:2px; line-height:1; }
-  .review-star-btn:hover{ transform: scale(1.1); }
-  .review-star-btn.active, .review-star-btn.preview{ color:var(--sand); }
-  .review-success{ font-size:14px; color:var(--caramel-deep); font-weight:700; }
-
-  /* ---------- Footer ---------- */
-  footer{ padding: 40px 0 50px; text-align:center; }
-  footer .foot-links{ margin-bottom:14px; }
-  footer .foot-links a{ color:var(--caramel-deep); font-weight:700; font-size:13px; text-decoration:underline; margin:0 10px; }
-  footer .foot-disclaimer{ font-size:11.5px; color:var(--ink-faint); max-width:520px; margin:0 auto 8px; line-height:1.5; }
-  footer .foot-credit{ font-size:12px; color:var(--ink-faint); }
-
-  [data-lang="it"]{ display:none; }
-
-  @media (max-width: 760px){
-    .hero{ grid-template-columns: 1fr; text-align:center; padding:36px 24px; margin-top:12px; }
-    .hero-sub{ margin:0 auto 26px; }
-    .hero h1{ font-size:28px; }
-    .hero-art{ order:-1; }
-    .hero-art img{ max-width:220px; }
-    .pricing-card{ padding:28px 22px; }
-  }
-</style>
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 
 <div class="wrap">
   <div class="topbar">
-    <div class="brand">Ilha do Foco</div>
-    <div class="lang-toggle">
-      <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
-      <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
+    <div class="brand">VisCare Kids</div>
+    <nav class="site-nav" id="siteNav">
+      <a data-lang="pt" href="index.html" onclick="closeNav()">Home</a>
+      <a data-lang="it" href="index.html" onclick="closeNav()">Home</a>
+      <a data-lang="pt" href="#appTabs-pt" onclick="closeNav()">Os jogos</a>
+      <a data-lang="it" href="#appTabs-it" onclick="closeNav()">I giochi</a>
+      <a data-lang="pt" href="profissionais.html" onclick="closeNav()">Para Profissionais</a>
+      <a data-lang="it" href="profissionais.html" onclick="closeNav()">Per i Professionisti</a>
+      <a data-lang="pt" href="familias.html" onclick="closeNav()">Para as Famílias</a>
+      <a data-lang="it" href="familias.html" onclick="closeNav()">Per le Famiglie</a>
+      <a data-lang="pt" href="sobre.html" onclick="closeNav()">Sobre Nós</a>
+      <a data-lang="it" href="sobre.html" onclick="closeNav()">Chi Siamo</a>
+      <a data-lang="pt" href="contato.html" onclick="closeNav()">Contato</a>
+      <a data-lang="it" href="contato.html" onclick="closeNav()">Contattaci</a>
+    </nav>
+    <div class="topbar-right">
+      <div class="lang-toggle">
+        <button id="btnPt" class="active" onclick="setDocLang('pt')">🇧🇷</button>
+        <button id="btnIt" onclick="setDocLang('it')">🇮🇹</button>
+      </div>
+      <button class="nav-toggle" id="navToggle" onclick="toggleNav()" aria-label="Abrir menu" aria-expanded="false">☰</button>
     </div>
   </div>
 </div>
 
 <!-- ======================= PT ======================= -->
 <div data-lang="pt">
-
-  <section class="wrap" id="video-pt">
-    <h2 class="section-title">Ajude as crianças a treinar foco, calma e leitura — brincando</h2>
-    <div class="video-wrap">
-      <div class="video-frame">
-        <video controls preload="metadata" playsinline>
-          <source src="https://pswmbqlafywaxphsrloe.supabase.co/storage/v1/object/public/site-videos/kapi-intro-pt.mp4" type="video/mp4">
-        </video>
-      </div>
-    </div>
-  </section>
 
   <div class="wrap hero">
     <div>
@@ -378,6 +82,17 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <div class="hero-art"><img src="Kapi.png" alt="Kapi, a mascote da Ilha do Foco" loading="lazy"></div>
   </div>
 
+  <section class="wrap" id="video-pt">
+    <h2 class="section-title">Ajude as crianças a treinar foco, calma e leitura — brincando</h2>
+    <div class="video-wrap">
+      <div class="video-frame">
+        <video controls preload="metadata" playsinline>
+          <source src="https://pswmbqlafywaxphsrloe.supabase.co/storage/v1/object/public/site-videos/kapi-intro-pt.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </section>
+
   <section class="wrap">
     <h2 class="section-title">Você reconhece isso?</h2>
     <div class="problem-grid">
@@ -387,6 +102,25 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
       <div class="problem-card"><span class="emoji">😟</span><p>No fundo, o medo é maior: será que ele vai acompanhar a escola, ter autonomia, ser feliz?</p></div>
     </div>
     <p class="bridge-line">A gente transforma isso em jogo — e em dado real pra você acompanhar.</p>
+  </section>
+
+  <section class="wrap">
+    <h2 class="section-title">Pra quem é a Ilha do Foco?</h2>
+    <p class="section-sub">Escolha seu caminho pra ver os detalhes certos pra você.</p>
+    <div class="apps-grid">
+      <div class="app-card">
+        <span class="emoji">👨‍👩‍👧</span>
+        <h3>Para as Famílias</h3>
+        <p>Acompanhamento do dia a dia, relatórios clínicos e o plano completo pra sua família.</p>
+        <a class="btn-primary" href="familias.html" style="margin-top:14px; text-decoration:none;">Ver para famílias →</a>
+      </div>
+      <div class="app-card">
+        <span class="emoji">🩺</span>
+        <h3>Para Profissionais</h3>
+        <p>Base metodológica de cada índice, painel por paciente e o plano profissional.</p>
+        <a class="btn-primary" href="profissionais.html" style="margin-top:14px; text-decoration:none;">Ver para profissionais →</a>
+      </div>
+    </div>
   </section>
 
   <section class="wrap">
@@ -406,6 +140,17 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Por que transformar em jogo funciona</h2>
+    <p class="section-sub">Não é só entretenimento — é como o cérebro aprende melhor.</p>
+    <div class="feature-list">
+      <div class="feature-item"><span class="emoji">🎯</span><div><strong>Feedback imediato</strong><span class="desc">A criança sabe na hora se acertou ou errou, sem esperar a correção depois — reforçando o aprendizado no momento exato em que ele acontece.</span></div></div>
+      <div class="feature-item"><span class="emoji">📈</span><div><strong>Desafio na medida certa</strong><span class="desc">Cada jogo ajusta a dificuldade ao ritmo da criança — nem fácil demais a ponto de entediar, nem difícil demais a ponto de frustrar. É o princípio da zona de desenvolvimento proximal, de Vygotsky: aprende-se melhor um passo à frente do que já se domina.</span></div></div>
+      <div class="feature-item"><span class="emoji">🛟</span><div><strong>Espaço seguro pra errar</strong><span class="desc">Errar faz parte do jogo, sem punição nem comparação. A criança tenta de novo até acertar, no próprio tempo.</span></div></div>
+    </div>
+    <p class="foot-disclaimer" style="max-width:640px; margin:18px auto 0;">São princípios bem estabelecidos em psicologia do desenvolvimento e pedagogia — não inventamos nada, é como o aprendizado funciona melhor pra qualquer criança, e especialmente pra quem tem TDAH ou dificuldade de aprendizagem. Os jogos não diagnosticam nem tratam nada — são uma ferramenta de treino e acompanhamento, sempre como apoio ao cuidado profissional, nunca no lugar dele.</p>
+  </section>
+
+  <section class="wrap">
     <h2 class="section-title">Ilha do Foco vs. método tradicional</h2>
     <p class="section-sub">Por que o formato digital funciona melhor para crianças com TDAH</p>
     <div class="vs-table-scroll">
@@ -422,61 +167,53 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
-  <section class="wrap">
+  <section class="wrap" id="appTabs-pt">
     <h2 class="section-title">Uma plataforma, duas frentes de treino</h2>
-    <p class="section-sub">Uma conta, um assinatura — dois apps trabalhando junto pelo desenvolvimento do seu filho.</p>
-    <div class="apps-grid">
-      <div class="app-card">
-        <img class="icon-img" src="kapi-meditando.jpg" alt="Kapi meditando" loading="lazy">
-        <span class="app-tag">ATENÇÃO E FUNÇÃO EXECUTIVA</span>
-        <h3>Ilha do Foco</h3>
-        <p>7 minijogos que treinam autocontrole, memória de trabalho, atenção sustentada, sequenciamento, conversa por turnos, regulação emocional e planejamento — a base das funções executivas.</p>
+    <p class="section-sub">Uma conta, uma assinatura — dois apps trabalhando junto pelo desenvolvimento do seu filho.</p>
+    <div class="plan-toggle-row" role="tablist" aria-label="Escolha o app">
+      <button type="button" class="plan-toggle-btn active" id="appTabBtnFoco-pt" role="tab" aria-selected="true" onclick="setAppTab('pt','foco')">🏝️ Ilha do Foco</button>
+      <button type="button" class="plan-toggle-btn" id="appTabBtnLetras-pt" role="tab" aria-selected="false" onclick="setAppTab('pt','letras')">📖 Aventura das Letras</button>
+    </div>
+
+    <div id="appTabFoco-pt" role="tabpanel">
+      <div class="apps-grid">
+        <div class="app-card">
+          <img class="icon-img" src="kapi-meditando.jpg" alt="Kapi meditando" loading="lazy">
+          <span class="app-tag">ATENÇÃO E FUNÇÃO EXECUTIVA</span>
+          <h3>Ilha do Foco</h3>
+          <p>7 minijogos que treinam autocontrole, memória de trabalho, atenção sustentada, sequenciamento, conversa por turnos, regulação emocional e planejamento — a base das funções executivas.</p>
+        </div>
       </div>
-      <div class="app-card">
-        <img class="icon-img" src="aventura-das-letras-icon.png" alt="Ícone do app Aventura das Letras" loading="lazy">
-        <span class="app-tag">ALFABETIZAÇÃO E LEITURA</span>
-        <h3>Aventura das Letras</h3>
-        <p>7 mundos de aventura de leitura + 1 desafio bônus de consciência silábica, do reconhecimento de letras à leitura de palavras, no ritmo da própria criança — com adesivos pra colecionar.</p>
+      <div class="games-grid" style="margin-top:20px;">
+        <div class="game-tile"><span class="emoji">🚦</span><h4>Luz da Espera</h4><div class="skill">Autocontrole</div><p>Espera o verde antes de agir. Treina segurar o impulso.</p></div>
+        <div class="game-tile"><span class="emoji">🍃</span><h4>Memória da Kapi</h4><div class="skill">Memória de trabalho</div><p>Repete a sequência de folhinhas coloridas.</p></div>
+        <div class="game-tile"><span class="emoji">📖</span><h4>Monte a História</h4><div class="skill">Sequenciamento</div><p>Coloca as cenas na ordem certa, do começo ao fim.</p></div>
+        <div class="game-tile"><span class="emoji">💬</span><h4>Minha Vez, Sua Vez</h4><div class="skill">Conversa e turno</div><p>Escolhe a resposta certa e espera sua vez de falar.</p></div>
+        <div class="game-tile"><span class="emoji">🔎</span><h4>Caça ao Alvo</h4><div class="skill">Atenção sustentada</div><p>Encontra todas as folhinhas certas no tempo.</p></div>
+        <div class="game-tile"><span class="emoji">🌈</span><h4>Termômetro das Emoções</h4><div class="skill">Regulação emocional</div><p>Descobre como se sente e uma forma de se acalmar.</p></div>
+        <div class="game-tile"><span class="emoji">🧺</span><h4>Cestas da Ilha</h4><div class="skill">Planejamento</div><p>Move as frutinhas pra deixar as cestas como no desenho.</p></div>
       </div>
     </div>
-  </section>
 
-  <section class="wrap">
-    <h2 class="section-title">Os 7 minijogos da Ilha do Foco</h2>
-    <div class="games-grid">
-      <div class="game-tile"><span class="emoji">🚦</span><h4>Luz da Espera</h4><div class="skill">Autocontrole</div><p>Espera o verde antes de agir. Treina segurar o impulso.</p></div>
-      <div class="game-tile"><span class="emoji">🍃</span><h4>Memória da Kapi</h4><div class="skill">Memória de trabalho</div><p>Repete a sequência de folhinhas coloridas.</p></div>
-      <div class="game-tile"><span class="emoji">📖</span><h4>Monte a História</h4><div class="skill">Sequenciamento</div><p>Coloca as cenas na ordem certa, do começo ao fim.</p></div>
-      <div class="game-tile"><span class="emoji">💬</span><h4>Minha Vez, Sua Vez</h4><div class="skill">Conversa e turno</div><p>Escolhe a resposta certa e espera sua vez de falar.</p></div>
-      <div class="game-tile"><span class="emoji">🔎</span><h4>Caça ao Alvo</h4><div class="skill">Atenção sustentada</div><p>Encontra todas as folhinhas certas no tempo.</p></div>
-      <div class="game-tile"><span class="emoji">🌈</span><h4>Termômetro das Emoções</h4><div class="skill">Regulação emocional</div><p>Descobre como se sente e uma forma de se acalmar.</p></div>
-      <div class="game-tile"><span class="emoji">🧺</span><h4>Cestas da Ilha</h4><div class="skill">Planejamento</div><p>Move as frutinhas pra deixar as cestas como no desenho.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Os 8 minijogos do Aventura das Letras</h2>
-    <div class="games-grid">
-      <div class="game-tile"><span class="emoji">🌳</span><h4>Mundo das Sílabas</h4><div class="skill">Reconhecimento de sílabas</div><p>Ouve e escolhe a sílaba certa entre as opções — primeiro contato com o som das letras.</p></div>
-      <div class="game-tile"><span class="emoji">🐝</span><h4>Sílabas Camufladas</h4><div class="skill">Discriminação visual</div><p>Encontra a sílaba escondida no meio de outras parecidas.</p></div>
-      <div class="game-tile"><span class="emoji">🫧</span><h4>Captura de Sílabas</h4><div class="skill">Atenção e leitura rápida</div><p>Estoura só as bolhas com a sílaba certa antes que elas escapem.</p></div>
-      <div class="game-tile"><span class="emoji">🗣️</span><h4>Som e Sílabas</h4><div class="skill">Consciência silábica</div><p>Ouve o som e associa à sílaba que ele representa.</p></div>
-      <div class="game-tile"><span class="emoji">🧩</span><h4>Monte a Palavra</h4><div class="skill">Formação de palavras</div><p>Arrasta as sílabas na ordem certa pra formar a palavra.</p></div>
-      <div class="game-tile"><span class="emoji">🍎</span><h4>Floresta das Palavras</h4><div class="skill">Reconhecimento de palavras</div><p>Escolhe a palavra certa pra cada figura, entre opções parecidas.</p></div>
-      <div class="game-tile"><span class="emoji">🏰</span><h4>Castelo das Frases</h4><div class="skill">Estrutura de frase</div><p>Coloca as palavras na ordem certa pra formar uma frase com sentido.</p></div>
-      <div class="game-tile"><span class="emoji">🔍</span><h4>Sílaba Escondida</h4><div class="skill">Consciência silábica</div><p>Ouve a instrução e descobre a palavra que sobra sem aquela sílaba.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Você acompanha tudo, sem esforço</h2>
-    <div class="feature-list">
-      <div class="feature-item"><span class="emoji">⭐</span><div><strong>Progresso automático</strong><span class="desc">Estrelas, sementes de foco e sequência de dias jogados, sempre atualizados.</span></div></div>
-      <div class="feature-item"><span class="emoji">⏱️</span><div><strong>Tempo de tela da semana</strong><span class="desc">Veja quanto tempo seu filho jogou, dia a dia.</span></div></div>
-      <div class="feature-item"><span class="emoji">📅</span><div><strong>Adesão às metas</strong><span class="desc">Acompanhe a frequência de uso, não só o resultado.</span></div></div>
-      <div class="feature-item"><span class="emoji">🔒</span><div><strong>Área dos pais protegida por PIN</strong><span class="desc">Configurações e relatórios ficam só com o responsável.</span></div></div>
-      <div class="feature-item"><span class="emoji">🛡️</span><div><strong>Relatórios clínicos completos<span class="premium-tag">Premium</span></strong><span class="desc">Controle inibitório, atenção sustentada, memória de trabalho, tolerância à frustração, flexibilidade cognitiva e análise fonética.</span></div></div>
-      <div class="feature-item"><span class="emoji">✨</span><div><strong>Resumo descritivo automático<span class="premium-tag">Premium</span></strong><span class="desc">Um resumo em linguagem simples de como seu filho está evoluindo.</span></div></div>
+    <div id="appTabLetras-pt" role="tabpanel" style="display:none;">
+      <div class="apps-grid">
+        <div class="app-card">
+          <img class="icon-img" src="aventura-das-letras-icon.png" alt="Ícone do app Aventura das Letras" loading="lazy">
+          <span class="app-tag">ALFABETIZAÇÃO E LEITURA</span>
+          <h3>Aventura das Letras</h3>
+          <p>7 mundos de aventura de leitura + 1 desafio bônus de consciência silábica, do reconhecimento de letras à leitura de palavras, no ritmo da própria criança — com adesivos pra colecionar.</p>
+        </div>
+      </div>
+      <div class="games-grid" style="margin-top:20px;">
+        <div class="game-tile"><span class="emoji">🌳</span><h4>Mundo das Sílabas</h4><div class="skill">Reconhecimento de sílabas</div><p>Ouve e escolhe a sílaba certa entre as opções — primeiro contato com o som das letras.</p></div>
+        <div class="game-tile"><span class="emoji">🐝</span><h4>Sílabas Camufladas</h4><div class="skill">Discriminação visual</div><p>Encontra a sílaba escondida no meio de outras parecidas.</p></div>
+        <div class="game-tile"><span class="emoji">🫧</span><h4>Captura de Sílabas</h4><div class="skill">Atenção e leitura rápida</div><p>Estoura só as bolhas com a sílaba certa antes que elas escapem.</p></div>
+        <div class="game-tile"><span class="emoji">🗣️</span><h4>Som e Sílabas</h4><div class="skill">Consciência silábica</div><p>Ouve o som e associa à sílaba que ele representa.</p></div>
+        <div class="game-tile"><span class="emoji">🧩</span><h4>Monte a Palavra</h4><div class="skill">Formação de palavras</div><p>Arrasta as sílabas na ordem certa pra formar a palavra.</p></div>
+        <div class="game-tile"><span class="emoji">🍎</span><h4>Floresta das Palavras</h4><div class="skill">Reconhecimento de palavras</div><p>Escolhe a palavra certa pra cada figura, entre opções parecidas.</p></div>
+        <div class="game-tile"><span class="emoji">🏰</span><h4>Castelo das Frases</h4><div class="skill">Estrutura de frase</div><p>Coloca as palavras na ordem certa pra formar uma frase com sentido.</p></div>
+        <div class="game-tile"><span class="emoji">🔍</span><h4>Sílaba Escondida</h4><div class="skill">Consciência silábica</div><p>Ouve a instrução e descobre a palavra que sobra sem aquela sílaba.</p></div>
+      </div>
     </div>
   </section>
 
@@ -487,240 +224,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
-  <section class="wrap">
-    <h2 class="section-title">Veja como funciona o acompanhamento</h2>
-    <p class="section-sub">Exemplo com dados fictícios — assim que você criar sua conta, aqui aparecem os dados reais do seu filho.</p>
-    <div class="demo-wrap">
-      <div class="demo-card">
-        <span class="demo-badge">DEMO</span>
-        <div class="demo-header">
-          <span class="child-name">👧 Sofia · 7 anos</span>
-          <span class="premium-pill">⭐ Premium</span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-cols">
-            <div class="demo-col">
-              <h5>🏝️ Ilha do Foco</h5>
-              <div class="row"><span>Memória da Kapi</span><span>★★★</span></div>
-              <div class="row"><span>Caça ao Alvo</span><span>★★★</span></div>
-              <div class="row"><span>Semáforo</span><span>★★☆</span></div>
-            </div>
-            <div class="demo-col">
-              <h5>📖 Aventura das Letras</h5>
-              <div class="row"><span>Sílabas dominadas</span><span>14</span></div>
-              <div class="row"><span>Palavras lidas</span><span>8</span></div>
-              <div class="row"><span>Desafios</span><span>21</span></div>
-            </div>
-          </div>
-          <div class="demo-section-block">
-            <h5>🛡️ Índice de controle inibitório</h5>
-            <div class="demo-index-value">77 / 100</div>
-            <div class="demo-index-label">"Dentro do esperado, com impulsividade ocasional"</div>
-          </div>
-          <div class="demo-section-block">
-            <h5>🔬 Análise fonética</h5>
-            <div class="row" style="border-top:none;"><span>Sílaba com mais dificuldade</span><span>PRA (48%)</span></div>
-            <div class="row"><span>Troca mais frequente</span><span>/R/ → /L/ (3x)</span></div>
-          </div>
-          <div class="demo-section-block">
-            <h5>📅 Adesão · últimas 4 semanas</h5>
-            <div class="demo-bar-track"><div class="demo-bar-fill" style="width:75%"></div></div>
-            <div class="demo-bar-label">75% (3 de 4 semanas com meta batida)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="demo-cta-wrap">
-      <a class="btn-primary" href="#checkoutCard-pt">Crie sua conta e veja os dados do seu filho →</a>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Para fonoaudiólogos, psicólogos e professores</h2>
-    <p class="section-sub">Acompanhe seus pacientes entre as sessões, com dados reais de cada interação.</p>
-    <div class="demo-pro-wrap">
-      <div class="demo-pro-card">
-        <span class="demo-pro-badge">DEMO</span>
-        <div class="demo-pro-header">🔬 Painel profissional · Fonoaudióloga</div>
-        <div class="demo-pro-body">
-          <div class="demo-pro-sidebar">
-            <div class="label">Crianças</div>
-            <div class="demo-pro-child active">✅ Sofia</div>
-            <div class="demo-pro-child">⏳ Pedro (pendente)</div>
-          </div>
-          <div class="demo-pro-main">
-            <h6>👧 Sofia</h6>
-            <div class="demo-pro-card-box">
-              <h6>🛡️ Índice de controle inibitório</h6>
-              <div class="demo-pro-index-value">77 / 100</div>
-              <div class="demo-pro-index-label">Impulsividade ocasional</div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>🔬 Análise fonética</h6>
-              <div class="demo-pro-row"><span>Sílabas com dificuldade</span><span>PRA (48%) · PLA (36%) · GUA (30%)</span></div>
-              <div class="demo-pro-row"><span>Troca mais frequente</span><span>R → L · 3x</span></div>
-              <div class="demo-pro-row"><span>Tipos de erro</span><span>Substituição: 5 · Omissão: 3</span></div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>📅 Adesão (últimas 4 semanas)</h6>
-              <div class="demo-pro-row"><span>Aventura das Letras</span><span>100%</span></div>
-              <div class="demo-pro-row"><span>Ilha do Foco</span><span>75%</span></div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>✨ Resumo clínico</h6>
-              <p class="demo-pro-summary">"Sofia manteve uma frequência excelente nas últimas semanas (100% das metas atingidas). Troca fonológica mais frequente: R → L (3 ocorrências). O índice de controle inibitório está em 77/100, com impulsividade ocasional."</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="demo-cta-wrap">
-      <p style="font-size:13px; color:var(--ink-soft); text-align:center; max-width:520px; margin:0 auto;">O profissional cria a própria conta, mas só enxerga algo depois que você gera um código de convite e aprova o vínculo com seu filho — o acesso pode ser revogado quando você quiser.</p>
-    </div>
-    <div style="margin-top:32px;">
-      <h3 class="section-title" style="font-size:22px;">Cada relatório tem base metodológica</h3>
-      <p class="section-sub">Não são números soltos — cada índice se inspira em instrumentos e conceitos já usados na avaliação clínica.</p>
-      <div class="feature-list">
-        <div class="feature-item"><span class="emoji">🎯</span><div><strong>Atenção sustentada</strong><span class="desc">Tempo entre a primeira e a última resposta, com detecção de inatividade — no espírito do Continuous Performance Test (CPT).</span></div></div>
-        <div class="feature-item"><span class="emoji">⚡</span><div><strong>Índice de impulsividade</strong><span class="desc">Pondera cliques prematuros, respostas antes da instrução terminar e toques repetitivos — inspirado na escala de Barratt (BIS-11).</span></div></div>
-        <div class="feature-item"><span class="emoji">🧠</span><div><strong>Memória de trabalho</strong><span class="desc">Maior sequência reproduzida corretamente — equivalente comportamental ao Digit Span do WISC/WAIS.</span></div></div>
-        <div class="feature-item"><span class="emoji">🔄</span><div><strong>Flexibilidade cognitiva</strong><span class="desc">Tempo de adaptação após mudança de regra — equivalente ao Wisconsin Card Sorting Test, em formato simplificado.</span></div></div>
-        <div class="feature-item"><span class="emoji">📊</span><div><strong>Variabilidade do tempo de resposta</strong><span class="desc">Coeficiente de variação por jogo — inspirado na variabilidade intraindividual (IIV) associada ao TDAH na literatura.</span></div></div>
-        <div class="feature-item"><span class="emoji">🔬</span><div><strong>Análise fonética</strong><span class="desc">Acerto por sílaba e tipo de erro — alinhada ao modelo de Yavaş, Hernandorena &amp; Lamprecht.</span></div></div>
-        <div class="feature-item"><span class="emoji">💪</span><div><strong>Tolerância à frustração</strong><span class="desc">Proporção de abandonos vs. novas tentativas — indicador da literatura sobre autorregulação.</span></div></div>
-      </div>
-      <p class="foot-disclaimer" style="max-width:640px; margin:18px auto 0;">São dados comportamentais de jogo, não escores psicométricos — complementam o acompanhamento entre sessões e não substituem uma avaliação formal.</p>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">O que cada profissional pode observar</h2>
-    <p class="section-sub">O app não diagnostica nem avalia — os dados de cada jogo podem apoiar diversos profissionais de forma diferente, sempre como ponto de partida pra conversa, nunca como resultado pronto.</p>
-    <div class="feature-list" style="grid-template-columns: repeat(auto-fit,minmax(280px,1fr));">
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🗣️ Fonoaudiólogo / logopedista</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Atenção ao ouvir o som-alvo, e atenção sustentada nas atividades de busca visual</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Compreensão e execução de instruções</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Memória de trabalho</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Discriminação e associação de sons, sílabas e palavras</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Reconhecimento de sílabas, correspondência som-letra e formação de palavras</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Sinais de impulsividade nas respostas</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Escolher a resposta que mantém a conversa, sem interromper o outro</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Dificuldade específica por atividade, e evolução ao longo das sessões</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🧠 Psicólogo</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Atenção sustentada</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Controle inibitório e tolerância à espera</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Reconhecimento de emoções em situações do dia a dia, e variedade de estratégias de autorregulação usadas</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Se a criança tenta de novo ou pede ajuda em vez de desistir</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Capacidade de seguir regras, inclusive quando a regra muda no meio da atividade</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Eficiência de planejamento e tempo de deliberação antes de agir</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Evolução ao longo das sessões</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">📚 Psicopedagogo</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Consciência silábica</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Associação entre letras, sílabas e palavras</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Atenção e memória</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Organização de passos até atingir um objetivo</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Em qual atividade específica a criança tem mais ou menos facilidade</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Acompanhamento e comparação do progresso ao longo do tempo</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🧩 Terapeuta ocupacional</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Atenção</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Planejamento — organizar uma sequência de passos até um objetivo, sem cronômetro nem tela de fracasso</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Controle de impulsos</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Seguimento de regras</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Frequência de abandono de tarefas difíceis e pedidos de ajuda</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">👩‍🏫 Professores</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Reforço de habilidades trabalhadas em sala</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Atividades complementares de leitura e atenção</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Acompanhamento da evolução entre as sessões</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">👨‍👩‍👧 Pais</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Em quais atividades seu filho tem mais ou menos facilidade</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Evolução ao longo do tempo</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Quais habilidades estão sendo trabalhadas em cada jogo</li>
-        </ul>
-      </div>
-    </div>
-    <p class="foot-disclaimer" style="max-width:640px; margin:20px auto 0; font-size:12px; color:var(--ink-faint); text-align:center; line-height:1.5;">São observações de comportamento em jogo, não avaliação clínica — pontos de partida pra conversa com quem acompanha a criança, não resultados prontos. No Termômetro das Emoções não existe "emoção certa", e em Cestas da Ilha o app é desenhado pra reduzir gatilhos de frustração, nunca pra provocá-los.</p>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Plano para profissionais</h2>
-    <div class="pricing-wrap">
-      <div class="pricing-card" id="checkoutCardPro-pt" data-plan="30days">
-        <div class="plan-name">Para profissionais</div>
-        <p class="pricing-tagline">Acompanhe pacientes com dados reais entre as sessões</p>
-        <p class="price-teaser">Passe de 30 dias ou mensal — mesmo valor</p>
-        <ul class="pricing-list">
-          <li>Grátis: acompanhe até 3 crianças vinculadas pela família</li>
-          <li>Crie perfis próprios de pacientes, sem que a família precise ter conta</li>
-          <li>Login por código — use na clínica e em casa</li>
-          <li>Até 8 pacientes incluídos, +R$17,90 por paciente extra</li>
-          <li>Relatórios clínicos completos de cada paciente</li>
-        </ul>
-        <div class="price">R$ 58,90</div>
-        <p class="price-note">pagamento único · sem renovação automática</p>
-        <a class="big-cta" href="https://interativo-pi.vercel.app/?pro=1" style="text-decoration:none; text-align:center;">Criar conta profissional</a>
-        <p class="micro-note">Perfis próprios exigem verificação do registro profissional (CRFa, CRP, etc.) — o vínculo gratuito por convite não precisa.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Tudo isso, desde o primeiro dia</h2>
-    <div class="pricing-wrap">
-      <div class="pricing-card" id="checkoutCard-pt" data-plan="30days">
-        <div class="plan-name">Ilha do Foco + Aventura das Letras</div>
-        <p class="pricing-tagline">Uma assinatura, dois apps — sem versão limitada</p>
-        <p class="price-teaser">Passe de 30 dias ou assinatura mensal</p>
-        <ul class="pricing-list">
-          <li>7 minijogos da Ilha do Foco</li>
-          <li>Progresso, estrelas e adesão</li>
-          <li>Área dos pais com PIN</li>
-          <li>Todos os 7 mundos + 1 desafio bônus do Aventura das Letras</li>
-          <li>Relatórios clínicos completos</li>
-          <li>Resumo descritivo automático</li>
-          <li>Compartilhar com profissionais vinculados</li>
-          <li>Adesivos exclusivos e mais perfis de criança</li>
-        </ul>
-        <p class="plan-badge">Oferta especial: passe de 30 dias</p>
-        <div class="plan-toggle-row">
-          <button type="button" class="plan-toggle-btn active" data-plan="30days">30 dias</button>
-          <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensal</button>
-        </div>
-        <div class="price checkout-price">R$ 34,90</div>
-        <p class="price-note checkout-price-note">pagamento único · acesso por 30 dias</p>
-        <button type="button" class="big-cta checkout-cta-btn">Eu quero</button>
-        <p class="micro-note">Pagamento processado com segurança. Depois de confirmado, você recebe um link por e-mail pra acessar sua conta.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="wrap" id="testimonialsSection-pt" style="display:none;">
-    <h2 class="section-title">O que as famílias dizem</h2>
-    <div class="testimonials-grid" id="testimonialsGrid-pt"></div>
-  </section>
-
-  <section class="wrap">
+  <section class="wrap" id="faq-pt">
     <h2 class="section-title">Perguntas frequentes</h2>
     <details class="faq-item"><summary>Isso substitui terapia ou diagnóstico?</summary><p>Não. Os relatórios são um apoio à observação e ao acompanhamento — eles não constituem diagnóstico médico e não substituem avaliação de um profissional qualificado.</p></details>
     <details class="faq-item"><summary>Posso usar para mais de um filho?</summary><p>Sim, sua conta pode ter vários perfis de crianças, cada um com seu próprio progresso.</p></details>
@@ -731,35 +235,10 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <details class="faq-item"><summary>Dá pra colocar na tela inicial do celular?</summary><p>Sim! Nosso jogo funciona direto pelo navegador, sem precisar baixar nada de loja de aplicativo. No Android (Chrome): toque no menu ⋮ e escolha "Adicionar à tela inicial" (ou "Instalar app"). No iPhone (Safari): toque no ícone de compartilhar 📤 e escolha "Adicionar à Tela de Início". Assim fica com um ícone igual um app, prontinho pra abrir.</p></details>
   </section>
 
-  <section class="wrap">
-    <div class="final-cta">
-      <h2>Pronta(o) pra começar?</h2>
-      <p>Leva menos de um minuto pra criar o perfil do seu filho.</p>
-      <a class="btn-primary" href="#checkoutCard-pt">Criar minha conta →</a>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Já usa a Ilha do Foco?</h2>
-    <p class="section-sub">Conta pra gente o que achou — sua avaliação nos ajuda (e ajuda outras famílias) a decidir.</p>
-    <div class="review-form-card" id="reviewFormCard-pt">
-      <div class="review-star-row" id="reviewStars-pt">
-        <button type="button" class="review-star-btn" data-value="1">★</button>
-        <button type="button" class="review-star-btn" data-value="2">★</button>
-        <button type="button" class="review-star-btn" data-value="3">★</button>
-        <button type="button" class="review-star-btn" data-value="4">★</button>
-        <button type="button" class="review-star-btn" data-value="5">★</button>
-      </div>
-      <input type="text" class="review-name-input checkout-email-input" placeholder="Seu nome">
-      <textarea class="review-comment-input" rows="3" placeholder="Conta como foi sua experiência (opcional)" style="width:100%; box-sizing:border-box; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; resize:vertical;"></textarea>
-      <button type="button" class="btn-primary review-submit-btn" style="width:100%; justify-content:center;">Enviar avaliação</button>
-      <p class="checkout-error review-error" style="display:none;"></p>
-      <p class="review-success" style="display:none;"></p>
-    </div>
-  </section>
-
   <footer class="wrap">
     <div class="foot-links">
+      <a href="sobre.html">Sobre Nós</a>
+      <a href="contato.html">Contato</a>
       <a href="termos-de-uso.html" target="_blank" rel="noopener">Termos de Uso</a>
       <a href="politica-privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>
       <a href="https://www.instagram.com/visc.arekids/" target="_blank" rel="noopener">Instagram</a>
@@ -814,6 +293,25 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Per chi è VisCare Kids?</h2>
+    <p class="section-sub">Scegli il tuo percorso per vedere i dettagli giusti per te.</p>
+    <div class="apps-grid">
+      <div class="app-card">
+        <span class="emoji">👨‍👩‍👧</span>
+        <h3>Per le Famiglie</h3>
+        <p>Monitoraggio quotidiano, report clinici e il piano completo per la tua famiglia.</p>
+        <a class="btn-primary" href="familias.html" style="margin-top:14px; text-decoration:none;">Vedi per le famiglie →</a>
+      </div>
+      <div class="app-card">
+        <span class="emoji">🩺</span>
+        <h3>Per i Professionisti</h3>
+        <p>Base metodologica di ogni indice, pannello per paziente e il piano professionale.</p>
+        <a class="btn-primary" href="profissionais.html" style="margin-top:14px; text-decoration:none;">Vedi per professionisti →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
     <h2 class="section-title">Hai ancora dei dubbi?</h2>
     <p class="section-sub">Lasciaci la tua email e ti aiutiamo a decidere, senza impegno.</p>
     <div class="lead-capture-card" id="leadCaptureCard-it">
@@ -830,61 +328,64 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Perché trasformare in gioco funziona</h2>
+    <p class="section-sub">Non è solo intrattenimento — è così che il cervello impara meglio.</p>
+    <div class="feature-list">
+      <div class="feature-item"><span class="emoji">🎯</span><div><strong>Feedback immediato</strong><span class="desc">Il bambino sa subito se ha risposto bene o male, senza aspettare una correzione successiva — rinforzando l'apprendimento proprio nel momento in cui avviene.</span></div></div>
+      <div class="feature-item"><span class="emoji">📈</span><div><strong>Sfida nella giusta misura</strong><span class="desc">Ogni gioco adatta la difficoltà al ritmo del bambino — né troppo facile da annoiare, né troppo difficile da frustrare. È il principio della zona di sviluppo prossimale di Vygotskij: si impara meglio un passo avanti rispetto a quello che già si padroneggia.</span></div></div>
+      <div class="feature-item"><span class="emoji">🛟</span><div><strong>Spazio sicuro per sbagliare</strong><span class="desc">Sbagliare fa parte del gioco, senza punizioni né confronti. Il bambino riprova finché non ci riesce, con i suoi tempi.</span></div></div>
+    </div>
+    <p class="foot-disclaimer" style="max-width:640px; margin:18px auto 0;">Sono principi consolidati nella psicologia dello sviluppo e nella pedagogia — non li abbiamo inventati noi, è così che l'apprendimento funziona meglio per qualsiasi bambino, in particolare per chi ha ADHD o difficoltà di apprendimento. I giochi non diagnosticano né curano nulla — sono uno strumento di allenamento e monitoraggio, sempre come supporto al percorso professionale, mai al suo posto.</p>
+  </section>
+
+  <section class="wrap" id="appTabs-it">
     <h2 class="section-title">Due percorsi, un'unica esperienza</h2>
     <p class="section-sub">Un account, un abbonamento — due app che lavorano insieme per lo sviluppo di tuo figlio.</p>
-    <div class="apps-grid">
-      <div class="app-card">
-        <img class="icon-img" src="kapi-meditando.jpg" alt="Kapi che medita" loading="lazy">
-        <span class="app-tag">ATTENZIONE E FUNZIONE ESECUTIVA</span>
-        <h3>Isola del Focus</h3>
-        <p>7 minigiochi dedicati ad attenzione, memoria, autocontrollo, flessibilità cognitiva, regolazione emotiva e pianificazione.</p>
+    <div class="plan-toggle-row" role="tablist" aria-label="Scegli l'app">
+      <button type="button" class="plan-toggle-btn active" id="appTabBtnFoco-it" role="tab" aria-selected="true" onclick="setAppTab('it','foco')">🏝️ Isola del Focus</button>
+      <button type="button" class="plan-toggle-btn" id="appTabBtnLetras-it" role="tab" aria-selected="false" onclick="setAppTab('it','letras')">📖 Avventura delle Lettere</button>
+    </div>
+
+    <div id="appTabFoco-it" role="tabpanel">
+      <div class="apps-grid">
+        <div class="app-card">
+          <img class="icon-img" src="kapi-meditando.jpg" alt="Kapi che medita" loading="lazy">
+          <span class="app-tag">ATTENZIONE E FUNZIONE ESECUTIVA</span>
+          <h3>Isola del Focus</h3>
+          <p>7 minigiochi dedicati ad attenzione, memoria, autocontrollo, flessibilità cognitiva, regolazione emotiva e pianificazione.</p>
+        </div>
       </div>
-      <div class="app-card">
-        <img class="icon-img" src="aventura-das-letras-icon.png" alt="Icona dell'app Avventura delle Lettere" loading="lazy">
-        <span class="app-tag">ALFABETIZZAZIONE E LETTURA</span>
-        <h3>Avventura delle Lettere</h3>
-        <p>Un percorso ludico alla scoperta di lettere, suoni, sillabe e parole della lingua italiana.</p>
+      <div class="games-grid" style="margin-top:20px;">
+        <div class="game-tile"><span class="emoji">🚦</span><h4>Il Semaforo dell'Attesa</h4><div class="skill">Autocontrollo</div><p>Aspetta il verde prima di agire. Allena l'autocontrollo.</p></div>
+        <div class="game-tile"><span class="emoji">🍃</span><h4>La Memoria di Kapi</h4><div class="skill">Memoria di lavoro</div><p>Ripeti la sequenza di foglioline colorate.</p></div>
+        <div class="game-tile"><span class="emoji">📖</span><h4>Costruisci la Storia</h4><div class="skill">Sequenza</div><p>Metti le scene nell'ordine giusto, dall'inizio alla fine.</p></div>
+        <div class="game-tile"><span class="emoji">💬</span><h4>Il Mio Turno, il Tuo Turno</h4><div class="skill">Conversazione e turni</div><p>Scegli la risposta giusta e aspetta il tuo turno per parlare.</p></div>
+        <div class="game-tile"><span class="emoji">🔎</span><h4>Caccia al Bersaglio</h4><div class="skill">Attenzione sostenuta</div><p>Trova tutti i quadrifogli giusti in tempo.</p></div>
+        <div class="game-tile"><span class="emoji">🌈</span><h4>Il Termometro delle Emozioni</h4><div class="skill">Regolazione emotiva</div><p>Scopri come ti senti e un modo per calmarti.</p></div>
+        <div class="game-tile"><span class="emoji">🧺</span><h4>I Cestini dell'Isola</h4><div class="skill">Pianificazione</div><p>Sposta i fruttini per far restare i cestini come nel disegno.</p></div>
       </div>
     </div>
-  </section>
 
-  <section class="wrap">
-    <h2 class="section-title">I 7 minigiochi dell'Isola del Focus</h2>
-    <div class="games-grid">
-      <div class="game-tile"><span class="emoji">🚦</span><h4>Il Semaforo dell'Attesa</h4><div class="skill">Autocontrollo</div><p>Aspetta il verde prima di agire. Allena l'autocontrollo.</p></div>
-      <div class="game-tile"><span class="emoji">🍃</span><h4>La Memoria di Kapi</h4><div class="skill">Memoria di lavoro</div><p>Ripeti la sequenza di foglioline colorate.</p></div>
-      <div class="game-tile"><span class="emoji">📖</span><h4>Costruisci la Storia</h4><div class="skill">Sequenza</div><p>Metti le scene nell'ordine giusto, dall'inizio alla fine.</p></div>
-      <div class="game-tile"><span class="emoji">💬</span><h4>Il Mio Turno, il Tuo Turno</h4><div class="skill">Conversazione e turni</div><p>Scegli la risposta giusta e aspetta il tuo turno per parlare.</p></div>
-      <div class="game-tile"><span class="emoji">🔎</span><h4>Caccia al Bersaglio</h4><div class="skill">Attenzione sostenuta</div><p>Trova tutti i quadrifogli giusti in tempo.</p></div>
-      <div class="game-tile"><span class="emoji">🌈</span><h4>Il Termometro delle Emozioni</h4><div class="skill">Regolazione emotiva</div><p>Scopri come ti senti e un modo per calmarti.</p></div>
-      <div class="game-tile"><span class="emoji">🧺</span><h4>I Cestini dell'Isola</h4><div class="skill">Pianificazione</div><p>Sposta i fruttini per far restare i cestini come nel disegno.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Gli 8 minigiochi di Avventura delle Lettere</h2>
-    <p class="section-sub">Attività pensate per la fonologia e la struttura della lingua italiana.</p>
-    <div class="games-grid">
-      <div class="game-tile"><span class="emoji">🌳</span><h4>Mondo delle Sillabe</h4><div class="skill">Riconoscimento delle sillabe</div><p>Ascolta e scegli la sillaba giusta tra le opzioni — primo contatto con il suono delle lettere.</p></div>
-      <div class="game-tile"><span class="emoji">🐝</span><h4>Sillabe Mimetizzate</h4><div class="skill">Discriminazione visiva</div><p>Trova la sillaba nascosta in mezzo ad altre simili.</p></div>
-      <div class="game-tile"><span class="emoji">🫧</span><h4>Cattura delle Sillabe</h4><div class="skill">Attenzione e lettura veloce</div><p>Fai scoppiare solo le bolle con la sillaba giusta prima che scappino.</p></div>
-      <div class="game-tile"><span class="emoji">🗣️</span><h4>Suono e Sillabe</h4><div class="skill">Consapevolezza sillabica</div><p>Ascolta il suono e abbinalo alla sillaba che rappresenta.</p></div>
-      <div class="game-tile"><span class="emoji">🧩</span><h4>Costruisci la Parola</h4><div class="skill">Formazione delle parole</div><p>Trascina le sillabe nell'ordine giusto per formare la parola.</p></div>
-      <div class="game-tile"><span class="emoji">🍎</span><h4>Foresta delle Parole</h4><div class="skill">Riconoscimento delle parole</div><p>Scegli la parola giusta per ogni immagine, tra opzioni simili.</p></div>
-      <div class="game-tile"><span class="emoji">🏰</span><h4>Castello delle Frasi</h4><div class="skill">Struttura della frase</div><p>Metti le parole nell'ordine giusto per formare una frase di senso compiuto.</p></div>
-      <div class="game-tile"><span class="emoji">🔍</span><h4>Sillaba Nascosta</h4><div class="skill">Consapevolezza sillabica</div><p>Ascolta l'istruzione e scopri la parola che resta senza quella sillaba.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Monitori tutto, senza sforzo</h2>
-    <div class="feature-list">
-      <div class="feature-item"><span class="emoji">⭐</span><div><strong>Progressi automatici</strong><span class="desc">Stelle, semi della concentrazione e serie di giorni giocati, sempre aggiornati.</span></div></div>
-      <div class="feature-item"><span class="emoji">⏱️</span><div><strong>Tempo di utilizzo settimanale</strong><span class="desc">Vedi quanto ha giocato tuo figlio, giorno per giorno.</span></div></div>
-      <div class="feature-item"><span class="emoji">📅</span><div><strong>Aderenza agli obiettivi</strong><span class="desc">Monitora la frequenza d'uso, non solo il risultato.</span></div></div>
-      <div class="feature-item"><span class="emoji">🔒</span><div><strong>Area genitori protetta da PIN</strong><span class="desc">Impostazioni e report restano solo con il responsabile.</span></div></div>
-      <div class="feature-item"><span class="emoji">🛡️</span><div><strong>Report di monitoraggio e progresso<span class="premium-tag">Premium</span></strong><span class="desc">Controllo inibitorio, attenzione sostenuta, memoria di lavoro, tolleranza alla frustrazione, flessibilità cognitiva e analisi fonetica.</span></div></div>
-      <div class="feature-item"><span class="emoji">✨</span><div><strong>Riepilogo descrittivo automatico<span class="premium-tag">Premium</span></strong><span class="desc">Un riepilogo in linguaggio semplice di come tuo figlio sta evolvendo.</span></div></div>
+    <div id="appTabLetras-it" role="tabpanel" style="display:none;">
+      <div class="apps-grid">
+        <div class="app-card">
+          <img class="icon-img" src="aventura-das-letras-icon.png" alt="Icona dell'app Avventura delle Lettere" loading="lazy">
+          <span class="app-tag">ALFABETIZZAZIONE E LETTURA</span>
+          <h3>Avventura delle Lettere</h3>
+          <p>Un percorso ludico alla scoperta di lettere, suoni, sillabe e parole della lingua italiana.</p>
+        </div>
+      </div>
+      <p class="section-sub" style="margin-top:16px;">Attività pensate per la fonologia e la struttura della lingua italiana.</p>
+      <div class="games-grid" style="margin-top:8px;">
+        <div class="game-tile"><span class="emoji">🌳</span><h4>Mondo delle Sillabe</h4><div class="skill">Riconoscimento delle sillabe</div><p>Ascolta e scegli la sillaba giusta tra le opzioni — primo contatto con il suono delle lettere.</p></div>
+        <div class="game-tile"><span class="emoji">🐝</span><h4>Sillabe Mimetizzate</h4><div class="skill">Discriminazione visiva</div><p>Trova la sillaba nascosta in mezzo ad altre simili.</p></div>
+        <div class="game-tile"><span class="emoji">🫧</span><h4>Cattura delle Sillabe</h4><div class="skill">Attenzione e lettura veloce</div><p>Fai scoppiare solo le bolle con la sillaba giusta prima che scappino.</p></div>
+        <div class="game-tile"><span class="emoji">🗣️</span><h4>Suono e Sillabe</h4><div class="skill">Consapevolezza sillabica</div><p>Ascolta il suono e abbinalo alla sillaba che rappresenta.</p></div>
+        <div class="game-tile"><span class="emoji">🧩</span><h4>Costruisci la Parola</h4><div class="skill">Formazione delle parole</div><p>Trascina le sillabe nell'ordine giusto per formare la parola.</p></div>
+        <div class="game-tile"><span class="emoji">🍎</span><h4>Foresta delle Parole</h4><div class="skill">Riconoscimento delle parole</div><p>Scegli la parola giusta per ogni immagine, tra opzioni simili.</p></div>
+        <div class="game-tile"><span class="emoji">🏰</span><h4>Castello delle Frasi</h4><div class="skill">Struttura della frase</div><p>Metti le parole nell'ordine giusto per formare una frase di senso compiuto.</p></div>
+        <div class="game-tile"><span class="emoji">🔍</span><h4>Sillaba Nascosta</h4><div class="skill">Consapevolezza sillabica</div><p>Ascolta l'istruzione e scopri la parola che resta senza quella sillaba.</p></div>
+      </div>
     </div>
   </section>
 
@@ -914,54 +415,6 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   </section>
 
   <section class="wrap">
-    <h2 class="section-title">Scopri come funziona il monitoraggio</h2>
-    <p class="section-sub">Esempio con dati fittizi — appena crei il tuo account, qui appariranno i dati reali di tuo figlio.</p>
-    <div class="demo-wrap">
-      <div class="demo-card">
-        <span class="demo-badge">DEMO</span>
-        <div class="demo-header">
-          <span class="child-name">👧 Sofia · 7 anni</span>
-          <span class="premium-pill">⭐ Premium</span>
-        </div>
-        <div class="demo-body">
-          <div class="demo-cols">
-            <div class="demo-col">
-              <h5>🏝️ Isola del Focus</h5>
-              <div class="row"><span>La Memoria di Kapi</span><span>★★★</span></div>
-              <div class="row"><span>Caccia al Bersaglio</span><span>★★★</span></div>
-              <div class="row"><span>Il Semaforo dell'Attesa</span><span>★★☆</span></div>
-            </div>
-            <div class="demo-col">
-              <h5>📖 Avventura delle Lettere</h5>
-              <div class="row"><span>Sillabe padroneggiate</span><span>14</span></div>
-              <div class="row"><span>Parole lette</span><span>8</span></div>
-              <div class="row"><span>Sfide completate</span><span>21</span></div>
-            </div>
-          </div>
-          <div class="demo-section-block">
-            <h5>🛡️ Indice di controllo inibitorio</h5>
-            <div class="demo-index-value">77 / 100</div>
-            <div class="demo-index-label">"Nella norma, con impulsività occasionale"</div>
-          </div>
-          <div class="demo-section-block">
-            <h5>🔬 Analisi fonetica</h5>
-            <div class="row" style="border-top:none;"><span>Sillaba con più difficoltà</span><span>PRA (48%)</span></div>
-            <div class="row"><span>Scambio più frequente</span><span>/R/ → /L/ (3x)</span></div>
-          </div>
-          <div class="demo-section-block">
-            <h5>📅 Aderenza · ultime 4 settimane</h5>
-            <div class="demo-bar-track"><div class="demo-bar-fill" style="width:75%"></div></div>
-            <div class="demo-bar-label">75% (3 di 4 settimane con obiettivo raggiunto)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="demo-cta-wrap">
-      <a class="btn-primary" href="#checkoutCard-it">Crea il tuo account e vedi i progressi di tuo figlio →</a>
-    </div>
-  </section>
-
-  <section class="wrap">
     <h2 class="section-title">La privacy di tuo figlio viene prima di tutto</h2>
     <div class="feature-list">
       <div class="feature-item"><span class="emoji">🔒</span><div><strong>Dati protetti</strong><span class="desc">Le informazioni di tuo figlio sono conservate in modo sicuro, in conformità al GDPR.</span></div></div>
@@ -977,210 +430,6 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <p class="bridge-line" style="font-weight:500;">Non trattiamo né diagnostichiamo queste condizioni: possiamo aiutare ad allenare alcune abilità, giocando, e contribuire a monitorare l'andamento delle attività nel tempo.</p>
   </section>
 
-  <section class="wrap" id="proSection-it">
-    <h2 class="section-title">Sei un professionista che segue bambini?</h2>
-    <p class="section-sub">VisCare Kids può diventare un supporto digitale da integrare, quando appropriato, nel percorso educativo del bambino.</p>
-    <div class="demo-cta-wrap">
-      <a class="btn-primary" href="#proDemo-it">Scopri le funzionalità per professionisti</a>
-    </div>
-  </section>
-
-  <section class="wrap" id="proDemo-it">
-    <h2 class="section-title">Per logopedisti, psicologi e insegnanti</h2>
-    <p class="section-sub">Segui i tuoi pazienti tra le sessioni, con dati reali di ogni interazione.</p>
-    <div class="demo-pro-wrap">
-      <div class="demo-pro-card">
-        <span class="demo-pro-badge">DEMO</span>
-        <div class="demo-pro-header">🔬 Pannello professionale · Logopedista</div>
-        <div class="demo-pro-body">
-          <div class="demo-pro-sidebar">
-            <div class="label">Bambini</div>
-            <div class="demo-pro-child active">✅ Sofia</div>
-            <div class="demo-pro-child">⏳ Pedro (in attesa)</div>
-          </div>
-          <div class="demo-pro-main">
-            <h6>👧 Sofia</h6>
-            <div class="demo-pro-card-box">
-              <h6>🛡️ Indice di controllo inibitorio</h6>
-              <div class="demo-pro-index-value">77 / 100</div>
-              <div class="demo-pro-index-label">Impulsività occasionale</div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>🔬 Analisi fonetica</h6>
-              <div class="demo-pro-row"><span>Sillabe con difficoltà</span><span>PRA (48%) · PLA (36%) · GUA (30%)</span></div>
-              <div class="demo-pro-row"><span>Scambio più frequente</span><span>R → L · 3x</span></div>
-              <div class="demo-pro-row"><span>Tipi di errore</span><span>Sostituzione: 5 · Omissione: 3</span></div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>📅 Aderenza (ultime 4 settimane)</h6>
-              <div class="demo-pro-row"><span>Avventura delle Lettere</span><span>100%</span></div>
-              <div class="demo-pro-row"><span>Isola del Focus</span><span>75%</span></div>
-            </div>
-            <div class="demo-pro-card-box">
-              <h6>✨ Riepilogo del percorso</h6>
-              <p class="demo-pro-summary">"Sofia ha mantenuto una frequenza eccellente nelle ultime settimane (100% degli obiettivi raggiunti). Scambio fonologico più frequente: R → L (3 occorrenze). L'indice di controllo inibitorio è 77/100, con impulsività occasionale."</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="demo-cta-wrap">
-      <p style="font-size:13px; color:var(--ink-soft); text-align:center; max-width:520px; margin:0 auto;">Il professionista crea il proprio account, ma vede qualcosa solo dopo che generi un codice di invito e approvi il collegamento con tuo figlio — puoi revocare l'accesso quando vuoi.</p>
-    </div>
-    <div style="margin-top:32px;">
-      <h3 class="section-title" style="font-size:22px;">Ogni referto ha una base metodologica</h3>
-      <p class="section-sub">Non sono numeri a caso — ogni indice si ispira a strumenti e concetti già usati nella valutazione clinica.</p>
-      <div class="feature-list">
-        <div class="feature-item"><span class="emoji">🎯</span><div><strong>Attenzione sostenuta</strong><span class="desc">Tempo tra la prima e l'ultima risposta, con rilevamento di inattività — nello spirito del Continuous Performance Test (CPT).</span></div></div>
-        <div class="feature-item"><span class="emoji">⚡</span><div><strong>Indice di impulsività</strong><span class="desc">Pondera clic prematuri, risposte prima della fine dell'istruzione e tocchi ripetitivi — ispirato alla scala di Barratt (BIS-11).</span></div></div>
-        <div class="feature-item"><span class="emoji">🧠</span><div><strong>Memoria di lavoro</strong><span class="desc">Sequenza più lunga riprodotta correttamente — equivalente comportamentale al Digit Span del WISC/WAIS.</span></div></div>
-        <div class="feature-item"><span class="emoji">🔄</span><div><strong>Flessibilità cognitiva</strong><span class="desc">Tempo di adattamento dopo il cambio di regola — equivalente al Wisconsin Card Sorting Test, in formato semplificato.</span></div></div>
-        <div class="feature-item"><span class="emoji">📊</span><div><strong>Variabilità del tempo di risposta</strong><span class="desc">Coefficiente di variazione per gioco — ispirato alla variabilità intraindividuale (IIV) associata all'ADHD nella letteratura.</span></div></div>
-        <div class="feature-item"><span class="emoji">🔬</span><div><strong>Analisi fonetica</strong><span class="desc">Accuratezza per sillaba e tipo di errore — allineata al modello di Yavaş, Hernandorena &amp; Lamprecht.</span></div></div>
-        <div class="feature-item"><span class="emoji">💪</span><div><strong>Tolleranza alla frustrazione</strong><span class="desc">Proporzione di abbandoni vs. nuovi tentativi — indicatore della letteratura sull'autoregolazione.</span></div></div>
-      </div>
-      <p class="foot-disclaimer" style="max-width:640px; margin:18px auto 0;">Sono dati comportamentali di gioco, non punteggi psicometrici — completano il monitoraggio tra le sessioni e non sostituiscono una valutazione formale.</p>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Cosa può osservare ogni professionista</h2>
-    <p class="section-sub">L'app non diagnostica né valuta — i dati di ogni gioco possono supportare diversi professionisti in modo diverso, sempre come punto di partenza per il dialogo, mai come risultato definitivo.</p>
-    <div class="feature-list" style="grid-template-columns: repeat(auto-fit,minmax(280px,1fr));">
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🗣️ Logopedista</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Attenzione nell'ascoltare il suono target, e attenzione sostenuta nelle attività di ricerca visiva</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Comprensione ed esecuzione delle istruzioni</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Memoria di lavoro</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Discriminazione e associazione di suoni, sillabe e parole</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Riconoscimento delle sillabe, corrispondenza suono-lettera e formazione di parole</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Segnali di impulsività nelle risposte</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Scegliere la risposta che mantiene la conversazione, senza interrompere l'altro</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Difficoltà specifica per attività, ed evoluzione nel corso delle sessioni</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🧠 Psicologo</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Attenzione sostenuta</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Controllo inibitorio e tolleranza all'attesa</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Riconoscimento delle emozioni in situazioni quotidiane, e varietà di strategie di autoregolazione utilizzate</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Se il bambino riprova o chiede aiuto invece di arrendersi</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Capacità di seguire le regole, anche quando la regola cambia a metà attività</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Efficienza di pianificazione e tempo di deliberazione prima di agire</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Evoluzione nel corso delle sessioni</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">📚 Pedagogista</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Consapevolezza sillabica</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Associazione tra lettere, sillabe e parole</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Attenzione e memoria</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Organizzazione di passaggi per raggiungere un obiettivo</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ In quale attività specifica il bambino ha più o meno facilità</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Monitoraggio e confronto dei progressi nel tempo</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">🧩 Terapista occupazionale</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Attenzione</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Pianificazione — organizzare una sequenza di passaggi fino a un obiettivo, senza cronometro né schermata di fallimento</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Controllo degli impulsi</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Rispetto delle regole</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Frequenza di abbandono di compiti difficili e richieste di aiuto</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">👩‍🏫 Insegnanti</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Rinforzo delle abilità lavorate in classe</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Attività complementari di lettura e attenzione</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Monitoraggio dell'evoluzione tra le sessioni</li>
-        </ul>
-      </div>
-      <div style="background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow);">
-        <h4 style="font-family:'Fraunces',serif; font-weight:600; font-size:15.5px; color:var(--ink); margin:0 0 10px;">👨‍👩‍👧 Genitori</h4>
-        <ul style="list-style:none; padding:0; margin:0;">
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ In quali attività tuo figlio ha più o meno facilità</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Evoluzione nel tempo</li>
-          <li style="font-size:13.5px; padding:4px 0; color:var(--ink-soft);">✓ Quali abilità vengono lavorate in ogni gioco</li>
-        </ul>
-      </div>
-    </div>
-    <p class="foot-disclaimer" style="max-width:640px; margin:20px auto 0; font-size:12px; color:var(--ink-faint); text-align:center; line-height:1.5;">Sono osservazioni di comportamento nel gioco, non una valutazione clinica — punti di partenza per il dialogo con chi segue il bambino, non risultati definitivi. Nel Termometro delle Emozioni non esiste un'"emozione giusta", e nei Cestini dell'Isola l'app è progettata per ridurre i fattori scatenanti di frustrazione, mai per provocarli.</p>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Piano per professionisti</h2>
-    <div class="pricing-wrap">
-      <div class="pricing-card" id="checkoutCardPro-it" data-plan="30days">
-        <div class="plan-name">Per professionisti</div>
-        <p class="pricing-tagline">Segui i pazienti con dati reali tra le sessioni</p>
-        <p class="price-teaser">Pass da 30 giorni o mensile — stesso prezzo</p>
-        <ul class="pricing-list">
-          <li>Gratis: segui fino a 3 bambini collegati dalla famiglia</li>
-          <li>Crea profili propri di pazienti, senza che la famiglia debba avere un account</li>
-          <li>Accesso con codice — usalo in clinica e a casa</li>
-          <li>Fino a 8 pazienti inclusi, +€3,00 per paziente extra</li>
-          <li>Referti clinici completi di ogni paziente</li>
-        </ul>
-        <div class="price">€ 9,90</div>
-        <p class="price-note">pagamento unico · nessun rinnovo automatico</p>
-        <a class="big-cta" href="https://interativo-pi.vercel.app/?pro=1" style="text-decoration:none; text-align:center;">Crea il tuo account professionale</a>
-        <p class="micro-note">I profili propri richiedono la verifica dell'iscrizione all'albo professionale — il collegamento gratuito su invito non ne ha bisogno.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Perché trasformare l'esercizio in un gioco?</h2>
-    <p class="section-sub">Il differenziale di VisCare Kids</p>
-    <div style="text-align:center;">
-    <ul class="pricing-list" style="text-align: center; display: block;">
-      <li>Attività brevi</li>
-      <li>Esperienza coinvolgente</li>
-      <li>Feedback durante il gioco</li>
-      <li>Allenamento graduale</li>
-      <li>Monitoraggio dell'andamento</li>
-      <li>Possibilità di condividere le informazioni</li>
-      <li>Pensato per bambini</li>
-      <li>Utilizzabile dalla famiglia</li>
-    </ul>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Prova VisCare Kids per 30 giorni</h2>
-    <div class="pricing-wrap">
-      <div class="pricing-card" id="checkoutCard-it" data-plan="30days">
-        <div class="plan-name">VisCare Kids</div>
-        <p class="pricing-tagline">Isola del Focus + Avventura delle Lettere, in un solo abbonamento</p>
-        <p class="price-teaser">Pass da 30 giorni o abbonamento mensile</p>
-        <ul class="pricing-list">
-          <li>7 minigiochi dell'Isola del Focus</li>
-          <li>Progressi, stelle e aderenza</li>
-          <li>Area genitori con PIN</li>
-          <li>Tutti i 7 mondi + 1 sfida bonus dell'Avventura delle Lettere</li>
-          <li>Report di monitoraggio e progresso completi</li>
-          <li>Riepilogo descrittivo automatico</li>
-          <li>Condivisione con professionisti collegati</li>
-          <li>Adesivi esclusivi e più profili bambino</li>
-        </ul>
-        <div class="plan-toggle-row">
-          <button type="button" class="plan-toggle-btn active" data-plan="30days">30 giorni</button>
-          <button type="button" class="plan-toggle-btn" data-plan="monthly">Mensile</button>
-        </div>
-        <div class="price checkout-price">€ 9,90</div>
-        <p class="price-note checkout-price-note">pagamento unico · nessun rinnovo automatico</p>
-        <button type="button" class="big-cta checkout-cta-btn">Voglio provare VisCare Kids</button>
-        <p class="micro-note">Pagamento elaborato in sicurezza. Dopo la conferma, riceverai un link via email per accedere al tuo account.</p>
-      </div>
-    </div>
-  </section>
-
   <section class="wrap">
     <div class="pro-bridge">
       <h2 class="section-title" style="margin-bottom:14px;">Una piattaforma pensata per accompagnare, non per sostituire</h2>
@@ -1188,12 +437,7 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
-  <section class="wrap" id="testimonialsSection-it" style="display:none;">
-    <h2 class="section-title">Cosa dicono le famiglie</h2>
-    <div class="testimonials-grid" id="testimonialsGrid-it"></div>
-  </section>
-
-  <section class="wrap">
+  <section class="wrap" id="faq-it">
     <h2 class="section-title">Domande frequenti</h2>
     <details class="faq-item"><summary>Per quale età è pensata la piattaforma?</summary><p>Le attività sono pensate per bambini in età scolare, con difficoltà che vanno dal riconoscimento delle lettere alla lettura di parole e frasi, oltre ad attenzione, autocontrollo e regolazione emotiva.</p></details>
     <details class="faq-item"><summary>È adatta a bambini con ADHD?</summary><p>Sì, le attività sono pensate anche per bambini con ADHD — possono essere un supporto per allenare attenzione, autocontrollo e memoria di lavoro, giocando.</p></details>
@@ -1209,35 +453,10 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     <details class="faq-item"><summary>Posso interrompere l'accesso?</summary><p>Sì. L'abbonamento mensile si annulla in qualsiasi momento dal pulsante "Gestisci abbonamento" nell'app. Il pass da 30 giorni è un pagamento unico, senza rinnovo automatico: non c'è nulla da annullare.</p></details>
   </section>
 
-  <section class="wrap">
-    <div class="final-cta">
-      <h2>Pronto/a per iniziare?</h2>
-      <p>Bastano meno di un minuto per creare il profilo di tuo figlio e provare VisCare Kids.</p>
-      <a class="btn-primary" href="#checkoutCard-it">Voglio provare VisCare Kids →</a>
-    </div>
-  </section>
-
-  <section class="wrap">
-    <h2 class="section-title">Usi già VisCare Kids?</h2>
-    <p class="section-sub">Raccontaci com'è andata — la tua opinione ci aiuta (e aiuta altre famiglie) a decidere.</p>
-    <div class="review-form-card" id="reviewFormCard-it">
-      <div class="review-star-row" id="reviewStars-it">
-        <button type="button" class="review-star-btn" data-value="1">★</button>
-        <button type="button" class="review-star-btn" data-value="2">★</button>
-        <button type="button" class="review-star-btn" data-value="3">★</button>
-        <button type="button" class="review-star-btn" data-value="4">★</button>
-        <button type="button" class="review-star-btn" data-value="5">★</button>
-      </div>
-      <input type="text" class="review-name-input checkout-email-input" placeholder="Il tuo nome">
-      <textarea class="review-comment-input" rows="3" placeholder="Raccontaci com'è andata la tua esperienza (facoltativo)" style="width:100%; box-sizing:border-box; padding:12px 16px; border-radius:var(--radius-sm); border:1.5px solid var(--line); background:var(--bg-soft); color:var(--ink); font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; margin-bottom:14px; resize:vertical;"></textarea>
-      <button type="button" class="btn-primary review-submit-btn" style="width:100%; justify-content:center;">Invia la tua valutazione</button>
-      <p class="checkout-error review-error" style="display:none;"></p>
-      <p class="review-success" style="display:none;"></p>
-    </div>
-  </section>
-
   <footer class="wrap">
     <div class="foot-links">
+      <a href="sobre.html">Chi Siamo</a>
+      <a href="contato.html">Contattaci</a>
       <a href="termos-de-uso.html" target="_blank" rel="noopener">Termini di Utilizzo</a>
       <a href="politica-privacidade.html" target="_blank" rel="noopener">Informativa sulla Privacy</a>
       <a href="https://www.instagram.com/visc.arekids/" target="_blank" rel="noopener">Instagram</a>
@@ -1248,813 +467,6 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 
 </div>
 
-<script>
-function setDocLang(l){
-  document.documentElement.setAttribute('lang', l === 'it' ? 'it-IT' : 'pt-BR');
-  document.getElementById('btnPt').classList.toggle('active', l === 'pt');
-  document.getElementById('btnIt').classList.toggle('active', l === 'it');
-  document.querySelectorAll('[data-lang]').forEach(el => {
-    el.style.display = (el.getAttribute('data-lang') === l) ? 'block' : 'none';
-  });
-  document.title = l === 'it'
-    ? "VisCare Kids — Giochi educativi per attenzione, autocontrollo e lettura"
-    : "Ilha do Foco + Aventura das Letras — Jogos para foco, calma e leitura";
-}
-// Picks the initial language before the visitor touches the 🇧🇷/🇮🇹 toggle:
-// an explicit #lang=it (from the Italian version of the lifecycle emails)
-// wins, otherwise fall back to the browser's own language. Everything past
-// this point (video included) already reacts to setDocLang() alone, since
-// each language's content - and video - lives in its own data-lang block
-// that setDocLang() shows/hides; there's no separate video-language state.
-(function detectInitialLang(){
-  const hash = window.location.hash;
-  const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-  const wantsIt = hash.includes('lang=it') || browserLang.startsWith('it');
-  if(wantsIt) setDocLang('it');
-
-  if(hash.includes('video')){
-    const target = document.getElementById(wantsIt ? 'video-it' : 'video-pt');
-    if(target) setTimeout(()=>target.scrollIntoView({behavior:'smooth'}), 300);
-  }
-})();
-
-// Attribution: a visitor arriving from a lifecycle email/WhatsApp link carries
-// ?lead_id=<uuid>. We log the visit and stash the id in localStorage (same
-// origin as index.html) so it survives all the way to checkout, which only
-// happens much later, deep inside the parents dashboard.
-(function trackLeadVisit(){
-  const leadId = new URLSearchParams(window.location.search).get('lead_id');
-  if(!leadId) return;
-  localStorage.setItem('ilhaDoFoco_leadId', leadId);
-  fetch(`${SUPABASE_URL}/rest/v1/lead_events`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Prefer': 'return=minimal',
-    },
-    body: JSON.stringify({ id: crypto.randomUUID(), lead_id: leadId, event_type: 'sales_page_visited', channel: 'site' }),
-  }).catch(()=>{});
-})();
-
-// Meta Pixel: the hero/demo/final CTAs just scroll down to the checkout card
-// (no checkout of their own), so this fires on click there as the closest
-// "intent to convert" signal. The checkout card's own buttons fire this again
-// themselves, right as the payment call actually starts (see setupCheckoutCard).
-document.querySelectorAll('a[href^="#checkoutCard"]').forEach(el => {
-  el.addEventListener('click', () => {
-    if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
-  });
-});
-
-/* ========================= Embedded checkout ========================= */
-// _fbc/_fbp identify the browser/ad-click to Meta's Conversions API so a
-// server-side Purchase event can be matched back to the ad that drove it -
-// without these, CAPI purchases only carry a hashed e-mail, which is why
-// match quality was low and sales weren't attributing to campaigns.
-function getCookie(name){
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-// The Pixel script sets _fbc itself once it processes an incoming fbclid,
-// but that can race the very first checkout click - build it ourselves from
-// the URL as a fallback, per Meta's documented fb.1.<timestamp>.<fbclid> format.
-function getFbClickId(){
-  const existing = getCookie('_fbc');
-  if(existing) return existing;
-  const fbclid = new URLSearchParams(window.location.search).get('fbclid');
-  return fbclid ? `fb.1.${Date.now()}.${fbclid}` : null;
-}
-function getFbBrowserId(){
-  return getCookie('_fbp');
-}
-
-// Validates a CPF using the standard mod-11 check-digit algorithm (rejects
-// all-same-digit strings like 111.111.111-11). CNPJ (14 digits) is only
-// length-checked - Asaas validates it authoritatively. Same function already
-// used inside index.html's parents dashboard for the same purpose.
-function isValidCpfCnpj(digits){
-  if(digits.length === 14) return true;
-  if(digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
-  const calcCheckDigit = (base) => {
-    let sum = 0;
-    for(let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * (base.length + 1 - i);
-    const rest = (sum * 10) % 11;
-    return rest === 10 ? 0 : rest;
-  };
-  const d1 = calcCheckDigit(digits.slice(0, 9));
-  const d2 = calcCheckDigit(digits.slice(0, 10));
-  return d1 === parseInt(digits[9], 10) && d2 === parseInt(digits[10], 10);
-}
-
-const CHECKOUT_COPY = {
-  pt: {
-    '30days': { price: 'R$ 34,90', note: 'pagamento único · acesso por 30 dias' },
-    monthly: { price: 'R$ 24,90', note: '/mês · cancele quando quiser' },
-    bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
-    invalidEmail: 'Digite um e-mail válido.',
-    genericError: 'Não foi possível continuar. Tente novamente.',
-    redirecting: 'Aguarde...',
-    productName: 'Ilha do Foco + Aventura das Letras',
-    productImage: 'assets/cartoonPT.png',
-    modalTitle: 'Quase lá!',
-    identificationTitle: 'Identificação',
-    paymentMethodTitle: 'Forma de pagamento',
-    bumpBadge: '🎉 Promoção do momento',
-    bumpOfferTitle: 'Você foi contemplado com uma condição especial!',
-    bumpOfferLabel: 'Ativar promoção — 30 dias de acesso por R$ 24,90 à vista, sem mensalidade',
-    pixInfoTitle: 'Pagamento somente à vista',
-    pixInfoBody: 'A liberação do acesso ocorre logo após a confirmação do pagamento. Fique atento à data de expiração do código.',
-    emailPlaceholder: 'Seu melhor e-mail', emailHint: 'É nesse e-mail que você vai receber o acesso ao jogo.', phonePlaceholder: 'WhatsApp ou telefone (opcional)',
-    cardLabel: 'Cartão', pixLabel: 'Pix', selectMethodError: 'Escolha uma forma de pagamento.',
-    finalizeLabel: 'Finalizar compra', securityBadge: 'Pagamento 100% seguro',
-    cpfModalTitle: 'Quase lá!', cpfLabel: 'Seu CPF ou CNPJ', cpfPlaceholder: '000.000.000-00',
-    cpfInvalid: 'CPF/CNPJ inválido.', cpfCancel: 'Cancelar', cpfContinue: 'Gerar Pix', cpfGenerating: 'Gerando...',
-    pixModalTitle: 'Pague com Pix', pixInstructions: 'Escaneie o QR code ou copie o código abaixo no seu app do banco.',
-    pixCopy: 'Copiar código', pixCopied: 'Copiado!', pixWaiting: 'Aguardando pagamento...', pixConfirmed: 'Pagamento confirmado! Verifique seu e-mail.',
-    pixClose: 'Fechar', pixError: 'Não foi possível gerar o Pix. Tente novamente.',
-    successTitle: 'Pagamento confirmado! 🎉', successBody: 'Enviamos um link de acesso pro seu e-mail. Clique nele pra entrar na sua conta, já com tudo liberado. Não encontrou? Confira a caixa de spam.',
-    confirming: 'Confirmando pagamento...',
-    cancelledTitle: 'Pagamento não concluído', cancelledBody: 'Nenhuma cobrança foi feita. Quando quiser, é só tentar de novo.',
-  },
-  it: {
-    '30days': { price: '€ 9,90', note: 'pagamento unico · nessun rinnovo automatico' },
-    monthly: { price: '€ 4,99', note: '/mese · annulla quando vuoi' },
-    bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
-    invalidEmail: 'Inserisci un\'email valida.',
-    genericError: 'Impossibile continuare. Riprova.',
-    redirecting: 'Attendere...',
-    productName: 'VisCare Kids',
-    productImage: 'assets/cartonnIT.png',
-    modalTitle: 'Quasi fatto!',
-    identificationTitle: 'Identificazione',
-    paymentMethodTitle: 'Metodo di pagamento',
-    bumpBadge: '🎉 Promozione del momento',
-    bumpOfferTitle: 'Sei stato selezionato per una condizione speciale!',
-    bumpOfferLabel: 'Attiva la promozione — 30 giorni di accesso a R$ 24,90 in un\'unica soluzione, senza abbonamento',
-    pixInfoTitle: 'Pagamento in un\'unica soluzione',
-    pixInfoBody: 'Lo sblocco avviene subito dopo la conferma del pagamento. Presta attenzione alla data di scadenza del codice.',
-    emailPlaceholder: 'La tua migliore email', emailHint: 'Riceverai l\'accesso al gioco proprio a questa email.', phonePlaceholder: 'WhatsApp o telefono (facoltativo)',
-    cardLabel: 'Carta', pixLabel: 'Pix', selectMethodError: 'Scegli un metodo di pagamento.',
-    finalizeLabel: 'Completa l\'acquisto', securityBadge: 'Pagamento 100% sicuro',
-    cpfModalTitle: 'Quasi fatto!', cpfLabel: 'Il tuo CPF o CNPJ', cpfPlaceholder: '000.000.000-00',
-    cpfInvalid: 'CPF/CNPJ non valido.', cpfCancel: 'Annulla', cpfContinue: 'Genera Pix', cpfGenerating: 'Generazione...',
-    pixModalTitle: 'Paga con Pix', pixInstructions: 'Scansiona il QR code o copia il codice qui sotto nella tua app bancaria.',
-    pixCopy: 'Copia codice', pixCopied: 'Copiato!', pixWaiting: 'In attesa del pagamento...', pixConfirmed: 'Pagamento confermato! Controlla la tua email.',
-    pixClose: 'Chiudi', pixError: 'Impossibile generare il Pix. Riprova.',
-    successTitle: 'Pagamento confermato! 🎉', successBody: 'Ti abbiamo inviato un link di accesso via email. Cliccalo per entrare nel tuo account, già con tutto sbloccato. Non lo trovi? Controlla lo spam.',
-    confirming: 'Confermando il pagamento...',
-    cancelledTitle: 'Pagamento non completato', cancelledBody: 'Nessun addebito è stato effettuato. Quando vuoi, riprova pure.',
-  },
-};
-
-// Ensures every checkout attempt has a `leads` row to attach the eventual
-// "cliente" conversion to - without this, someone who lands from an ad and
-// buys immediately (skipping the separate opt-in form, never clicking a
-// lifecycle link) has no lead row for asaas-webhook/check-pix-payment-status
-// to update, so the purchase never shows up in the CRM despite going through
-// fine. Reuses the existing ilhaDoFoco_leadId key, so it's a no-op for anyone
-// who already has one (from the opt-in form or a lifecycle link).
-async function ensureCheckoutLeadId(lang, email, phone){
-  const existing = localStorage.getItem('ilhaDoFoco_leadId');
-  if(existing) return existing;
-
-  const leadId = crypto.randomUUID();
-  const params = new URLSearchParams(window.location.search);
-  const payload = {
-    id: leadId,
-    full_name: null,
-    contact_email: email,
-    contact_whatsapp: phone || null,
-    language: lang === 'it' ? 'it' : 'pt-BR', // leads.language is CHECK-constrained to exactly these two values
-    whatsapp_opt_in: false,
-    email_opt_in: false, // no consent checkbox in the checkout modal, unlike the opt-in form
-    utm_source: params.get('utm_source') || 'direto',
-    utm_medium: params.get('utm_medium') || null,
-    utm_campaign: params.get('utm_campaign') || null,
-    utm_content: params.get('utm_content') || null,
-  };
-  try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify(payload),
-    });
-    if(!res.ok) return null;
-    localStorage.setItem('ilhaDoFoco_leadId', leadId);
-    return leadId;
-  }catch(e){
-    return null; // best-effort - checkout must proceed even if this fails
-  }
-}
-
-function setupCheckoutCard(lang){
-  const t = CHECKOUT_COPY[lang];
-  const card = document.getElementById(`checkoutCard-${lang}`);
-  if(!card) return;
-  const priceEl = card.querySelector('.checkout-price');
-  const noteEl = card.querySelector('.checkout-price-note');
-  const ctaBtn = card.querySelector('.checkout-cta-btn');
-
-  card.querySelectorAll('.plan-toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      card.dataset.plan = btn.dataset.plan;
-      card.querySelectorAll('.plan-toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
-      priceEl.textContent = t[btn.dataset.plan].price;
-      noteEl.textContent = t[btn.dataset.plan].note;
-    });
-  });
-
-  ctaBtn.addEventListener('click', () => openCheckoutModal(lang, card.dataset.plan));
-}
-
-// Single modal covering the whole checkout: product summary, e-mail, optional
-// phone, payment method choice, and (only when Pix is picked) CPF/CNPJ - one
-// "Finalizar compra" action instead of the old two-button-on-the-card +
-// separate CPF modal flow. Card path redirects to Stripe same as before; Pix
-// path still hands off to the existing QR modal/polling once the payment is
-// created.
-function openCheckoutModal(lang, plan){
-  const t = CHECKOUT_COPY[lang];
-  // Gated on the displayed product language, not the visitor's browser
-  // locale - isBrazil() alone let a browser set to pt-BR show the BRL bump
-  // (and Pix, and a BRL Stripe price) on top of the EUR-priced IT page if
-  // the visitor had switched the page's language manually.
-  // Only offered on the 30-day one-time plan - someone who already picked
-  // monthly has shown intent to become a recurring subscriber, so dangling
-  // a cheaper non-recurring option in front of them would just talk them
-  // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
-  const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
-  const overlay = document.createElement('div');
-  overlay.className = 'checkout-page-overlay';
-  overlay.innerHTML = `
-    <div class="vendas-modal checkout-modal-v2">
-      <button type="button" class="checkout-modal-close" data-action="cancel">×</button>
-      <div class="checkout-summary">
-        <img class="checkout-summary-img" src="${t.productImage}" alt="${t.productName}">
-        <div>
-          <div class="checkout-summary-name">${t.productName}</div>
-          <div class="checkout-summary-price" id="checkoutSummaryPrice">${t[plan].price}</div>
-          <div class="checkout-summary-note" id="checkoutSummaryNote">${t[plan].note}</div>
-        </div>
-      </div>
-
-      <div class="checkout-section">
-        <div class="checkout-section-title">👤 ${t.identificationTitle}</div>
-        <input type="email" id="checkoutModalEmail" placeholder="${t.emailPlaceholder}" autocomplete="email">
-        <p class="checkout-email-hint">${t.emailHint}</p>
-        <input type="text" id="checkoutModalPhone" placeholder="${t.phonePlaceholder}" autocomplete="tel">
-      </div>
-
-      ${showBump ? `
-      <div class="checkout-bump">
-        <div class="checkout-bump-badge">${t.bumpBadge}</div>
-        <div class="checkout-bump-title">${t.bumpOfferTitle}</div>
-        <label class="checkout-bump-label">
-          <input type="checkbox" id="checkoutBumpCheck">
-          <span>${t.bumpOfferLabel}</span>
-        </label>
-      </div>` : ''}
-
-      <div class="checkout-section">
-        <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
-        <div class="payment-method-row">
-          <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
-          ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
-        </div>
-        <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
-        <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
-          <strong>${t.pixInfoTitle}</strong>
-          ${t.pixInfoBody}
-        </div>
-      </div>
-
-      <p class="modal-error" id="checkoutModalError" style="display:none;"></p>
-      <button type="button" class="checkout-finalize-btn" id="checkoutModalFinalize" disabled>${t.finalizeLabel}</button>
-      <p class="checkout-security-badge">🔒 ${t.securityBadge}</p>
-      <button type="button" class="checkout-cancel-link" data-action="cancel">${t.cpfCancel}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  const close = () => overlay.remove();
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
-  overlay.querySelectorAll('[data-action="cancel"]').forEach(btn => { btn.onclick = close; });
-
-  const emailInput = overlay.querySelector('#checkoutModalEmail');
-  const phoneInput = overlay.querySelector('#checkoutModalPhone');
-  const cpfInput = overlay.querySelector('#checkoutModalCpf');
-  const errorEl = overlay.querySelector('#checkoutModalError');
-  const finalizeBtn = overlay.querySelector('#checkoutModalFinalize');
-  const methodBtns = overlay.querySelectorAll('[data-method]');
-  const paymentInfoEl = overlay.querySelector('#checkoutPaymentInfo');
-  const bumpCheck = overlay.querySelector('#checkoutBumpCheck');
-  const summaryPriceEl = overlay.querySelector('#checkoutSummaryPrice');
-  const summaryNoteEl = overlay.querySelector('#checkoutSummaryNote');
-
-  const showError = (msg) => { errorEl.textContent = msg; errorEl.style.display = 'block'; };
-  const clearError = () => { errorEl.style.display = 'none'; };
-
-  // The bump swaps which plan gets charged (avulso <-> mensal) instead of
-  // adding a second item - there's no multi-item cart here, just one
-  // subscription per family, so "add to order" isn't meaningful the way it
-  // is on the reference checkout this design is based on.
-  const getEffectivePlan = () => (bumpCheck && bumpCheck.checked) ? 'bump30' : plan;
-  if(bumpCheck){
-    bumpCheck.addEventListener('change', () => {
-      const effectivePlan = getEffectivePlan();
-      summaryPriceEl.textContent = t[effectivePlan].price;
-      summaryNoteEl.textContent = t[effectivePlan].note;
-    });
-  }
-
-  let selectedMethod = null;
-  methodBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedMethod = btn.dataset.method;
-      methodBtns.forEach(b => b.classList.toggle('active', b === btn));
-      cpfInput.style.display = selectedMethod === 'pix' ? 'block' : 'none';
-      paymentInfoEl.style.display = selectedMethod === 'pix' ? 'block' : 'none';
-      finalizeBtn.disabled = false;
-      clearError();
-    });
-  });
-  // Pre-select a sensible default so most people don't have to make an extra
-  // choice: Pix for Brazil (converts better there), card everywhere else -
-  // it's the only option for IT anyway, since Pix never renders there.
-  const defaultMethodBtn = overlay.querySelector(lang === 'pt' ? '[data-method="pix"]' : '[data-method="card"]');
-  if(defaultMethodBtn) defaultMethodBtn.click();
-
-  finalizeBtn.onclick = async () => {
-    clearError();
-    const email = emailInput.value.trim();
-    if(!email || !email.includes('@') || !email.includes('.')){
-      showError(t.invalidEmail);
-      return;
-    }
-    if(!selectedMethod){
-      showError(t.selectMethodError);
-      return;
-    }
-    const phone = phoneInput.value.trim() || null;
-    const leadId = await ensureCheckoutLeadId(lang, email, phone);
-    const effectivePlan = getEffectivePlan();
-    const originalLabel = finalizeBtn.textContent;
-    const fbc = getFbClickId() || undefined;
-    const fbp = getFbBrowserId() || undefined;
-
-    if(selectedMethod === 'card'){
-      if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
-      finalizeBtn.disabled = true;
-      finalizeBtn.textContent = t.redirecting;
-      try{
-        const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, country: lang === 'pt' ? 'BR' : 'INT', plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
-        });
-        const result = await response.json();
-        if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
-        window.location.href = result.url;
-      }catch(err){
-        finalizeBtn.disabled = false;
-        finalizeBtn.textContent = originalLabel;
-        showError(t.genericError);
-      }
-      return;
-    }
-
-    // Pix
-    const digits = cpfInput.value.replace(/\D/g, '');
-    if(!isValidCpfCnpj(digits)){
-      showError(t.cpfInvalid);
-      return;
-    }
-    if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
-    finalizeBtn.disabled = true;
-    finalizeBtn.textContent = t.cpfGenerating;
-    try{
-      const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-pix-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, phone, cpfCnpj: digits, plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
-      });
-      const result = await response.json();
-      if(!response.ok || !result.qrCodeImage) throw new Error(result.error || 'pix_failed');
-      close();
-      openCheckoutPixQrModal(lang, result);
-    }catch(err){
-      finalizeBtn.disabled = false;
-      finalizeBtn.textContent = originalLabel;
-      showError(t.pixError);
-    }
-  };
-}
-
-function openCheckoutPixQrModal(lang, { qrCodeImage, copyPasteCode, paymentId }){
-  const t = CHECKOUT_COPY[lang];
-  const overlay = document.createElement('div');
-  overlay.className = 'vendas-modal-overlay';
-  overlay.innerHTML = `
-    <div class="vendas-modal">
-      <h3>⚡ ${t.pixModalTitle}</h3>
-      <p>${t.pixInstructions}</p>
-      <img class="pix-qr-img" src="data:image/png;base64,${qrCodeImage}" alt="QR code Pix">
-      <textarea rows="3" readonly>${copyPasteCode}</textarea>
-      <div><button type="button" class="modal-btn-secondary" id="checkoutPixCopyBtn">${t.pixCopy}</button></div>
-      <div class="pix-status" id="checkoutPixStatus">⏳ ${t.pixWaiting}</div>
-      <div class="modal-actions"><button type="button" class="modal-btn-secondary" data-action="close">${t.pixClose}</button></div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  let stopped = false;
-  const close = () => { stopped = true; overlay.remove(); };
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) close(); });
-  overlay.querySelector('[data-action="close"]').onclick = close;
-  overlay.querySelector('#checkoutPixCopyBtn').onclick = async () => {
-    await navigator.clipboard.writeText(copyPasteCode);
-    const btn = overlay.querySelector('#checkoutPixCopyBtn');
-    btn.textContent = t.pixCopied;
-    setTimeout(() => { if(!stopped) btn.textContent = t.pixCopy; }, 2000);
-  };
-
-  // No family_id exists yet to poll subscriptions by (the account is only
-  // provisioned by asaas-webhook once payment confirms) - polls Asaas's own
-  // payment status directly instead via check-pix-payment-status.
-  (async function poll(){
-    for(let i = 0; i < 75 && !stopped; i++){ // ~5 minutes at 4s intervals
-      await new Promise(r => setTimeout(r, 4000));
-      if(stopped) return;
-      try{
-        const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-pix-payment-status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentId }),
-        });
-        const data = await res.json();
-        if(data.confirmed){
-          stopped = true;
-          const statusEl = overlay.querySelector('#checkoutPixStatus');
-          if(statusEl){ statusEl.textContent = `✅ ${t.pixConfirmed}`; statusEl.classList.add('confirmed'); }
-          // Same event_id the server-side CAPI call in check-pix-payment-status
-          // uses for this payment - Meta dedupes the two into a single event.
-          if(typeof fbq !== 'undefined' && data.value != null){
-            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${paymentId}` });
-          }
-          if(typeof gtag !== 'undefined' && data.value != null){
-            gtag('event', 'conversion', {
-              'send_to': 'AW-18374065092/dWeCCPK7_9wcEMT3t7lE',
-              'value': data.value,
-              'currency': data.currency || 'BRL',
-              'transaction_id': `purchase_${paymentId}`,
-            });
-          }
-          // Fast path: check-pix-payment-status just provisioned the account and
-          // returned a fresh login link - redirect straight in from this same
-          // tab instead of making the user go open the e-mail. If for any reason
-          // no actionLink came back, the e-mail (already sent as a backup by
-          // asaas-webhook once it fires) remains the fallback.
-          if(data.actionLink){
-            setTimeout(() => { window.location.href = data.actionLink; }, 1200);
-          }
-          return;
-        }
-      }catch(e){ /* transient network hiccup - just retry next tick */ }
-    }
-  })();
-}
-
-setupCheckoutCard('pt');
-setupCheckoutCard('it');
-
-/* ========================= Lead capture (no purchase yet) ========================= */
-const LEAD_CAPTURE_COPY = {
-  pt: {
-    invalidEmail: 'Digite um e-mail válido.',
-    genericError: 'Não foi possível enviar. Tente novamente.',
-    sending: 'Enviando...',
-    success: 'Prontinho! Fique de olho no seu e-mail.',
-  },
-  it: {
-    invalidEmail: 'Inserisci un\'email valida.',
-    genericError: 'Impossibile inviare. Riprova.',
-    sending: 'Invio...',
-    success: 'Fatto! Controlla la tua email.',
-  },
-};
-
-const REVIEW_COPY = {
-  pt: {
-    missingName: 'Digite seu nome.',
-    missingRating: 'Escolha de 1 a 5 estrelas.',
-    genericError: 'Não foi possível enviar. Tente novamente.',
-    sending: 'Enviando...',
-    success: 'Obrigada! Sua avaliação será revisada antes de aparecer aqui. 💛',
-  },
-  it: {
-    missingName: 'Inserisci il tuo nome.',
-    missingRating: 'Scegli da 1 a 5 stelle.',
-    genericError: 'Impossibile inviare. Riprova.',
-    sending: 'Invio...',
-    success: 'Grazie! La tua recensione sarà controllata prima di apparire qui. 💛',
-  },
-};
-
-// Free text a site visitor controls, rendered via innerHTML into the
-// testimonials grid below - same reasoning as index.html's escapeHtml
-// (fixed there for the same class of stored-XSS risk): never trust it raw.
-function escapeHtml(s){
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-
-// Direct insert into `leads` with the anon key - same pattern the quiz already
-// used successfully (no Edge Function needed for a plain insert). Captures
-// UTMs from the URL, same fallback convention the quiz used (utm_source
-// defaults to the literal "direto" instead of null, so "no UTM on this visit"
-// is an explicit fact rather than an ambiguous null). No WhatsApp field here -
-// deliberately e-mail only for this capture (see process-funnel-sequence).
-function setupLeadCaptureForm(lang){
-  const t = LEAD_CAPTURE_COPY[lang];
-  const card = document.getElementById(`leadCaptureCard-${lang}`);
-  if(!card) return;
-  const nameInput = card.querySelector('.lead-capture-name-input');
-  const emailInput = card.querySelector('.lead-capture-email-input');
-  const consentLabel = card.querySelector('.lead-capture-consent');
-  const consentCheck = card.querySelector('.lead-capture-consent-check');
-  const submitBtn = card.querySelector('.lead-capture-submit');
-  const errorEl = card.querySelector('.lead-capture-error');
-  const successEl = card.querySelector('.lead-capture-success');
-
-  submitBtn.addEventListener('click', async () => {
-    const email = emailInput.value.trim();
-    errorEl.style.display = 'none';
-    if(!email || !email.includes('@') || !email.includes('.')){
-      errorEl.textContent = t.invalidEmail;
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    const leadId = crypto.randomUUID();
-    const params = new URLSearchParams(window.location.search);
-    const payload = {
-      id: leadId,
-      full_name: nameInput.value.trim() || null,
-      contact_email: email,
-      contact_whatsapp: null,
-      language: lang === 'it' ? 'it' : 'pt-BR', // leads.language is CHECK-constrained to exactly these two values
-      whatsapp_opt_in: false,
-      email_opt_in: !!consentCheck?.checked,
-      utm_source: params.get('utm_source') || 'direto',
-      utm_medium: params.get('utm_medium') || null,
-      utm_campaign: params.get('utm_campaign') || null,
-      utm_content: params.get('utm_content') || null,
-    };
-
-    const originalLabel = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = t.sending;
-    try{
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify(payload),
-      });
-      if(!res.ok) throw new Error('lead_insert_failed');
-      // Same key the checkout card already reads - if this visitor buys later
-      // in this browser, the existing conversion-marking logic picks this up
-      // automatically, no changes needed there.
-      localStorage.setItem('ilhaDoFoco_leadId', leadId);
-      // Ad optimization signal - without this the Meta algorithm has almost no
-      // conversion data to learn from (only Purchase, which is much rarer than
-      // a lead). Client Pixel + server CAPI, same fbc/fbp already captured for
-      // checkout so this lead can also be matched to the ad that drove it.
-      if(typeof fbq !== 'undefined') fbq('track', 'Lead');
-      fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/send-meta-capi-lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          leadId, email,
-          fbc: getFbClickId() || undefined, fbp: getFbBrowserId() || undefined,
-          eventSourceUrl: window.location.href,
-        }),
-      }).catch(()=>{ /* best-effort - a failed CAPI call shouldn't affect the lead capture UX */ });
-      nameInput.style.display = 'none';
-      emailInput.style.display = 'none';
-      consentLabel.style.display = 'none';
-      submitBtn.style.display = 'none';
-      successEl.textContent = t.success;
-      successEl.style.display = 'block';
-    }catch(e){
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalLabel;
-      errorEl.textContent = t.genericError;
-      errorEl.style.display = 'block';
-    }
-  });
-}
-
-setupLeadCaptureForm('pt');
-setupLeadCaptureForm('it');
-
-// Public review form - any visitor can submit (see the app_reviews RLS
-// policies: insert always forced to status='pending'), no purchase/login
-// check. Moderation before anything shows publicly is the only gate.
-function setupReviewForm(lang){
-  const t = REVIEW_COPY[lang];
-  const card = document.getElementById(`reviewFormCard-${lang}`);
-  if(!card) return;
-  const starRow = card.querySelector('.review-star-row');
-  const stars = [...starRow.querySelectorAll('.review-star-btn')];
-  const nameInput = card.querySelector('.review-name-input');
-  const commentInput = card.querySelector('.review-comment-input');
-  const submitBtn = card.querySelector('.review-submit-btn');
-  const errorEl = card.querySelector('.review-error');
-  const successEl = card.querySelector('.review-success');
-  let rating = 0;
-
-  function renderStars(){
-    stars.forEach((btn, i) => btn.classList.toggle('active', i < rating));
-  }
-  function previewStars(n){
-    stars.forEach((btn, i) => btn.classList.toggle('preview', i < n));
-  }
-  stars.forEach((btn, i) => {
-    btn.addEventListener('click', () => { rating = i + 1; renderStars(); });
-    btn.addEventListener('mouseenter', () => previewStars(i + 1));
-  });
-  starRow.addEventListener('mouseleave', () => previewStars(0));
-
-  submitBtn.addEventListener('click', async () => {
-    const name = nameInput.value.trim();
-    errorEl.style.display = 'none';
-    if(!name){
-      errorEl.textContent = t.missingName;
-      errorEl.style.display = 'block';
-      return;
-    }
-    if(rating < 1){
-      errorEl.textContent = t.missingRating;
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    // Written into the column matching the form's own language - the other
-    // language's column stays null until an admin adds a manual translation
-    // (see admin.html), so loadTestimonials() never shows this comment on
-    // the other language's page verbatim.
-    const payload = {
-      name,
-      rating,
-      [lang === 'it' ? 'comment_it' : 'comment_pt']: commentInput.value.trim() || null,
-      status: 'pending',
-    };
-
-    const originalLabel = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = t.sending;
-    try{
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Prefer': 'return=minimal',
-        },
-        body: JSON.stringify(payload),
-      });
-      if(!res.ok) throw new Error('review_insert_failed');
-      starRow.style.display = 'none';
-      nameInput.style.display = 'none';
-      commentInput.style.display = 'none';
-      submitBtn.style.display = 'none';
-      successEl.textContent = t.success;
-      successEl.style.display = 'block';
-    }catch(e){
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalLabel;
-      errorEl.textContent = t.genericError;
-      errorEl.style.display = 'block';
-    }
-  });
-}
-setupReviewForm('pt');
-setupReviewForm('it');
-
-// Approved testimonials - fetched once, then rendered separately per
-// language: a review's comment only appears on a language section once
-// that language's column (comment_pt/comment_it) is filled in - either the
-// original (submitted through that language's form) or a manual admin
-// translation (see admin.html). Never shown untranslated on the other
-// section - the card still appears (stars + name), just without a quote,
-// until someone adds the missing translation.
-// Section stays hidden (see the style="display:none" on both
-// testimonialsSection-* wrappers) until there's at least one to show, so an
-// empty grid never reads as "nobody's reviewed this."
-async function loadTestimonials(){
-  try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/app_reviews?status=eq.approved&order=created_at.desc&limit=9&select=name,rating,comment_pt,comment_it`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
-    });
-    if(!res.ok) return;
-    const reviews = await res.json();
-    if(!Array.isArray(reviews) || !reviews.length) return;
-    for(const lang of ['pt', 'it']){
-      const grid = document.getElementById(`testimonialsGrid-${lang}`);
-      const section = document.getElementById(`testimonialsSection-${lang}`);
-      if(!grid || !section) continue;
-      const commentField = lang === 'it' ? 'comment_it' : 'comment_pt';
-      grid.innerHTML = reviews.map(r => `
-        <div class="testimonial-card">
-          <div class="testimonial-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
-          ${r[commentField] ? `<p class="testimonial-comment">"${escapeHtml(r[commentField])}"</p>` : ''}
-          <div class="testimonial-name">${escapeHtml(r.name)}</div>
-        </div>
-      `).join('');
-      section.style.display = '';
-    }
-  }catch(e){ /* best-effort - no testimonials shown just means the section stays hidden */ }
-}
-loadTestimonials();
-
-// Handles the redirect back from Stripe's hosted checkout (the embedded Pix
-// flow never leaves this page, so it doesn't need this - see the polling above).
-(function handleCheckoutRedirect(){
-  const params = new URLSearchParams(window.location.search);
-  const checkout = params.get('checkout');
-  if(!checkout) return;
-  const sessionId = params.get('session_id');
-  history.replaceState({}, '', window.location.pathname);
-  const wantsIt = document.getElementById('btnIt')?.classList.contains('active');
-  const t = CHECKOUT_COPY[wantsIt ? 'it' : 'pt'];
-  const box = document.createElement('div');
-  box.className = 'wrap';
-  const hero = document.querySelector(`[data-lang="${wantsIt ? 'it' : 'pt'}"] .hero`)?.parentElement;
-
-  if(checkout === 'cancelled'){
-    box.innerHTML = `<div class="checkout-cancelled-box"><h3>${t.cancelledTitle}</h3><p>${t.cancelledBody}</p></div>`;
-    if(hero) hero.insertAdjacentElement('afterend', box);
-    return;
-  }
-
-  // Fast path: check-checkout-session-status provisions the account (if
-  // needed) and hands back a fresh login link the moment Stripe reports the
-  // session as paid - normally resolves on the first try, since payment_status
-  // is already settled by the time Stripe redirects back here. Falls back to
-  // the "check your e-mail" message if no session_id came back for some
-  // reason, or the session isn't marked paid yet.
-  box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.confirming}</p></div>`;
-  if(hero) hero.insertAdjacentElement('afterend', box);
-
-  if(!sessionId) return;
-  (async () => {
-    for(let i = 0; i < 5; i++){
-      try{
-        const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-checkout-session-status', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId }),
-        });
-        const data = await res.json();
-        if(data.confirmed){
-          // Same event_id the server-side CAPI call in check-checkout-session-status
-          // uses for this session - Meta dedupes the two into a single event.
-          if(typeof fbq !== 'undefined' && data.value != null){
-            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${sessionId}` });
-          }
-          if(typeof gtag !== 'undefined' && data.value != null){
-            gtag('event', 'conversion', {
-              'send_to': 'AW-18374065092/dWeCCPK7_9wcEMT3t7lE',
-              'value': data.value,
-              'currency': data.currency || 'BRL',
-              'transaction_id': `purchase_${sessionId}`,
-            });
-          }
-          if(data.actionLink){
-            window.location.href = data.actionLink;
-          }else{
-            box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
-          }
-          return;
-        }
-      }catch(e){ /* transient network hiccup - just retry next tick */ }
-      await new Promise(r => setTimeout(r, 1500));
-    }
-    // Gave up after a few tries - the webhook will still catch up and e-mail the link.
-    box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
-  })();
-})();
-</script>
+<script src="assets/site.js"></script>
 </body>
 </html>

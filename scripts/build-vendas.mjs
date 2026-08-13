@@ -39,6 +39,10 @@ function toAbsoluteAssetUrls(html) {
 
 const pages = [
   ['vendas.html', 'index.html'],
+  ['familias.html', 'familias.html'],
+  ['profissionais.html', 'profissionais.html'],
+  ['sobre.html', 'sobre.html'],
+  ['contato.html', 'contato.html'],
   ['termos-de-uso.html', 'termos-de-uso.html'],
   ['politica-privacidade.html', 'politica-privacidade.html'],
 ];
@@ -50,4 +54,21 @@ for (const [src, dest] of pages) {
   writeFileSync(destPath, toAbsoluteAssetUrls(html));
 }
 
-console.log(`vendas.html site assembled in ${outDir} (${pages.length} pages, images pointed at ${GAME_ORIGIN})`);
+// Shared CSS/JS the multi-page site links to. Named explicitly rather than
+// scanning the `assets/` dir, since that folder is shared with the main app
+// (videos, avatars, badges) - not exclusively site.css/site.js/checkout.js.
+// Pushed through toAbsoluteAssetUrls same as the HTML pages: checkout.js
+// contains relative references to assets/cartoonPT.png and assets/cartonnIT.png
+// (the checkout modal's product image) that need the same rewrite the HTML
+// pages get, or they'd 404 on viscarekids.com (that image lives on the game
+// deployment, and only .css/.js get copied into dist-vendas/assets - not
+// images).
+const sharedAssetFiles = ['site.css', 'site.js', 'checkout.js'];
+const assetsOutDir = join(outDir, 'assets');
+mkdirSync(assetsOutDir, { recursive: true });
+for (const file of sharedAssetFiles) {
+  const content = readFileSync(join(repoRoot, 'assets', file), 'utf8');
+  writeFileSync(join(assetsOutDir, file), toAbsoluteAssetUrls(content));
+}
+
+console.log(`vendas.html site assembled in ${outDir} (${pages.length} pages, ${sharedAssetFiles.length} shared assets, images pointed at ${GAME_ORIGIN})`);

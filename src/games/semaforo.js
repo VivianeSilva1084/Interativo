@@ -54,10 +54,12 @@ export function semTap(){
     const rt = Date.now() - window.instructionEndedAt;
     sem.canGo = false;
     logGameEvent({ eventType: 'answer', targetType: 'light', correct: true, responseTimeMs: rt });
+    logGameEvent({ eventType: 'wait_task', targetType: 'light', correct: true });
     markRound(true);
   }
   else {
     logGameEvent({ eventType: 'premature_click', targetType: 'light' });
+    logGameEvent({ eventType: 'wait_task', targetType: 'light', correct: false });
     showFeedback('semFeedback', L().sem.early, false); setTimeout(()=>hideFeedback('semFeedback'), 1100);
   }
 }

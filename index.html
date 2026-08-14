@@ -457,6 +457,13 @@
   .prof-dash-redeem-btn:disabled { opacity: .6; cursor: default; }
   .prof-dash-redeem-msg { font-size: 11.5px; margin-top: 8px; line-height: 1.4; }
   .prof-dash-redeem-msg.success { color: #4F7C64; font-weight: 700; }
+  @media print {
+    body * { visibility: hidden; }
+    #profDashDetail, #profDashDetail * { visibility: visible; }
+    #profDashDetail { position: absolute; left: 0; top: 0; width: 100%; }
+    #profExportPdfBtn { display: none !important; }
+    .prof-dash-card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  }
   .prof-dash-redeem-msg.error { color: #FF6F59; font-weight: 700; }
   .prof-dash-detail { flex: 1; min-width: 260px; padding: 22px 28px; }
   .prof-dash-card { background: #fff; border: 1px solid #E7DCC0; border-radius: 16px; padding: 18px; margin-bottom: 16px; }

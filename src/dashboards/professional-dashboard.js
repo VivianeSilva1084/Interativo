@@ -757,7 +757,16 @@ async function loadAndRenderProfChildDetail(container){
     `;
   }
 
+  const reportGeneratedOn = new Date().toLocaleDateString(state.lang === 'it' ? 'it-IT' : 'pt-BR');
+
   detailEl.innerHTML = `
+    <div class="prof-dash-card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+      <div>
+        <div class="prof-dash-card-title">${escapeHtml(profile?.name || '')}</div>
+        <div style="font-size:11.5px; color:#8A8067;">${t.reportGeneratedOn(reportGeneratedOn)}</div>
+      </div>
+      <button type="button" class="prof-dash-redeem-btn" id="profExportPdfBtn" style="width:auto; padding:9px 16px;">🖨️ ${t.exportPdfBtn}</button>
+    </div>
     <div class="prof-dash-card" style="border-left:3px solid #4F7C64;">
       <div class="prof-dash-card-header">📊 <span class="prof-dash-card-title">${t.indicatorsReportTitle}</span></div>
       ${indicatorsReportHtml}
@@ -865,6 +874,10 @@ async function loadAndRenderProfChildDetail(container){
       </div>
     </div>
   `;
+  detailEl.querySelector('#profExportPdfBtn')?.addEventListener('click', ()=>{
+    logProfessionalAccess(profDashboardSelectedId, 'export_pdf');
+    window.print();
+  });
   if(isPremium){
     notifyReportReady(profDashboardSelectedId);
     logProfessionalAccess(profDashboardSelectedId, 'view_report');

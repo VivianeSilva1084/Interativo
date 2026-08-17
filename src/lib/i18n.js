@@ -226,6 +226,24 @@ export const I18N = {
         "Lista das últimas 3 sessões, com data, estrelas e dificuldade."
       ],
       methodologyCloseBtn:"Fechar",
+      guideLinkLabel:"Como vincular", guideModalTitle:"Como vincular pacientes",
+      guideIntro:"Duas formas de acompanhar um paciente neste painel — escolha a que fizer mais sentido pra cada caso.",
+      guideLinkedTitle:"👨‍👩‍👧 Pacientes vinculados",
+      guideLinkedIntro:"A família tem a própria conta e aprova o vínculo com você. Grátis, sem limite de quantidade.",
+      guideLinkedSteps:[
+        "Envie o link de \"Convide pacientes\" pra família — ela cria a própria conta em menos de um minuto (se ela já tiver conta, pula direto pro passo 2).",
+        "A família gera um código de convite dentro do painel dela e te entrega (WhatsApp, e-mail, na consulta).",
+        "Você digita o código em \"Vincular por código\" — o vínculo só é liberado depois que a família aprovar.",
+        "A família pode revogar seu acesso a qualquer momento."
+      ],
+      guideOwnedTitle:"🔑 Meus perfis",
+      guideOwnedIntro:"Você cria e é responsável pelo perfil, sem a família precisar ter conta própria — pra usar na clínica ou em casa. Dentro do limite de vagas do seu plano.",
+      guideOwnedSteps:[
+        "Clique em \"Novo perfil\" e cadastre a criança.",
+        "Você recebe um código de acesso — use na clínica ou entregue à família pra jogar em casa.",
+        "Como você é responsável pelo perfil, é exigida verificação do seu registro profissional (CRFa, CRP etc.).",
+        "As vagas são limitadas pelo plano — dá pra ampliar a qualquer momento."
+      ],
       linkedTab:"Pacientes vinculados", ownedTab:"Meus perfis",
       verificationLabel:"Verificação profissional",
       verificationStatusBody:{
@@ -489,6 +507,24 @@ export const I18N = {
         "Elenco delle ultime 3 sessioni, con data, stelle e difficoltà."
       ],
       methodologyCloseBtn:"Chiudi",
+      guideLinkLabel:"Come collegare", guideModalTitle:"Come collegare i pazienti",
+      guideIntro:"Due modi per seguire un paziente in questo pannello — scegli quello più adatto a ogni caso.",
+      guideLinkedTitle:"👨‍👩‍👧 Pazienti collegati",
+      guideLinkedIntro:"La famiglia ha il proprio account e approva il collegamento con te. Gratis, senza limiti.",
+      guideLinkedSteps:[
+        "Invia il link \"Invita pazienti\" alla famiglia — crea il proprio account in meno di un minuto (se ha già un account, passa direttamente al punto 2).",
+        "La famiglia genera un codice di invito nel proprio pannello e te lo consegna (WhatsApp, email, in studio).",
+        "Inserisci il codice in \"Collega con codice\" — il collegamento viene attivato solo dopo l'approvazione della famiglia.",
+        "La famiglia può revocare il tuo accesso in qualsiasi momento."
+      ],
+      guideOwnedTitle:"🔑 I miei profili",
+      guideOwnedIntro:"Tu crei e sei responsabile del profilo, senza che la famiglia debba avere un account proprio — da usare in studio o a casa. Nel limite dei posti del tuo piano.",
+      guideOwnedSteps:[
+        "Clicca su \"Nuovo profilo\" e registra il bambino.",
+        "Ricevi un codice di accesso — usalo in studio o consegnalo alla famiglia per giocare a casa.",
+        "Poiché sei responsabile del profilo, è richiesta la verifica della tua iscrizione all'albo professionale.",
+        "I posti sono limitati dal piano — puoi ampliarli in qualsiasi momento."
+      ],
       linkedTab:"Pazienti collegati", ownedTab:"I miei profili",
       verificationLabel:"Verifica professionale",
       verificationStatusBody:{

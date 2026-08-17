@@ -57,6 +57,37 @@ function openMethodologyModal(){
   overlay.querySelector('[data-action="close"]').onclick = close;
 }
 
+// Explica a diferença entre as duas abas da barra lateral ("Pacientes
+// vinculados" vs "Meus perfis") e o passo a passo de cada fluxo - pedido
+// depois de confusão sobre onde ficava o link de convite. Mesmo padrão de
+// modal do openMethodologyModal acima (reaproveita as mesmas classes CSS).
+function openGuideModal(){
+  const t = L().prof;
+  const overlay = document.createElement('div');
+  overlay.className = 'methodology-modal-overlay';
+  overlay.innerHTML = `
+    <div class="methodology-modal">
+      <h3>📋 ${t.guideModalTitle}</h3>
+      <p class="methodology-intro">${t.guideIntro}</p>
+      <div class="methodology-graphs">
+        <h4 class="methodology-graphs-title">${t.guideLinkedTitle}</h4>
+        <p class="methodology-graphs-intro">${t.guideLinkedIntro}</p>
+        <ul>${t.guideLinkedSteps.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+      <div class="methodology-graphs">
+        <h4 class="methodology-graphs-title">${t.guideOwnedTitle}</h4>
+        <p class="methodology-graphs-intro">${t.guideOwnedIntro}</p>
+        <ul>${t.guideOwnedSteps.map(s=>`<li>${s}</li>`).join('')}</ul>
+      </div>
+      <button type="button" class="methodology-modal-close" data-action="close">${t.methodologyCloseBtn}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const close = ()=> overlay.remove();
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) close(); });
+  overlay.querySelector('[data-action="close"]').onclick = close;
+}
+
 /* ========================= PROFESSIONAL DASHBOARD =========================
    Read-only portal for professionals (logopedista/psicólogo/professor) linked
    to a child via professional_child_links. Entered from sb.auth.onAuthStateChange
@@ -324,6 +355,7 @@ async function renderProfDashboardFrame(container){
       </div>
       <div class="prof-dash-footer">
         <span>🛡️ ${t.accessNote}</span>
+        <button type="button" class="prof-dash-methodology-link" id="profGuideLink">❓ ${t.guideLinkLabel}</button>
         <button type="button" class="prof-dash-methodology-link" id="profMethodologyLink">📋 ${t.methodologyLinkLabel}</button>
       </div>
     </div>
@@ -343,6 +375,7 @@ async function renderProfDashboardFrame(container){
   });
 
   container.querySelector('#profMethodologyLink').addEventListener('click', openMethodologyModal);
+  container.querySelector('#profGuideLink').addEventListener('click', openGuideModal);
 
   container.querySelector('#profDashLangToggle').addEventListener('click', async ()=>{
     state.lang = state.lang === 'it' ? 'pt' : 'it';

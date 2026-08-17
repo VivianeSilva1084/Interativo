@@ -157,6 +157,22 @@ describe('parents dashboard', () => {
     expect(manageSubscription).toHaveBeenCalled();
   });
 
+  it('never renders the body twice when two renders overlap (e.g. a double-tap on the child tab)', async () => {
+    // Regression test: renderParentsDashboardBody used to clear the container
+    // only once, at the very start, before its awaits. Two overlapping calls
+    // (a fast double-tap, or the initial open racing another trigger) could
+    // each finish their own full render, with the second one's content
+    // appended on top of the first's instead of replacing it - the clinical
+    // summary card and the danger zone would end up duplicated in the DOM.
+    parentsData.loadProfilesList.mockResolvedValue([child]);
+    parentsData.loadSubscription.mockResolvedValue({ plan: 'premium' });
+
+    await Promise.all([parentsOpenDashboard(), parentsOpenDashboard()]);
+
+    expect(document.querySelectorAll('#parentsDashboardBody .parents-danger-zone').length).toBe(1);
+    expect(document.querySelectorAll('#parentsDashboardBody .parents-summary').length).toBe(1);
+  });
+
   it('creates a new child profile and reloads the dashboard on success', async () => {
     parentsData.loadProfilesList
       .mockResolvedValueOnce([]) // initial dashboard open: no children yet

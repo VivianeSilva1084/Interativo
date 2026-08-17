@@ -25,6 +25,15 @@ let parentsChildren = [];
 let parentsActiveChildId = null;
 export function resetParentsDashboardState(){ parentsChildren = []; parentsActiveChildId = null; }
 
+// Guards against overlapping renders (e.g. a double-tap on the child tab, or
+// the initial dashboard load racing a checkout-redirect refresh): each call
+// takes a token, and only the LATEST call is allowed to touch the DOM once
+// its awaits resolve. Without this, two overlapping calls could each finish
+// their own body.innerHTML='' + full render, with the second one's content
+// appended on top of the first's instead of replacing it - the whole body
+// (danger zone, clinical summary, everything) would render twice.
+let parentsDashboardRenderToken = 0;
+
 function renderWeeklyChart(container, minutesByDay, dayLabels){
   container.innerHTML = '';
   const bars = document.createElement('div');
@@ -194,16 +203,17 @@ export function openAddChildProfileModal(){
   };
 }
 async function renderParentsDashboardBody(){
+  const myToken = ++parentsDashboardRenderToken;
   const t = L();
   const body = document.getElementById('parentsDashboardBody');
-  body.innerHTML = '';
   const child = parentsChildren.find(c=>c.id === parentsActiveChildId);
-  if(!child) return;
+  if(!child){ if(myToken === parentsDashboardRenderToken) body.innerHTML = ''; return; }
 
   try{
     const { data: { session } } = await sb.auth.getSession();
     if(!session) throw new Error('no-session');
   }catch(e){
+    if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
     body.innerHTML = '';
     const err = document.createElement('div');
     err.className = 'parents-dash-error';
@@ -223,6 +233,7 @@ async function renderParentsDashboardBody(){
       loadPendingProfessionalRequests(child.id)
     ]);
   }catch(e){
+    if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
     body.innerHTML = '';
     const err = document.createElement('div');
     err.className = 'parents-dash-error';
@@ -235,6 +246,9 @@ async function renderParentsDashboardBody(){
     body.appendChild(err);
     return;
   }
+
+  if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
+  body.innerHTML = '';
 
   const locale = state.lang === 'it' ? 'it-IT' : 'pt-BR';
   // game_sessions is shared with Aventura das Letras (game_key: 'aventura_das_letras'),
@@ -480,6 +494,7 @@ async function renderParentsDashboardBody(){
 
   if(isPremium){
     const impulsivityIndex = await loadImpulsivityIndex(child.id);
+    if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
     const clinicalCard = document.createElement('div');
     clinicalCard.className = 'parents-card';
     clinicalCard.innerHTML = `
@@ -490,6 +505,7 @@ async function renderParentsDashboardBody(){
     body.appendChild(clinicalCard);
 
     const extras = await loadClinicalSummaryExtras(child.id);
+    if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
     const summaryText = buildClinicalSummary({
       profile: { name: child.name },
       focusEvolution: extras.focusEvolution, workingMemory: extras.workingMemory,
@@ -509,6 +525,7 @@ async function renderParentsDashboardBody(){
       .select('*', { count: 'exact', head: true })
       .eq('profile_id', child.id)
       .gte('occurred_at', sevenDaysAgo.toISOString());
+    if(myToken !== parentsDashboardRenderToken) return; // a newer render started meanwhile - let it win
     const n = totalEventos || 0;
 
     const conversionCard = document.createElement('div');

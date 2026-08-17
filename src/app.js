@@ -406,9 +406,11 @@ sb.auth.onAuthStateChange(async (event, session) => {
       state.familyId = family.id;
       state.familyPinHash = family.parent_pin_hash || null;
     } else {
-      const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id }).select('id, parent_pin_hash').single();
+      const referringProfessionalId = localStorage.getItem('ilhaDoFoco_referringProfessionalId') || null;
+      const { data: newFamily, err } = await sb.from('families').insert({ auth_user_id: session.user.id, referred_by_professional_id: referringProfessionalId }).select('id, parent_pin_hash').single();
       if(newFamily){
         state.familyId = newFamily.id; state.familyPinHash = newFamily.parent_pin_hash || null;
+        localStorage.removeItem('ilhaDoFoco_referringProfessionalId');
         linkLeadSignup();
       }
     }
@@ -1044,6 +1046,15 @@ function attemptUnlock(id){
   const leadId = params.get('lead_id');
   if(leadId){
     localStorage.setItem('ilhaDoFoco_leadId', leadId);
+    touched = true;
+  }
+  // Link copiável do painel profissional (?signup=1&prof_ref=<professional_id>)
+  // - só atribuição/analytics, gravado em families.referred_by_professional_id
+  // no INSERT abaixo. Não concede acesso nenhum: o vínculo de verdade ainda
+  // exige o fluxo normal de código de convite + aprovação da família.
+  const profRef = params.get('prof_ref');
+  if(profRef){
+    localStorage.setItem('ilhaDoFoco_referringProfessionalId', profRef);
     touched = true;
   }
   if(touched) history.replaceState({}, '', window.location.pathname);

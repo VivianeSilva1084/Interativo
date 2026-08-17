@@ -392,13 +392,49 @@ function renderProfLinkedPane(pane, container){
       <button class="prof-dash-redeem-btn" id="profRedeemBtn">${t.redeemBtn}</button>
       <div id="profRedeemMsg" class="prof-dash-redeem-msg"></div>
     </div>
+    <div class="prof-dash-redeem">
+      <div class="prof-dash-sidebar-label">${t.inviteLinkLabel}</div>
+      <div style="font-size:11.5px; color:#8A8067; line-height:1.4; margin-bottom:8px;">${t.inviteLinkBody}</div>
+      <input type="text" id="profInviteLinkInput" class="prof-dash-redeem-input" readonly value="">
+      <button class="prof-dash-redeem-btn" id="profInviteLinkCopyBtn">${t.inviteLinkCopyBtn}</button>
+      <div id="profInviteLinkMsg" class="prof-dash-redeem-msg"></div>
+    </div>
   `;
 
   refreshProfLinkedList(pane, container);
+  renderProfInviteLink(pane);
 
   pane.querySelector('#profRedeemBtn').addEventListener('click', ()=>handleRedeemInviteCode(container));
   pane.querySelector('#profRedeemInput').addEventListener('keydown', (e)=>{
     if(e.key === 'Enter') handleRedeemInviteCode(container);
+  });
+}
+
+// Link copiável pra convidar pacientes novos direto pro cadastro do jogo
+// (?signup=1&prof_ref=<id>, ver openSignupFromQueryParam em app.js) - só
+// atribuição/analytics (families.referred_by_professional_id), não concede
+// acesso: o vínculo de verdade ainda exige o código de convite normal.
+async function renderProfInviteLink(pane){
+  const input = pane.querySelector('#profInviteLinkInput');
+  const copyBtn = pane.querySelector('#profInviteLinkCopyBtn');
+  const msgEl = pane.querySelector('#profInviteLinkMsg');
+  if(!input || !copyBtn) return;
+  try{
+    const professionalId = await getOwnProfessionalId();
+    input.value = `https://interativo-pi.vercel.app/?signup=1&prof_ref=${professionalId}`;
+  }catch(e){
+    copyBtn.disabled = true;
+    return;
+  }
+  copyBtn.addEventListener('click', async ()=>{
+    const t = L().prof;
+    try{
+      await navigator.clipboard.writeText(input.value);
+      msgEl.textContent = t.inviteLinkCopiedMsg;
+      msgEl.className = 'prof-dash-redeem-msg success';
+    }catch(e){
+      input.select();
+    }
   });
 }
 

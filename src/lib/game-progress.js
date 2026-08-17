@@ -25,11 +25,18 @@ export const DIFF = {
   // meta, sempre) - 2 passos daria minMoves=0 de forma determinística, não
   // aleatória. 1 passo garante minMoves=1, batendo com "resolvível em 1-2
   // movimentos" da spec e reforçando o sucesso garantido no nível fácil.
-  cestas:{ facil:{fruits:2,capacities:[2,2],genMoves:1}, medio:{fruits:3,capacities:[3,2,1],genMoves:3}, dificil:{fruits:4,capacities:[3,3,2],genMoves:5} }
+  cestas:{ facil:{fruits:2,capacities:[2,2],genMoves:1}, medio:{fruits:3,capacities:[3,2,1],genMoves:3}, dificil:{fruits:4,capacities:[3,3,2],genMoves:5} },
+  // Senso numérico (subitizing + comparação de magnitude, nunca contagem):
+  // fácil usa arranjo canônico (padrão de dado, 1-3) com razão bem distante
+  // entre as pilhas - sucesso garantido na primeira experiência, mesmo
+  // princípio do GOAL_BANK.facil de Cestas. médio/difícil espalham os cocos
+  // e aproximam a razão (efeito Weber), forçando subagrupamento visual em
+  // vez de contagem serial.
+  cocos:{ facil:{rounds:6, maxQty:3, minRatio:2.5, canonical:true}, medio:{rounds:8, maxQty:6, minRatio:1.6, canonical:false}, dificil:{rounds:10, maxQty:9, minRatio:1.15, canonical:false} }
 };
 export const DIFF_LEVELS = ['facil','medio','dificil'];
 
-export const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro','cestas'];
+export const GAME_KEYS = ['semaforo','memoria','historia','minhavez','cacaalvo','termometro','cestas','cocos'];
 
 export function defaultProfileData(name, avatar, lang){
   const diffByGame = {}; GAME_KEYS.forEach(k=>diffByGame[k]='medio');

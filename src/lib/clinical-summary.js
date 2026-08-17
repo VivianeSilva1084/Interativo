@@ -27,6 +27,10 @@ const SUMMARY_STRINGS = {
     phoneticSwap: (e, a, n) => `Troca fonológica mais frequente: /${e}/ → /${a}/ (${n} ocorrências).`,
     persistenceGood: (n, r) => `${n} demonstrou persistência, tentando de novo ou pedindo ajuda ${r} vezes em vez de desistir da atividade.`,
     persistenceLow: (n, a) => `Foram registrados ${a} abandonos de atividade nas últimas semanas.`,
+    numeracyGood: (n, s, l) => `${n} reconhece bem quantidades pequenas e maiores sem contar (${s}% e ${l}% de acerto no Quantos Cocos?) — bom senso numérico.`,
+    numeracyGapConceptual: (n, s, l) => `${n} reconhece quantidades pequenas facilmente (${s}% de acerto no Quantos Cocos?), mas tem mais dificuldade com quantidades maiores (${l}%) — pode ajudar praticar agrupamento visual de quantidades.`,
+    numeracyAttention: (s, l) => `O reconhecimento de quantidade sem contar está numa área de atenção: ${s}% de acerto em quantidades pequenas e ${l}% em maiores no Quantos Cocos?.`,
+    numeracyBaseline: (s) => `Primeiros dados de senso numérico: reconheceu quantidades pequenas (1-3) corretamente em ${s}% das rodadas do Quantos Cocos?.`,
   },
   it: {
     theChild: 'Il bambino',
@@ -46,6 +50,10 @@ const SUMMARY_STRINGS = {
     phoneticSwap: (e, a, n) => `Sostituzione fonologica più frequente: /${e}/ → /${a}/ (${n} occorrenze).`,
     persistenceGood: (n, r) => `${n} ha dimostrato perseveranza, riprovando o chiedendo aiuto ${r} volte invece di abbandonare l'attività.`,
     persistenceLow: (n, a) => `Sono stati registrati ${a} abbandoni di attività nelle ultime settimane.`,
+    numeracyGood: (n, s, l) => `${n} riconosce bene quantità piccole e grandi senza contare (${s}% e ${l}% di risposte corrette in Quante Noci di Cocco?) — buon senso numerico.`,
+    numeracyGapConceptual: (n, s, l) => `${n} riconosce facilmente quantità piccole (${s}% in Quante Noci di Cocco?), ma ha più difficoltà con quantità maggiori (${l}%) — potrebbe aiutare praticare il raggruppamento visivo delle quantità.`,
+    numeracyAttention: (s, l) => `Il riconoscimento di quantità senza contare è un'area da monitorare: ${s}% di risposte corrette con quantità piccole e ${l}% con quantità maggiori in Quante Noci di Cocco?.`,
+    numeracyBaseline: (s) => `Primi dati sul senso numerico: ha riconosciuto correttamente quantità piccole (1-3) nel ${s}% dei round di Quante Noci di Cocco?.`,
   },
 };
 
@@ -55,7 +63,8 @@ export function buildClinicalSummary(detail, lang){
 
   const { profile, focusEvolution, workingMemory, impulsivityIndex,
           syllableDifficulty, phonologicalSwaps, frustration,
-          adherence, readingProgress } = detail;
+          adherence, readingProgress,
+          cocosSmallQtyAccuracy, cocosLargeQtyAccuracy } = detail;
 
   const name = escapeHtml(profile?.name || t.theChild);
 
@@ -128,6 +137,24 @@ export function buildClinicalSummary(detail, lang){
   const totPersistence = totHelpRequests + totRetries;
   if (totAbandons === 0 && totPersistence > 0) lines.push(t.persistenceGood(name, totPersistence));
   else if (totAbandons > 2) lines.push(t.persistenceLow(name, totAbandons));
+
+  // 7. Senso numérico (Quantos Cocos?) - acurácia em quantidades pequenas
+  // (1-3, subitizing perceptivo) vs. maiores (4+, subitizing conceitual). A
+  // combinação "perceptivo bom + conceitual fraco" é o padrão clinicamente
+  // mais informativo (ver parecer clínico do jogo) e ganha sua própria
+  // mensagem em vez de cair no "bom" genérico. Nunca menciona "discalculia" -
+  // isso não é um instrumento diagnóstico.
+  if (cocosSmallQtyAccuracy) {
+    const small = Math.round(cocosSmallQtyAccuracy.accuracy_pct);
+    if (cocosLargeQtyAccuracy) {
+      const large = Math.round(cocosLargeQtyAccuracy.accuracy_pct);
+      if (small >= 75 && small - large >= 20) lines.push(t.numeracyGapConceptual(name, small, large));
+      else if (small >= 70 && large >= 60) lines.push(t.numeracyGood(name, small, large));
+      else lines.push(t.numeracyAttention(small, large));
+    } else {
+      lines.push(t.numeracyBaseline(small));
+    }
+  }
 
   if (lines.length === 0) return t.noData(name);
 

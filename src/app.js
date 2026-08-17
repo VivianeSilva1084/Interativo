@@ -14,6 +14,7 @@ import { chatInit, chatStart, chatContinue } from './games/minhavez.js';
 import { huntInit, huntStart, huntShowPreStart, huntTogglePace } from './games/cacaalvo.js';
 import { thermoInit, thermoStart } from './games/termometro.js';
 import { cestasInit, cestasStart, cestasRestart } from './games/cestas.js';
+import { cocosInit, cocosStart, cocosPick } from './games/cocos.js';
 import { loadProfilesList, AVATARS } from './lib/parents-data.js';
 import { avatarImageSrc, normalizeAvatarKey } from './lib/avatars.js';
 import { openProfessionalDashboard, resetProfDashboardSelection } from './dashboards/professional-dashboard.js';
@@ -922,6 +923,7 @@ async function openGame(key){
   if(key==='cacaalvo') huntInit();
   if(key==='termometro') thermoInit();
   if(key==='cestas') cestasInit();
+  if(key==='cocos') cocosInit();
 }
 async function startSessionRow(gameKey, sessionId){
   // state.familyId fica null pra uma sessão de código (perfil próprio de
@@ -1107,6 +1109,7 @@ function attemptUnlock(id){
 // HTML template strings for every on(click|change|input|...)="..." attribute.
 Object.assign(window, {
   cestasRestart, cestasStart,
+  cocosPick, cocosStart,
   chatContinue, chatStart, goHub, goProfiles, handleAuthSubmit, handleForgotPassword,
   handleGoogleLogin, handleLogout, huntShowPreStart, huntStart, huntTogglePace,
   logGameEvent, openAddChildProfileModal, openAlbum, openParents, parentsCancelForgot,

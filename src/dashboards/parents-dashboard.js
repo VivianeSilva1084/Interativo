@@ -496,6 +496,7 @@ async function renderParentsDashboardBody(){
       impulsivityIndex, syllableDifficulty: extras.syllableDifficulty,
       phonologicalSwaps: extras.phonologicalSwaps, frustration: extras.frustration,
       adherence, readingProgress: reading,
+      cocosSmallQtyAccuracy: extras.cocosSmallQtyAccuracy, cocosLargeQtyAccuracy: extras.cocosLargeQtyAccuracy,
     }, state.lang);
     const summaryCard = document.createElement('div');
     summaryCard.className = 'parents-card';

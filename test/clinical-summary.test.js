@@ -79,4 +79,51 @@ describe('buildClinicalSummary', () => {
     const text = buildClinicalSummary({}, 'it');
     expect(text).toBe("Il bambino ha ancora poche sessioni registrate per generare un'analisi completa.");
   });
+
+  describe('numeracy (Quantos Cocos?)', () => {
+    it('says nothing when there is no small-quantity data yet', () => {
+      const text = buildClinicalSummary({ cocosSmallQtyAccuracy: null, cocosLargeQtyAccuracy: null }, 'pt');
+      expect(text).not.toContain('Cocos');
+    });
+
+    it('reports a baseline message when only small-quantity data exists (large-quantity gate not yet met)', () => {
+      const text = buildClinicalSummary({ cocosSmallQtyAccuracy: { accuracy_pct: 88 }, cocosLargeQtyAccuracy: null }, 'pt');
+      expect(text).toContain('Primeiros dados de senso numérico');
+      expect(text).toContain('88%');
+    });
+
+    it('flags the "perceptivo bom, conceitual fraco" pattern as its own message, not the generic "good" one', () => {
+      const text = buildClinicalSummary({
+        profile: { name: 'Ana' },
+        cocosSmallQtyAccuracy: { accuracy_pct: 90 }, cocosLargeQtyAccuracy: { accuracy_pct: 55 },
+      }, 'pt');
+      expect(text).toContain('reconhece quantidades pequenas facilmente');
+      expect(text).toContain('90%');
+      expect(text).toContain('55%');
+    });
+
+    it('reports the positive message when both ranges are solid', () => {
+      const text = buildClinicalSummary({
+        profile: { name: 'Ana' },
+        cocosSmallQtyAccuracy: { accuracy_pct: 85 }, cocosLargeQtyAccuracy: { accuracy_pct: 75 },
+      }, 'pt');
+      expect(text).toContain('bom senso numérico');
+    });
+
+    it('reports the attention message when both ranges are weak', () => {
+      const text = buildClinicalSummary({
+        cocosSmallQtyAccuracy: { accuracy_pct: 55 }, cocosLargeQtyAccuracy: { accuracy_pct: 40 },
+      }, 'pt');
+      expect(text).toContain('área de atenção');
+      expect(text).toContain('55%');
+      expect(text).toContain('40%');
+    });
+
+    it('never mentions discalculia - this is not a diagnostic instrument', () => {
+      const text = buildClinicalSummary({
+        cocosSmallQtyAccuracy: { accuracy_pct: 40 }, cocosLargeQtyAccuracy: { accuracy_pct: 20 },
+      }, 'pt');
+      expect(text.toLowerCase()).not.toContain('discalculia');
+    });
+  });
 });

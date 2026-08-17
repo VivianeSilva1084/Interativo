@@ -27,7 +27,8 @@ export const I18N = {
       minhavez:{emoji:"💬",skill:"Conversa e turno",title:"Minha Vez, Sua Vez",desc:"Escolhe a resposta certa e espera sua vez de falar."},
       cacaalvo:{emoji:"🔎",skill:"Atenção sustentada",title:"Caça ao Alvo",desc:"Encontra todas as folhinhas certas no tempo."},
       termometro:{emoji:"🌈",skill:"Regulação emocional",title:"Termômetro das Emoções",desc:"Descobre como se sente e uma forma de se acalmar."},
-      cestas:{emoji:"🧺",skill:"Planejamento",title:"Cestas da Ilha",desc:"Move as frutinhas pra deixar as cestas como no desenho."}
+      cestas:{emoji:"🧺",skill:"Planejamento",title:"Cestas da Ilha",desc:"Move as frutinhas pra deixar as cestas como no desenho."},
+      cocos:{emoji:"🥥",skill:"Senso numérico",title:"Quantos Cocos?",desc:"Toca na pilha que tem mais cocos - sem contar, só de olhar."}
     },
     sem:{ title:"🚦 Luz da Espera", instr:"Toca no círculo SÓ quando ele ficar verde. Se estiver vermelho, espera!", wait:"espera", go:"vai!",
       early:"Quase! Espera a luz ficar verde 💚", hit:"Boa! Você esperou certinho 🌟", miss:"Tudo bem, vamos pra próxima!",
@@ -55,6 +56,9 @@ export const I18N = {
       replanMsg:"Vamos tentar de outro jeito? 🌿", resultGood:"Perfeito! Você planejou tudo certinho! 🧺✨",
       resultOk:"Você conseguiu! Ajustar o plano no meio do caminho também é uma habilidade e tanto 💛",
       resultTry:"Você conseguiu! Bora ver se dá pra fazer com menos passos da próxima vez? 🌱" },
+    cocos:{ title:"🥥 Quantos Cocos?", instr:"Toca na pilha que tem MAIS cocos! Não precisa contar, só olhar bem.",
+      hit:"Boa! Você achou a pilha com mais 🥥", miss:"Tudo bem, vamos pra próxima!",
+      result:(h,t)=>`Você acertou ${h} de ${t} rodadas!` },
     parents:{
       areaTitle:"Área dos pais",
       gateSetTitle:"Crie um PIN de 4 dígitos", gateSetSubtitle:"Esse PIN protege a área dos pais. Guarde em um lugar que só vocês lembram.",
@@ -162,6 +166,8 @@ export const I18N = {
       thermoStrategyDiversity:"Estratégias de acalmar já usadas",
       cestasTitle:"Cestas da Ilha", cestasPlanningIndex:"Eficiência de planejamento",
       cestasDeliberationTime:"Tempo de deliberação inicial", cestasVoluntaryRestarts:"Reinícios voluntários",
+      cocosTitle:"Quantos Cocos?", cocosSmallQtyAccuracy:"Acurácia (1-3 cocos)",
+      cocosLargeQtyAccuracy:"Acurácia (4+ cocos)", cocosDeliberationTime:"Tempo de resposta (1-3 cocos)",
       activityDifficultyTitle:"Dificuldade por atividade",
       activityLabels:{
         mundo_das_silabas:"Mundo das Sílabas", silabas_camufladas:"Sílabas Camufladas",
@@ -210,7 +216,8 @@ export const I18N = {
         ["Evolução (últimas 4 semanas)","Compara a média dos últimos 7 dias de cada indicador com a média da mesma janela de 7 dias, 4 semanas atrás. Exige um mínimo de dias com dado em cada janela; caso contrário mostra 'dados insuficientes'."],
         ["Dificuldade por atividade","Taxa de acerto por minijogo dentro de Aventura das Letras (os 8 minijogos registram um identificador de atividade próprio, além do módulo geral) — mostra em qual atividade específica a criança tem mais ou menos facilidade, não só no app como um todo."],
         ["Termômetro das Emoções","Tempo de decisão ao identificar um sentimento e ao escolher uma forma de se acalmar, e quantas das 4 estratégias disponíveis a criança já usou. Não avalia se a emoção identificada está 'certa' — a mesma situação pode gerar sentimentos diferentes e igualmente válidos em crianças diferentes; não é um instrumento de avaliação de regulação emocional."],
-        ["Cestas da Ilha","Eficiência de planejamento (movimentos mínimos ÷ movimentos usados para resolver o desafio), tempo de deliberação antes do primeiro movimento, e reinícios voluntários — inspirado na Torre de Londres, tarefa clássica de planejamento/função executiva na literatura neuropsicológica, mas é uma adaptação lúdica, não uma aplicação formal validada do instrumento."]
+        ["Cestas da Ilha","Eficiência de planejamento (movimentos mínimos ÷ movimentos usados para resolver o desafio), tempo de deliberação antes do primeiro movimento, e reinícios voluntários — inspirado na Torre de Londres, tarefa clássica de planejamento/função executiva na literatura neuropsicológica, mas é uma adaptação lúdica, não uma aplicação formal validada do instrumento."],
+        ["Quantos Cocos?","Acurácia separada por faixa de quantidade (1-3 cocos, reconhecimento perceptivo instantâneo, vs. 4+ cocos, exige subagrupamento visual) e tempo de resposta nas rodadas de 1-3 — sinal de automaticidade de reconhecimento. Mede senso numérico (subitizing e comparação de magnitude), nunca contagem ou cálculo; não é um instrumento diagnóstico de discalculia."]
       ],
       methodologyDisclaimers:[
         "São dados comportamentais de jogo, não escores psicométricos — o que significa que não substituem uma avaliação formal, mas complementam o acompanhamento entre sessões.",
@@ -308,7 +315,8 @@ export const I18N = {
       minhavez:{emoji:"💬",skill:"Conversazione e turni",title:"Il Mio Turno, il Tuo Turno",desc:"Scegli la risposta giusta e aspetta il tuo turno per parlare."},
       cacaalvo:{emoji:"🔎",skill:"Attenzione sostenuta",title:"Caccia al Bersaglio",desc:"Trova tutti i quadrifogli giusti in tempo."},
       termometro:{emoji:"🌈",skill:"Regolazione emotiva",title:"Il Termometro delle Emozioni",desc:"Scopri come ti senti e un modo per calmarti."},
-      cestas:{emoji:"🧺",skill:"Pianificazione",title:"I Cestini dell'Isola",desc:"Sposta i fruttini per far restare i cestini come nel disegno."}
+      cestas:{emoji:"🧺",skill:"Pianificazione",title:"I Cestini dell'Isola",desc:"Sposta i fruttini per far restare i cestini come nel disegno."},
+      cocos:{emoji:"🥥",skill:"Senso numerico",title:"Quante Noci di Cocco?",desc:"Tocca la pila con più noci di cocco - senza contare, solo a colpo d'occhio."}
     },
     sem:{ title:"🚦 Il Semaforo dell'Attesa", instr:"Tocca il cerchio SOLO quando diventa verde. Se è rosso, aspetta!", wait:"aspetta", go:"vai!",
       early:"Quasi! Aspetta che diventi verde 💚", hit:"Bravo/a! Hai aspettato benissimo 🌟", miss:"Va bene, andiamo avanti!",
@@ -336,6 +344,9 @@ export const I18N = {
       replanMsg:"Proviamo in un altro modo? 🌿", resultGood:"Perfetto! Hai pianificato tutto benissimo! 🧺✨",
       resultOk:"Ce l'hai fatta! Aggiustare il piano a metà strada è anche questa una bella abilità 💛",
       resultTry:"Ce l'hai fatta! Proviamo a farlo con meno mosse la prossima volta? 🌱" },
+    cocos:{ title:"🥥 Quante Noci di Cocco?", instr:"Tocca la pila con PIÙ noci di cocco! Non serve contare, basta guardare bene.",
+      hit:"Bravo/a! Hai trovato la pila con più 🥥", miss:"Va bene, andiamo avanti!",
+      result:(h,t)=>`Hai indovinato ${h} di ${t} round!` },
     parents:{
       areaTitle:"Area genitori",
       gateSetTitle:"Crea un PIN di 4 cifre", gateSetSubtitle:"Questo PIN protegge l'area genitori. Conservalo in un posto che solo voi ricordate.",
@@ -443,6 +454,8 @@ export const I18N = {
       thermoStrategyDiversity:"Strategie per calmarsi già utilizzate",
       cestasTitle:"I Cestini dell'Isola", cestasPlanningIndex:"Efficienza di pianificazione",
       cestasDeliberationTime:"Tempo di deliberazione iniziale", cestasVoluntaryRestarts:"Riavvii volontari",
+      cocosTitle:"Quante Noci di Cocco?", cocosSmallQtyAccuracy:"Accuratezza (1-3 noci)",
+      cocosLargeQtyAccuracy:"Accuratezza (4+ noci)", cocosDeliberationTime:"Tempo di risposta (1-3 noci)",
       activityDifficultyTitle:"Difficoltà per attività",
       activityLabels:{
         mundo_das_silabas:"Mondo delle Sillabe", silabas_camufladas:"Sillabe Mimetizzate",
@@ -491,7 +504,8 @@ export const I18N = {
         ["Evoluzione (ultime 4 settimane)","Confronta la media degli ultimi 7 giorni di ogni indicatore con la media della stessa finestra di 7 giorni, 4 settimane prima. Richiede un minimo di giorni con dati in ciascuna finestra; altrimenti mostra 'dati insufficienti'."],
         ["Difficoltà per attività","Tasso di successo per minigioco all'interno di Avventura delle Lettere (gli 8 minigiochi registrano un identificativo di attività proprio, oltre al modulo generale) — mostra in quale attività specifica il bambino ha più o meno facilità, non solo nell'app nel suo insieme."],
         ["Termometro delle Emozioni","Tempo di decisione nell'identificare un sentimento e nello scegliere un modo per calmarsi, e quante delle 4 strategie disponibili il bambino ha già usato. Non valuta se l'emozione identificata è 'giusta' — la stessa situazione può generare sentimenti diversi e ugualmente validi in bambini diversi; non è uno strumento di valutazione della regolazione emotiva."],
-        ["I Cestini dell'Isola","Efficienza di pianificazione (mosse minime ÷ mosse usate per risolvere la sfida), tempo di deliberazione prima della prima mossa, e riavvii volontari — ispirato alla Torre di Londra, compito classico di pianificazione/funzione esecutiva nella letteratura neuropsicologica, ma è un adattamento ludico, non un'applicazione formale validata dello strumento."]
+        ["I Cestini dell'Isola","Efficienza di pianificazione (mosse minime ÷ mosse usate per risolvere la sfida), tempo di deliberazione prima della prima mossa, e riavvii volontari — ispirato alla Torre di Londra, compito classico di pianificazione/funzione esecutiva nella letteratura neuropsicologica, ma è un adattamento ludico, non un'applicazione formale validata dello strumento."],
+        ["Quante Noci di Cocco?","Accuratezza separata per fascia di quantità (1-3 noci, riconoscimento percettivo istantaneo, vs. 4+ noci, richiede raggruppamento visivo) e tempo di risposta nei round da 1-3 — segnale di automaticità del riconoscimento. Misura il senso numerico (subitizing e confronto di grandezza), mai il conteggio o il calcolo; non è uno strumento diagnostico per la discalculia."]
       ],
       methodologyDisclaimers:[
         "Sono dati comportamentali di gioco, non punteggi psicometrici — questo significa che non sostituiscono una valutazione formale, ma completano il monitoraggio tra le sessioni.",

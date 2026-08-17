@@ -222,7 +222,8 @@ async function loadProfDashboardChildDetail(childId){
       { data: focusEvolution }, { data: responseTime }, { data: workingMemory },
       { data: ruleAdaptation }, { data: perseverativeErrors }, { data: frustration }, { data: waitCompliance }, { data: instructionFollowing },
       { data: activityDifficulty }, { data: thermoResponseTime }, { data: thermoDiversity },
-      { data: cestasPlanningIndex }, { data: cestasDeliberation }, { data: cestasRestarts }
+      { data: cestasPlanningIndex }, { data: cestasDeliberation }, { data: cestasRestarts },
+      { data: cocosSmallQtyAccuracy }, { data: cocosLargeQtyAccuracy }, { data: cocosDeliberation }
     ],
     indicatorsReport
   ] = await Promise.all([
@@ -251,7 +252,10 @@ async function loadProfDashboardChildDetail(childId){
     sb.from('v_thermo_strategy_diversity').select('strategies_used, total_rounds').eq('profile_id', childId).maybeSingle(),
     sb.from('v_cestas_planning_index').select('avg_efficiency, n').eq('profile_id', childId).maybeSingle(),
     sb.from('v_cestas_deliberation_time').select('avg_response_ms, n').eq('profile_id', childId).maybeSingle(),
-    sb.from('v_cestas_voluntary_restarts').select('restarts').eq('profile_id', childId).maybeSingle()
+    sb.from('v_cestas_voluntary_restarts').select('restarts').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cocos_small_qty_accuracy').select('accuracy_pct, n').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cocos_large_qty_accuracy').select('accuracy_pct, n').eq('profile_id', childId).maybeSingle(),
+    sb.from('v_cocos_deliberation_time').select('avg_response_ms, n').eq('profile_id', childId).maybeSingle()
     ]),
     loadIndicatorsReport(childId)
   ]);
@@ -288,6 +292,7 @@ async function loadProfDashboardChildDetail(childId){
     activityDifficulty: activityDifficulty || [],
     thermoResponseTime: thermoResponseTime || [], thermoDiversity: thermoDiversity || null,
     cestasPlanningIndex: cestasPlanningIndex || null, cestasDeliberation: cestasDeliberation || null, cestasRestarts: cestasRestarts || null,
+    cocosSmallQtyAccuracy: cocosSmallQtyAccuracy || null, cocosLargeQtyAccuracy: cocosLargeQtyAccuracy || null, cocosDeliberation: cocosDeliberation || null,
     isPremium
   };
 }
@@ -629,7 +634,8 @@ async function loadAndRenderProfChildDetail(container){
     profile, readingProgress, impulsivityIndex, indicatorsReport, weeklyUsage, adherence, phonologicalSwaps, errorTypes, syllableDifficulty,
     focusEvolution, responseTime, workingMemory, ruleAdaptation, perseverativeErrors, frustration, waitCompliance, instructionFollowing,
     activityDifficulty, thermoResponseTime, thermoDiversity,
-    cestasPlanningIndex, cestasDeliberation, cestasRestarts, isPremium
+    cestasPlanningIndex, cestasDeliberation, cestasRestarts,
+    cocosSmallQtyAccuracy, cocosLargeQtyAccuracy, cocosDeliberation, isPremium
   } = detail;
   const ilhaDoFocoGames = Object.entries(profile?.stars_by_game || {}).filter(([k])=>GAME_KEYS.includes(k));
   const maxMinutes = Math.max(1, ...weeklyUsage.map(d=>d.minutes));
@@ -707,6 +713,19 @@ async function loadAndRenderProfChildDetail(container){
     ${cestasPlanningIndex ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasPlanningIndex}</span><span class="prof-dash-row-value">${Math.round(cestasPlanningIndex.avg_efficiency * 100)}%</span></div>` : ''}
     ${cestasDeliberation ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasDeliberationTime}</span><span class="prof-dash-row-value">${Math.round(cestasDeliberation.avg_response_ms)}${t.ms}</span></div>` : ''}
     ${cestasRestarts ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cestasVoluntaryRestarts}</span><span class="prof-dash-row-value">${cestasRestarts.restarts}</span></div>` : ''}
+  `;
+
+  // --- Quantos Cocos?: acurácia separada por faixa de quantidade (1-3 =
+  // subitizing perceptivo, 4+ = subitizing conceitual) e tempo de resposta
+  // nas rodadas pequenas (automaticidade de reconhecimento). Gates de n
+  // mínimo já aplicados nas views.
+  let cocosHtml;
+  if(!isPremium) cocosHtml = lockedNote;
+  else if(!cocosSmallQtyAccuracy && !cocosLargeQtyAccuracy && !cocosDeliberation) cocosHtml = noDataNote;
+  else cocosHtml = `
+    ${cocosSmallQtyAccuracy ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cocosSmallQtyAccuracy}</span><span class="prof-dash-row-value">${Math.round(cocosSmallQtyAccuracy.accuracy_pct)}%</span></div>` : ''}
+    ${cocosLargeQtyAccuracy ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cocosLargeQtyAccuracy}</span><span class="prof-dash-row-value">${Math.round(cocosLargeQtyAccuracy.accuracy_pct)}%</span></div>` : ''}
+    ${cocosDeliberation ? `<div class="prof-dash-row"><span class="prof-dash-row-label">${t.cocosDeliberationTime}</span><span class="prof-dash-row-value">${Math.round(cocosDeliberation.avg_response_ms)}${t.ms}</span></div>` : ''}
   `;
 
   // --- Atenção sustentada: semana mais recente por jogo (query já ordena week_start desc) ---
@@ -886,6 +905,11 @@ async function loadAndRenderProfChildDetail(container){
     </div>
 
     <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
+      <div class="prof-dash-card-header">🥥 <span class="prof-dash-card-title">${t.cocosTitle}</span></div>
+      ${cocosHtml}
+    </div>
+
+    <div class="prof-dash-card"${!isPremium ? ' style="border:1px dashed #C79A3D; background:#FFFBF0;"' : ''}>
       <div class="prof-dash-card-header">🎯 <span class="prof-dash-card-title">${t.focusDuration}</span></div>
       ${focusHtml}
     </div>
@@ -927,7 +951,7 @@ async function loadAndRenderProfChildDetail(container){
         <span style="font-size:10px; color:#8A8067; margin-left:auto;">${t.aiSummaryDisclaimer}</span>
       </div>
       <div style="font-size:13px; color:#1F2E29; line-height:1.7; font-style:italic;">
-        ${isPremium ? buildClinicalSummary({ profile, focusEvolution, workingMemory, impulsivityIndex, syllableDifficulty, phonologicalSwaps, frustration, adherence, readingProgress }, state.lang) : t.lockedBody}
+        ${isPremium ? buildClinicalSummary({ profile, focusEvolution, workingMemory, impulsivityIndex, syllableDifficulty, phonologicalSwaps, frustration, adherence, readingProgress, cocosSmallQtyAccuracy, cocosLargeQtyAccuracy }, state.lang) : t.lockedBody}
       </div>
     </div>
 

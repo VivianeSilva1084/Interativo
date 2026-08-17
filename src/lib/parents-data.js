@@ -89,16 +89,18 @@ export async function loadImpulsivityIndex(childId){
 // dashboard already loads elsewhere (adherence, readingProgress, impulsivityIndex).
 export async function loadClinicalSummaryExtras(childId){
   try{
-    const [{ data: focusEvolution }, { data: workingMemory }, { data: phonologicalSwaps }, { data: syllableDifficulty }, { data: frustration }] = await Promise.all([
+    const [{ data: focusEvolution }, { data: workingMemory }, { data: phonologicalSwaps }, { data: syllableDifficulty }, { data: frustration }, { data: cocosSmallQtyAccuracy }, { data: cocosLargeQtyAccuracy }] = await Promise.all([
       sb.from('v_weekly_focus_evolution').select('game_key, week_start, avg_duration_seconds').eq('profile_id', childId).order('week_start', { ascending: false }),
       sb.from('v_working_memory').select('*').eq('profile_id', childId),
       sb.from('v_phonological_swaps').select('expected, answered, occurrences').eq('profile_id', childId).order('occurrences', { ascending: false }).limit(3),
       sb.from('v_syllable_difficulty').select('syllable, accuracy_pct').eq('profile_id', childId).lt('accuracy_pct', 80).order('accuracy_pct', { ascending: true }).limit(3),
       sb.from('v_frustration_raw').select('game_key, abandons, help_requests, retries').eq('profile_id', childId),
+      sb.from('v_cocos_small_qty_accuracy').select('accuracy_pct, n').eq('profile_id', childId).maybeSingle(),
+      sb.from('v_cocos_large_qty_accuracy').select('accuracy_pct, n').eq('profile_id', childId).maybeSingle(),
     ]);
-    return { focusEvolution: focusEvolution || [], workingMemory: workingMemory || [], phonologicalSwaps: phonologicalSwaps || [], syllableDifficulty: syllableDifficulty || [], frustration: frustration || [] };
+    return { focusEvolution: focusEvolution || [], workingMemory: workingMemory || [], phonologicalSwaps: phonologicalSwaps || [], syllableDifficulty: syllableDifficulty || [], frustration: frustration || [], cocosSmallQtyAccuracy: cocosSmallQtyAccuracy || null, cocosLargeQtyAccuracy: cocosLargeQtyAccuracy || null };
   }catch(e){
-    return { focusEvolution: [], workingMemory: [], phonologicalSwaps: [], syllableDifficulty: [], frustration: [] };
+    return { focusEvolution: [], workingMemory: [], phonologicalSwaps: [], syllableDifficulty: [], frustration: [], cocosSmallQtyAccuracy: null, cocosLargeQtyAccuracy: null };
   }
 }
 

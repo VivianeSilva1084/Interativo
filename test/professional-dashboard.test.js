@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // front of it) - so this file needs the full chainable-and-awaitable
 // Supabase stub, configured per table/view/rpc. Inlined for the same
 // vi.hoisted-can't-reach-normal-imports reason as in parents-dashboard.test.js.
-const { sbStub, setPremium, setResponseTimeRows, setIndicatorsRows, setActivityDifficultyRows, setThermoResponseTimeRows, setThermoDiversityRow, setCestasPlanningIndexRow, setCestasDeliberationRow, setCestasRestartsRow } = vi.hoisted(() => {
+const { sbStub, setPremium, setResponseTimeRows, setIndicatorsRows, setActivityDifficultyRows, setThermoResponseTimeRows, setThermoDiversityRow, setCestasPlanningIndexRow, setCestasDeliberationRow, setCestasRestartsRow, setCocosSmallQtyAccuracyRow, setCocosLargeQtyAccuracyRow, setCocosDeliberationRow } = vi.hoisted(() => {
   function chainable(result){
     let proxy;
     const obj = { then(resolve){ resolve(result); return Promise.resolve(result); }, catch(){ return proxy; } };
@@ -21,6 +21,9 @@ const { sbStub, setPremium, setResponseTimeRows, setIndicatorsRows, setActivityD
   let cestasPlanningIndexRow = null;
   let cestasDeliberationRow = null;
   let cestasRestartsRow = null;
+  let cocosSmallQtyAccuracyRow = null;
+  let cocosLargeQtyAccuracyRow = null;
+  let cocosDeliberationRow = null;
   const emptyView = { data: [], error: null };
   const tableResults = {
     professionals: { data: { id: 'prof-1' }, error: null },
@@ -44,6 +47,9 @@ const { sbStub, setPremium, setResponseTimeRows, setIndicatorsRows, setActivityD
     setCestasPlanningIndexRow: (row) => { cestasPlanningIndexRow = row; },
     setCestasDeliberationRow: (row) => { cestasDeliberationRow = row; },
     setCestasRestartsRow: (row) => { cestasRestartsRow = row; },
+    setCocosSmallQtyAccuracyRow: (row) => { cocosSmallQtyAccuracyRow = row; },
+    setCocosLargeQtyAccuracyRow: (row) => { cocosLargeQtyAccuracyRow = row; },
+    setCocosDeliberationRow: (row) => { cocosDeliberationRow = row; },
     sbStub: {
       auth: {
         getUser: async () => ({ data: { user: { id: 'prof-user-id' } } }),
@@ -59,6 +65,9 @@ const { sbStub, setPremium, setResponseTimeRows, setIndicatorsRows, setActivityD
         : table === 'v_cestas_planning_index' ? { data: cestasPlanningIndexRow, error: null }
         : table === 'v_cestas_deliberation_time' ? { data: cestasDeliberationRow, error: null }
         : table === 'v_cestas_voluntary_restarts' ? { data: cestasRestartsRow, error: null }
+        : table === 'v_cocos_small_qty_accuracy' ? { data: cocosSmallQtyAccuracyRow, error: null }
+        : table === 'v_cocos_large_qty_accuracy' ? { data: cocosLargeQtyAccuracyRow, error: null }
+        : table === 'v_cocos_deliberation_time' ? { data: cocosDeliberationRow, error: null }
         : (tableResults[table] ?? emptyView)
       ),
       rpc: async (name) => {
@@ -106,6 +115,9 @@ describe('professional dashboard', () => {
     setCestasPlanningIndexRow(null);
     setCestasDeliberationRow(null);
     setCestasRestartsRow(null);
+    setCocosSmallQtyAccuracyRow(null);
+    setCocosLargeQtyAccuracyRow(null);
+    setCocosDeliberationRow(null);
     notifyReportReady.mockClear();
   });
 
@@ -225,6 +237,20 @@ describe('professional dashboard', () => {
     expect(html).toContain('80%'); // eficiência de planejamento
     expect(html).toContain('4500ms'); // tempo de deliberação
     expect(html).toContain('Reinícios voluntários');
+  });
+
+  it('shows Quantos Cocos? accuracy by quantity range and small-quantity response time', async () => {
+    setCocosSmallQtyAccuracyRow({ accuracy_pct: 92, n: 6 });
+    setCocosLargeQtyAccuracyRow({ accuracy_pct: 68, n: 6 });
+    setCocosDeliberationRow({ avg_response_ms: 1800, n: 6 });
+    await openProfessionalDashboard();
+    await vi.waitFor(() => expect(document.querySelector('.prof-dash-child-btn')).not.toBeNull());
+
+    const html = document.getElementById('profDashDetail').innerHTML;
+    expect(html).toContain('Quantos Cocos?');
+    expect(html).toContain('92%'); // acurácia 1-3 cocos
+    expect(html).toContain('68%'); // acurácia 4+ cocos
+    expect(html).toContain('1800ms'); // tempo de resposta em quantidades pequenas
   });
 
   it('redeems an invite code and refreshes the sidebar with the newly-linked child', async () => {

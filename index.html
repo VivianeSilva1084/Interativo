@@ -152,6 +152,11 @@
   .round-dot.hit{ background: var(--success); border-color:var(--success); }
   .round-dot.miss{ background: var(--berry); border-color:var(--berry); }
 
+  .cocos-piles{ display:flex; gap:16px; width:min(420px,92vw); margin-top:10px; }
+  .cocos-pile{ position:relative; flex:1; aspect-ratio:1; border-radius:var(--radius-md); border:2px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); cursor:pointer; box-shadow: var(--shadow); touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+  .cocos-pile:active{ transform: scale(.97); }
+  .cocos-coco{ position:absolute; transform:translate(-50%,-50%); font-size:34px; pointer-events:none; }
+
   .trail-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:20px; width: min(360px,85vw); }
   .trail-pad{ aspect-ratio:1; min-height:120px; border-radius:26px; border:none; cursor:pointer; opacity:.6; transition: opacity .15s ease, transform .1s ease; box-shadow: var(--shadow); display:flex; align-items:center; justify-content:center; font-size:46px; touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; }
   .trail-pad.lit{ opacity:1; transform: scale(1.08); }
@@ -829,6 +834,26 @@
         <div class="emo-options" id="cestasBoard"></div>
         <button class="big-cta secondary" id="cestasRestartBtn" onclick="cestasRestart()"></button>
         <div class="feedback-banner" id="cestasFeedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== QUANTOS COCOS? ===================== -->
+  <div class="screen" id="screen-cocos">
+    <div class="game-shell">
+      <div class="top-row"><button class="back-btn" onclick="goHub()">← <span class="backLabel">Voltar</span></button><h2 class="game-title" id="cocosTitle"></h2></div>
+      <div class="game-instructions" id="cocosInstructions"></div>
+      <div class="pre-start" id="cocosPreStart">
+        <div class="diff-row" id="cocosDiffRow"></div>
+        <button class="big-cta" id="cocosStartBtn" onclick="cocosStart()"></button>
+      </div>
+      <div class="center-col" id="cocosPlayArea" style="display:none;">
+        <div class="rounds-track" id="cocosRounds"></div>
+        <div class="cocos-piles">
+          <button class="cocos-pile" id="cocosLeftPile" onclick="cocosPick('left')"></button>
+          <button class="cocos-pile" id="cocosRightPile" onclick="cocosPick('right')"></button>
+        </div>
+        <div class="feedback-banner" id="cocosFeedback"></div>
       </div>
     </div>
   </div>

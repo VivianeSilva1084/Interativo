@@ -525,11 +525,26 @@ async function handleUploadVerificationDoc(container, pane){
 
     profVerificationStatus = 'pending';
     renderProfSidebarPane(container);
+    notifyAdminVerificationPending();
   }catch(e){
     msgEl.textContent = t.error;
     msgEl.className = 'prof-dash-redeem-msg error';
     btn.disabled = false;
   }
+}
+
+// Fire-and-forget push to admin.html (same channel as the sale-alert pushes
+// stripe-webhook/asaas-webhook already send) - a failure here shouldn't
+// surface to the professional, the upload itself already succeeded. Same
+// pattern as notifyReportReady in lib/clinical-summary.js.
+function notifyAdminVerificationPending(){
+  sb.auth.getSession().then(({ data: { session } })=>{
+    if(!session) return;
+    fetch(`${SUPABASE_URL}/functions/v1/notify-admin-verification-pending`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+    }).catch(()=>{});
+  });
 }
 
 function renderProfOwnedPane(pane, container){

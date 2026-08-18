@@ -65,15 +65,22 @@ function setAuthLang(l) {
 }
 
 
-function getAuthErrorMsg(errCode) {
+// Takes the whole AuthError, not a pre-picked field: supabase-js exposes both
+// a snake_case `.code` (e.g. 'weak_password') and a human `.message` (e.g.
+// "Password should be at least 6 characters.") - checking only one of them
+// (the previous version checked `.message` first, since callers passed
+// `error.message || error.code`) meant every pattern below except the first
+// silently never matched, because none of these code-shaped substrings occur
+// in Supabase's actual message text. Matched against both, lowercased.
+function getAuthErrorMsg(error) {
   const t = AUTH_I18N[state.lang] || AUTH_I18N.pt;
-  if (!errCode) return t.errorGeneric;
-  const lower = errCode.toLowerCase();
-  if (lower.includes('email_not_confirmed') || lower.includes('email not confirmed')) return t.errorEmailNotConfirmed;
-  if (errCode.includes('invalid_credentials')) return t.errorInvalidCredentials;
-  if (errCode.includes('user_already_exists')) return t.errorEmailInUse;
-  if (errCode.includes('weak_password')) return t.errorWeakPassword;
-  if (errCode.includes('network') || errCode.includes('fetch')) return t.errorNetwork;
+  if (!error) return t.errorGeneric;
+  const combined = `${error.code || ''} ${error.message || ''}`.toLowerCase();
+  if (combined.includes('email_not_confirmed') || combined.includes('email not confirmed')) return t.errorEmailNotConfirmed;
+  if (combined.includes('invalid_credentials') || combined.includes('invalid login credentials')) return t.errorInvalidCredentials;
+  if (combined.includes('user_already_exists') || combined.includes('already registered')) return t.errorEmailInUse;
+  if (combined.includes('weak_password') || combined.includes('at least 6 characters')) return t.errorWeakPassword;
+  if (combined.includes('network') || combined.includes('fetch')) return t.errorNetwork;
   return t.errorGeneric;
 }
 
@@ -563,7 +570,7 @@ async function handleAuthSubmit() {
     errEl.style.color = '#FFA3B1';
     errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
     errEl.style.borderColor = 'var(--berry)';
-    errEl.textContent = getAuthErrorMsg(error.message || error.code);
+    errEl.textContent = getAuthErrorMsg(error);
     errEl.style.display = 'block';
   }
   
@@ -626,7 +633,7 @@ async function handleProfessionalSignup(){
       errEl.style.color = '#FFA3B1';
       errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
       errEl.style.borderColor = 'var(--berry)';
-      errEl.textContent = getAuthErrorMsg(authError.message || authError.code);
+      errEl.textContent = getAuthErrorMsg(authError);
       errEl.style.display = 'block';
       return;
     }
@@ -642,6 +649,16 @@ async function handleProfessionalSignup(){
     // Auto-confirm is on: a session already exists, so onAuthStateChange
     // has already started (or is about to) creating the professionals row
     // and routing to the dashboard on its own - nothing left to do here.
+  } catch(e) {
+    // sb.auth.signUp() normally resolves with {error} rather than throwing,
+    // but a genuine network/client exception (offline, blocked request) would
+    // otherwise escape uncaught here - leaving errEl untouched and the user
+    // staring at a stuck "Enviando..." button with no explanation at all.
+    errEl.style.color = '#FFA3B1';
+    errEl.style.backgroundColor = 'rgba(229,85,110,.2)';
+    errEl.style.borderColor = 'var(--berry)';
+    errEl.textContent = getAuthErrorMsg(e);
+    errEl.style.display = 'block';
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;

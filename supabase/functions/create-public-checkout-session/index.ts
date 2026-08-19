@@ -23,7 +23,17 @@ Deno.serve(async (req) => {
     }
 
     const baseUrl = 'https://www.viscarekids.com/vendas.html';
-    const isOneTime = plan === '30days' || plan === 'bump30';
+    const KIT_PLANS = ['kit_mini', 'kit_completo'];
+    const isOneTime = plan === '30days' || plan === 'bump30' || KIT_PLANS.includes(plan);
+
+    // product_type drives stripe-webhook's branching, not session.mode: a
+    // one-time payment used to be treated as "grant 30 days of full game
+    // access" unconditionally, which would silently give content-kit buyers
+    // the whole game for free too. Every plan sets this explicitly so the
+    // webhook never has to infer intent from payment mode again. Both kit
+    // tiers (Mini Kit and Kit Completo) share the same product_type - the
+    // webhook only needs to know "no game access", not which kit.
+    const productType = KIT_PLANS.includes(plan) ? 'content_kit' : 'game_access';
 
     // bump30 is a checkout-only discounted one-time offer (see vendas.html's
     // bump checkbox) - it has no pre-created Stripe Price object like the
@@ -40,6 +50,14 @@ Deno.serve(async (req) => {
         },
         quantity: 1,
       };
+    } else if (plan === 'kit_mini' || plan === 'kit_completo') {
+      // Two independent kit tiers, each with its own BRL/EUR Price pair -
+      // not a single generic "kit" price, since Mini Kit and Kit Completo
+      // sell at different amounts.
+      const envPrefix = plan === 'kit_mini' ? 'STRIPE_PRICE_ID_KIT_MINI' : 'STRIPE_PRICE_ID_KIT_COMPLETO';
+      const priceId = country === 'BR' ? Deno.env.get(`${envPrefix}_BRL`) : Deno.env.get(`${envPrefix}_EUR`);
+      if (!priceId) return new Response(JSON.stringify({ error: 'price_not_configured' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      lineItem = { price: priceId, quantity: 1 };
     } else {
       const priceId = isOneTime
         ? (country === 'BR' ? Deno.env.get('STRIPE_PRICE_ID_30DAYS_BRL') : Deno.env.get('STRIPE_PRICE_ID_30DAYS_EUR'))
@@ -54,7 +72,8 @@ Deno.serve(async (req) => {
     // check-checkout-session-status can attach them to the Purchase CAPI
     // event later - without them Meta only gets a hashed e-mail to match on,
     // which isn't enough to attribute the sale back to a specific ad.
-    const metadata: Record<string, string> = { pending_email: email };
+    const metadata: Record<string, string> = { pending_email: email, product_type: productType };
+    if (KIT_PLANS.includes(plan)) metadata.product_sku = plan;
     if (leadId) metadata.lead_id = leadId;
     if (phone) metadata.phone = phone;
     if (fbc) metadata.fbc = fbc;

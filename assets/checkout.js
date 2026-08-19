@@ -19,11 +19,20 @@ function isValidCpfCnpj(digits){
   return d1 === parseInt(digits[9], 10) && d2 === parseInt(digits[10], 10);
 }
 
+// Content-kit plans (PDF only, no game login) - checked in a few places below
+// so Pix (never wired for kits) and the "access your account" success copy
+// don't accidentally show for a product that isn't the game subscription.
+const KIT_PLANS = ['kit_mini', 'kit_completo'];
+
 const CHECKOUT_COPY = {
   pt: {
     '30days': { price: 'R$ 34,90', note: 'pagamento único · acesso por 30 dias' },
     monthly: { price: 'R$ 24,90', note: '/mês · cancele quando quiser' },
     bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
+    kit_mini: { price: 'R$ 14,90', note: 'pagamento único · PDF por e-mail', productName: 'Mini Kit Attenzione' },
+    kit_completo: { price: 'R$ 48,90', note: 'pagamento único · 6 PDFs por e-mail', productName: 'Kit Completo VisCare Kids' },
+    kitSuccessTitle: 'Pagamento confirmado! 🎉',
+    kitSuccessBody: 'Enviamos os arquivos do seu kit pro seu e-mail. Não encontrou? Confira a caixa de spam.',
     invalidEmail: 'Digite um e-mail válido.',
     genericError: 'Não foi possível continuar. Tente novamente.',
     redirecting: 'Aguarde...',
@@ -53,6 +62,10 @@ const CHECKOUT_COPY = {
     '30days': { price: '€ 9,90', note: 'pagamento unico · nessun rinnovo automatico' },
     monthly: { price: '€ 4,99', note: '/mese · annulla quando vuoi' },
     bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
+    kit_mini: { price: '€ 9,90', note: 'pagamento unico · PDF via email', productName: 'Mini Kit Attenzione' },
+    kit_completo: { price: '€ 29,90', note: 'pagamento unico · 6 PDF via email', productName: 'Kit Completo VisCare Kids' },
+    kitSuccessTitle: 'Pagamento confermato! 🎉',
+    kitSuccessBody: 'Ti abbiamo inviato i file del tuo kit via email. Non li trovi? Controlla lo spam.',
     invalidEmail: 'Inserisci un\'email valida.',
     genericError: 'Impossibile continuare. Riprova.',
     redirecting: 'Attendere...',
@@ -162,15 +175,19 @@ function openCheckoutModal(lang, plan){
   // a cheaper non-recurring option in front of them would just talk them
   // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
   const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
+  // Kit plans are PDF-only - Pix was never wired for them (create-public-pix-payment
+  // has no content_kit branch), so only offer card for these regardless of lang.
+  const isKitPlan = KIT_PLANS.includes(plan);
+  const summaryName = t[plan].productName || t.productName;
   const overlay = document.createElement('div');
   overlay.className = 'checkout-page-overlay';
   overlay.innerHTML = `
     <div class="vendas-modal checkout-modal-v2">
       <button type="button" class="checkout-modal-close" data-action="cancel">×</button>
       <div class="checkout-summary">
-        <img class="checkout-summary-img" src="${t.productImage}" alt="${t.productName}">
+        <img class="checkout-summary-img" src="${t.productImage}" alt="${summaryName}">
         <div>
-          <div class="checkout-summary-name">${t.productName}</div>
+          <div class="checkout-summary-name">${summaryName}</div>
           <div class="checkout-summary-price" id="checkoutSummaryPrice">${t[plan].price}</div>
           <div class="checkout-summary-note" id="checkoutSummaryNote">${t[plan].note}</div>
         </div>
@@ -197,7 +214,7 @@ function openCheckoutModal(lang, plan){
         <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
         <div class="payment-method-row">
           <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
-          ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
+          ${(lang === 'pt' && !isKitPlan) ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
         </div>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
         <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
@@ -258,7 +275,7 @@ function openCheckoutModal(lang, plan){
   // Pre-select a sensible default so most people don't have to make an extra
   // choice: Pix for Brazil (converts better there), card everywhere else -
   // it's the only option for IT anyway, since Pix never renders there.
-  const defaultMethodBtn = overlay.querySelector(lang === 'pt' ? '[data-method="pix"]' : '[data-method="card"]');
+  const defaultMethodBtn = overlay.querySelector((lang === 'pt' && !isKitPlan) ? '[data-method="pix"]' : '[data-method="card"]');
   if(defaultMethodBtn) defaultMethodBtn.click();
 
   finalizeBtn.onclick = async () => {
@@ -604,10 +621,16 @@ loadTestimonials();
               'transaction_id': `purchase_${sessionId}`,
             });
           }
-          if(data.actionLink){
+          // Content kits never get an actionLink (no game account involved) -
+          // show the "check your e-mail for the PDF" message instead of the
+          // "access your account" one, even if actionLink were ever present.
+          const isKit = data.product_type === 'content_kit';
+          if(data.actionLink && !isKit){
             window.location.href = data.actionLink;
           }else{
-            box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
+            const title = isKit ? t.kitSuccessTitle : t.successTitle;
+            const body = isKit ? t.kitSuccessBody : t.successBody;
+            box.innerHTML = `<div class="checkout-success-box"><h3>${title}</h3><p>${body}</p></div>`;
           }
           return;
         }

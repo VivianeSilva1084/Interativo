@@ -395,6 +395,103 @@ async function handleProfessionalCheckoutCompleted(supabase: ReturnType<typeof c
   }
 }
 
+// Files live in the private `kit-pdfs` Storage bucket (created 2026-08-19) -
+// uploaded manually via the Supabase dashboard, not by this codebase. Paths
+// here must match those uploaded filenames exactly, or createSignedUrl 404s.
+const KIT_PDF_BUCKET = 'kit-pdfs';
+const KIT_DELIVERY: Record<string, { name: string; files: { label: string; path: string }[] }> = {
+  kit_mini: {
+    name: 'Mini Kit Attenzione',
+    files: [{ label: 'Mini Kit Attenzione', path: 'mini-kit-attenzione.pdf' }],
+  },
+  kit_completo: {
+    name: 'Kit Completo VisCare Kids',
+    files: [
+      { label: 'Modulo 1 — Attenzione', path: 'kit-completo-modulo-1-attenzione.pdf' },
+      { label: 'Modulo 2 — Memoria', path: 'kit-completo-modulo-2-memoria.pdf' },
+      { label: 'Modulo 3 — Controllo della risposta', path: 'kit-completo-modulo-3-controllo.pdf' },
+      { label: 'Modulo 4 — Flessibilità', path: 'kit-completo-modulo-4-flessibilita.pdf' },
+      { label: 'Modulo 5 — Pianificazione', path: 'kit-completo-modulo-5-pianificazione.pdf' },
+      { label: 'Modulo 6 — Emozioni e autoregolazione', path: 'kit-completo-modulo-6-emozioni.pdf' },
+    ],
+  },
+};
+
+// Signed links, not a public bucket - the kit is paid content, not meant to
+// be redistributed by URL. 30 days is generous enough for the buyer to get
+// to it without leaving the link usable indefinitely if it ever leaks.
+async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string) {
+  const kit = KIT_DELIVERY[sku];
+  if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku "${sku}"`);
+
+  const links = await Promise.all(kit.files.map(async (f) => {
+    const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
+    if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
+    return { label: f.label, url: data.signedUrl };
+  }));
+
+  const listHtml = links.map((l) =>
+    `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
+    <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
+      <p>Ciao!</p>
+      <p>Grazie per aver acquistato <b>${kit.name}</b> 🎉 Ecco i tuoi file, pronti da scaricare e stampare:</p>
+      ${listHtml}
+      <p style="font-size:12px; color:#8A8067; margin-top:20px;">Ogni link resta valido per 30 giorni. Se scade, scrivici e te ne mandiamo uno nuovo.</p>
+    </div>
+  </body></html>`;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: `${kit.name} è pronto per te!`, html }),
+  });
+  if (!res.ok) throw new Error(`Resend error ${res.status}: ${await res.text()}`);
+}
+
+// Content kit (printable activities, no game login) - deliberately does not
+// touch `subscriptions`/`families`, since a kit buyer hasn't bought game
+// access. Records the sale on the lead (funnel measurement), delivers the
+// actual purchased file(s) by e-mail, and fires the same ad-attribution/
+// admin-notification side effects a game sale gets.
+async function handleContentKitCheckoutCompleted(supabase: ReturnType<typeof createClient>, session: Stripe.Checkout.Session) {
+  const leadId = session.metadata?.lead_id;
+  const sku = session.metadata?.product_sku;
+  const currency = (session.currency || 'eur').toUpperCase();
+  const value = (session.amount_total ?? 0) / 100;
+  const purchaseEmail = session.customer_details?.email || session.metadata?.pending_email;
+
+  if (leadId) {
+    const { error: eventError } = await supabase.from('lead_events').insert({
+      lead_id: leadId,
+      event_type: 'converted',
+      channel: 'site',
+      metadata: { product_sku: sku ?? 'content_kit', amount: value, currency, session_id: session.id },
+    });
+    if (eventError) throw eventError;
+
+    const { error: leadError } = await supabase.from('leads')
+      .update({ funnel_stage: 'cliente' })
+      .eq('id', leadId);
+    if (leadError) throw leadError;
+  }
+
+  // Delivery is the actual product being paid for - let a failure here throw
+  // (Stripe retries) instead of silently taking payment and sending nothing.
+  if (purchaseEmail && sku) {
+    await sendKitDeliveryEmail(supabase, purchaseEmail, sku);
+  }
+
+  if (purchaseEmail) {
+    await sendPurchaseCapi(`purchase_${session.id}`, purchaseEmail, value, currency, { fbc: session.metadata?.fbc, fbp: session.metadata?.fbp });
+  }
+  if (typeof session.amount_total === 'number') {
+    await notifyAdminsOfSale(supabase, value, currency);
+  }
+}
+
 Deno.serve(async (req) => {
   const signature = req.headers.get('stripe-signature');
   // The raw body (not parsed JSON) is required for signature verification.
@@ -425,6 +522,16 @@ Deno.serve(async (req) => {
 
       if (session.metadata?.audience === 'professional') {
         await handleProfessionalCheckoutCompleted(supabase, session);
+        return new Response('OK', { status: 200 });
+      }
+
+      // Content kits (printable activities, no login) must never fall into
+      // the game-access branch below - that block grants 30 days of full
+      // premium unconditionally for any one-time payment. product_type is
+      // set explicitly by create-public-checkout-session so this never has
+      // to infer intent from session.mode again.
+      if (session.metadata?.product_type === 'content_kit') {
+        await handleContentKitCheckoutCompleted(supabase, session);
         return new Response('OK', { status: 200 });
       }
 

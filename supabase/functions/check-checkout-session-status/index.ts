@@ -115,6 +115,26 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(Deno.env.get('SUPABASE_URL') as string, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string);
+
+    // This endpoint is called directly by the customer's own browser (unlike
+    // stripe-webhook, which only sees Stripe's IP/UA), so this is real
+    // client_ip_address/client_user_agent for match quality.
+    const forwardedFor = req.headers.get('x-forwarded-for');
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
+    const clientUserAgent = req.headers.get('user-agent') ?? undefined;
+
+    // Content kits (printable activities, no game login) must never grant
+    // game access via this fast path - stripe-webhook's own content_kit
+    // branch handles their actual delivery (signed PDF links by e-mail)
+    // independently. Same product_type check as stripe-webhook, so this
+    // fast path can't accidentally give a kit buyer the whole game for free.
+    if (session.metadata?.product_type === 'content_kit') {
+      await sendPurchaseCapi(`purchase_${session.id}`, email, value, currency, {
+        fbc: session.metadata?.fbc, fbp: session.metadata?.fbp, clientIp, clientUserAgent,
+      });
+      return new Response(JSON.stringify({ confirmed: true, value, currency, product_type: 'content_kit' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const { familyId, actionLink } = await provisionAccount(supabase, email);
 
     let currentPeriodEnd: string | null = null;
@@ -149,17 +169,11 @@ Deno.serve(async (req) => {
       if (leadError) console.error('Failed to mark lead as converted:', leadError);
     }
 
-    // This endpoint is called directly by the customer's own browser (unlike
-    // stripe-webhook, which only sees Stripe's IP/UA), so this is real
-    // client_ip_address/client_user_agent for match quality.
-    const forwardedFor = req.headers.get('x-forwarded-for');
-    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
-    const clientUserAgent = req.headers.get('user-agent') ?? undefined;
     await sendPurchaseCapi(`purchase_${session.id}`, email, value, currency, {
       fbc: session.metadata?.fbc, fbp: session.metadata?.fbp, clientIp, clientUserAgent,
     });
 
-    return new Response(JSON.stringify({ confirmed: true, actionLink, value, currency }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ confirmed: true, actionLink, value, currency, product_type: 'game_access' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err) {
     console.error('check-checkout-session-status error:', err);
     return new Response(JSON.stringify({ error: 'internal_error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

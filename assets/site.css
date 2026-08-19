@@ -186,6 +186,14 @@
   .pricing-list li{ font-size:14px; padding:6px 0; color:var(--ink-soft); }
   .pricing-list li::before{ content:"✓ "; color:var(--success); font-weight:700; }
 
+  /* Kit tripwire cards (Mini Kit / Kit Completo) - narrower siblings of
+     .pricing-card, side by side instead of the single centered subscription
+     card, since these are fixed-price single-item products (no plan toggle). */
+  .kit-pricing-wrap{ display:flex; justify-content:center; flex-wrap:wrap; gap:24px; }
+  .kit-card{ max-width:340px; padding:30px 32px; }
+  .kit-card .price{ font-size:34px; }
+  .kit-card .kit-lang-note{ display:inline-block; background:rgba(178,58,85,.1); color:var(--berry); font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
+
   .plan-badge{ font-size:11.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.03em; margin:2px 0 8px; }
   .plan-toggle-row{ display:flex; gap:8px; justify-content:center; margin:4px 0 14px; }
   .security-badge{ font-size:12px; color:#4A4536; display:flex; align-items:center; justify-content:center; gap:5px; margin-top:10px; }

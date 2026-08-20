@@ -528,42 +528,83 @@ Deno.serve(async (req) => {
     }
 
     if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
-      const ref = await resolveExternalReference(payment);
-
-      // Content kits (printable activities, no game login) must never fall
-      // into the game-access logic below - that logic grants 30 days of full
-      // premium unconditionally for any resolvable family/pending reference.
-      // Checked first and returns early, mirroring stripe-webhook's identical
-      // product_type branch (the same class of bug already fixed twice there).
-      if (ref?.startsWith('content_kit:')) {
-        await handleContentKitPayment(supabase, payment, ref);
-        return new Response('OK', { status: 200 });
-      }
-
       let familyId: string | null = null;
       let linkedLeadId: string | null = null;
       let purchaseEmail: string | null = null;
       let purchaseFbc: string | null = null;
       let purchaseFbp: string | null = null;
-      if (ref?.startsWith('pending:')) {
-        // vendas.html's embedded checkout - no account existed before payment.
-        // Format is pending:<email>|<leadId>|<fbc>|<fbp> - leadId/fbc/fbp may
-        // be empty if there was none (see create-public-pix-payment).
-        const [pendingEmail, pendingLeadId, pendingFbc, pendingFbp] = ref.slice('pending:'.length).split('|');
-        purchaseEmail = pendingEmail;
-        purchaseFbc = pendingFbc || null;
-        purchaseFbp = pendingFbp || null;
-        familyId = await provisionAccountAndNotify(supabase, pendingEmail);
-        if (pendingLeadId) {
-          linkedLeadId = pendingLeadId;
-          const { error: leadError } = await supabase.from('leads')
-            .update({ funnel_stage: 'cliente', converted_family_id: familyId })
-            .eq('id', pendingLeadId)
-            .not('funnel_stage', 'in', '(cliente,perdido)');
-          if (leadError) console.error('Failed to mark pending lead as converted:', leadError);
+      // Card subscription via Asaas Checkout (create-public-asaas-checkout,
+      // 2026-08-20): externalReference doesn't propagate for Checkout-
+      // originated payments (confirmed via a real test transaction), so the
+      // mapping lives in asaas_checkouts instead, keyed by checkoutSession.
+      // NOTE: this whole branch is unvalidated with a real transaction - see
+      // create-public-asaas-checkout's header comment for why.
+      const cameFromCardCheckout = !!payment.checkoutSession;
+      if (cameFromCardCheckout) {
+        const { data: mapping } = await supabase.from('asaas_checkouts')
+          .select('pending_email, lead_id, fbc, fbp').eq('id', payment.checkoutSession).maybeSingle();
+        if (mapping?.pending_email) {
+          purchaseEmail = mapping.pending_email;
+          purchaseFbc = mapping.fbc;
+          purchaseFbp = mapping.fbp;
+          familyId = await provisionAccountAndNotify(supabase, mapping.pending_email);
+          if (mapping.lead_id) {
+            linkedLeadId = mapping.lead_id;
+            const { error: leadError } = await supabase.from('leads')
+              .update({ funnel_stage: 'cliente', converted_family_id: familyId })
+              .eq('id', mapping.lead_id)
+              .not('funnel_stage', 'in', '(cliente,perdido)');
+            if (leadError) console.error('Failed to mark pending lead as converted (checkout):', leadError);
+          }
+        } else {
+          console.error(`${event}: no asaas_checkouts mapping for checkoutSession`, payment.checkoutSession);
         }
       } else {
-        familyId = ref;
+        const ref = await resolveExternalReference(payment);
+
+        // Content kits (printable activities, no game login) must never fall
+        // into the game-access logic below - that logic grants 30 days of
+        // full premium unconditionally for any resolvable family/pending
+        // reference. Checked first and returns early, mirroring
+        // stripe-webhook's identical product_type branch (the same class of
+        // bug already fixed twice there).
+        if (ref?.startsWith('content_kit:')) {
+          await handleContentKitPayment(supabase, payment, ref);
+          return new Response('OK', { status: 200 });
+        }
+
+        if (ref?.startsWith('pending:')) {
+          // vendas.html's embedded checkout - no account existed before payment.
+          // Format is pending:<email>|<leadId>|<fbc>|<fbp> - leadId/fbc/fbp may
+          // be empty if there was none (see create-public-pix-payment).
+          const [pendingEmail, pendingLeadId, pendingFbc, pendingFbp] = ref.slice('pending:'.length).split('|');
+          purchaseEmail = pendingEmail;
+          purchaseFbc = pendingFbc || null;
+          purchaseFbp = pendingFbp || null;
+          familyId = await provisionAccountAndNotify(supabase, pendingEmail);
+          if (pendingLeadId) {
+            linkedLeadId = pendingLeadId;
+            const { error: leadError } = await supabase.from('leads')
+              .update({ funnel_stage: 'cliente', converted_family_id: familyId })
+              .eq('id', pendingLeadId)
+              .not('funnel_stage', 'in', '(cliente,perdido)');
+            if (leadError) console.error('Failed to mark pending lead as converted:', leadError);
+          }
+        } else {
+          familyId = ref;
+        }
+      }
+
+      // Last-resort fallback for renewals: if nothing above resolved a
+      // family (e.g. a later month's charge on a Checkout-created
+      // subscription, where checkoutSession/externalReference behavior on
+      // repeat payments is unverified), the first payment already wrote
+      // provider_subscription_id into `subscriptions` when it was processed
+      // successfully - look the family up by that instead of giving up.
+      if (!familyId && payment.subscription) {
+        const { data: existingByProviderSub } = await supabase.from('subscriptions')
+          .select('family_id').eq('provider_subscription_id', payment.subscription).eq('provider', 'asaas').maybeSingle();
+        if (existingByProviderSub?.family_id) familyId = existingByProviderSub.family_id;
       }
 
       if (familyId) {
@@ -625,13 +666,14 @@ Deno.serve(async (req) => {
 
         // Mini Kit "brinde" for new pt (Brazil) subscribers, 2026-08-20 decision -
         // "assina o jogo" means the actual recurring plan (payment.subscription
-        // set), not the one-time 30-day pass, and only on the family's first
-        // ever subscription (isFirstEverSubscription, checked above the upsert),
-        // not on monthly renewals. Every Asaas payment is already pt/BRL, so
-        // no lang check is needed here (unlike stripe-webhook). Best-effort: a
-        // subscriber must never see a failed webhook because a bonus PDF isn't
-        // uploaded yet.
-        if (payment.subscription && isFirstEverSubscription && purchaseEmail) {
+        // set, or cameFromCardCheckout - Checkout-originated payments are
+        // always the recurring card subscription, never the one-time pass),
+        // and only on the family's first ever subscription
+        // (isFirstEverSubscription, checked above the upsert), not on monthly
+        // renewals. Every Asaas payment is already pt/BRL, so no lang check
+        // is needed here (unlike stripe-webhook). Best-effort: a subscriber
+        // must never see a failed webhook because a bonus PDF isn't uploaded yet.
+        if ((payment.subscription || cameFromCardCheckout) && isFirstEverSubscription && purchaseEmail) {
           try {
             await sendKitDeliveryEmail(supabase, purchaseEmail, 'kit_mini');
           } catch (err) {
@@ -658,7 +700,15 @@ Deno.serve(async (req) => {
     // family pays the next Pix charge Asaas generates for the subscription.
     if (event === 'PAYMENT_OVERDUE' || event === 'PAYMENT_DELETED' || event === 'PAYMENT_REFUNDED') {
       const ref = await resolveExternalReference(payment);
-      const familyId = ref?.startsWith('pending:') ? null : ref;
+      let familyId = ref?.startsWith('pending:') ? null : ref;
+      // Same fallback as the confirmed-payment branch above: a Checkout-
+      // originated card subscription has no usable externalReference, so
+      // resolve by the subscription id already on file instead.
+      if (!familyId && payment.subscription) {
+        const { data: existingByProviderSub } = await supabase.from('subscriptions')
+          .select('family_id').eq('provider_subscription_id', payment.subscription).eq('provider', 'asaas').maybeSingle();
+        if (existingByProviderSub?.family_id) familyId = existingByProviderSub.family_id;
+      }
       if (familyId) {
         const { error } = await supabase.from('subscriptions')
           .update({ plan: 'free', status: 'canceled' })

@@ -324,8 +324,9 @@ function openCheckoutModal(lang, plan){
     return;
   }
 
-  // Dual method picker (pt subscription: Pix via Asaas or Card via Stripe;
-  // it: card only) - unchanged from before the Asaas migration above.
+  // Dual method picker (pt subscription: Pix via Asaas or Card via Asaas
+  // Checkout - both Asaas now, no Stripe left in Brazil at all, 2026-08-20;
+  // it: card only, always Stripe).
   const methodBtns = overlay.querySelectorAll('[data-method]');
   const paymentInfoEl = overlay.querySelector('#checkoutPaymentInfo');
   let selectedMethod = null;
@@ -367,11 +368,35 @@ function openCheckoutModal(lang, plan){
       if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
       finalizeBtn.disabled = true;
       finalizeBtn.textContent = t.redirecting;
+      // pt subscription card (2026-08-20): Asaas Checkout (hosted, no card
+      // data on our servers) instead of Stripe - the only remaining Stripe
+      // path is 'it', which stays on create-public-checkout-session below.
+      // No id comes back to poll with (Checkout only creates the actual
+      // payment once the customer pays, unlike a direct Stripe/Asaas
+      // payment call) - handleCheckoutRedirect shows the generic
+      // "check your e-mail" success message for this case instead of polling.
+      if(lang === 'pt'){
+        try{
+          const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-asaas-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, phone, leadId: leadId || undefined, fbc, fbp }),
+          });
+          const result = await response.json();
+          if(!response.ok || !result.checkoutUrl) throw new Error(result.error || 'checkout_failed');
+          window.location.href = result.checkoutUrl;
+        }catch(err){
+          finalizeBtn.disabled = false;
+          finalizeBtn.textContent = originalLabel;
+          showError(t.genericError);
+        }
+        return;
+      }
       try{
         const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, country: lang === 'pt' ? 'BR' : 'INT', plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
+          body: JSON.stringify({ email, phone, country: 'INT', plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
         });
         const result = await response.json();
         if(!response.ok || !result.url) throw new Error(result.error || 'checkout_failed');
@@ -673,7 +698,16 @@ loadTestimonials();
   box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.confirming}</p></div>`;
   if(langBlock) langBlock.insertAdjacentElement('afterbegin', box);
 
-  if(!sessionId && !asaasPaymentId) return;
+  // No id to poll with at all - this is the pt subscription card path
+  // (create-public-asaas-checkout), which only creates the actual payment
+  // once the customer pays on Asaas's hosted page, so there's nothing to
+  // look up yet. Resolve straight to the final message instead of leaving
+  // "confirming" showing forever - the webhook (once it fires) e-mails the
+  // login link either way.
+  if(!sessionId && !asaasPaymentId){
+    box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.successBody}</p></div>`;
+    return;
+  }
   const endpoint = sessionId
     ? 'https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-checkout-session-status'
     : 'https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-pix-payment-status';

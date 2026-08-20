@@ -644,17 +644,19 @@ Deno.serve(async (req) => {
         }
         await notifyPaymentConfirmedWhatsApp(supabase, leadId);
 
-        // Mini Kit "brinde" for new pt (Brazil) subscribers, 2026-08-20 decision -
-        // "assina o jogo" means the actual recurring plan, not the one-time
-        // 30-day pass (session.mode differs between the two). it subscribers
-        // are unaffected; this was scoped to Brazil only. Best-effort: a
-        // subscriber must never see a failed webhook because a bonus PDF
-        // isn't uploaded yet.
-        if (session.mode === 'subscription' && session.metadata?.lang === 'pt') {
+        // Mini Kit "brinde" for new monthly subscribers - originally pt
+        // (Brazil) only (2026-08-20 decision), extended to it on 2026-08-20
+        // once the Italian Mini Kit file was confirmed to already exist in
+        // Storage (KIT_DELIVERY.kit_mini.it). "assina o jogo" means the
+        // actual recurring plan, not the one-time 30-day pass (session.mode
+        // differs between the two). Best-effort: a subscriber must never see
+        // a failed webhook because a bonus PDF isn't uploaded yet.
+        if (session.mode === 'subscription') {
           const bonusEmail = session.customer_details?.email || pendingEmail;
+          const bonusLang = session.metadata?.lang === 'pt' ? 'pt' : 'it';
           if (bonusEmail) {
             try {
-              await sendKitDeliveryEmail(supabase, bonusEmail, 'kit_mini', 'pt');
+              await sendKitDeliveryEmail(supabase, bonusEmail, 'kit_mini', bonusLang);
             } catch (err) {
               console.error('Mini Kit brinde delivery failed (non-blocking):', (err as Error).message);
             }

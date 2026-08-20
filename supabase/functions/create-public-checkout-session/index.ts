@@ -72,7 +72,11 @@ Deno.serve(async (req) => {
     // check-checkout-session-status can attach them to the Purchase CAPI
     // event later - without them Meta only gets a hashed e-mail to match on,
     // which isn't enough to attribute the sale back to a specific ad.
-    const metadata: Record<string, string> = { pending_email: email, product_type: productType };
+    // lang mirrors `country` (BR checkout ⇒ pt content, everything else ⇒ it) -
+    // set for every plan, not just kits, so stripe-webhook can decide language
+    // for both kit delivery and the Mini Kit "brinde" bonus on pt subscribers.
+    const lang = country === 'BR' ? 'pt' : 'it';
+    const metadata: Record<string, string> = { pending_email: email, product_type: productType, lang };
     if (KIT_PLANS.includes(plan)) metadata.product_sku = plan;
     if (leadId) metadata.lead_id = leadId;
     if (phone) metadata.phone = phone;

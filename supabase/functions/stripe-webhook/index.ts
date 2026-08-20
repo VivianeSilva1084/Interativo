@@ -398,31 +398,62 @@ async function handleProfessionalCheckoutCompleted(supabase: ReturnType<typeof c
 // Files live in the private `kit-pdfs` Storage bucket (created 2026-08-19) -
 // uploaded manually via the Supabase dashboard, not by this codebase. Paths
 // here must match those uploaded filenames exactly, or createSignedUrl 404s.
+// Keyed by sku -> lang, since the pt content is a full separate translation
+// (not a toggle) and, for kit_completo, a single combined PDF rather than
+// six per-module files like the it version.
 const KIT_PDF_BUCKET = 'kit-pdfs';
-const KIT_DELIVERY: Record<string, { name: string; files: { label: string; path: string }[] }> = {
+type KitInfo = { name: string; files: { label: string; path: string }[] };
+const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
   kit_mini: {
-    name: 'Mini Kit Attenzione',
-    files: [{ label: 'Mini Kit Attenzione', path: 'mini-kit-attenzione.pdf' }],
+    it: {
+      name: 'Mini Kit Attenzione',
+      files: [{ label: 'Mini Kit Attenzione', path: 'mini-kit-attenzione.pdf' }],
+    },
+    pt: {
+      name: 'Mini Kit Atenção',
+      files: [{ label: 'Mini Kit Atenção', path: 'mini-kit-attenzione-pt.pdf' }],
+    },
   },
   kit_completo: {
-    name: 'Kit Completo VisCare Kids',
-    files: [
-      { label: 'Modulo 1 — Attenzione', path: 'kit-completo-modulo-1-attenzione.pdf' },
-      { label: 'Modulo 2 — Memoria', path: 'kit-completo-modulo-2-memoria.pdf' },
-      { label: 'Modulo 3 — Controllo della risposta', path: 'kit-completo-modulo-3-controllo.pdf' },
-      { label: 'Modulo 4 — Flessibilità', path: 'kit-completo-modulo-4-flessibilita.pdf' },
-      { label: 'Modulo 5 — Pianificazione', path: 'kit-completo-modulo-5-pianificazione.pdf' },
-      { label: 'Modulo 6 — Emozioni e autoregolazione', path: 'kit-completo-modulo-6-emozioni.pdf' },
-    ],
+    it: {
+      name: 'Kit Completo VisCare Kids',
+      files: [
+        { label: 'Modulo 1 — Attenzione', path: 'kit-completo-modulo-1-attenzione.pdf' },
+        { label: 'Modulo 2 — Memoria', path: 'kit-completo-modulo-2-memoria.pdf' },
+        { label: 'Modulo 3 — Controllo della risposta', path: 'kit-completo-modulo-3-controllo.pdf' },
+        { label: 'Modulo 4 — Flessibilità', path: 'kit-completo-modulo-4-flessibilita.pdf' },
+        { label: 'Modulo 5 — Pianificazione', path: 'kit-completo-modulo-5-pianificazione.pdf' },
+        { label: 'Modulo 6 — Emozioni e autoregolazione', path: 'kit-completo-modulo-6-emozioni.pdf' },
+      ],
+    },
+    pt: {
+      name: 'Kit Completo VisCare Kids',
+      // Single combined PDF (6 módulos), unlike the it version's 6 separate
+      // files - the pt export was consolidated by hand before upload.
+      files: [{ label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' }],
+    },
   },
+};
+
+const KIT_EMAIL_COPY = {
+  it: { greeting: 'Ciao!', thanks: (name: string) => `Grazie per aver acquistato <b>${name}</b> 🎉 Ecco i tuoi file, pronti da scaricare e stampare:`, expiry: 'Ogni link resta valido per 30 giorni. Se scade, scrivici e te ne mandiamo uno nuovo.', subject: (name: string) => `${name} è pronto per te!`, bonusLabel: '🎁 In regalo' },
+  pt: { greeting: 'Oi!', thanks: (name: string) => `Obrigada por comprar <b>${name}</b> 🎉 Aqui estão seus arquivos, prontos pra baixar e imprimir:`, expiry: 'Cada link fica válido por 30 dias. Se expirar, é só escrever pra gente que mandamos um novo.', subject: (name: string) => `${name} está pronto pra você!`, bonusLabel: '🎁 De brinde' },
 };
 
 // Signed links, not a public bucket - the kit is paid content, not meant to
 // be redistributed by URL. 30 days is generous enough for the buyer to get
 // to it without leaving the link usable indefinitely if it ever leaks.
-async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string) {
-  const kit = KIT_DELIVERY[sku];
-  if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku "${sku}"`);
+//
+// `bonusSku`, when given, appends a second kit's files to the same email as
+// a free gift (used for the pt Kit Completo -> Mini Kit "brinde" and the pt
+// game-subscription -> Mini Kit "brinde"). The bonus is fetched best-effort:
+// a missing/not-yet-uploaded bonus file must never block delivery of what
+// was actually paid for, so its signed-url errors are swallowed, not thrown.
+async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string, lang: string, bonusSku?: string) {
+  const resolvedLang = lang === 'pt' ? 'pt' : 'it';
+  const kit = KIT_DELIVERY[sku]?.[resolvedLang];
+  if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku/lang "${sku}"/"${resolvedLang}"`);
+  const copy = KIT_EMAIL_COPY[resolvedLang];
 
   const links = await Promise.all(kit.files.map(async (f) => {
     const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
@@ -430,23 +461,39 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
     return { label: f.label, url: data.signedUrl };
   }));
 
+  if (bonusSku) {
+    const bonusKit = KIT_DELIVERY[bonusSku]?.[resolvedLang];
+    if (bonusKit) {
+      try {
+        const bonusLinks = await Promise.all(bonusKit.files.map(async (f) => {
+          const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
+          if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
+          return { label: `${copy.bonusLabel} — ${f.label}`, url: data.signedUrl };
+        }));
+        links.push(...bonusLinks);
+      } catch (err) {
+        console.error('Bonus kit delivery skipped (file likely not uploaded yet):', (err as Error).message);
+      }
+    }
+  }
+
   const listHtml = links.map((l) =>
     `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
   ).join('');
 
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
     <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
-      <p>Ciao!</p>
-      <p>Grazie per aver acquistato <b>${kit.name}</b> 🎉 Ecco i tuoi file, pronti da scaricare e stampare:</p>
+      <p>${copy.greeting}</p>
+      <p>${copy.thanks(kit.name)}</p>
       ${listHtml}
-      <p style="font-size:12px; color:#8A8067; margin-top:20px;">Ogni link resta valido per 30 giorni. Se scade, scrivici e te ne mandiamo uno nuovo.</p>
+      <p style="font-size:12px; color:#8A8067; margin-top:20px;">${copy.expiry}</p>
     </div>
   </body></html>`;
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: `${kit.name} è pronto per te!`, html }),
+    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: copy.subject(kit.name), html }),
   });
   if (!res.ok) throw new Error(`Resend error ${res.status}: ${await res.text()}`);
 }
@@ -480,8 +527,13 @@ async function handleContentKitCheckoutCompleted(supabase: ReturnType<typeof cre
 
   // Delivery is the actual product being paid for - let a failure here throw
   // (Stripe retries) instead of silently taking payment and sending nothing.
+  // kit_completo buyers also get the Mini Kit thrown in as a free "brinde"
+  // (pt-only decision, 2026-08-20) - sendKitDeliveryEmail treats the bonus as
+  // best-effort so a missing bonus file never blocks the paid delivery.
   if (purchaseEmail && sku) {
-    await sendKitDeliveryEmail(supabase, purchaseEmail, sku);
+    const lang = session.metadata?.lang === 'pt' ? 'pt' : 'it';
+    const bonusSku = sku === 'kit_completo' ? 'kit_mini' : undefined;
+    await sendKitDeliveryEmail(supabase, purchaseEmail, sku, lang, bonusSku);
   }
 
   if (purchaseEmail) {
@@ -591,6 +643,23 @@ Deno.serve(async (req) => {
           if (leadError) throw leadError;
         }
         await notifyPaymentConfirmedWhatsApp(supabase, leadId);
+
+        // Mini Kit "brinde" for new pt (Brazil) subscribers, 2026-08-20 decision -
+        // "assina o jogo" means the actual recurring plan, not the one-time
+        // 30-day pass (session.mode differs between the two). it subscribers
+        // are unaffected; this was scoped to Brazil only. Best-effort: a
+        // subscriber must never see a failed webhook because a bonus PDF
+        // isn't uploaded yet.
+        if (session.mode === 'subscription' && session.metadata?.lang === 'pt') {
+          const bonusEmail = session.customer_details?.email || pendingEmail;
+          if (bonusEmail) {
+            try {
+              await sendKitDeliveryEmail(supabase, bonusEmail, 'kit_mini', 'pt');
+            } catch (err) {
+              console.error('Mini Kit brinde delivery failed (non-blocking):', (err as Error).message);
+            }
+          }
+        }
 
         // Purchase event for ad optimization - value/currency straight off the
         // Checkout Session (amount_total is in the smallest currency unit, e.g.

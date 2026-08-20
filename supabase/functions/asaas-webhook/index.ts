@@ -255,6 +255,62 @@ async function getFamilyEmail(supabase: ReturnType<typeof createClient>, familyI
   return userData?.user?.email ?? null;
 }
 
+// Files live in the private `kit-pdfs` Storage bucket - kept in sync by hand
+// with the identical table in stripe-webhook/index.ts (these two functions
+// don't share a module, same pattern as the VAPID/WhatsApp helpers above).
+// Asaas only ever runs pt/BRL (see the "Asaas só opera no Brasil" comment
+// below), but this keeps the same shape as stripe-webhook's version in case
+// that ever changes.
+const KIT_PDF_BUCKET = 'kit-pdfs';
+type KitInfo = { name: string; files: { label: string; path: string }[] };
+const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
+  kit_mini: {
+    pt: {
+      name: 'Mini Kit Atenção',
+      files: [{ label: 'Mini Kit Atenção', path: 'mini-kit-attenzione-pt.pdf' }],
+    },
+  },
+};
+
+const KIT_EMAIL_COPY = {
+  pt: { greeting: 'Oi!', thanks: (name: string) => `Obrigada por comprar <b>${name}</b> 🎉 Aqui estão seus arquivos, prontos pra baixar e imprimir:`, expiry: 'Cada link fica válido por 30 dias. Se expirar, é só escrever pra gente que mandamos um novo.', subject: (name: string) => `${name} está pronto pra você!`, bonusLabel: '🎁 De brinde' },
+};
+
+// Signed links, not a public bucket - the kit is paid content, not meant to
+// be redistributed by URL. 30 days is generous enough for the buyer to get
+// to it without leaving the link usable indefinitely if it ever leaks.
+async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string) {
+  const kit = KIT_DELIVERY[sku]?.pt;
+  if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku "${sku}"`);
+  const copy = KIT_EMAIL_COPY.pt;
+
+  const links = await Promise.all(kit.files.map(async (f) => {
+    const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
+    if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
+    return { label: f.label, url: data.signedUrl };
+  }));
+
+  const listHtml = links.map((l) =>
+    `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
+  ).join('');
+
+  const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
+    <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
+      <p>${copy.greeting}</p>
+      <p>${copy.thanks(kit.name)}</p>
+      ${listHtml}
+      <p style="font-size:12px; color:#8A8067; margin-top:20px;">${copy.expiry}</p>
+    </div>
+  </body></html>`;
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: copy.subject(kit.name), html }),
+  });
+  if (!res.ok) throw new Error(`Resend error ${res.status}: ${await res.text()}`);
+}
+
 async function sendMagicLinkEmail(to: string, actionLink: string) {
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
     <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
@@ -427,6 +483,14 @@ Deno.serve(async (req) => {
       }
 
       if (familyId) {
+        // Checked before the upsert below so the Mini Kit "brinde" (see after
+        // the upsert) can tell a brand-new subscription from a monthly renewal -
+        // PAYMENT_CONFIRMED/PAYMENT_RECEIVED fires for every renewal too, and
+        // the bonus is meant as a one-time welcome gift, not a repeat send.
+        const { data: existingSub } = await supabase.from('subscriptions')
+          .select('family_id').eq('family_id', familyId).maybeSingle();
+        const isFirstEverSubscription = !existingSub;
+
         // has_premium_access()/family_has_access() now require current_period_end
         // to be either null or in the future. This covers both the recurring
         // monthly Pix subscription (each confirmed payment extends access another
@@ -474,6 +538,23 @@ Deno.serve(async (req) => {
         // directly; the authenticated (non-pending) path has no email sitting
         // around, so it's looked up via the family's auth user.
         if (!purchaseEmail) purchaseEmail = await getFamilyEmail(supabase, familyId);
+
+        // Mini Kit "brinde" for new pt (Brazil) subscribers, 2026-08-20 decision -
+        // "assina o jogo" means the actual recurring plan (payment.subscription
+        // set), not the one-time 30-day pass, and only on the family's first
+        // ever subscription (isFirstEverSubscription, checked above the upsert),
+        // not on monthly renewals. Every Asaas payment is already pt/BRL, so
+        // no lang check is needed here (unlike stripe-webhook). Best-effort: a
+        // subscriber must never see a failed webhook because a bonus PDF isn't
+        // uploaded yet.
+        if (payment.subscription && isFirstEverSubscription && purchaseEmail) {
+          try {
+            await sendKitDeliveryEmail(supabase, purchaseEmail, 'kit_mini');
+          } catch (err) {
+            console.error('Mini Kit brinde delivery failed (non-blocking):', (err as Error).message);
+          }
+        }
+
         if (purchaseEmail && typeof payment.value === 'number') {
           await sendPurchaseCapi(`purchase_${payment.id}`, purchaseEmail, payment.value, 'BRL', {
             fbc: purchaseFbc ?? undefined, fbp: purchaseFbp ?? undefined,

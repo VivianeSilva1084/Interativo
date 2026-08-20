@@ -486,6 +486,19 @@ async function handleContentKitPayment(supabase: ReturnType<typeof createClient>
 // behavior, propagates to every payment it generates - so the common case
 // reads it straight off the webhook payload with no extra call. If it's ever
 // missing, fall back to fetching the subscription itself to resolve it.
+// Anything that isn't a recognized 'pending:'/'content_kit:' prefix must be a
+// valid family UUID (the authenticated-renewal case) - a stray/garbage
+// reference (e.g. old diagnostic test data) must never reach a family_id
+// lookup as a raw string: Postgres rejects a non-UUID value for a uuid
+// column, which used to throw uncaught and 500 the whole webhook - Asaas
+// retries a failing delivery repeatedly and eventually penalizes/pauses the
+// entire webhook queue after enough failures, silently stopping real
+// customer payments from being processed too. Found 2026-08-20 via a
+// penalized webhook queue caused by exactly this, from a leftover test payment.
+function isUuid(s: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+}
+
 async function resolveExternalReference(payment: any): Promise<string | null> {
   if (payment.externalReference) return payment.externalReference;
   if (!payment.subscription) return null;
@@ -590,8 +603,10 @@ Deno.serve(async (req) => {
               .not('funnel_stage', 'in', '(cliente,perdido)');
             if (leadError) console.error('Failed to mark pending lead as converted:', leadError);
           }
-        } else {
+        } else if (ref && isUuid(ref)) {
           familyId = ref;
+        } else if (ref) {
+          console.error(`${event}: unrecognized externalReference (not pending:/content_kit:/uuid), ignoring`, ref, payment.id);
         }
       }
 
@@ -700,7 +715,7 @@ Deno.serve(async (req) => {
     // family pays the next Pix charge Asaas generates for the subscription.
     if (event === 'PAYMENT_OVERDUE' || event === 'PAYMENT_DELETED' || event === 'PAYMENT_REFUNDED') {
       const ref = await resolveExternalReference(payment);
-      let familyId = ref?.startsWith('pending:') ? null : ref;
+      let familyId = (ref && !ref.startsWith('pending:') && !ref.startsWith('content_kit:') && isUuid(ref)) ? ref : null;
       // Same fallback as the confirmed-payment branch above: a Checkout-
       // originated card subscription has no usable externalReference, so
       // resolve by the subscription id already on file instead.

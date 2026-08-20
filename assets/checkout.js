@@ -29,8 +29,8 @@ const CHECKOUT_COPY = {
     '30days': { price: 'R$ 34,90', note: 'pagamento único · acesso por 30 dias' },
     monthly: { price: 'R$ 24,90', note: '/mês · cancele quando quiser' },
     bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
-    kit_mini: { price: 'R$ 14,90', note: 'pagamento único · PDF por e-mail', productName: 'Mini Kit Attenzione' },
-    kit_completo: { price: 'R$ 48,90', note: 'pagamento único · 6 PDFs por e-mail', productName: 'Kit Completo VisCare Kids' },
+    kit_mini: { price: 'R$ 14,90', note: 'pagamento único · PDF por e-mail', productName: 'Mini Kit Atenção' },
+    kit_completo: { price: 'R$ 48,90', note: 'pagamento único · PDF por e-mail', productName: 'Kit Completo VisCare Kids' },
     kitSuccessTitle: 'Pagamento confirmado! 🎉',
     kitSuccessBody: 'Enviamos os arquivos do seu kit pro seu e-mail. Não encontrou? Confira a caixa de spam.',
     invalidEmail: 'Digite um e-mail válido.',
@@ -175,9 +175,17 @@ function openCheckoutModal(lang, plan){
   // a cheaper non-recurring option in front of them would just talk them
   // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
   const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
-  // Kit plans are PDF-only - Pix was never wired for them (create-public-pix-payment
-  // has no content_kit branch), so only offer card for these regardless of lang.
   const isKitPlan = KIT_PLANS.includes(plan);
+  // Brazil decision (2026-08-20): Stripe leaves every one-time BR plan (kits +
+  // 30-day pass/bump) - create-public-pix-payment now creates a single Asaas
+  // payment with billingType UNDEFINED, whose hosted invoice page lets the
+  // customer pick Pix or Credit Card themselves, so there's no method choice
+  // to make in our own modal for these. The recurring monthly subscription
+  // stays on today's dual Pix(Asaas)/Card(Stripe) picker below - Asaas's
+  // /subscriptions endpoint has no UNDEFINED billingType, so card-for-
+  // subscriptions-via-Asaas isn't solved yet (see kit_funil_infoproduto_pending
+  // memory). IT is unaffected either way - always card via Stripe.
+  const isAsaasOnlyOneTime = lang === 'pt' && (isKitPlan || plan === '30days');
   const summaryName = t[plan].productName || t.productName;
   const overlay = document.createElement('div');
   overlay.className = 'checkout-page-overlay';
@@ -211,20 +219,29 @@ function openCheckoutModal(lang, plan){
       </div>` : ''}
 
       <div class="checkout-section">
+        ${isAsaasOnlyOneTime ? `
+        <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
+        <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off">
+        <div class="checkout-payment-info">
+          <strong>${t.pixInfoTitle}</strong>
+          ${t.pixInfoBody}
+        </div>
+        ` : `
         <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
         <div class="payment-method-row">
           <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
-          ${(lang === 'pt' && !isKitPlan) ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
+          ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
         </div>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
         <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
           <strong>${t.pixInfoTitle}</strong>
           ${t.pixInfoBody}
         </div>
+        `}
       </div>
 
       <p class="modal-error" id="checkoutModalError" style="display:none;"></p>
-      <button type="button" class="checkout-finalize-btn" id="checkoutModalFinalize" disabled>${t.finalizeLabel}</button>
+      <button type="button" class="checkout-finalize-btn" id="checkoutModalFinalize"${isAsaasOnlyOneTime ? '' : ' disabled'}>${t.finalizeLabel}</button>
       <p class="checkout-security-badge">🔒 ${t.securityBadge}</p>
       <button type="button" class="checkout-cancel-link" data-action="cancel">${t.cpfCancel}</button>
     </div>
@@ -239,9 +256,6 @@ function openCheckoutModal(lang, plan){
   const cpfInput = overlay.querySelector('#checkoutModalCpf');
   const errorEl = overlay.querySelector('#checkoutModalError');
   const finalizeBtn = overlay.querySelector('#checkoutModalFinalize');
-  const methodBtns = overlay.querySelectorAll('[data-method]');
-  const paymentInfoEl = overlay.querySelector('#checkoutPaymentInfo');
-  const bumpCheck = overlay.querySelector('#checkoutBumpCheck');
   const summaryPriceEl = overlay.querySelector('#checkoutSummaryPrice');
   const summaryNoteEl = overlay.querySelector('#checkoutSummaryNote');
 
@@ -253,6 +267,7 @@ function openCheckoutModal(lang, plan){
   // subscription per family, so "add to order" isn't meaningful the way it
   // is on the reference checkout this design is based on.
   const getEffectivePlan = () => (bumpCheck && bumpCheck.checked) ? 'bump30' : plan;
+  const bumpCheck = overlay.querySelector('#checkoutBumpCheck');
   if(bumpCheck){
     bumpCheck.addEventListener('change', () => {
       const effectivePlan = getEffectivePlan();
@@ -261,6 +276,58 @@ function openCheckoutModal(lang, plan){
     });
   }
 
+  // Single unified Asaas flow (Pix + Credit Card on Asaas's own hosted
+  // invoice page) - no method choice, straight to CPF + finalize.
+  if(isAsaasOnlyOneTime){
+    finalizeBtn.onclick = async () => {
+      clearError();
+      const email = emailInput.value.trim();
+      if(!email || !email.includes('@') || !email.includes('.')){
+        showError(t.invalidEmail);
+        return;
+      }
+      const digits = cpfInput.value.replace(/\D/g, '');
+      if(!isValidCpfCnpj(digits)){
+        showError(t.cpfInvalid);
+        return;
+      }
+      const phone = phoneInput.value.trim() || null;
+      const leadId = await ensureCheckoutLeadId(lang, email, phone);
+      const effectivePlan = getEffectivePlan();
+      const originalLabel = finalizeBtn.textContent;
+      const fbc = getFbClickId() || undefined;
+      const fbp = getFbBrowserId() || undefined;
+
+      if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+      finalizeBtn.disabled = true;
+      finalizeBtn.textContent = t.redirecting;
+      try{
+        const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-pix-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, phone, cpfCnpj: digits, plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
+        });
+        const result = await response.json();
+        if(!response.ok || !result.invoiceUrl) throw new Error(result.error || 'checkout_failed');
+        // No query param comes back on Asaas's redirect the way Stripe's
+        // session_id does - stash the payment id now (we already have it,
+        // synchronously, before the customer ever leaves this page) so
+        // handleCheckoutRedirect can look it up again on return.
+        localStorage.setItem('pendingAsaasPaymentId', result.paymentId);
+        window.location.href = result.invoiceUrl;
+      }catch(err){
+        finalizeBtn.disabled = false;
+        finalizeBtn.textContent = originalLabel;
+        showError(t.genericError);
+      }
+    };
+    return;
+  }
+
+  // Dual method picker (pt subscription: Pix via Asaas or Card via Stripe;
+  // it: card only) - unchanged from before the Asaas migration above.
+  const methodBtns = overlay.querySelectorAll('[data-method]');
+  const paymentInfoEl = overlay.querySelector('#checkoutPaymentInfo');
   let selectedMethod = null;
   methodBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -275,7 +342,7 @@ function openCheckoutModal(lang, plan){
   // Pre-select a sensible default so most people don't have to make an extra
   // choice: Pix for Brazil (converts better there), card everywhere else -
   // it's the only option for IT anyway, since Pix never renders there.
-  const defaultMethodBtn = overlay.querySelector((lang === 'pt' && !isKitPlan) ? '[data-method="pix"]' : '[data-method="card"]');
+  const defaultMethodBtn = overlay.querySelector(lang === 'pt' ? '[data-method="pix"]' : '[data-method="card"]');
   if(defaultMethodBtn) defaultMethodBtn.click();
 
   finalizeBtn.onclick = async () => {
@@ -317,7 +384,7 @@ function openCheckoutModal(lang, plan){
       return;
     }
 
-    // Pix
+    // Pix (subscription only - one-time plans use the unified Asaas flow above)
     const digits = cpfInput.value.replace(/\D/g, '');
     if(!isValidCpfCnpj(digits)){
       showError(t.cpfInvalid);
@@ -566,13 +633,22 @@ async function loadTestimonials(){
 }
 loadTestimonials();
 
-// Handles the redirect back from Stripe's hosted checkout (the embedded Pix
-// flow never leaves this page, so it doesn't need this - see the polling above).
+// Handles the redirect back from Stripe's hosted checkout AND from Asaas's
+// hosted invoice page (both leave this page and come back to ?checkout=...;
+// the embedded Pix subscription flow never leaves the page, so it doesn't
+// need this - see the polling above).
 (function handleCheckoutRedirect(){
   const params = new URLSearchParams(window.location.search);
   const checkout = params.get('checkout');
   if(!checkout) return;
   const sessionId = params.get('session_id');
+  // Asaas has no equivalent of Stripe's ?session_id= on the return URL - the
+  // payment id was stashed in localStorage right before redirecting away
+  // (see the finalize handler above), since we already had it synchronously
+  // at that point. Cleared immediately so a later, unrelated ?checkout=success
+  // (e.g. a stale bookmark) never reuses a stale id.
+  const asaasPaymentId = localStorage.getItem('pendingAsaasPaymentId');
+  if(asaasPaymentId) localStorage.removeItem('pendingAsaasPaymentId');
   history.replaceState({}, '', window.location.pathname);
   const wantsIt = document.getElementById('btnIt')?.classList.contains('active');
   const t = CHECKOUT_COPY[wantsIt ? 'it' : 'pt'];
@@ -588,37 +664,43 @@ loadTestimonials();
     return;
   }
 
-  // Fast path: check-checkout-session-status provisions the account (if
-  // needed) and hands back a fresh login link the moment Stripe reports the
-  // session as paid - normally resolves on the first try, since payment_status
-  // is already settled by the time Stripe redirects back here. Falls back to
-  // the "check your e-mail" message if no session_id came back for some
-  // reason, or the session isn't marked paid yet.
+  // Fast path: check-checkout-session-status (Stripe) or check-pix-payment-status
+  // (Asaas) provisions the account (if needed) and hands back a fresh login
+  // link the moment the provider reports the payment as paid - normally
+  // resolves on the first try, since payment status is already settled by
+  // the time the customer is redirected back here. Falls back to the "check
+  // your e-mail" message if neither id came back, or it isn't paid yet.
   box.innerHTML = `<div class="checkout-success-box"><h3>${t.successTitle}</h3><p>${t.confirming}</p></div>`;
   if(langBlock) langBlock.insertAdjacentElement('afterbegin', box);
 
-  if(!sessionId) return;
+  if(!sessionId && !asaasPaymentId) return;
+  const endpoint = sessionId
+    ? 'https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-checkout-session-status'
+    : 'https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-pix-payment-status';
+  const body = sessionId ? { sessionId } : { paymentId: asaasPaymentId };
+  const purchaseEventId = sessionId ? `purchase_${sessionId}` : `purchase_${asaasPaymentId}`;
   (async () => {
     for(let i = 0; i < 5; i++){
       try{
-        const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-checkout-session-status', {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId }),
+          body: JSON.stringify(body),
         });
         const data = await res.json();
         if(data.confirmed){
-          // Same event_id the server-side CAPI call in check-checkout-session-status
-          // uses for this session - Meta dedupes the two into a single event.
+          // Same event_id the server-side CAPI call in check-checkout-session-status/
+          // check-pix-payment-status uses for this payment - Meta dedupes the two
+          // into a single event.
           if(typeof fbq !== 'undefined' && data.value != null){
-            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: `purchase_${sessionId}` });
+            fbq('track', 'Purchase', { value: data.value, currency: data.currency || 'BRL' }, { eventID: purchaseEventId });
           }
           if(typeof gtag !== 'undefined' && data.value != null){
             gtag('event', 'conversion', {
               'send_to': 'AW-18374065092/dWeCCPK7_9wcEMT3t7lE',
               'value': data.value,
               'currency': data.currency || 'BRL',
-              'transaction_id': `purchase_${sessionId}`,
+              'transaction_id': purchaseEventId,
             });
           }
           // Content kits never get an actionLink (no game account involved) -

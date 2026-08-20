@@ -117,6 +117,29 @@ Deno.serve(async (req) => {
     }
 
     const ref = data.externalReference as string | undefined;
+
+    // Content kits (printable activities, no game login) must never grant
+    // game access via this fast path - asaas-webhook's own content_kit
+    // branch handles their actual delivery (signed PDF links by e-mail)
+    // independently. Same product_type check as check-checkout-session-status
+    // (Stripe's equivalent), so this fast path can't accidentally give a kit
+    // buyer the whole game for free.
+    if (ref?.startsWith('content_kit:')) {
+      // Format: content_kit:<sku>:<email>|<leadId>|<fbc>|<fbp> - sku itself
+      // is never needed here (only asaas-webhook's delivery branch uses it).
+      const withoutPrefix = ref.slice('content_kit:'.length);
+      const rest = withoutPrefix.slice(withoutPrefix.indexOf(':') + 1);
+      const [email, , fbc, fbp] = rest.split('|');
+      const forwardedFor = req.headers.get('x-forwarded-for');
+      const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : undefined;
+      const clientUserAgent = req.headers.get('user-agent') ?? undefined;
+      const value = typeof data.value === 'number' ? data.value : 0;
+      if (value && email) {
+        await sendPurchaseCapi(`purchase_${data.id}`, email, value, 'BRL', { fbc: fbc || undefined, fbp: fbp || undefined, clientIp, clientUserAgent });
+      }
+      return new Response(JSON.stringify({ confirmed: true, value, currency: 'BRL', product_type: 'content_kit' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     if (!ref?.startsWith('pending:')) {
       // Not a pending-checkout payment (shouldn't happen for this endpoint's
       // only caller) - just report confirmed, no actionLink to give back.

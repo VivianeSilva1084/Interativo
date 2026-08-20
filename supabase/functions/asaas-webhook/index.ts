@@ -270,6 +270,12 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       files: [{ label: 'Mini Kit Atenção', path: 'mini-kit-attenzione-pt.pdf' }],
     },
   },
+  kit_completo: {
+    pt: {
+      name: 'Kit Completo VisCare Kids',
+      files: [{ label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' }],
+    },
+  },
 };
 
 const KIT_EMAIL_COPY = {
@@ -279,7 +285,12 @@ const KIT_EMAIL_COPY = {
 // Signed links, not a public bucket - the kit is paid content, not meant to
 // be redistributed by URL. 30 days is generous enough for the buyer to get
 // to it without leaving the link usable indefinitely if it ever leaks.
-async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string) {
+//
+// `bonusSku`, when given, appends a second kit's files to the same email as
+// a free gift (the kit_completo -> kit_mini "brinde", same as stripe-webhook).
+// Fetched best-effort: a missing/not-yet-uploaded bonus file must never
+// block delivery of what was actually paid for.
+async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string, bonusSku?: string) {
   const kit = KIT_DELIVERY[sku]?.pt;
   if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku "${sku}"`);
   const copy = KIT_EMAIL_COPY.pt;
@@ -289,6 +300,22 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
     if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
     return { label: f.label, url: data.signedUrl };
   }));
+
+  if (bonusSku) {
+    const bonusKit = KIT_DELIVERY[bonusSku]?.pt;
+    if (bonusKit) {
+      try {
+        const bonusLinks = await Promise.all(bonusKit.files.map(async (f) => {
+          const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
+          if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
+          return { label: `${copy.bonusLabel} — ${f.label}`, url: data.signedUrl };
+        }));
+        links.push(...bonusLinks);
+      } catch (err) {
+        console.error('Bonus kit delivery skipped (file likely not uploaded yet):', (err as Error).message);
+      }
+    }
+  }
 
   const listHtml = links.map((l) =>
     `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
@@ -408,6 +435,52 @@ async function notifyPaymentConfirmedWhatsApp(supabase: ReturnType<typeof create
   }
 }
 
+// Content kit (printable activities, no game login) - mirrors
+// handleContentKitCheckoutCompleted in stripe-webhook/index.ts. Deliberately
+// does not touch `subscriptions`/`families`, since a kit buyer hasn't bought
+// game access - records the sale on the lead (funnel measurement), delivers
+// the actual purchased file(s) by e-mail (with the kit_completo -> kit_mini
+// "brinde" bonus), and fires the same ad-attribution/admin-notification side
+// effects a game sale gets. ref format: content_kit:<sku>:<email>|<leadId>|<fbc>|<fbp>.
+async function handleContentKitPayment(supabase: ReturnType<typeof createClient>, payment: any, ref: string) {
+  const withoutPrefix = ref.slice('content_kit:'.length);
+  const colonIdx = withoutPrefix.indexOf(':');
+  const sku = withoutPrefix.slice(0, colonIdx);
+  const [email, leadId, fbc, fbp] = withoutPrefix.slice(colonIdx + 1).split('|');
+  const value = typeof payment.value === 'number' ? payment.value : 0;
+
+  if (leadId) {
+    const { error: eventError } = await supabase.from('lead_events').insert({
+      lead_id: leadId,
+      event_type: 'converted',
+      channel: 'site',
+      metadata: { product_sku: sku, amount: value, currency: 'BRL', payment_id: payment.id },
+    });
+    if (eventError) console.error('Failed to insert lead_events for kit purchase:', eventError.message);
+
+    const { error: leadError } = await supabase.from('leads')
+      .update({ funnel_stage: 'cliente' })
+      .eq('id', leadId);
+    if (leadError) console.error('Failed to mark lead as converted (kit):', leadError.message);
+  }
+
+  // Delivery is the actual product being paid for - let a failure here throw
+  // (Asaas retries the webhook) instead of silently taking payment and
+  // sending nothing. Every Asaas purchase is pt/BRL, matching sendKitDeliveryEmail's
+  // only defined language here.
+  if (email) {
+    const bonusSku = sku === 'kit_completo' ? 'kit_mini' : undefined;
+    await sendKitDeliveryEmail(supabase, email, sku, bonusSku);
+  }
+
+  if (email && value) {
+    await sendPurchaseCapi(`purchase_${payment.id}`, email, value, 'BRL', { fbc: fbc || undefined, fbp: fbp || undefined });
+  }
+  if (value) {
+    await notifyAdminsOfSale(supabase, value, 'BRL');
+  }
+}
+
 // externalReference is set on the Asaas subscription (or, for the one-time
 // 30-day pass, directly on the payment) at creation time and, per Asaas's own
 // behavior, propagates to every payment it generates - so the common case
@@ -456,6 +529,17 @@ Deno.serve(async (req) => {
 
     if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
       const ref = await resolveExternalReference(payment);
+
+      // Content kits (printable activities, no game login) must never fall
+      // into the game-access logic below - that logic grants 30 days of full
+      // premium unconditionally for any resolvable family/pending reference.
+      // Checked first and returns early, mirroring stripe-webhook's identical
+      // product_type branch (the same class of bug already fixed twice there).
+      if (ref?.startsWith('content_kit:')) {
+        await handleContentKitPayment(supabase, payment, ref);
+        return new Response('OK', { status: 200 });
+      }
+
       let familyId: string | null = null;
       let linkedLeadId: string | null = null;
       let purchaseEmail: string | null = null;

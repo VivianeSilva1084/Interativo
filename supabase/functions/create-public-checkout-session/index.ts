@@ -22,7 +22,12 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const baseUrl = 'https://www.viscarekids.com/vendas.html';
+    // familias.html is the only page that includes checkout.js/handles
+    // ?checkout=success (vendas.html is Home-only since the 2026-08-13 split) -
+    // pointing here was a latent bug (Stripe card buyers landed back on the
+    // Home page with an unprocessed query string), found and fixed 2026-08-20
+    // while building the equivalent Asaas redirect correctly the first time.
+    const baseUrl = 'https://www.viscarekids.com/familias.html';
     const KIT_PLANS = ['kit_mini', 'kit_completo'];
     const isOneTime = plan === '30days' || plan === 'bump30' || KIT_PLANS.includes(plan);
 

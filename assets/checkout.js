@@ -224,6 +224,7 @@ function openCheckoutModal(lang, plan){
       <div class="checkout-section">
         ${isAsaasOnlyOneTime ? `
         <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
+        <label class="checkout-field-label" for="checkoutModalCpf">${t.cpfLabel}</label>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off">
         <div class="checkout-payment-info">
           <strong>${t.pixInfoTitle}</strong>
@@ -235,13 +236,21 @@ function openCheckoutModal(lang, plan){
           <button type="button" class="payment-method-btn" data-method="card">💳 ${t.cardLabel}</button>
           ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
         </div>
+        <label class="checkout-field-label" for="checkoutModalCpf" id="checkoutCpfLabel" style="display:none;">${t.cpfLabel}</label>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
         ${lang === 'pt' ? `
         <div id="checkoutCardExtra" style="display:none;">
+          <label class="checkout-field-label" for="checkoutModalName">${t.cardNamePlaceholder}</label>
           <input type="text" id="checkoutModalName" placeholder="${t.cardNamePlaceholder}" autocomplete="name">
           <div class="checkout-field-row">
-            <input type="text" id="checkoutModalCep" inputmode="numeric" placeholder="${t.cardCepPlaceholder}" autocomplete="postal-code">
-            <input type="text" id="checkoutModalAddressNumber" inputmode="numeric" placeholder="${t.cardAddressNumberPlaceholder}" autocomplete="off">
+            <div>
+              <label class="checkout-field-label" for="checkoutModalCep">${t.cardCepPlaceholder}</label>
+              <input type="text" id="checkoutModalCep" inputmode="numeric" placeholder="${t.cardCepPlaceholder}" autocomplete="postal-code">
+            </div>
+            <div>
+              <label class="checkout-field-label" for="checkoutModalAddressNumber">${t.cardAddressNumberPlaceholder}</label>
+              <input type="text" id="checkoutModalAddressNumber" inputmode="numeric" placeholder="${t.cardAddressNumberPlaceholder}" autocomplete="off">
+            </div>
           </div>
         </div>
         ` : ''}
@@ -266,6 +275,7 @@ function openCheckoutModal(lang, plan){
   const emailInput = overlay.querySelector('#checkoutModalEmail');
   const phoneInput = overlay.querySelector('#checkoutModalPhone');
   const cpfInput = overlay.querySelector('#checkoutModalCpf');
+  const cpfLabelEl = overlay.querySelector('#checkoutCpfLabel');
   const nameInput = overlay.querySelector('#checkoutModalName');
   const cepInput = overlay.querySelector('#checkoutModalCep');
   const addressNumberInput = overlay.querySelector('#checkoutModalAddressNumber');
@@ -355,7 +365,9 @@ function openCheckoutModal(lang, plan){
       // /v3/subscriptions call, which only needs CPF, and unlike the one-time
       // DETACHED flow, whose hosted page collects this itself.
       const isPtCard = lang === 'pt' && selectedMethod === 'card';
-      cpfInput.style.display = (selectedMethod === 'pix' || isPtCard) ? 'block' : 'none';
+      const showCpf = selectedMethod === 'pix' || isPtCard;
+      cpfInput.style.display = showCpf ? 'block' : 'none';
+      if(cpfLabelEl) cpfLabelEl.style.display = showCpf ? 'block' : 'none';
       if(cardExtraEl) cardExtraEl.style.display = isPtCard ? 'block' : 'none';
       paymentInfoEl.style.display = selectedMethod === 'pix' ? 'block' : 'none';
       finalizeBtn.disabled = false;

@@ -42,19 +42,37 @@ async function asaasFetch(path: string, init: RequestInit = {}) {
 // function writes the buyer's info there keyed by the checkout id, and
 // asaas-webhook reads it back via payment.checkoutSession once paid.
 //
-// NOTE: unlike the one-time UNDEFINED flow, this path has not been validated
-// with a real transaction (recurring billing can't be spot-checked the way a
-// single payment can - a renewal only happens a month later) - built
-// 2026-08-20 per explicit user decision to ship now and verify when possible.
+// Unlike the one-time DETACHED flow, RECURRENT requires full customerData
+// (name, cpfCnpj, phone, address, addressNumber, postalCode, province) at
+// checkout-creation time - confirmed via real test transactions 2026-08-20.
+// Asaas's hosted page does NOT collect these itself for a RECURRENT checkout
+// the way it does for DETACHED - the request is rejected outright if any is
+// missing. checkout.js now collects name/CPF/CEP/número for this path; this
+// function expands the CEP into street/city/province via ViaCEP so the
+// customer only has to type the number, not the full address.
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   try {
-    const { email, phone, leadId, fbc, fbp } = await req.json();
+    const { email, phone, name, cpfCnpj, postalCode, addressNumber, leadId, fbc, fbp } = await req.json();
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    const cleanPhone = phone ? String(phone).replace(/\D/g, '') : undefined;
+    const cleanPhone = phone ? String(phone).replace(/\D/g, '') : '';
+    const cleanCpf = cpfCnpj ? String(cpfCnpj).replace(/\D/g, '') : '';
+    const cleanCep = postalCode ? String(postalCode).replace(/\D/g, '') : '';
+    const addressNum = parseInt(String(addressNumber ?? '').replace(/\D/g, ''), 10);
+    if (!name || !cleanPhone || !cleanCpf || cleanCep.length !== 8 || !addressNum) {
+      return new Response(JSON.stringify({ error: 'missing_customer_data' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const cepRes = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+    const cepData = await cepRes.json();
+    if (!cepRes.ok || cepData.erro) {
+      return new Response(JSON.stringify({ error: 'cep_not_found' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const value = Number(Deno.env.get('ASAAS_SUBSCRIPTION_VALUE_BRL') ?? '24.90');
+    const nextDueDate = new Date().toISOString().slice(0, 10);
 
     const checkout = await asaasFetch('/checkouts', {
       method: 'POST',
@@ -67,7 +85,7 @@ Deno.serve(async (req) => {
           cancelUrl: `${RETURN_BASE_URL}?checkout=cancelled`,
           autoRedirect: true,
         },
-        subscription: { cycle: 'MONTHLY' },
+        subscription: { cycle: 'MONTHLY', nextDueDate },
         items: [{
           name: 'Ilha do Foco Premium',
           description: 'Ilha do Foco + Aventura das Letras — assinatura mensal',
@@ -75,10 +93,11 @@ Deno.serve(async (req) => {
           value,
           imageBase64: PLACEHOLDER_IMAGE_BASE64,
         }],
-        // Optional - Asaas's own hosted page collects anything missing
-        // (including CPF/CNPJ) directly from the customer, same as it does
-        // when this is left out entirely.
-        customerData: { name: email, email, ...(cleanPhone ? { mobilePhone: cleanPhone } : {}) },
+        customerData: {
+          name, email, cpfCnpj: cleanCpf, phone: cleanPhone,
+          address: cepData.logradouro || 'Não informado', addressNumber: addressNum,
+          postalCode: cleanCep, province: cepData.uf,
+        },
       }),
     });
 

@@ -51,6 +51,9 @@ const CHECKOUT_COPY = {
     finalizeLabel: 'Finalizar compra', securityBadge: 'Pagamento 100% seguro',
     cpfModalTitle: 'Quase lá!', cpfLabel: 'Seu CPF ou CNPJ', cpfPlaceholder: '000.000.000-00',
     cpfInvalid: 'CPF/CNPJ inválido.', cpfCancel: 'Cancelar', cpfContinue: 'Gerar Pix', cpfGenerating: 'Gerando...',
+    cardNamePlaceholder: 'Nome completo', cardCepPlaceholder: 'CEP', cardAddressNumberPlaceholder: 'Número',
+    cardDataRequired: 'Preencha nome, CPF e CEP/número para continuar — a operadora do cartão exige esses dados pra assinaturas.',
+    cepInvalid: 'CEP inválido.', cepLookupFailed: 'Não encontramos esse CEP. Confira e tente de novo.',
     pixModalTitle: 'Pague com Pix', pixInstructions: 'Escaneie o QR code ou copie o código abaixo no seu app do banco.',
     pixCopy: 'Copiar código', pixCopied: 'Copiado!', pixWaiting: 'Aguardando pagamento...', pixConfirmed: 'Pagamento confirmado! Verifique seu e-mail.',
     pixClose: 'Fechar', pixError: 'Não foi possível gerar o Pix. Tente novamente.',
@@ -233,6 +236,15 @@ function openCheckoutModal(lang, plan){
           ${lang === 'pt' ? `<button type="button" class="payment-method-btn" data-method="pix">⚡ ${t.pixLabel}</button>` : ''}
         </div>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off" style="display:none;">
+        ${lang === 'pt' ? `
+        <div id="checkoutCardExtra" style="display:none;">
+          <input type="text" id="checkoutModalName" placeholder="${t.cardNamePlaceholder}" autocomplete="name">
+          <div class="checkout-field-row">
+            <input type="text" id="checkoutModalCep" inputmode="numeric" placeholder="${t.cardCepPlaceholder}" autocomplete="postal-code">
+            <input type="text" id="checkoutModalAddressNumber" inputmode="numeric" placeholder="${t.cardAddressNumberPlaceholder}" autocomplete="off">
+          </div>
+        </div>
+        ` : ''}
         <div class="checkout-payment-info" id="checkoutPaymentInfo" style="display:none;">
           <strong>${t.pixInfoTitle}</strong>
           ${t.pixInfoBody}
@@ -254,6 +266,10 @@ function openCheckoutModal(lang, plan){
   const emailInput = overlay.querySelector('#checkoutModalEmail');
   const phoneInput = overlay.querySelector('#checkoutModalPhone');
   const cpfInput = overlay.querySelector('#checkoutModalCpf');
+  const nameInput = overlay.querySelector('#checkoutModalName');
+  const cepInput = overlay.querySelector('#checkoutModalCep');
+  const addressNumberInput = overlay.querySelector('#checkoutModalAddressNumber');
+  const cardExtraEl = overlay.querySelector('#checkoutCardExtra');
   const errorEl = overlay.querySelector('#checkoutModalError');
   const finalizeBtn = overlay.querySelector('#checkoutModalFinalize');
   const summaryPriceEl = overlay.querySelector('#checkoutSummaryPrice');
@@ -334,7 +350,13 @@ function openCheckoutModal(lang, plan){
     btn.addEventListener('click', () => {
       selectedMethod = btn.dataset.method;
       methodBtns.forEach(b => b.classList.toggle('active', b === btn));
-      cpfInput.style.display = selectedMethod === 'pix' ? 'block' : 'none';
+      // pt card subscription (2026-08-20): Asaas's recurring Checkout requires
+      // full customerData (name/CPF/address) up front - unlike the Pix
+      // /v3/subscriptions call, which only needs CPF, and unlike the one-time
+      // DETACHED flow, whose hosted page collects this itself.
+      const isPtCard = lang === 'pt' && selectedMethod === 'card';
+      cpfInput.style.display = (selectedMethod === 'pix' || isPtCard) ? 'block' : 'none';
+      if(cardExtraEl) cardExtraEl.style.display = isPtCard ? 'block' : 'none';
       paymentInfoEl.style.display = selectedMethod === 'pix' ? 'block' : 'none';
       finalizeBtn.disabled = false;
       clearError();
@@ -365,9 +387,6 @@ function openCheckoutModal(lang, plan){
     const fbp = getFbBrowserId() || undefined;
 
     if(selectedMethod === 'card'){
-      if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
-      finalizeBtn.disabled = true;
-      finalizeBtn.textContent = t.redirecting;
       // pt subscription card (2026-08-20): Asaas Checkout (hosted, no card
       // data on our servers) instead of Stripe - the only remaining Stripe
       // path is 'it', which stays on create-public-checkout-session below.
@@ -376,22 +395,39 @@ function openCheckoutModal(lang, plan){
       // payment call) - handleCheckoutRedirect shows the generic
       // "check your e-mail" success message for this case instead of polling.
       if(lang === 'pt'){
+        const name = nameInput.value.trim();
+        const cpfDigits = cpfInput.value.replace(/\D/g, '');
+        const cepDigits = cepInput.value.replace(/\D/g, '');
+        const addressNumber = addressNumberInput.value.trim();
+        if(!name || !phone || !isValidCpfCnpj(cpfDigits) || cepDigits.length !== 8 || !addressNumber){
+          showError(!name || !phone || !addressNumber || cepDigits.length !== 8 ? t.cardDataRequired : t.cpfInvalid);
+          return;
+        }
+        if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+        finalizeBtn.disabled = true;
+        finalizeBtn.textContent = t.redirecting;
         try{
           const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-asaas-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, phone, leadId: leadId || undefined, fbc, fbp }),
+            body: JSON.stringify({ email, phone, name, cpfCnpj: cpfDigits, postalCode: cepDigits, addressNumber, leadId: leadId || undefined, fbc, fbp }),
           });
           const result = await response.json();
-          if(!response.ok || !result.checkoutUrl) throw new Error(result.error || 'checkout_failed');
+          if(!response.ok || !result.checkoutUrl){
+            if(result.error === 'cep_not_found') throw new Error('cep_not_found');
+            throw new Error(result.error || 'checkout_failed');
+          }
           window.location.href = result.checkoutUrl;
         }catch(err){
           finalizeBtn.disabled = false;
           finalizeBtn.textContent = originalLabel;
-          showError(t.genericError);
+          showError(err.message === 'cep_not_found' ? t.cepLookupFailed : t.genericError);
         }
         return;
       }
+      if(typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout');
+      finalizeBtn.disabled = true;
+      finalizeBtn.textContent = t.redirecting;
       try{
         const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-checkout-session', {
           method: 'POST',

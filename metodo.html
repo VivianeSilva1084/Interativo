@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Método VisCare Kids — Atividades prontas pra imprimir</title>
+<meta name="description" content="100 Jogos de Sons, Sílabas e Palavras e o Baralho do Foco — atividades prontas pra imprimir, sem tela, pra ajudar seu filho a prestar atenção e aprender a ler.">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<meta name="facebook-domain-verification" content="7fynznkomhmnit0rvy9hcyq9coxoam" />
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1359613756236046');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+<script src="supabase-config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* Funil dedicado (metodo.html) - deliberadamente sem nav completa nem
+     toggle de idioma (só PT, teste de formato de funil isolado da familias.html).
+     Classes abaixo são específicas desta página; o resto reaproveita site.css. */
+  .funnel-topbar{ display:flex; align-items:center; justify-content:center; padding:16px 20px; background:var(--teal); }
+  .funnel-brand{ font-family:'Fraunces', serif; font-weight:600; color:#fff; font-size:18px; }
+  .funnel-hero{ text-align:center; padding:56px 24px 40px; max-width:720px; margin:0 auto; }
+  .funnel-eyebrow{ display:inline-block; background:var(--caramel-tint); color:var(--caramel-deep); font-size:12.5px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; padding:6px 16px; border-radius:999px; margin-bottom:18px; }
+  .funnel-hero h1{ font-size:clamp(28px,5vw,42px); line-height:1.15; margin-bottom:16px; text-wrap:balance; }
+  .funnel-hero .sub{ font-size:17px; color:var(--ink-soft); line-height:1.55; max-width:520px; margin:0 auto 28px; }
+  .funnel-hero-cta{ display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .funnel-mockup{ max-width:560px; margin:36px auto 0; border-radius:var(--radius-lg); box-shadow:var(--shadow); overflow:hidden; }
+  .agitate-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; max-width:820px; margin:0 auto; }
+  .products-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; max-width:980px; margin:0 auto; align-items:stretch; }
+  .product-card{ background:var(--bg); border:1.5px solid var(--line); border-radius:var(--radius-lg); padding:26px; box-shadow:var(--shadow); display:flex; flex-direction:column; }
+  .product-card.combo{ border-color:var(--caramel); background:var(--caramel-tint); position:relative; }
+  .product-card .badge{ display:inline-block; background:var(--caramel); color:#fff; font-size:11.5px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; padding:4px 12px; border-radius:999px; margin-bottom:14px; align-self:flex-start; }
+  .product-card h3{ font-size:19px; margin-bottom:6px; }
+  .product-card .format-tag{ font-size:12.5px; font-weight:700; color:var(--caramel-deep); text-transform:uppercase; letter-spacing:.3px; margin-bottom:14px; }
+  .product-card ul{ list-style:none; padding:0; margin:0 0 20px; flex:1; }
+  .product-card li{ font-size:14px; color:var(--ink-soft); line-height:1.6; padding-left:22px; position:relative; margin-bottom:8px; }
+  .product-card li::before{ content:'✓'; position:absolute; left:0; color:var(--leaf); font-weight:800; }
+  .product-card .price-row{ display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+  .product-card .price{ font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--ink); }
+  .product-card .price-was{ font-size:14px; color:var(--ink-faint); text-decoration:line-through; }
+  .product-card .price-note{ font-size:12.5px; color:var(--ink-faint); margin-bottom:16px; }
+  .bonus-stack{ max-width:640px; margin:0 auto; background:var(--bg); border:1.5px dashed var(--caramel); border-radius:var(--radius-lg); padding:28px 30px; }
+  .bonus-stack h3{ font-size:17px; text-align:center; margin-bottom:18px; }
+  .bonus-row{ display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; }
+  .bonus-row:last-child{ margin-bottom:0; }
+  .bonus-row .gift{ font-size:20px; flex-shrink:0; }
+  .bonus-row strong{ display:block; color:var(--ink); font-size:14.5px; }
+  .bonus-row span{ font-size:13px; color:var(--ink-soft); }
+  .guarantee-card{ max-width:560px; margin:0 auto; text-align:center; background:var(--teal); color:#fff; border-radius:var(--radius-lg); padding:36px 30px; box-shadow:var(--shadow); }
+  .guarantee-card .seal{ font-size:38px; margin-bottom:12px; }
+  .guarantee-card h3{ color:#fff; font-size:20px; margin-bottom:10px; }
+  .guarantee-card p{ font-size:14.5px; opacity:.9; line-height:1.6; margin:0; }
+  .faq-list{ max-width:700px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
+  .faq-item{ background:var(--bg); border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; }
+  .faq-item summary{ padding:18px 22px; font-weight:700; color:var(--ink); cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; font-size:15px; }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{ content:'+'; font-size:20px; color:var(--caramel); font-weight:400; }
+  .faq-item[open] summary::after{ content:'−'; }
+  .faq-item p{ padding:0 22px 18px; font-size:14px; color:var(--ink-soft); line-height:1.6; margin:0; }
+  .funnel-sticky-cta{ text-align:center; padding:40px 20px 8px; }
+  .funnel-footer{ text-align:center; padding:32px 20px; font-size:12.5px; color:var(--ink-faint); }
+</style>
+</head>
+<body>
+
+<div class="funnel-topbar">
+  <div class="funnel-brand">VisCare Kids</div>
+</div>
+
+<section class="funnel-hero">
+  <span class="funnel-eyebrow">Método pronto pra usar hoje</span>
+  <h1>Você já faz de tudo pra ajudar seu filho. Faltava um método pronto — sem tela, sem inventar do zero.</h1>
+  <p class="sub">Duas ferramentas de atividades impressas, organizadas em ordem certa, que você tira da gaveta e usa no mesmo dia — pra ajudar seu filho a prestar atenção e aprender a ler.</p>
+  <div class="funnel-hero-cta">
+    <a href="#produtos" class="btn-primary">Ver as opções e preços →</a>
+    <span style="font-size:12.5px; color:var(--ink-faint);">Pagamento único · PDF por e-mail em poucos minutos</span>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="section-title">Se algo disso soa familiar...</h2>
+  <div class="agitate-grid">
+    <div class="problem-card">
+      <p>Você já baixou dez apps, imprimiu atividades da internet e nada tem sequência — é um pouco de cada coisa, sem método.</p>
+    </div>
+    <div class="problem-card">
+      <p>Seu filho se distrai fácil, e as atividades prontas que você acha são difíceis demais ou fáceis demais pra ele.</p>
+    </div>
+    <div class="problem-card">
+      <p>Você queria algo pra usar HOJE, sem precisar montar nada — só imprimir e começar.</p>
+    </div>
+  </div>
+  <p class="bridge-line">É exatamente pra isso que esses dois materiais existem.</p>
+</section>
+
+<section class="wrap" id="produtos">
+  <h2 class="section-title">Escolha o que seu filho precisa agora</h2>
+  <p class="section-sub">Os dois materiais são impressos, sem necessidade de criar conta, com entrega em PDF por e-mail.</p>
+  <div class="products-grid">
+    <div class="product-card">
+      <h3>100 Jogos de Sons, Sílabas e Palavras</h3>
+      <p class="format-tag">📖 Formato livro</p>
+      <ul>
+        <li>100 atividades de consciência fonológica e alfabetização, em ordem de dificuldade</li>
+        <li>Organizadas em blocos — cada um prepara pro próximo</li>
+        <li>Cada atividade indica o jogo digital equivalente do Aventura das Letras</li>
+        <li>Sem necessidade de criar conta</li>
+      </ul>
+      <div class="price-row"><span class="price">R$ 27,00</span></div>
+      <p class="price-note">pagamento único · PDF por e-mail</p>
+      <button type="button" class="big-cta" onclick="openCheckoutModal('pt','jogos_silabas')">Quero o Livro de Jogos</button>
+    </div>
+    <div class="product-card">
+      <h3>Baralho do Foco</h3>
+      <p class="format-tag">🃏 Formato baralho — 60 missões</p>
+      <ul>
+        <li>60 cartas de missões curtas de atenção, prontas pra imprimir e cortar</li>
+        <li>Pode sortear aleatoriamente ou seguir a ordem sugerida</li>
+        <li>Cada carta indica o jogo digital equivalente da Ilha do Foco</li>
+        <li>Sem necessidade de criar conta</li>
+      </ul>
+      <div class="price-row"><span class="price">R$ 27,00</span></div>
+      <p class="price-note">pagamento único · PDF por e-mail</p>
+      <button type="button" class="big-cta" onclick="openCheckoutModal('pt','baralho_foco')">Quero o Baralho do Foco</button>
+    </div>
+    <div class="product-card combo">
+      <span class="badge">Mais escolhido</span>
+      <h3>Combo: Livro + Baralho</h3>
+      <p class="format-tag">📖🃏 Os dois materiais</p>
+      <ul>
+        <li>100 Jogos de Sons, Sílabas e Palavras completo</li>
+        <li>Baralho do Foco completo (60 cartas)</li>
+        <li>Um único PDF de cada, entregues juntos no mesmo e-mail</li>
+        <li>Sem necessidade de criar conta</li>
+      </ul>
+      <div class="price-row"><span class="price">R$ 47,00</span><span class="price-was">R$ 54,00</span></div>
+      <p class="price-note">pagamento único · economize R$7 comprando junto</p>
+      <button type="button" class="big-cta" onclick="openCheckoutModal('pt','combo_jogos_baralho')">Quero o Combo Completo</button>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="bonus-stack">
+    <h3>🎁 E não para por aí</h3>
+    <div class="bonus-row">
+      <span class="gift">🏅</span>
+      <div><strong>Passaporte de missões</strong><span> — sua criança carimba cada atividade concluída, igual no Kit Completo VisCare Kids.</span></div>
+    </div>
+    <div class="bonus-row">
+      <span class="gift">🎓</span>
+      <div><strong>Diploma de conclusão</strong><span> — pra imprimir e comemorar quando terminar o material.</span></div>
+    </div>
+    <div class="bonus-row">
+      <span class="gift">🔗</span>
+      <div><strong>Ponte pro jogo digital</strong><span> — cada atividade impressa indica o jogo equivalente na Ilha do Foco ou no Aventura das Letras.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="guarantee-card">
+    <div class="seal">🛡️</div>
+    <h3>Satisfação garantida</h3>
+    <p>Se o material não for pra você, é só escrever pra gente em até 7 dias que devolvemos o valor — sem burocracia, sem perguntas difíceis.</p>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2 class="section-title">Perguntas frequentes</h2>
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary>Preciso criar conta ou ter o app pra usar?</summary>
+      <p>Não. É um PDF pra imprimir e usar em casa, sem login, sem conta, sem depender do jogo digital — embora cada atividade aponte o jogo equivalente, caso você queira continuar por lá também.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Qual a diferença entre esses materiais e a assinatura da Ilha do Foco?</summary>
+      <p>A assinatura é o jogo digital, com relatórios e acompanhamento contínuo. Esses materiais são atividades impressas, pra usar sem tela — um bom primeiro passo antes (ou junto) da assinatura.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Pra qual idade é indicado?</summary>
+      <p>Os materiais são pensados pra crianças na faixa dos 8 aos 10 anos, com atividades organizadas em ordem de dificuldade.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Quanto tempo leva pra receber?</summary>
+      <p>O PDF chega no seu e-mail poucos minutos depois da confirmação do pagamento.</p>
+    </details>
+    <details class="faq-item">
+      <summary>E se eu não gostar?</summary>
+      <p>Devolvemos o valor em até 7 dias, sem burocracia — é só responder o e-mail de confirmação da compra.</p>
+    </details>
+  </div>
+</section>
+
+<section class="funnel-sticky-cta">
+  <a href="#produtos" class="btn-primary">Ver as opções e preços →</a>
+</section>
+
+<footer class="funnel-footer">
+  <p>Feito com carinho por Viscare Develops · <a href="familias.html" style="color:inherit;">viscarekids.com</a></p>
+</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/checkout.js"></script>
+</body>
+</html>

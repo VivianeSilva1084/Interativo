@@ -22,7 +22,11 @@ function isValidCpfCnpj(digits){
 // Content-kit plans (PDF only, no game login) - checked in a few places below
 // so Pix (never wired for kits) and the "access your account" success copy
 // don't accidentally show for a product that isn't the game subscription.
-const KIT_PLANS = ['kit_mini', 'kit_completo'];
+// jogos_silabas/baralho_foco/combo_jogos_baralho (2026-08-21): metodo.html
+// funnel, pt/Asaas-only for now (no it copy yet - "só português por enquanto"
+// per the user's explicit scope). Same one-time-Asaas-only treatment as
+// kit_mini/kit_completo below.
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho'];
 
 const CHECKOUT_COPY = {
   pt: {
@@ -31,6 +35,9 @@ const CHECKOUT_COPY = {
     bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
     kit_mini: { price: 'R$ 14,90', note: 'pagamento único · PDF por e-mail', productName: 'Mini Kit Atenção' },
     kit_completo: { price: 'R$ 48,90', note: 'pagamento único · PDF por e-mail', productName: 'Kit Completo VisCare Kids' },
+    jogos_silabas: { price: 'R$ 27,00', note: 'pagamento único · PDF por e-mail', productName: '100 Jogos de Sons, Sílabas e Palavras' },
+    baralho_foco: { price: 'R$ 27,00', note: 'pagamento único · PDF por e-mail', productName: 'Baralho do Foco' },
+    combo_jogos_baralho: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail', productName: 'Combo: Livro + Baralho do Foco' },
     kitSuccessTitle: 'Pagamento confirmado! 🎉',
     kitSuccessBody: 'Enviamos os arquivos do seu kit pro seu e-mail. Não encontrou? Confira a caixa de spam.',
     invalidEmail: 'Digite um e-mail válido.',

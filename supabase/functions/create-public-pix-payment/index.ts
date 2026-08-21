@@ -38,7 +38,10 @@ async function asaasFetch(path: string, init: RequestInit = {}) {
 // attribution. asaas-webhook branches on the 'content_kit:'/'pending:' prefix
 // so a kit purchase never falls into the game-access branch that grants
 // premium access - the same mistake already fixed twice on the Stripe side.
-const KIT_PLANS = ['kit_mini', 'kit_completo'];
+// jogos_silabas/baralho_foco/combo_jogos_baralho (2026-08-21): metodo.html
+// funnel, same content_kit: treatment as kit_mini/kit_completo - printable
+// PDF, no game login, must never grant premium access.
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho'];
 // familias.html is the only page that includes checkout.js/handles
 // ?checkout=success (vendas.html is Home-only since the 2026-08-13 split).
 const RETURN_BASE_URL = 'https://www.viscarekids.com/familias.html';
@@ -102,6 +105,15 @@ Deno.serve(async (req) => {
       } else if (plan === 'kit_completo') {
         value = Number(Deno.env.get('ASAAS_KIT_COMPLETO_VALUE_BRL') ?? '48.90');
         description = 'Kit Completo VisCare Kids';
+      } else if (plan === 'jogos_silabas') {
+        value = Number(Deno.env.get('ASAAS_JOGOS_SILABAS_VALUE_BRL') ?? '27.00');
+        description = '100 Jogos de Sons, Sílabas e Palavras';
+      } else if (plan === 'baralho_foco') {
+        value = Number(Deno.env.get('ASAAS_BARALHO_FOCO_VALUE_BRL') ?? '27.00');
+        description = 'Baralho do Foco — 60 Missões de Atenção';
+      } else if (plan === 'combo_jogos_baralho') {
+        value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_VALUE_BRL') ?? '47.00');
+        description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco';
       } else if (plan === 'bump30') {
         value = Number(Deno.env.get('ASAAS_BUMP_VALUE_BRL') ?? '24.90');
         description = 'Ilha do Foco + Aventura das Letras — Premium (30 dias, oferta especial)';

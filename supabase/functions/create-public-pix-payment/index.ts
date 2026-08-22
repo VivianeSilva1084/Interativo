@@ -41,7 +41,9 @@ async function asaasFetch(path: string, init: RequestInit = {}) {
 // jogos_silabas/baralho_foco/combo_jogos_baralho (2026-08-21): metodo.html
 // funnel, same content_kit: treatment as kit_mini/kit_completo - printable
 // PDF, no game login, must never grant premium access.
-const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho'];
+// _pro variants (2026-08-22): same PDFs, repositioned + priced higher for
+// profissionais.html - see checkout.js's KIT_PLANS comment for why.
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
 // familias.html is the only page that includes checkout.js/handles
 // ?checkout=success (vendas.html is Home-only since the 2026-08-13 split).
 const RETURN_BASE_URL = 'https://www.viscarekids.com/familias.html';
@@ -114,6 +116,15 @@ Deno.serve(async (req) => {
       } else if (plan === 'combo_jogos_baralho') {
         value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_VALUE_BRL') ?? '47.00');
         description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco';
+      } else if (plan === 'jogos_silabas_pro') {
+        value = Number(Deno.env.get('ASAAS_JOGOS_SILABAS_PRO_VALUE_BRL') ?? '47.00');
+        description = '100 Jogos de Sons, Sílabas e Palavras — Uso Profissional';
+      } else if (plan === 'baralho_foco_pro') {
+        value = Number(Deno.env.get('ASAAS_BARALHO_FOCO_PRO_VALUE_BRL') ?? '47.00');
+        description = 'Baralho do Foco — Uso Profissional';
+      } else if (plan === 'combo_jogos_baralho_pro') {
+        value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_PRO_VALUE_BRL') ?? '77.00');
+        description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco — Uso Profissional';
       } else if (plan === 'bump30') {
         value = Number(Deno.env.get('ASAAS_BUMP_VALUE_BRL') ?? '24.90');
         description = 'Ilha do Foco + Aventura das Letras — Premium (30 dias, oferta especial)';

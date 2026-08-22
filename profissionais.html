@@ -38,6 +38,13 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
+<style>
+  /* Materiais pra sessão (2026-08-22) - reaproveita .pricing-card/.kit-card de
+     site.css; só os 2 detalhes que não existiam ainda (badge do combo e
+     preço riscado) ficam aqui, escopados a esta página. */
+  .pro-kit-badge{ display:inline-block; background:var(--caramel); color:#fff; font-size:11.5px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; padding:4px 12px; border-radius:999px; margin-bottom:14px; }
+  .price-was{ font-size:14px; color:var(--ink-faint); text-decoration:line-through; margin-left:8px; }
+</style>
 </head>
 <body>
 
@@ -235,6 +242,50 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
     </div>
   </section>
 
+  <section class="wrap">
+    <h2 class="section-title">Prefere começar com material pronto pra sessão?</h2>
+    <p class="section-sub">Sem esperar convite nem criar perfil de paciente — é um PDF com licença de uso profissional, que você baixa agora e já leva pra próxima sessão com quantos pacientes precisar.</p>
+    <div class="kit-pricing-wrap">
+      <div class="pricing-card kit-card">
+        <div class="plan-name">100 Jogos de Sons, Sílabas e Palavras</div>
+        <p class="pricing-tagline">100 atividades prontas pra sessão</p>
+        <ul class="pricing-list">
+          <li>100 atividades de consciência fonológica e alfabetização, em ordem de dificuldade</li>
+          <li>Licença de uso profissional — use com todos os seus pacientes</li>
+          <li>Cada atividade indica o jogo digital equivalente do Aventura das Letras</li>
+        </ul>
+        <div class="price checkout-price">R$ 47,00</div>
+        <p class="price-note checkout-price-note">pagamento único · PDF por e-mail</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('pt','jogos_silabas_pro')">Quero o Livro de Jogos</button>
+      </div>
+      <div class="pricing-card kit-card">
+        <div class="plan-name">Baralho do Foco</div>
+        <p class="pricing-tagline">60 missões de atenção em formato carta</p>
+        <ul class="pricing-list">
+          <li>60 cartas de missões curtas de atenção, prontas pra imprimir e cortar</li>
+          <li>Licença de uso profissional — use com todos os seus pacientes</li>
+          <li>Cada carta indica o jogo digital equivalente da Ilha do Foco</li>
+        </ul>
+        <div class="price checkout-price">R$ 47,00</div>
+        <p class="price-note checkout-price-note">pagamento único · PDF por e-mail</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('pt','baralho_foco_pro')">Quero o Baralho do Foco</button>
+      </div>
+      <div class="pricing-card kit-card">
+        <span class="pro-kit-badge">Mais escolhido</span>
+        <div class="plan-name">Combo: Livro + Baralho</div>
+        <p class="pricing-tagline">Os 2 materiais, uso profissional</p>
+        <ul class="pricing-list">
+          <li>100 Jogos de Sons, Sílabas e Palavras completo</li>
+          <li>Baralho do Foco completo (60 cartas)</li>
+          <li>Licença de uso profissional nos 2 materiais</li>
+        </ul>
+        <div class="price checkout-price">R$ 77,00<span class="price-was">R$94,00</span></div>
+        <p class="price-note checkout-price-note">pagamento único · economize R$17 comprando junto</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('pt','combo_jogos_baralho_pro')">Quero o Combo Completo</button>
+      </div>
+    </div>
+  </section>
+
   <footer class="wrap">
     <div class="foot-links">
       <a href="sobre.html">Sobre Nós</a>
@@ -425,6 +476,50 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
   </section>
 
   <section class="wrap">
+    <h2 class="section-title">Preferisci iniziare con materiale pronto per la sessione?</h2>
+    <p class="section-sub">Nessuna attesa per l'invito né la creazione del profilo paziente — è un PDF con licenza d'uso professionale, che scarichi subito e porti già alla prossima sessione con tutti i pazienti che ti servono.</p>
+    <div class="kit-pricing-wrap">
+      <div class="pricing-card kit-card">
+        <div class="plan-name">100 Giochi di Suoni, Sillabe e Parole</div>
+        <p class="pricing-tagline">100 attività pronte per la sessione</p>
+        <ul class="pricing-list">
+          <li>100 attività di consapevolezza fonologica e alfabetizzazione, in ordine di difficoltà</li>
+          <li>Licenza d'uso professionale — usalo con tutti i tuoi pazienti</li>
+          <li>Ogni attività indica il gioco digitale equivalente dell'Avventura delle Lettere</li>
+        </ul>
+        <div class="price checkout-price">€ 27,90</div>
+        <p class="price-note checkout-price-note">pagamento unico · PDF via email</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('it','jogos_silabas_pro')">Voglio il Libro di Giochi</button>
+      </div>
+      <div class="pricing-card kit-card">
+        <div class="plan-name">Il Mazzo del Focus</div>
+        <p class="pricing-tagline">60 missioni di attenzione in formato carte</p>
+        <ul class="pricing-list">
+          <li>60 carte con missioni brevi di attenzione, pronte da stampare e ritagliare</li>
+          <li>Licenza d'uso professionale — usalo con tutti i tuoi pazienti</li>
+          <li>Ogni carta indica il gioco digitale equivalente dell'Isola del Focus</li>
+        </ul>
+        <div class="price checkout-price">€ 27,90</div>
+        <p class="price-note checkout-price-note">pagamento unico · PDF via email</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('it','baralho_foco_pro')">Voglio il Mazzo del Focus</button>
+      </div>
+      <div class="pricing-card kit-card">
+        <span class="pro-kit-badge">Più scelto</span>
+        <div class="plan-name">Combo: Libro + Mazzo</div>
+        <p class="pricing-tagline">Entrambi i materiali, uso professionale</p>
+        <ul class="pricing-list">
+          <li>100 Giochi di Suoni, Sillabe e Parole completo</li>
+          <li>Il Mazzo del Focus completo (60 carte)</li>
+          <li>Licenza d'uso professionale su entrambi i materiali</li>
+        </ul>
+        <div class="price checkout-price">€ 47,90<span class="price-was">€55,80</span></div>
+        <p class="price-note checkout-price-note">pagamento unico · risparmi €7,80 acquistando insieme</p>
+        <button type="button" class="big-cta" onclick="openCheckoutModal('it','combo_jogos_baralho_pro')">Voglio il Combo Completo</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
     <h2 class="section-title">Perché trasformare l'esercizio in un gioco?</h2>
     <p class="section-sub">Il differenziale di VisCare Kids</p>
     <div style="text-align:center;">
@@ -456,5 +551,6 @@ src="https://www.facebook.com/tr?id=1359613756236046&ev=PageView&noscript=1"
 </div>
 
 <script src="assets/site.js"></script>
+<script src="assets/checkout.js"></script>
 </body>
 </html>

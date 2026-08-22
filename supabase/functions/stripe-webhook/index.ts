@@ -433,6 +433,47 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       files: [{ label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' }],
     },
   },
+  // _pro variants (2026-08-22): same PDF files as the plain jogos_silabas/
+  // baralho_foco/combo_jogos_baralho SKUs (see asaas-webhook/index.ts), just
+  // repositioned + priced for profissionais.html. pt is only here for parity
+  // with kit_mini/kit_completo above - in practice pt buyers always route
+  // through Asaas instead (checkout.js's isAsaasOnlyOneTime), never Stripe.
+  jogos_silabas_pro: {
+    it: {
+      name: '100 Giochi di Suoni, Sillabe e Parole',
+      files: [{ label: '100 Giochi di Suoni, Sillabe e Parole', path: '100-giochi-suoni-sillabe-parole-it.pdf' }],
+    },
+    pt: {
+      name: '100 Jogos de Sons, Sílabas e Palavras',
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+    },
+  },
+  baralho_foco_pro: {
+    it: {
+      name: 'Il Mazzo del Focus',
+      files: [{ label: 'Il Mazzo del Focus', path: 'mazzo-del-focus-it.pdf' }],
+    },
+    pt: {
+      name: 'Baralho do Foco',
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+    },
+  },
+  combo_jogos_baralho_pro: {
+    it: {
+      name: 'Combo: Libro + Mazzo del Focus',
+      files: [
+        { label: '100 Giochi di Suoni, Sillabe e Parole', path: '100-giochi-suoni-sillabe-parole-it.pdf' },
+        { label: 'Il Mazzo del Focus', path: 'mazzo-del-focus-it.pdf' },
+      ],
+    },
+    pt: {
+      name: 'Combo: Livro + Baralho do Foco',
+      files: [
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+      ],
+    },
+  },
 };
 
 const KIT_EMAIL_COPY = {

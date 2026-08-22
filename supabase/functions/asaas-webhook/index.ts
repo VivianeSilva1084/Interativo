@@ -276,6 +276,52 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       files: [{ label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' }],
     },
   },
+  jogos_silabas: {
+    pt: {
+      name: '100 Jogos de Sons, Sílabas e Palavras',
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+    },
+  },
+  baralho_foco: {
+    pt: {
+      name: 'Baralho do Foco',
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+    },
+  },
+  combo_jogos_baralho: {
+    pt: {
+      name: 'Combo: Livro + Baralho do Foco',
+      files: [
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+      ],
+    },
+  },
+  // _pro variants (2026-08-22): same PDF files as the plain SKUs above, just
+  // repositioned + priced for profissionais.html - see checkout.js's
+  // KIT_PLANS comment for why. it buyers go through stripe-webhook instead
+  // (its own KIT_DELIVERY has the matching it entries).
+  jogos_silabas_pro: {
+    pt: {
+      name: '100 Jogos de Sons, Sílabas e Palavras',
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+    },
+  },
+  baralho_foco_pro: {
+    pt: {
+      name: 'Baralho do Foco',
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+    },
+  },
+  combo_jogos_baralho_pro: {
+    pt: {
+      name: 'Combo: Livro + Baralho do Foco',
+      files: [
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+      ],
+    },
+  },
 };
 
 const KIT_EMAIL_COPY = {

@@ -26,7 +26,13 @@ function isValidCpfCnpj(digits){
 // funnel, pt/Asaas-only for now (no it copy yet - "só português por enquanto"
 // per the user's explicit scope). Same one-time-Asaas-only treatment as
 // kit_mini/kit_completo below.
-const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho'];
+// _pro variants (2026-08-22): same PDF content as the plain SKUs, repositioned
+// + priced higher for profissionais.html (professionals get more value from
+// "ready to use in tomorrow's session" than parents get from "fun activity"),
+// per the user's explicit pivot decision. Unlike the parent SKUs these ARE
+// sold in both languages - pt via Asaas (isAsaasOnlyOneTime below), it via
+// Stripe, same as kit_mini/kit_completo.
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
 
 const CHECKOUT_COPY = {
   pt: {
@@ -38,6 +44,9 @@ const CHECKOUT_COPY = {
     jogos_silabas: { price: 'R$ 27,00', note: 'pagamento único · PDF por e-mail', productName: '100 Jogos de Sons, Sílabas e Palavras' },
     baralho_foco: { price: 'R$ 27,00', note: 'pagamento único · PDF por e-mail', productName: 'Baralho do Foco' },
     combo_jogos_baralho: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail', productName: 'Combo: Livro + Baralho do Foco' },
+    jogos_silabas_pro: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: '100 Jogos de Sons, Sílabas e Palavras — Uso Profissional' },
+    baralho_foco_pro: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: 'Baralho do Foco — Uso Profissional' },
+    combo_jogos_baralho_pro: { price: 'R$ 77,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: 'Combo: Livro + Baralho do Foco — Uso Profissional' },
     kitSuccessTitle: 'Pagamento confirmado! 🎉',
     kitSuccessBody: 'Enviamos os arquivos do seu kit pro seu e-mail. Não encontrou? Confira a caixa de spam.',
     invalidEmail: 'Digite um e-mail válido.',
@@ -74,6 +83,9 @@ const CHECKOUT_COPY = {
     bump30: { price: 'R$ 24,90', note: 'pagamento único · acesso por 30 dias · sem mensalidade' },
     kit_mini: { price: '€ 9,90', note: 'pagamento unico · PDF via email', productName: 'Mini Kit Attenzione' },
     kit_completo: { price: '€ 29,90', note: 'pagamento unico · 6 PDF via email', productName: 'Kit Completo VisCare Kids' },
+    jogos_silabas_pro: { price: '€ 27,90', note: 'pagamento unico · PDF via email · uso professionale', productName: '100 Giochi di Suoni, Sillabe e Parole — Uso Professionale' },
+    baralho_foco_pro: { price: '€ 27,90', note: 'pagamento unico · PDF via email · uso professionale', productName: 'Il Mazzo del Focus — Uso Professionale' },
+    combo_jogos_baralho_pro: { price: '€ 47,90', note: 'pagamento unico · PDF via email · uso professionale', productName: 'Combo: Libro + Mazzo del Focus — Uso Professionale' },
     kitSuccessTitle: 'Pagamento confermato! 🎉',
     kitSuccessBody: 'Ti abbiamo inviato i file del tuo kit via email. Non li trovi? Controlla lo spam.',
     invalidEmail: 'Inserisci un\'email valida.',

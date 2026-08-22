@@ -25,6 +25,11 @@ const localAssetRefs = [
   'aventura-das-letras-icon.png',
   'assets/cartoonPT.png',
   'assets/cartonnIT.png',
+  'assets/mockup-mini-kit.png',
+  'assets/mockup-kit-completo.png',
+  'assets/mockup-100-jogos.png',
+  'assets/mockup-baralho-foco.png',
+  'assets/mockup-combo.png',
   'supabase-config.js',
 ];
 

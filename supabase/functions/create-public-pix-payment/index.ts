@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
         value = Number(Deno.env.get('ASAAS_KIT_MINI_VALUE_BRL') ?? '14.90');
         description = 'Mini Kit Atenção';
       } else if (plan === 'kit_completo') {
-        value = Number(Deno.env.get('ASAAS_KIT_COMPLETO_VALUE_BRL') ?? '48.90');
+        value = Number(Deno.env.get('ASAAS_KIT_COMPLETO_VALUE_BRL') ?? '28.90');
         description = 'Kit Completo VisCare Kids';
       } else if (plan === 'jogos_silabas') {
         value = Number(Deno.env.get('ASAAS_JOGOS_SILABAS_VALUE_BRL') ?? '27.00');
@@ -114,8 +114,10 @@ Deno.serve(async (req) => {
         value = Number(Deno.env.get('ASAAS_BARALHO_FOCO_VALUE_BRL') ?? '27.00');
         description = 'Baralho do Foco — 60 Missões de Atenção';
       } else if (plan === 'combo_jogos_baralho') {
-        value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_VALUE_BRL') ?? '47.00');
-        description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco';
+        // 2026-08-22: expanded to include Kit Completo (metodo.html-only combo) - see
+        // asaas-webhook's KIT_DELIVERY.combo_jogos_baralho comment for delivery side.
+        value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_VALUE_BRL') ?? '59.98');
+        description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco + Kit Completo';
       } else if (plan === 'jogos_silabas_pro') {
         value = Number(Deno.env.get('ASAAS_JOGOS_SILABAS_PRO_VALUE_BRL') ?? '47.00');
         description = '100 Jogos de Sons, Sílabas e Palavras — Uso Profissional';

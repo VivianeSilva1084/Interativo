@@ -290,10 +290,15 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
   },
   combo_jogos_baralho: {
     pt: {
-      name: 'Combo: Livro + Baralho do Foco',
+      // 2026-08-22: expanded to include Kit Completo (metodo.html-only combo,
+      // not the same SKU/price as the standalone kit_completo product) - Mini
+      // Kit still arrives separately as the "brinde" bonus (see bonusSku in
+      // handleContentKitPayment below), not listed here.
+      name: 'Combo: Livro + Baralho do Foco + Kit Completo',
       files: [
         { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
         { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+        { label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' },
       ],
     },
   },
@@ -485,9 +490,9 @@ async function notifyPaymentConfirmedWhatsApp(supabase: ReturnType<typeof create
 // handleContentKitCheckoutCompleted in stripe-webhook/index.ts. Deliberately
 // does not touch `subscriptions`/`families`, since a kit buyer hasn't bought
 // game access - records the sale on the lead (funnel measurement), delivers
-// the actual purchased file(s) by e-mail (with the kit_completo -> kit_mini
-// "brinde" bonus), and fires the same ad-attribution/admin-notification side
-// effects a game sale gets. ref format: content_kit:<sku>:<email>|<leadId>|<fbc>|<fbp>.
+// the actual purchased file(s) by e-mail, and fires the same ad-attribution/
+// admin-notification side effects a game sale gets. ref format:
+// content_kit:<sku>:<email>|<leadId>|<fbc>|<fbp>.
 async function handleContentKitPayment(supabase: ReturnType<typeof createClient>, payment: any, ref: string) {
   const withoutPrefix = ref.slice('content_kit:'.length);
   const colonIdx = withoutPrefix.indexOf(':');
@@ -513,9 +518,13 @@ async function handleContentKitPayment(supabase: ReturnType<typeof createClient>
   // Delivery is the actual product being paid for - let a failure here throw
   // (Asaas retries the webhook) instead of silently taking payment and
   // sending nothing. Every Asaas purchase is pt/BRL, matching sendKitDeliveryEmail's
-  // only defined language here.
+  // only defined language here. kit_completo's Mini Kit "brinde" was removed
+  // for pt (2026-08-22, alongside its price drop - it/Stripe keeps it). The
+  // combo (100 Jogos + Baralho do Foco) gets its own separate Mini Kit
+  // "brinde" instead (2026-08-22 decision), same price, no PDF change beyond
+  // the added bonus file.
   if (email) {
-    const bonusSku = sku === 'kit_completo' ? 'kit_mini' : undefined;
+    const bonusSku = sku === 'combo_jogos_baralho' ? 'kit_mini' : undefined;
     await sendKitDeliveryEmail(supabase, email, sku, bonusSku);
   }
 

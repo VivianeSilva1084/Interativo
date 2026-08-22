@@ -191,6 +191,7 @@
      card, since these are fixed-price single-item products (no plan toggle). */
   .kit-pricing-wrap{ display:flex; justify-content:center; flex-wrap:wrap; gap:24px; }
   .kit-card{ max-width:340px; padding:30px 32px; }
+  .kit-card-img{ width:100%; border-radius:var(--radius-md); margin:14px 0; display:block; }
   .kit-card .price{ font-size:34px; }
   .kit-card .kit-lang-note{ display:inline-block; background:rgba(178,58,85,.1); color:var(--berry); font-weight:700; font-size:12px; padding:4px 12px; border-radius:999px; margin-bottom:10px; }
 

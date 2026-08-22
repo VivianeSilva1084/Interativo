@@ -573,7 +573,9 @@ async function handleContentKitCheckoutCompleted(supabase: ReturnType<typeof cre
   // best-effort so a missing bonus file never blocks the paid delivery.
   if (purchaseEmail && sku) {
     const lang = session.metadata?.lang === 'pt' ? 'pt' : 'it';
-    const bonusSku = sku === 'kit_completo' ? 'kit_mini' : undefined;
+    // Mini Kit "brinde" on kit_completo removed for pt (Brazil-only decision,
+    // 2026-08-22, alongside the kit_completo price drop) - it keeps it.
+    const bonusSku = (sku === 'kit_completo' && lang === 'it') ? 'kit_mini' : undefined;
     await sendKitDeliveryEmail(supabase, purchaseEmail, sku, lang, bonusSku);
   }
 

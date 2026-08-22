@@ -73,7 +73,12 @@ Deno.serve(async (req) => {
     const validAddons = plan === 'jogos_silabas'
       ? ADDON_ORDER.filter((sku) => requestedAddons.includes(sku))
       : [];
-    const combinedSku = [plan, ...validAddons].join('+');
+    // Short codes for the sku segment of externalReference only (Asaas caps
+    // that field at 100 chars total - see buildExternalReference below; the
+    // full names still appear in the customer-facing `description`).
+    // asaas-webhook aliases these same codes back onto KIT_DELIVERY.
+    const ADDON_SHORT_CODE: Record<string, string> = { baralho_foco: 'bf', kit_completo: 'kc', kit_mini: 'km' };
+    const combinedSku = [plan, ...validAddons.map((sku) => ADDON_SHORT_CODE[sku])].join('+');
     // bump30 is the same one-time 30-day access as 30days, just offered at a
     // discounted price as an in-checkout upsell (see the checkout bump
     // checkbox) instead of the regular avulso price - no recurrence either
@@ -87,9 +92,27 @@ Deno.serve(async (req) => {
     // What actually reaches asaas-webhook/check-pix-payment-status once this
     // specific payment confirms - carries fbc/fbp so the Purchase CAPI call
     // can match the sale back to the ad that drove it, not just a hashed e-mail.
+    // Asaas hard-caps externalReference at 100 chars (2026-08-22 incident: a
+    // real customer's real fbclid + email pushed a plain jogos_silabas ref to
+    // 119 chars, which Asaas rejected outright, blocking the purchase - real
+    // fbc/fbp values can run 100+ chars on their own, and the order-bump sku
+    // list only makes this worse). `email` and `sku` are load-bearing for
+    // order fulfillment and must never be touched. fbp, then fbc, then
+    // leadId are dropped in that order (least essential first: losing them
+    // only degrades ad/CRM attribution, never blocks the sale) until the
+    // reference fits.
+    const buildExternalReference = (prefix: string) => {
+      const build = (useLeadId: boolean, useFbc: boolean, useFbp: boolean) =>
+        `${prefix}${email}|${useLeadId ? (leadId || '') : ''}|${useFbc ? (fbc || '') : ''}|${useFbp ? (fbp || '') : ''}`;
+      let ref = build(true, true, true);
+      if (ref.length > 100) ref = build(true, true, false);
+      if (ref.length > 100) ref = build(true, false, false);
+      if (ref.length > 100) ref = build(false, false, false);
+      return ref;
+    };
     const externalReference = isKit
-      ? `content_kit:${combinedSku}:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`
-      : `pending:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`;
+      ? buildExternalReference(`content_kit:${combinedSku}:`)
+      : buildExternalReference('pending:');
 
     // phone is optional and only kept on the Asaas customer record for
     // support/contact reference - not stored anywhere in our own DB.

@@ -329,6 +329,17 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
   },
 };
 
+// Order-bump add-ons (2026-08-22) are packed into externalReference under
+// short codes instead of their full sku names, to stay under Asaas's
+// 100-char externalReference limit (see create-public-pix-payment's
+// buildExternalReference comment) - aliased onto the same KIT_DELIVERY
+// entries here so handleContentKitPayment's sku lookup works unchanged
+// whether it sees 'baralho_foco' (standalone purchase) or 'bf' (order-bump
+// add-on on a jogos_silabas purchase).
+KIT_DELIVERY.bf = KIT_DELIVERY.baralho_foco;
+KIT_DELIVERY.kc = KIT_DELIVERY.kit_completo;
+KIT_DELIVERY.km = KIT_DELIVERY.kit_mini;
+
 const KIT_EMAIL_COPY = {
   pt: { greeting: 'Oi!', thanks: (name: string) => `Obrigada por comprar <b>${name}</b> 🎉 Aqui estão seus arquivos, prontos pra baixar e imprimir:`, expiry: 'Cada link fica válido por 30 dias. Se expirar, é só escrever pra gente que mandamos um novo.', subject: (name: string) => `${name} está pronto pra você!`, bonusLabel: '🎁 De brinde' },
 };

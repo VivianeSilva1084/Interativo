@@ -281,6 +281,7 @@ function openCheckoutModal(lang, plan){
       <div class="checkout-section">
         ${isAsaasOnlyOneTime ? `
         <div class="checkout-section-title">💳 ${t.paymentMethodTitle}</div>
+        <p style="font-size:13px; color:var(--ink-soft); margin:-4px 0 12px;">Aceitamos Pix ou cartão de crédito — você escolhe na próxima tela.</p>
         <label class="checkout-field-label" for="checkoutModalCpf">${t.cpfLabel}</label>
         <input type="text" id="checkoutModalCpf" inputmode="numeric" placeholder="${t.cpfPlaceholder}" autocomplete="off">
         <div class="checkout-payment-info">

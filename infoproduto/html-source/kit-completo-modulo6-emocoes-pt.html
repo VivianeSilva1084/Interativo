@@ -1,0 +1,367 @@
+<title>Kit Completo — Módulo Emoções</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1; --amber:#C9902F; --amber-tint:#F5E7CB;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); } .k-ear-in{ fill:var(--caramel-tint); } .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; } .k-eye{ fill:var(--ink); } .k-eye-hi{ fill:#fff; } .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; } .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:100px; height:100px; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(178,58,85,.22), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(63,134,87,.28), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:64px 56px 44px; display:flex; flex-direction:column; gap:20px; min-height:520px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:44px; line-height:1.08; max-width:13ch; }
+  .cover .sub{ font-size:17px; color:#EAE3D2; max-width:38ch; line-height:1.5; }
+  .modstrip{ display:flex; gap:7px; margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,248,237,.18); }
+  .modstrip .m{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:rgba(255,248,237,.12); color:#CFE0D6; }
+  .modstrip .m.active{ background:var(--lilac); color:#1F2A3A; }
+  .modstrip .m.done{ background:var(--leaf); color:#fff; }
+
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:27px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15px; max-width:58ch; margin-top:10px; }
+
+  .modulestrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .modulestrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .modulestrip .d.active{ background:var(--amber); color:#fff; border-color:var(--amber); }
+  .modulestrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; letter-spacing:.01em; }
+  .chip.emozioni{ background:var(--amber-tint); color:var(--amber); }
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; white-space:nowrap; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:16px 0; }
+  .box h4{ font-family:var(--serif); font-size:15px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--amber); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--caramel); }
+  .box.caution{ border-left:4px solid var(--berry); background:var(--berry-tint); }
+  .box.caution h4{ color:var(--berry); }
+  .script p{ font-style:italic; color:var(--ink); font-size:14.5px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+  ol.steps{ margin:0; padding-left:22px; } ol.steps li{ margin-bottom:8px; font-size:14.5px; }
+  ol.steps li::marker{ font-family:var(--serif); font-weight:700; color:var(--caramel-deep); }
+
+  .bridge{ margin-top:24px; padding:16px 20px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.5px; color:#DCE7DF; margin-top:3px; }
+  .foot{ display:flex; justify-content:space-between; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  .facerow{ display:flex; justify-content:center; gap:16px; margin:20px 0; flex-wrap:wrap; }
+  .facerow .f{ display:flex; flex-direction:column; align-items:center; gap:8px; width:84px; }
+  .facerow .f .em{ width:66px; height:66px; border:2px solid var(--line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; background:var(--cream); }
+  .facerow .f .lb{ font-size:12px; text-align:center; color:var(--ink-soft); font-weight:600; }
+
+  .toolrow{ display:flex; justify-content:center; gap:14px; margin:18px 0; flex-wrap:wrap; }
+  .toolrow .t{ display:flex; flex-direction:column; align-items:center; gap:6px; width:96px; }
+  .toolrow .t .em{ width:56px; height:56px; border-radius:12px; background:var(--amber-tint); display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .toolrow .t .lb{ font-size:11.5px; text-align:center; color:var(--ink-soft); font-weight:600; }
+  .scenario-list{ margin:16px 0; }
+  .scenario-list .sc{ background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:12px 16px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:14px; }
+  .scenario-list .sc .slot{ min-width:110px; height:30px; border:1.5px dashed var(--line-strong); border-radius:8px; flex-shrink:0; }
+
+  .breathsquare{ position:relative; width:200px; height:200px; margin:26px auto; border:3px solid var(--leaf); border-radius:20px; }
+  .breathsquare .lbl{ position:absolute; font-size:12px; font-weight:700; color:var(--leaf); background:var(--paper); padding:3px 10px; border-radius:99px; white-space:nowrap; }
+  .breathsquare .top{ top:-12px; left:50%; transform:translateX(-50%); }
+  .breathsquare .right{ right:-12px; top:50%; transform:translate(50%,-50%) rotate(90deg); }
+  .breathsquare .bottom{ bottom:-12px; left:50%; transform:translateX(-50%); }
+  .breathsquare .left{ left:-12px; top:50%; transform:translate(-50%,-50%) rotate(-90deg); }
+  .breathsquare .center{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:36px; }
+
+  .lightbox{ display:flex; gap:24px; justify-content:center; align-items:center; margin:22px 0; flex-wrap:wrap; }
+  .lightbox .stack{ display:flex; flex-direction:column; gap:8px; background:var(--teal-deep); border-radius:16px; padding:12px; }
+  .lightbox .dot{ width:38px; height:38px; border-radius:50%; opacity:.3; }
+  .lightbox .dot.g{ background:#5FBE7A; } .lightbox .dot.y{ background:#F0C24B; } .lightbox .dot.r{ background:#E0616F; }
+  .lightbox .dot.on{ opacity:1; box-shadow:0 0 14px currentColor; }
+  .lightmeanings{ display:flex; flex-direction:column; gap:10px; flex:1; min-width:220px; }
+  .lightmeanings .lm{ display:flex; gap:10px; align-items:center; font-size:13.5px; color:var(--ink-soft); }
+  .lightmeanings .sw{ width:16px; height:16px; border-radius:50%; flex-shrink:0; }
+
+  .bodyrow{ display:flex; justify-content:center; gap:14px; margin:18px 0; flex-wrap:wrap; }
+  .bodyrow .p{ display:flex; flex-direction:column; align-items:center; gap:6px; width:110px; }
+  .bodyrow .p .em{ width:56px; height:56px; border-radius:14px; background:var(--lilac-tint); display:flex; align-items:center; justify-content:center; font-size:26px; }
+  .bodyrow .p .lb{ font-size:12px; text-align:center; color:var(--ink-soft); }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:48ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .modgrid{ display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modgrid .mtag{ font-size:12.5px; padding:8px 14px; border-radius:99px; background:var(--cream); border:1px solid var(--line); color:var(--ink-faint); }
+  .modgrid .mtag.now{ background:var(--amber); color:#fff; border-color:var(--amber); font-weight:700; }
+  .modgrid .mtag.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+  .seal{ width:74px; margin:22px auto 0; }
+  .seal .circle{ width:74px; height:74px; border-radius:50%; margin:0 auto; background:radial-gradient(circle at 35% 30%, var(--sand), var(--caramel-deep)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:26px; box-shadow:0 3px 8px rgba(0,0,0,.16); }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    .box, .bridge, .facerow, .toolrow, .scenario-list .sc, .breathsquare,
+    .lightbox, .bodyrow, .seal{
+      break-inside: avoid; page-break-inside: avoid;
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- CAPA -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Kit Completo &middot; Módulo 6 de 6</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>Emoções e Autorregulação</h1>
+    <p class="sub">Sete momentos simples pra reconhecer como você está se sentindo agora, e ter algumas ferramentas prontas quando precisar de uma pausa.</p>
+    <div class="modstrip"><div class="m done">1</div><div class="m done">2</div><div class="m done">3</div><div class="m done">4</div><div class="m done">5</div><div class="m active">6</div></div>
+  </section>
+
+  <!-- INTRODUÇÃO -->
+  <section class="page">
+    <div class="kicker">Antes de começar &mdash; leia esta página</div>
+    <h2>Como usar este módulo</h2>
+    <div class="box caution"><h4>💛 O que este módulo NÃO é</h4><p>Essas atividades são psicoeducação leve, não terapia. Não pedem pro seu filho lembrar ou contar um momento difícil do passado &mdash; ficam sempre no presente, em como ele está se sentindo AGORA. Se seu filho tem dificuldade frequente ou intensa de regular emoções, conversar com uma psicóloga ou neuropsicomotricista é um bom passo, não um fracasso.</p></div>
+    <div class="box note"><h4>📓 Este módulo não tem um Diário</h4><p>De propósito: transformar emoções numa nota diária arrisca fazer a criança se sentir vigiada, em vez de ouvida.</p></div>
+  </section>
+
+  <!-- 1 COMO ME SINTO HOJE -->
+  <section class="page">
+    <div class="modulestrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 1</div></div>
+    <h2>Como Me Sinto Hoje</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Reconhecer emoções</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Nesse momento, como você está se sentindo? Não tem resposta certa &mdash; aponte a que mais parece com como você está agora."</p></div></div>
+
+    <div class="facerow">
+      <div class="f"><div class="em">😀</div><div class="lb">Tranquilo</div></div>
+      <div class="f"><div class="em">😐</div><div class="lb">Mais ou menos</div></div>
+      <div class="f"><div class="em">😟</div><div class="lb">Preocupado</div></div>
+      <div class="f"><div class="em">😡</div><div class="lb">Bravo</div></div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Qualquer resposta vale &mdash; até mudar de ideia um minuto depois.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 1 de 7</span></div>
+  </section>
+
+  <!-- 2 A MALA DE FERRAMENTAS -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 2</div></div>
+    <h2>A Mala de Ferramentas</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Estratégias de autorregulação</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Essas são 5 ferramentas que você pode sempre usar. Pra cada situação aqui embaixo, escolha qual ferramenta você usaria e escreva na casa."</p></div></div>
+
+    <div class="toolrow">
+      <div class="t"><div class="em">🫁</div><div class="lb">Respirar</div></div>
+      <div class="t"><div class="em">⏸️</div><div class="lb">Fazer uma pausa</div></div>
+      <div class="t"><div class="em">🙋</div><div class="lb">Pedir ajuda</div></div>
+      <div class="t"><div class="em">💧</div><div class="lb">Beber água</div></div>
+      <div class="t"><div class="em">🔄</div><div class="lb">Voltar pra atividade</div></div>
+    </div>
+    <div class="scenario-list">
+      <div class="sc"><span>Uma tarefa parece difícil demais</span><span class="slot"></span></div>
+      <div class="sc"><span>Você fica agitado depois de correr</span><span class="slot"></span></div>
+      <div class="sc"><span>Você não entende uma instrução</span><span class="slot"></span></div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Não existe ferramenta errada &mdash; o importante é sempre ter uma pronta.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 2 de 7</span></div>
+  </section>
+
+  <!-- 3 RESPIRE COM A KAPI -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 3</div></div>
+    <h2>Respire com a Kapi</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Respiração guiada</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Vamos seguir juntos os quatro lados do quadrado com a respiração. Vamos fazer 3 vezes juntos."</p></div></div>
+
+    <div class="breathsquare">
+      <div class="lbl top">Inspire &middot; 4</div>
+      <div class="lbl right">Segure &middot; 4</div>
+      <div class="lbl bottom">Expire &middot; 4</div>
+      <div class="lbl left">Segure &middot; 4</div>
+      <div class="center">🦫</div>
+    </div>
+    <p class="lede" style="text-align:center;">Siga o quadrado com o dedo enquanto respira, um lado pra cada fase.</p>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Tudo bem fazer só 1 volta, se 3 forem demais hoje.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 3 de 7</span></div>
+  </section>
+
+  <!-- 4 PAUSA DO SEU JEITO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 4</div></div>
+    <h2>Pausa do Seu Jeito</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Espaço pessoal de calma</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Vamos escolher juntos um cantinho de calma seu em casa, e um objeto ou uma música que te ajuda a se sentir melhor &mdash; assim já ficam prontos quando você precisar."</p></div></div>
+
+    <div class="scenario-list">
+      <div class="sc"><span>Meu cantinho tranquilo em casa é</span><span class="slot" style="min-width:180px;"></span></div>
+      <div class="sc"><span>Um objeto macio que me ajuda é</span><span class="slot" style="min-width:180px;"></span></div>
+      <div class="sc"><span>Uma música ou som que me acalma é</span><span class="slot" style="min-width:180px;"></span></div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Deixem essa página à vista &mdash; é um lembrete pronto pros dias difíceis.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 4 de 7</span></div>
+  </section>
+
+  <!-- 5 O SEMÁFORO DAS EMOÇÕES -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 5</div></div>
+    <h2>O Semáforo das Emoções</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Consciência + ação</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box caution"><h4>💛 Regra importante pros pais</h4><p>O vermelho nunca é uma pausa decidida por um adulto como punição &mdash; é um sinal que <b>seu filho escolhe levantar sozinho</b> quando sente que precisa de uma pausa mais longa.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Esse semáforo não fala de andar ou parar na rua &mdash; fala de como você está se sentindo agora. Você pode levantar ele quando quiser me avisar."</p></div></div>
+
+    <div class="lightbox">
+      <div class="stack"><div class="dot g on"></div><div class="dot y"></div><div class="dot r"></div></div>
+      <div class="lightmeanings">
+        <div class="lm"><span class="sw" style="background:#5FBE7A;"></span>Verde &mdash; estou bem, posso continuar</div>
+        <div class="lm"><span class="sw" style="background:#F0C24B;"></span>Amarelo &mdash; preciso de uma pausinha</div>
+        <div class="lm"><span class="sw" style="background:#E0616F;"></span>Vermelho &mdash; preciso de uma pausa maior, eu que escolho</div>
+      </div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Desenhe seu semáforo e deixe perto de onde você faz a lição.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 5 de 7</span></div>
+  </section>
+
+  <!-- 6 O CORPO CONTA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 6</div></div>
+    <h2>O Corpo Conta</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Consciência corporal</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 As emoções também se sentem no corpo</h4><p>Às vezes o corpo entende antes da cabeça &mdash; aprender a perceber isso ajuda a reconhecer uma emoção mais cedo.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Nesse momento, seu corpo está fazendo alguma coisa diferente? Aponte onde &mdash; não tem resposta certa."</p></div></div>
+
+    <div class="bodyrow">
+      <div class="p"><div class="em">🤲</div><div class="lb">As mãos se fecham</div></div>
+      <div class="p"><div class="em">🫃</div><div class="lb">A barriga aperta</div></div>
+      <div class="p"><div class="em">😮‍💨</div><div class="lb">A respiração acelera</div></div>
+      <div class="p"><div class="em">🙆</div><div class="lb">Os ombros sobem</div></div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🦫</span><div><b>Um conselho da Kapi</b><p>Perceber esses sinais cedo facilita escolher uma ferramenta da Mala antes que a emoção cresça.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 6 de 7</span></div>
+  </section>
+
+  <!-- 7 OBRIGADO PELA AJUDA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 7 &middot; Grande final</div></div>
+    <h2>Obrigado pela Ajuda</h2>
+    <div class="skill-row">
+      <span class="chip emozioni">Pedir ajuda</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Um jogo de faz de conta, não uma lembrança</h4><p>Essa missão imagina uma situação inventada &mdash; não peça pro seu filho contar uma vez real em que precisou de ajuda.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Imagine um amigo que não consegue amarrar o tênis e está se sentindo frustrado. O que ele poderia dizer pra pedir ajuda? Vamos inventar juntos as palavras dele."</p></div></div>
+
+    <div class="box example"><h4>💬 Frases de exemplo pra tentar juntos</h4>
+      <ol class="steps">
+        <li>"Você me ajuda, por favor?"</li>
+        <li>"Não consigo sozinho, você pode me mostrar como faz?"</li>
+        <li>"Preciso de uma mãozinha com isso."</li>
+      </ol>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🌟</span><div><b>Parabéns!</b><p>Você completou todo o Kit Completo VisCare Kids &mdash; chegou até o fim dos 6 módulos.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Emoções</span><span>Missão 7 de 7</span></div>
+  </section>
+
+  <!-- FECHAMENTO (KIT COMPLETO FINALIZADO) -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="seal"><div class="circle">🏆</div></div>
+    <div class="kicker" style="margin-top:14px;">Kit Completo VisCare Kids</div>
+    <h2>Todos os 6 módulos completos!</h2>
+    <p>Atenção, Memória, Controle da Resposta, Flexibilidade, Planejamento e Emoções &mdash; 42 missões treinadas juntos, um passo de cada vez.</p>
+    <div class="modgrid">
+      <span class="mtag done">1 Atenção ✓</span><span class="mtag done">2 Memória ✓</span><span class="mtag done">3 Controle ✓</span>
+      <span class="mtag done">4 Flexibilidade ✓</span><span class="mtag done">5 Planejamento ✓</span><span class="mtag now">6 Emoções ✓</span>
+    </div>
+    <p style="margin-top:20px;">A jornada continua no VisCare Kids &mdash; com os jogos digitais que treinam as mesmas habilidades, se adaptando conforme seu filho melhora.</p>
+  </section>
+
+</div>

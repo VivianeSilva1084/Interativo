@@ -1,0 +1,390 @@
+<title>Kit Completo — Modulo Controllo</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); } .k-ear-in{ fill:var(--caramel-tint); } .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; } .k-eye{ fill:var(--ink); } .k-eye-hi{ fill:#fff; } .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; } .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:100px; height:100px; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(178,58,85,.28), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(63,134,87,.24), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:64px 56px 44px; display:flex; flex-direction:column; gap:20px; min-height:520px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:44px; line-height:1.08; max-width:13ch; }
+  .cover .sub{ font-size:17px; color:#EAE3D2; max-width:38ch; line-height:1.5; }
+  .modstrip{ display:flex; gap:7px; margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,248,237,.18); }
+  .modstrip .m{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:rgba(255,248,237,.12); color:#CFE0D6; }
+  .modstrip .m.active{ background:var(--berry); color:#fff; }
+  .modstrip .m.done{ background:var(--leaf); color:#fff; }
+
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:27px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15px; max-width:58ch; margin-top:10px; }
+
+  .modulestrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .modulestrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .modulestrip .d.active{ background:var(--berry); color:#fff; border-color:var(--berry); }
+  .modulestrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; letter-spacing:.01em; }
+  .chip.controllo{ background:var(--berry-tint); color:var(--berry); }
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; white-space:nowrap; }
+  .adv-tag{ font-size:11px; font-weight:700; color:var(--berry); background:var(--berry-tint); padding:4px 10px; border-radius:99px; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:16px 0; }
+  .box h4{ font-family:var(--serif); font-size:15px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--berry); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--caramel); }
+  .box.caution{ border-left:4px solid var(--berry); background:var(--berry-tint); }
+  .box.caution h4{ color:var(--berry); }
+  .script p{ font-style:italic; color:var(--ink); font-size:14.5px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+  ol.steps{ margin:0; padding-left:22px; } ol.steps li{ margin-bottom:8px; font-size:14.5px; }
+  ol.steps li::marker{ font-family:var(--serif); font-weight:700; color:var(--caramel-deep); }
+
+  .bridge{ margin-top:24px; padding:16px 20px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.5px; color:#DCE7DF; margin-top:3px; }
+  .foot{ display:flex; justify-content:space-between; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  /* track board (Aspetta il Tuo Turno) */
+  .trackrow{ display:flex; gap:6px; margin:18px 0; }
+  .trackrow .cell{ flex:1; aspect-ratio:1; border:1.5px solid var(--line-strong); border-radius:8px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--ink-faint); }
+  .trackrow .cell.goal{ background:var(--sand); color:#4A3A16; border-color:var(--sand); font-size:20px; }
+  .cardstrip{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0; }
+  .cardstrip .card{ width:58px; height:80px; border:1.5px solid var(--line-strong); border-radius:9px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-weight:700; font-size:22px; box-shadow:0 2px 5px rgba(20,24,27,.06); }
+  .cardstrip .card.target{ border-color:var(--berry); }
+  .cut{ text-align:center; font-size:12px; color:var(--ink-faint); letter-spacing:.08em; text-transform:uppercase; margin-top:8px; }
+
+  /* call sequence table */
+  table.calltable{ width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
+  table.calltable th{ font-family:var(--serif); font-weight:600; text-align:left; padding:9px 12px; background:var(--teal-deep); color:var(--cream); font-size:12.5px; }
+  table.calltable th:first-child{ border-radius:8px 0 0 0; } table.calltable th:last-child{ border-radius:0 8px 0 0; }
+  table.calltable td{ padding:10px 12px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+  table.calltable td.n{ font-weight:700; color:var(--ink); width:34px; }
+  table.calltable td.call{ font-weight:600; color:var(--ink); }
+
+  .touchbox{ text-align:center; margin:22px 0; }
+  .touchbox .obj{ width:90px; height:90px; margin:0 auto; border:2.5px dashed var(--berry); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:40px; background:var(--berry-tint); }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:48ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .modgrid{ display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modgrid .mtag{ font-size:12.5px; padding:8px 14px; border-radius:99px; background:var(--cream); border:1px solid var(--line); color:var(--ink-faint); }
+  .modgrid .mtag.now{ background:var(--berry); color:#fff; border-color:var(--berry); font-weight:700; }
+  .modgrid .mtag.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    /* Keep multi-part visual components intact instead of splitting them
+       mid-element across a page break (cards, grids, tables, rows). */
+    .box, .bridge, .trackrow, .cardstrip, table.calltable, .touchbox{
+      break-inside: avoid; page-break-inside: avoid;
+      /* Chrome has a known print bug where border-radius + break-inside:avoid
+         duplicates the element's content right at the page-break boundary -
+         dropping the radius/shadow only in print avoids that artifact. */
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- COVER -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Kit Completo &middot; Modulo 3 di 6</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>Controllo della Risposta</h1>
+    <p class="sub">Sette missioni per allenare l'attesa e l'autocontrollo &mdash; sempre con tempi brevi, un segnale chiaro, e mai come punizione.</p>
+    <div class="modstrip"><div class="m done">1</div><div class="m done">2</div><div class="m active">3</div><div class="m">4</div><div class="m">5</div><div class="m">6</div></div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="page">
+    <div class="kicker">Prima di iniziare &mdash; leggi questa pagina</div>
+    <h2>Come si usa questo modulo</h2>
+    <p class="lede">Questo modulo allena l'attesa, che per definizione è la cosa più difficile da chiedere a un bambino con difficoltà di attenzione. Per questo le regole sono ancora più importanti del solito.</p>
+    <div class="box caution"><h4>🛑 Regola d'oro: mai come punizione</h4><p>Se tuo figlio "sbaglia" &mdash; tocca prima del segnale, si muove al rosso, risponde troppo presto &mdash; non è mai un errore da correggere con severità. È esattamente la difficoltà che stiamo allenando, un pochino alla volta.</p></div>
+    <div class="box"><h4>⏱️ Tempi sempre fissi e brevi</h4><p>Ogni missione con attesa ha un tempo preciso scritto nella pagina. Non allungatelo "per allenare di più" &mdash; un'attesa più lunga di quella scritta rischia solo di trasformare il gioco in frustrazione.</p></div>
+    <div class="box note"><h4>🎯 Il successo è nello sforzo</h4><p>"Hai aspettato!" vale anche se l'attesa è durata meno del previsto. Non è un punteggio giusto/sbagliato.</p></div>
+    <div class="box"><h4>🔁 Alcune attività ricordano il Mini Kit</h4><p>Sono segnalate con <span class="adv-tag">Versione avanzata</span>.</p></div>
+  </section>
+
+  <!-- 1 ASPETTA IL TUO TURNO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 1 &middot; Riscaldamento</div></div>
+    <h2>Aspetta il Tuo Turno</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Attesa sociale</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Livello 1 di 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Esempio insieme</h4><p>Pescate una carta a testa insieme, senza gareggiare, solo per vedere come funziona il gioco.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Peschi una carta solo quando è il tuo turno, anche se hai già voglia di pescare prima. Chi pesca fuori turno torna alla casella 1."</p></div></div>
+
+    <div class="trackrow">
+      <span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell">9</span><span class="cell goal">🏆</span>
+    </div>
+    <div class="cardstrip">
+      <div class="card">1</div><div class="card">2</div><div class="card">3</div><div class="card">4</div><div class="card">5</div><div class="card">6</div>
+    </div>
+    <p class="cut">✂️ Ritaglia le 6 carte numero, mescolale e pescatene una a turno per avanzare sulla pista</p>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continua nel gioco</b><p>"Il Semaforo dell'Attesa" allena lo stesso muscolo dell'attesa, in versione digitale.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 1 di 7</span></div>
+  </section>
+
+  <!-- 2 FERMATI AL ROSSO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 2</div></div>
+    <h2>Fermati al Rosso</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Inibizione motoria</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Livello 1 di 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Esempio insieme</h4><p>Fate un giro di prova con solo 2 chiamate prima di iniziare sul serio.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Cammina o balla quando dico 'Verde', fermati subito quando dico 'Rosso'." Leggi le chiamate qui sotto esattamente nell'ordine scritto, senza inventare.</p></div></div>
+
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Chiamata</th><th>Pausa prima della prossima</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="call">Verde!</td><td>~5 secondi</td></tr>
+        <tr><td class="n">2</td><td class="call">Rosso!</td><td>~3 secondi</td></tr>
+        <tr><td class="n">3</td><td class="call">Verde!</td><td>~2 secondi</td></tr>
+        <tr><td class="n">4</td><td class="call">Rosso!</td><td>~4 secondi</td></tr>
+        <tr><td class="n">5</td><td class="call">Verde!</td><td>~6 secondi</td></tr>
+        <tr><td class="n">6</td><td class="call">Rosso!</td><td>~2 secondi</td></tr>
+        <tr><td class="n">7</td><td class="call">Verde!</td><td>~3 secondi</td></tr>
+        <tr><td class="n">8</td><td class="call">Rosso!</td><td>fine del gioco</td></tr>
+      </tbody>
+    </table>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continua nel gioco</b><p>"Il Semaforo dell'Attesa" è la stessa idea, con un timer che decide il ritmo al posto tuo.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 2 di 7</span></div>
+  </section>
+
+  <!-- 3 IL GIOCO DEL CONTRARIO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 3</div></div>
+    <h2>Il Gioco del Contrario</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Inibizione di risposta</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 La regola non cambia mai oggi</h4><p>Diverso dal Modulo 4: qui la regola è sempre la stessa dall'inizio alla fine &mdash; fai sempre il contrario di quello che dico.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire (leggi in ordine)</h4>
+      <ol class="steps">
+        <li>"Alza le mani" &rarr; le abbassa</li>
+        <li>"Apri la bocca" &rarr; la chiude</li>
+        <li>"Salta" &rarr; resta fermo</li>
+        <li>"Chiudi gli occhi" &rarr; li tiene aperti</li>
+        <li>"Fai silenzio" &rarr; dice una parola a voce alta</li>
+        <li>"Siediti" &rarr; resta in piedi</li>
+        <li>"Sorridi" &rarr; fa il broncio</li>
+        <li>"Cammina veloce" &rarr; cammina piano</li>
+      </ol>
+    </div></div>
+
+    <div class="bridge"><span style="font-size:22px;">💬</span><div><b>Continua nel gioco</b><p>"Il Mio Turno, il Tuo Turno" allena lo stesso freno prima di rispondere.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 3 di 7</span></div>
+  </section>
+
+  <!-- 4 SEMAFORO DOPPIO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 4</div></div>
+    <h2>Semaforo Doppio</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Controllo con conflitto</span>
+      <span class="adv-tag">Versione avanzata di Aspetta il Segnale</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Esempio insieme</h4><p>Mostra ⭐ e 🌟 vicine e fai notare la differenza prima di iniziare &mdash; si assomigliano apposta.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Batti le mani SOLO quando vedi questa stella gialla ⭐. Questa qui, che sembra uguale ma brilla 🌟, non conta &mdash; resta fermo."</p></div></div>
+
+    <div class="cardstrip">
+      <div class="card">🔺</div><div class="card target">⭐</div><div class="card">🌟</div><div class="card">🔵</div>
+      <div class="card target">⭐</div><div class="card">🌟</div><div class="card">🟩</div><div class="card target">⭐</div>
+      <div class="card">🌟</div><div class="card">🟣</div>
+    </div>
+    <p class="cut">✂️ Ritaglia le 10 carte, mantieni quest'ordine, mostra una alla volta ogni 2&ndash;3 secondi</p>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continua nel gioco</b><p>"Il Semaforo dell'Attesa" nei livelli avanzati aggiunge lo stesso tipo di segnale simile ma sbagliato.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 4 di 7</span></div>
+  </section>
+
+  <!-- 5 NON TOCCARE -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 5</div></div>
+    <h2>Non Toccare!</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Tolleranza all'attesa</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+
+    <div class="box caution"><h4>🛑 Leggi questo prima di iniziare</h4><p>Questa è la missione più impegnativa del modulo &mdash; resistere alla tentazione è difficile per qualsiasi bambino, ancora di più per chi ha difficoltà di attenzione. Il tempo è volutamente breve. Se tuo figlio tocca prima del segnale, non è un errore: è normale, e va bene cosi. <b>Questa missione non va segnata nel Diario di bordo.</b></p></div>
+
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4>
+      <p><b>Prima:</b> "Metto qui un piccolo giocattolo. Per 10 secondi, guardalo ma non toccarlo &mdash; è normale avere voglia, è proprio questo che stiamo allenando."</p>
+      <p><b>Durante:</b> conta in silenzio dentro di te, senza pressare o cronometrare ad alta voce.</p>
+      <p><b>Dopo (in ogni caso):</b> se ha aspettato &mdash; "Hai aspettato, bravissimo!" Se ha toccato prima &mdash; "Va benissimo, riproviamo con un tempo un po' più corto."</p>
+    </div></div>
+
+    <div class="touchbox"><div class="obj">🧸</div><p class="find-tally">Metti qui un piccolo giocattolo o adesivo vero &mdash; il disegno è solo un segnaposto.</p></div>
+
+    <div class="box note"><h4>🚪 Quando fermarsi</h4><p>Massimo 1&ndash;2 tentativi, di 10 secondi ciascuno. Se tuo figlio si agita, fermatevi qui &mdash; si riprova un altro giorno con un tempo ancora più corto.</p></div>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continua nel gioco</b><p>"Il Semaforo dell'Attesa" allena la stessa attesa, ma senza nessun oggetto reale da resistere a toccare.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 5 di 7</span></div>
+  </section>
+
+  <!-- 6 IL DETECTIVE SILENZIOSO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 6</div></div>
+    <h2>Il Detective Silenzioso</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Controllo a ritmo variabile</span>
+      <span class="adv-tag">Versione avanzata di Aspetta il Segnale</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Livello 3 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Oggi il ritmo è irregolare di proposito</h4><p>È normale sbagliare di più &mdash; il punto è restare concentrati, non essere perfetti. Elogia lo sforzo, non solo il risultato.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Batti le mani SOLO quando vedi la lente 🔎. Questa volta le carte arrivano a ritmi diversi &mdash; a volte veloce, a volte con una pausa lunga."</p></div></div>
+
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Carta</th><th>Pausa prima di mostrarla</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="call">🔺</td><td>2 secondi</td></tr>
+        <tr><td class="n">2</td><td class="call">🔎</td><td>4 secondi</td></tr>
+        <tr><td class="n">3</td><td class="call">🔵</td><td>1 secondo</td></tr>
+        <tr><td class="n">4</td><td class="call">🔎</td><td>3 secondi</td></tr>
+        <tr><td class="n">5</td><td class="call">🟩</td><td>1 secondo</td></tr>
+        <tr><td class="n">6</td><td class="call">🟣</td><td>5 secondi</td></tr>
+        <tr><td class="n">7</td><td class="call">🔎</td><td>2 secondi</td></tr>
+        <tr><td class="n">8</td><td class="call">🔺</td><td>1 secondo</td></tr>
+        <tr><td class="n">9</td><td class="call">🔎</td><td>3 secondi</td></tr>
+        <tr><td class="n">10</td><td class="call">🔵</td><td>fine del gioco</td></tr>
+      </tbody>
+    </table>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continua nel gioco</b><p>"Il Semaforo dell'Attesa" ha livelli con tempi d'attesa che cambiano ogni volta, esattamente come oggi.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 6 di 7</span></div>
+  </section>
+
+  <!-- 7 LA REGOLA NASCOSTA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 7</div></div>
+    <h2>La Regola Nascosta</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Formazione di regole</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Livello 3 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Sbagliare fa parte del gioco</h4><p>Il modo in cui si scopre la regola è proprio provando e ricevendo un "sì" o un "no" &mdash; non è un test, è un indovinello.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Ho scelto una regola segreta su questi simboli. Indovina quali seguono la regola &mdash; ti dirò solo 'sì' o 'no', senza spiegare perché."</p></div></div>
+
+    <div class="box"><h4>🔑 Scegli UNA regola da questa lista (non dirla a tuo figlio)</h4>
+      <ol class="steps">
+        <li>Solo le forme <b>rosse</b></li>
+        <li>Solo le forme <b>rotonde</b></li>
+        <li>Solo le forme <b>grandi</b></li>
+      </ol>
+    </div>
+
+    <div class="cardstrip">
+      <div class="card">🔴</div><div class="card">🟦</div><div class="card">🟢</div><div class="card">🔺</div><div class="card">🟥</div><div class="card">🟡</div>
+    </div>
+    <p class="cut">Simboli da mostrare uno alla volta &mdash; chiedi "segue la regola?" e rispondi solo sì/no</p>
+
+    <div class="box"><h4>🪜 Scala degli aiuti (usa solo se serve)</h4>
+      <ol class="steps">
+        <li>Dopo 3 tentativi sbagliati: "Guarda bene il colore di ognuno."</li>
+        <li>Dopo 5 tentativi sbagliati: "Prova a confrontare solo quelli rossi tra loro."</li>
+        <li>Dopo 7 tentativi: rivela la regola insieme, senza drammatizzare.</li>
+      </ol>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>Nei livelli avanzati di "Caccia al Bersaglio" la regola cambia e va scoperta di nuovo &mdash; lo stesso spirito investigativo di oggi.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controllo</span><span>Missione 7 di 7</span></div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:14px;">Fine del Modulo 3</div>
+    <h2>Controllo della Risposta completato!</h2>
+    <p>Tre moduli ti aspettano ancora: Flessibilità, Pianificazione ed Emozioni.</p>
+    <div class="modgrid">
+      <span class="mtag done">1 Attenzione ✓</span><span class="mtag done">2 Memoria ✓</span><span class="mtag now">3 Controllo ✓</span>
+      <span class="mtag">4 Flessibilità</span><span class="mtag">5 Pianificazione</span><span class="mtag">6 Emozioni</span>
+    </div>
+  </section>
+
+</div>

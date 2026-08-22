@@ -1,0 +1,392 @@
+<title>Kit Completo — Modulo Flessibilità</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); } .k-ear-in{ fill:var(--caramel-tint); } .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; } .k-eye{ fill:var(--ink); } .k-eye-hi{ fill:#fff; } .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; } .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:100px; height:100px; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(63,134,87,.30), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(201,161,94,.26), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:64px 56px 44px; display:flex; flex-direction:column; gap:20px; min-height:520px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:44px; line-height:1.08; max-width:13ch; }
+  .cover .sub{ font-size:17px; color:#EAE3D2; max-width:38ch; line-height:1.5; }
+  .modstrip{ display:flex; gap:7px; margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,248,237,.18); }
+  .modstrip .m{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:rgba(255,248,237,.12); color:#CFE0D6; }
+  .modstrip .m.active{ background:var(--leaf); color:#fff; }
+  .modstrip .m.done{ background:var(--leaf); color:#fff; opacity:.6; }
+
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:27px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15px; max-width:58ch; margin-top:10px; }
+
+  .modulestrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .modulestrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .modulestrip .d.active{ background:var(--leaf); color:#fff; border-color:var(--leaf); }
+  .modulestrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; letter-spacing:.01em; }
+  .chip.flessibilita{ background:var(--leaf-tint); color:var(--leaf); }
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; white-space:nowrap; }
+  .adv-tag{ font-size:11px; font-weight:700; color:var(--berry); background:var(--berry-tint); padding:4px 10px; border-radius:99px; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:16px 0; }
+  .box h4{ font-family:var(--serif); font-size:15px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--leaf); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--caramel); }
+  .script p{ font-style:italic; color:var(--ink); font-size:14.5px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+  ol.steps{ margin:0; padding-left:22px; } ol.steps li{ margin-bottom:8px; font-size:14.5px; }
+  ol.steps li::marker{ font-family:var(--serif); font-weight:700; color:var(--caramel-deep); }
+
+  .bridge{ margin-top:24px; padding:16px 20px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.5px; color:#DCE7DF; margin-top:3px; }
+  .foot{ display:flex; justify-content:space-between; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  /* 2x2 matrix (Categorie Doppie) */
+  .matrix{ display:grid; grid-template-columns:76px 1fr 1fr; gap:6px; max-width:360px; margin:18px auto; }
+  .matrix .hcell{ display:flex; align-items:center; justify-content:center; font-weight:700; font-family:var(--serif); font-size:13.5px; color:var(--caramel-deep); background:var(--caramel-tint); border-radius:8px; padding:10px 6px; text-align:center; }
+  .matrix .corner{ background:transparent; }
+  .matrix .bodycell{ background:var(--cream); border:1.5px dashed var(--line-strong); border-radius:8px; min-height:64px; }
+
+  .cardstrip{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0; }
+  .cardstrip .card{ width:58px; height:58px; border:1.5px solid var(--line-strong); border-radius:9px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:24px; box-shadow:0 2px 5px rgba(20,24,27,.06); position:relative; }
+  .cardstrip .card.exception{ border:2px solid var(--berry); }
+  .cardstrip .card.exception::after{ content:"⭐"; position:absolute; top:-8px; right:-8px; font-size:14px; }
+  .cut{ text-align:center; font-size:12px; color:var(--ink-faint); letter-spacing:.08em; text-transform:uppercase; margin-top:8px; }
+
+  /* rule bins */
+  .binrow{ display:flex; gap:20px; margin:18px 0; flex-wrap:wrap; }
+  .bin{ flex:1; min-width:200px; background:var(--cream); border:1.5px dashed var(--line-strong); border-radius:14px; padding:16px; text-align:center; min-height:70px; }
+  .bin h5{ font-family:var(--serif); font-size:14px; margin:0 0 8px; color:var(--caramel-deep); }
+
+  table.calltable{ width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
+  table.calltable th{ font-family:var(--serif); font-weight:600; text-align:left; padding:9px 12px; background:var(--teal-deep); color:var(--cream); font-size:12.5px; }
+  table.calltable th:first-child{ border-radius:8px 0 0 0; } table.calltable th:last-child{ border-radius:0 8px 0 0; }
+  table.calltable td{ padding:10px 12px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+  table.calltable td.n{ font-weight:700; color:var(--ink); width:34px; }
+
+  .maze-mini{ display:grid; grid-template-columns:repeat(4,1fr); gap:5px; max-width:220px; margin:18px auto; background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .maze-mini .cell{ aspect-ratio:1; border-radius:6px; background:var(--paper); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .maze-mini .cell.wall{ background:var(--ink-faint); opacity:.35; }
+
+  .ruleopts{ display:flex; gap:14px; flex-wrap:wrap; margin:18px 0; }
+  .ruleopts .opt{ flex:1; min-width:180px; background:var(--cream); border:1.5px solid var(--line); border-radius:12px; padding:14px 16px; display:flex; gap:10px; align-items:flex-start; }
+  .ruleopts .opt .box-check{ width:20px; height:20px; border:2px solid var(--line-strong); border-radius:5px; flex-shrink:0; margin-top:2px; }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:48ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .modgrid{ display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modgrid .mtag{ font-size:12.5px; padding:8px 14px; border-radius:99px; background:var(--cream); border:1px solid var(--line); color:var(--ink-faint); }
+  .modgrid .mtag.now{ background:var(--leaf); color:#fff; border-color:var(--leaf); font-weight:700; }
+  .modgrid .mtag.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    /* Keep multi-part visual components intact instead of splitting them
+       mid-element across a page break (cards, grids, tables, rows). */
+    .box, .bridge, .matrix, .cardstrip, .binrow, table.calltable, .maze-mini,
+    .ruleopts, .rule-block{
+      break-inside: avoid; page-break-inside: avoid;
+      /* Chrome has a known print bug where border-radius + break-inside:avoid
+         duplicates the element's content right at the page-break boundary -
+         dropping the radius/shadow only in print avoids that artifact. */
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- COVER -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Kit Completo &middot; Modulo 4 di 6</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>Flessibilità</h1>
+    <p class="sub">Sette missioni per imparare a cambiare regola, punto di vista e strategia &mdash; senza rimanere bloccati sulla prima idea.</p>
+    <div class="modstrip"><div class="m done">1</div><div class="m done">2</div><div class="m done">3</div><div class="m active">4</div><div class="m">5</div><div class="m">6</div></div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="page">
+    <div class="kicker">Prima di iniziare</div>
+    <h2>Come si usa questo modulo</h2>
+    <p class="lede">Confondersi quando la regola cambia è normalissimo &mdash; è proprio quello che stiamo allenando. Se sbaglia, ricorda la regola con calma, senza dire che ha sbagliato.</p>
+    <div class="box note"><h4>📣 Annuncia sempre il cambio ad alta voce</h4><p>Ogni volta che una regola cambia in questo modulo, dillo chiaramente prima di continuare &mdash; mai in silenzio.</p></div>
+    <div class="box"><h4>🔁 Alcune attività ricordano il Mini Kit</h4><p>Sono segnalate con <span class="adv-tag">Versione avanzata</span>.</p></div>
+  </section>
+
+  <!-- 1 CATEGORIE DOPPIE -->
+  <section class="page">
+    <div class="modulestrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 1</div></div>
+    <h2>Categorie Doppie</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Classificazione simultanea</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Livello 1 di 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Esempio insieme</h4><p>Prendi un simbolo e insieme decidete in quale casella va, guardando SIA il colore SIA la forma allo stesso tempo.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Ogni simbolo ha un colore e una forma. Mettilo nella casella giusta guardando le due cose insieme, non una alla volta."</p></div></div>
+
+    <div class="matrix">
+      <div class="hcell corner"></div><div class="hcell">Cerchio</div><div class="hcell">Quadrato</div>
+      <div class="hcell">Rosso</div><div class="bodycell"></div><div class="bodycell"></div>
+      <div class="hcell">Blu</div><div class="bodycell"></div><div class="bodycell"></div>
+    </div>
+    <div class="cardstrip">
+      <div class="card">🔴</div><div class="card">🟥</div><div class="card">🔵</div><div class="card">🟦</div>
+      <div class="card">🔴</div><div class="card">🟥</div><div class="card">🔵</div><div class="card">🟦</div>
+    </div>
+    <p class="cut">✂️ Ritaglia gli 8 simboli e sistemali nella casella giusta della griglia</p>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>"Caccia al Bersaglio" chiede di guardare più caratteristiche insieme nei livelli avanzati &mdash; la stessa doppia attenzione di oggi.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 1 di 7</span></div>
+  </section>
+
+  <!-- 2 CAMBIA COLORE CAMBIA REGOLA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 2</div></div>
+    <h2>Cambia Colore, Cambia Regola</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Flessibilità cognitiva</span>
+      <span class="adv-tag">Versione avanzata di Cambia Regola</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire (tre fasi, in ordine)</h4>
+      <ol class="steps">
+        <li><b>Fase 1 &mdash; colore:</b> "Rosso, batti le mani; blu, resta fermo." Fate 6&ndash;8 simboli.</li>
+        <li><b>Fase 2 &mdash; forma</b> (annuncia il cambio!): "Cambia la regola! Ora conta la forma: cerchio, batti le mani; quadrato, resta fermo." Altri 6&ndash;8 simboli.</li>
+        <li><b>Fase 3 &mdash; dimensione</b> (una regola nuova, mai usata prima): "Cambia ancora! Adesso conta la dimensione: grande, batti le mani; piccolo, resta fermo."</li>
+      </ol>
+    </div></div>
+    <div class="box note"><h4>💡 Tre regole diverse, una alla volta</h4><p>Nessuno mescola le tre regole insieme &mdash; si passa da una all'altra, sempre annunciata chiaramente.</p></div>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>"Caccia al Bersaglio" nei livelli difficili cambia bersaglio più di una volta nella stessa partita &mdash; come oggi.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 2 di 7</span></div>
+  </section>
+
+  <!-- 3 IL MIMO CHE CAMBIA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 3</div></div>
+    <h2>Il Mimo che Cambia</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Flessibilità motoria</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Diverso dal Modulo 3</h4><p>Qui la regola cambia a metà, segnalata dalla parola "Specchio Rotto!" &mdash; non è fissa come "Il Gioco del Contrario".</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa fare (in ordine)</h4>
+      <ol class="steps">
+        <li>Alza un braccio &rarr; tuo figlio <b>copia</b></li>
+        <li>Tocca la testa &rarr; <b>copia</b></li>
+        <li>📣 Dì ad alta voce: <b>"Specchio Rotto!"</b></li>
+        <li>Salta &rarr; adesso fa il <b>contrario</b> (resta fermo)</li>
+        <li>Gira su te stesso &rarr; <b>contrario</b> (resta fermo)</li>
+        <li>📣 Dì ad alta voce: <b>"Specchio Normale!"</b></li>
+        <li>Batti le mani &rarr; torna a <b>copiare</b></li>
+      </ol>
+    </div></div>
+
+    <div class="bridge"><span style="font-size:22px;">💬</span><div><b>Continua nel gioco</b><p>"Il Mio Turno, il Tuo Turno" allena lo stesso adattarsi a una regola che cambia.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 3 di 7</span></div>
+  </section>
+
+  <!-- 4 IL GIOCO DELLE ECCEZIONI -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 4</div></div>
+    <h2>Il Gioco delle Eccezioni</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Regole con eccezione</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Livello 2 di 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Esempio insieme</h4><p>Mostra un simbolo normale e uno con la stellina ⭐, spiegando la differenza prima di iniziare.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Metti le forme rotonde qui, le forme ad angoli qui. MA i simboli con la stellina ⭐ vanno nella casella opposta &mdash; loro seguono la regola contraria."</p></div></div>
+
+    <div class="binrow"><div class="bin"><h5>Rotonde</h5></div><div class="bin"><h5>Ad angoli</h5></div></div>
+    <div class="cardstrip">
+      <div class="card">🔵</div><div class="card">🔺</div><div class="card exception">🔵</div><div class="card">🟦</div>
+      <div class="card exception">🔺</div><div class="card">🟢</div><div class="card">🔶</div><div class="card exception">🟩</div>
+    </div>
+    <p class="cut">⭐ = eccezione, va nella casella opposta</p>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>Nei livelli avanzati di "Caccia al Bersaglio" alcuni simboli valgono il contrario &mdash; stessa attenzione all'eccezione.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 4 di 7</span></div>
+  </section>
+
+  <!-- 5 SI E NO A SORPRESA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 5</div></div>
+    <h2>Sì e No a Sorpresa</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Cambio imprevedibile</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Livello 3 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Segui esattamente questa tabella</h4><p>La regola di ogni turno è già decisa qui sotto &mdash; non improvvisare, altrimenti il gioco diventa troppo facile da prevedere o troppo confuso.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire prima di ogni turno</h4><p>Leggi la regola attiva ad alta voce prima di mostrare il simbolo: "Questo turno: batti le mani se [regola]."</p></div></div>
+
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Regola attiva</th><th>Simbolo mostrato</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>Batti se rotondo</td><td>🔵</td></tr>
+        <tr><td class="n">2</td><td>Batti se quadrato</td><td>🟦</td></tr>
+        <tr><td class="n">3</td><td>Batti se quadrato</td><td>🔺</td></tr>
+        <tr><td class="n">4</td><td>Batti se rotondo</td><td>🔵</td></tr>
+        <tr><td class="n">5</td><td>Batti se rotondo</td><td>🟦</td></tr>
+        <tr><td class="n">6</td><td>Batti se quadrato</td><td>🟦</td></tr>
+        <tr><td class="n">7</td><td>Batti se quadrato</td><td>🔵</td></tr>
+        <tr><td class="n">8</td><td>Batti se rotondo</td><td>🔵</td></tr>
+      </tbody>
+    </table>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>"Caccia al Bersaglio" nei livelli più difficili cambia bersaglio senza preavviso &mdash; la stessa sorpresa di oggi.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 5 di 7</span></div>
+  </section>
+
+  <!-- 5 SOLUTION -->
+  <section class="page solution">
+    <div class="kicker">Soluzione &middot; Missione 5</div>
+    <h2>Sì e No a Sorpresa &mdash; risposte</h2>
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Regola attiva</th><th>Simbolo</th><th>Risposta corretta</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>Batti se rotondo</td><td>🔵</td><td>Batte le mani</td></tr>
+        <tr><td class="n">2</td><td>Batti se quadrato</td><td>🟦</td><td>Batte le mani</td></tr>
+        <tr><td class="n">3</td><td>Batti se quadrato</td><td>🔺</td><td>Resta fermo</td></tr>
+        <tr><td class="n">4</td><td>Batti se rotondo</td><td>🔵</td><td>Batte le mani</td></tr>
+        <tr><td class="n">5</td><td>Batti se rotondo</td><td>🟦</td><td>Resta fermo</td></tr>
+        <tr><td class="n">6</td><td>Batti se quadrato</td><td>🟦</td><td>Batte le mani</td></tr>
+        <tr><td class="n">7</td><td>Batti se quadrato</td><td>🔵</td><td>Resta fermo</td></tr>
+        <tr><td class="n">8</td><td>Batti se rotondo</td><td>🔵</td><td>Batte le mani</td></tr>
+      </tbody>
+    </table>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Soluzione &middot; Missione 5</span></div>
+  </section>
+
+  <!-- 6 TROVA UN ALTRO MODO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 6</div></div>
+    <h2>Trova un Altro Modo</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Pensiero flessibile</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Livello 3 di 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Non esiste una risposta giusta unica</h4><p>Qualsiasi percorso valido conta. Descrivi cosa hai visto invece di dire giusto/sbagliato: "Hai trovato un modo diverso dal primo!"</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"La formica 🐜 deve arrivare alla foglia 🍃. Trova un percorso. Poi trova un SECONDO percorso diverso dal primo &mdash; e se riesci, anche un terzo!"</p></div></div>
+
+    <div class="maze-mini">
+      <span class="cell">🐜</span><span class="cell"></span><span class="cell wall"></span><span class="cell"></span>
+      <span class="cell"></span><span class="cell wall"></span><span class="cell"></span><span class="cell"></span>
+      <span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell wall"></span>
+      <span class="cell wall"></span><span class="cell"></span><span class="cell"></span><span class="cell">🍃</span>
+    </div>
+    <p class="find-tally" style="text-align:center; font-size:13px; color:var(--ink-soft);">Le caselle grigie sono muri &mdash; non si può passare.</p>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continua nel gioco</b><p>"Caccia al Bersaglio" premia chi esplora lo schermo in modi diversi &mdash; non esiste un solo modo giusto di cercare.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 6 di 7</span></div>
+  </section>
+
+  <!-- 7 LA REGOLA DI OGGI -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Missione 7 &middot; Capstone</div></div>
+    <h2>La Regola di Oggi</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Flessibilità + autonomia</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Livello 3 di 3</span></span>
+    </div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ Cosa dire</h4><p>"Oggi scegli tu la regola tra queste tre. Giochiamo un po' con quella regola &mdash; poi, a metà, io dirò 'Cambio!' e passiamo a un'altra delle tre."</p></div></div>
+
+    <div class="ruleopts">
+      <div class="opt"><span class="box-check"></span><span>Batti le mani solo per gli animali</span></div>
+      <div class="opt"><span class="box-check"></span><span>Batti le mani solo per le cose rosse</span></div>
+      <div class="opt"><span class="box-check"></span><span>Batti le mani solo per le cose rotonde</span></div>
+    </div>
+    <div class="box note"><h4>📣 A metà gioco</h4><p>Di' "Cambio!" e scegliete insieme una delle altre due regole per finire.</p></div>
+
+    <div class="bridge"><span style="font-size:22px;">🌟</span><div><b>Continua nel gioco</b><p>Complimenti &mdash; hai completato tutto il modulo Flessibilità! Prova adesso "Caccia al Bersaglio" nei livelli più avanzati.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Flessibilità</span><span>Missione 7 di 7</span></div>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:14px;">Fine del Modulo 4</div>
+    <h2>Flessibilità completata!</h2>
+    <p>Due moduli ti aspettano ancora: Pianificazione ed Emozioni.</p>
+    <div class="modgrid">
+      <span class="mtag done">1 Attenzione ✓</span><span class="mtag done">2 Memoria ✓</span><span class="mtag done">3 Controllo ✓</span>
+      <span class="mtag now">4 Flessibilità ✓</span><span class="mtag">5 Pianificazione</span><span class="mtag">6 Emozioni</span>
+    </div>
+  </section>
+
+</div>

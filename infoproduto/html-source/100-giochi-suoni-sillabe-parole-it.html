@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>100 Giochi di Suoni, Sillabe e Parole (VisCare Kids)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  :root {
+    --theme-green: #1a4d38;
+    --theme-green-light: #e8f3ee;
+    --theme-gold: #c28830;
+    --theme-gold-bg: #fdf6e9;
+    --text-main: #24292e;
+    --text-muted: #57606a;
+    --border-color: #d0d7de;
+    --card-bg: #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e9ecef;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-main);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .print-bar {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 1000;
+    background: var(--theme-green);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .print-bar:hover {
+    transform: scale(1.05);
+    background: #256b4f;
+  }
+
+  .page {
+    width: 210mm;
+    height: 296mm;
+    max-height: 296mm;
+    padding: 12mm 14mm;
+    margin: 15px auto;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+
+  /* Cover Page */
+  .cover {
+    background: linear-gradient(165deg, #133a2a 0%, #0c241a 100%) !important;
+    color: #fcf8f2;
+    text-align: center;
+    padding: 16mm 16mm 12mm;
+    justify-content: space-between;
+  }
+  .cover .brand {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #d4ebd8;
+  }
+  .cover .tagline {
+    font-size: 11.5px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #8ecfa0;
+    margin-top: 4px;
+  }
+  .cover .main-title {
+    font-family: 'Fraunces', serif;
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 700;
+    color: #fff;
+    margin: 14px 0 10px;
+  }
+  .cover .subtitle {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #d4ebd8;
+    max-width: 450px;
+    margin: 0 auto;
+    font-weight: 500;
+  }
+  .cover .cover-mascot-box {
+    margin: 12px auto 10px;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .cover .cover-mascot-img {
+    width: 140px !important;
+    height: 140px !important;
+    max-width: 140px !important;
+    max-height: 140px !important;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 10px 25px rgba(0,0,0,0.45));
+  }
+  .cover .badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .cover .badge-pill {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 5px 13px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #fdf5eb;
+  }
+  .cover .footer-info {
+    font-size: 11px;
+    color: #9cc4a7;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 10px;
+  }
+
+  /* Module Header */
+  .mod-header {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .mod-badge {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--theme-green);
+  }
+  .mod-title {
+    font-family: 'Fraunces', serif;
+    font-size: 23px;
+    color: #0e291e;
+    margin: 2px 0 1px;
+  }
+  .mod-meta {
+    font-size: 11.5px;
+    color: #6a737d;
+    font-weight: 500;
+  }
+
+  /* Guide Box */
+  .guide-box {
+    background: var(--theme-green-light);
+    border: 1px solid #bde0cd;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #173d2d;
+  }
+  .guide-box strong { color: #0c241a; }
+
+  /* Activity Cards */
+  .activity-card {
+    background: #ffffff;
+    border: 1.5px solid #e1e4e8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .act-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .act-num-title {
+    font-family: 'Fraunces', serif;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #133a2a;
+  }
+  .act-badge {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #6a737d;
+    background: #f1f3f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .act-badge.facile { background: #e6f4ea; color: #137333; }
+  .act-badge.medio { background: #fef7e0; color: #b06000; }
+  .act-badge.difficile { background: #fce8e6; color: #c5221f; }
+
+  .act-desc {
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  .speak-box {
+    background: #f8f9fa;
+    border-left: 3.5px solid var(--theme-green);
+    border-radius: 0 8px 8px 0;
+    padding: 7px 10px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #2b2b2b;
+    margin: 5px 0;
+  }
+  .speak-label {
+    font-weight: 800;
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--theme-green);
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .tip-box {
+    font-size: 10.5px;
+    color: #555;
+    margin-top: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    line-height: 1.35;
+  }
+
+  .syllable-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin: 6px 0;
+  }
+  .syllable-row {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+  }
+
+  .cut-box {
+    border: 1.5px dashed #c0c4c8;
+    border-radius: 8px;
+    padding: 8px;
+    margin: 6px 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .certificate-page {
+    border: 6px double #c28830;
+    background: #fffdfa;
+    padding: 16mm 14mm;
+    text-align: center;
+    justify-content: space-around;
+  }
+  .cert-title {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    color: #8c5b13;
+    font-weight: 700;
+  }
+  .cert-sub {
+    font-size: 14px;
+    color: #5d4829;
+    margin-top: 8px;
+  }
+  .cert-name-line {
+    border-bottom: 2px solid #c28830;
+    width: 80%;
+    margin: 25px auto 8px;
+    height: 30px;
+  }
+  .cert-text {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #3b2c15;
+    max-width: 480px;
+    margin: 15px auto;
+  }
+  .cert-signatures {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+    font-size: 11.5px;
+    color: #786445;
+  }
+  .cert-sig-line {
+    border-top: 1px solid #786445;
+    padding-top: 4px;
+    width: 150px;
+  }
+
+  .page-footer {
+    text-align: center;
+    font-size: 9.5px;
+    color: #8c959f;
+    border-top: 1px solid #eee;
+    padding-top: 5px;
+    margin-top: 8px;
+  }
+
+  /* Celebration pages (98/99) - jornada review + passport, closing Modulo 9 */
+  .celebration-page { background: var(--theme-gold-bg) !important; }
+  .celebration-header { text-align: center; margin-bottom: 10px; }
+  .celebration-kicker { font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; color: var(--theme-gold); }
+  .celebration-title { font-family: 'Fraunces', serif; font-size: 22px; color: #5d4829; margin: 3px 0 2px; }
+  .celebration-meta { font-size: 11px; color: #8c7550; }
+  .celebration-card { background: #fff; border: 1.5px solid #e9dcc0; border-radius: 10px; padding: 12px 16px; }
+  .celebration-lead { font-size: 11.5px; line-height: 1.5; color: #3b2c15; margin-bottom: 10px; }
+
+  .journey-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #eee2cc; font-size: 11px; }
+  .journey-row:last-of-type { border-bottom: none; }
+  .journey-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--theme-gold-bg); border: 1px solid var(--theme-gold); color: #8c5b13; font-weight: 800; font-size: 10.5px; display: flex; align-items: center; justify-content: center; }
+  .journey-info { flex: 1; min-width: 0; }
+  .journey-title { font-weight: 700; color: #24292e; }
+  .journey-fav { font-size: 10px; color: #8c959f; }
+  .journey-mark { flex-shrink: 0; width: 16px; height: 16px; border-radius: 4px; border: 1.5px dashed var(--theme-gold); }
+
+  .passport-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 8px; margin: 8px 0; }
+  .passport-stamp { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .passport-circle { width: 46px; height: 46px; border-radius: 50%; border: 2px dashed var(--theme-gold); display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 800; font-size: 15px; color: #8c5b13; background: var(--theme-gold-bg); }
+  .passport-label { font-size: 9px; text-align: center; color: #57606a; line-height: 1.25; max-width: 90px; }
+
+  @media print {
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #fff !important;
+      width: 210mm !important;
+    }
+    .print-bar { display: none !important; }
+    .page {
+      width: 210mm !important;
+      height: 296mm !important;
+      max-height: 296mm !important;
+      margin: 0 !important;
+      padding: 12mm 14mm !important;
+      box-shadow: none !important;
+      border: none !important;
+      page-break-inside: avoid !important;
+      page-break-after: always !important;
+      break-inside: avoid !important;
+      break-after: page !important;
+      overflow: hidden !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-bar" onclick="window.print()">
+  🖨️ Stampa in PDF (Ctrl+P)
+</button>
+
+<!-- ================= COPERTINA ================= -->
+<div class="page cover">
+  <div>
+    <div class="brand">VisCare Kids</div>
+    <div class="tagline">Libro di Attività · 5 a 8 Anni</div>
+  </div>
+
+  <div>
+    <div class="main-title">100 Giochi di<br>Suoni, Sillabe<br>e Parole</div>
+    <div class="subtitle">Un passo alla volta, dal primo suono alla prima frase scritta — da allenare a casa, senza schermi, al ritmo del bambino.</div>
+    <div class="cover-mascot-box">
+      <img src="../../assets/badge_memoria-da-kapi.png" class="cover-mascot-img" alt="Kapi">
+    </div>
+    <div class="badge-row">
+      <span class="badge-pill">📚 9 Moduli Progressivi</span>
+      <span class="badge-pill">✂️ PDF Pronto da Stampare</span>
+      <span class="badge-pill">🌿 100% Senza Schermi</span>
+    </div>
+  </div>
+
+  <div class="footer-info">
+    <strong>Kapi & VisCare Kids</strong> — viscarekids.com<br>
+    © 2026 VisCare Kids. Tutti i diritti riservati.
+  </div>
+</div>
+
+<!-- ================= MODULO 1 (PAGINA 1/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 1 — Consapevolezza della Parola e Frase Parlata</div>
+      <div class="mod-meta">8 missioni · tutte orali, senza bisogno di scrivere nulla</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> questo modulo è tutto parlato — non servono matite né stampe oltre a questa pagina. È il primo passo prima di qualsiasi sillaba o lettera: rendersi conto che il parlato è fatto di parti (parole) che possono essere contate, confrontate e riordinate.<br>
+      Fate 1 o 2 missioni al giorno. Non c'è giusto o sbagliato: l'obiettivo è far cogliere il meccanismo al bambino, non fare tutto perfetto al primo colpo.
+    </div>
+
+    <!-- ATTIVITÀ 1 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">1. Quante Parole ci sono nella Frase?</div>
+        <div class="act-badge">Segmentazione della Frase</div>
+      </div>
+      <div class="act-desc">Dì una frase corta (3–4 parole) e chiedi al bambino di battere le mani per ogni parola che sente, contando alla fine quanti applausi ha fatto.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene, dirò una frase piano piano. Batti le mani per ogni parola: 'Il – gatto – dorme'. Quanti battiti hai fatto?"
+      </div>
+      <div class="tip-box">💡 Inizia con frasi cortissime (2–3 parole) e allungale solo quando il bambino risponde facilmente.</div>
+    </div>
+
+    <!-- ATTIVITÀ 2 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">2. Frase Lunga, Frase Corta</div>
+        <div class="act-badge">Confronto di Lunghezza</div>
+      </div>
+      <div class="act-desc">Dì due frasi (una molto corta e una più lunga) e chiedi al bambino di indicare quale delle due "ha più parole".</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta queste due: 'Lei corre' e 'La bambina corre veloce nel parco'. Quale delle due ha più parole?"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 3 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">3. È una Parola Vera?</div>
+        <div class="act-badge">Giudizio di Unità Linguistica</div>
+      </div>
+      <div class="act-desc">Dì alcuni suoni o sillabe inventati mescolati a parole vere e chiedi al bambino di dirti se ognuna "è una parola che usiamo davvero" oppure no.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta queste parole. Dimmi se è una parola vera o inventata: 'gatto' (sì!), 'blen' (no!), 'casa' (sì!)."
+      </div>
+      <div class="tip-box">💡 Usa suoni inventati molto evidenti all'inizio per non creare dubbi.</div>
+    </div>
+
+    <!-- ATTIVITÀ 4 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">4. Ripeti con Me</div>
+        <div class="act-badge">Memoria Sequenziale Verbale</div>
+      </div>
+      <div class="act-desc">Dì una frase di 3–4 parole e chiedi al bambino di ripeterla esattamente nello stesso ordine.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta con attenzione e ripeti proprio come ho detto io: 'Il cane abbaia forte'."
+      </div>
+      <div class="tip-box">💡 Se sbaglia l'ordine, non correggerlo: ripeti la frase lentamente e lascialo riprovare.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 1 di 9 (Pagina 1/2)</div>
+</div>
+
+<!-- ================= MODULO 1 (PAGINA 2/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 1 — Consapevolezza della Parola (Continua)</div>
+      <div class="mod-title">Missioni 5 a 8</div>
+    </div>
+
+    <!-- ATTIVITÀ 5 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">5. Chi Viene Prima?</div>
+        <div class="act-badge">Sequenza di Eventi</div>
+      </div>
+      <div class="act-desc">Racconta una mini-storia di due azioni (es: "Il bambino si è svegliato e poi si è lavato i denti") e chiedi cosa è successo prima.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Il bambino si è svegliato e poi si è lavato i denti. Cos'ha fatto per prima cosa?"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 6 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">6. Caccia alle Parole Parlate</div>
+        <div class="act-badge">Corrispondenza Ordine Parlato → Oggetti</div>
+      </div>
+      <div class="act-desc">Disponi 3–4 oggetti o giocattoli sul tavolo. Dì una frase nominandoli in un certo ordine e chiedi al bambino di toccarli nella stessa sequenza.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Tocca prima la macchinina, poi la bambola, poi la matita — proprio nell'ordine in cui te li ho detti."
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 7 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">7. Frase Sottosopra</div>
+        <div class="act-badge">Riordino Orale</div>
+      </div>
+      <div class="act-desc">Dì una frase con le parole mescolate ("Parco bambina nel corre la") e chiedi al bambino di rimetterla a posto a voce.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Adesso dico delle parole tutte disordinate: 'Parco... bambina... nel... corre... la'. Come si dice nel modo giusto?"
+      </div>
+      <div class="tip-box">💡 Inizia con frasi di 3 parole: con 4 o più diventa molto più difficile a mente.</div>
+    </div>
+
+    <!-- ATTIVITÀ 8 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">8. La Mia Prima Frase</div>
+        <div class="act-badge">Produzione Orale Libera</div>
+      </div>
+      <div class="act-desc">Mostra un disegno o un oggetto e chiedi al bambino di inventare a voce una frase di 3 parole su di esso.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questo disegno. Dimmi una frase di 3 parole su di lui — puoi inventare qualsiasi cosa ti venga in mente!"
+      </div>
+      <div class="tip-box">💡 Qualsiasi frase di 3 parole va benissimo: l'obiettivo è costruire frasi, non indovinare una risposta specifica.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 1 di 9 (Pagina 2/2)</div>
+</div>
+
+<!-- ================= MODULO 2 (PAGINA 1/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 2 — Rime e Allitterazioni</div>
+      <div class="mod-meta">12 missioni · tutte orali, senza bisogno di scrivere nulla</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> le parole hanno una musica segreta dentro. <em>PALLA</em> e <em>STALLA</em> finiscono allo stesso modo. <em>SOLE</em> e <em>SOTTO</em> iniziano allo stesso modo. Percepire questa musica — senza nemmeno dover saper leggere — è uno dei passi più importanti prima di iniziare la scuola primaria.<br>
+      Non esistono errori qui: se la rima non esce subito, fatevi una risata insieme e provate con un'altra parola!
+    </div>
+
+    <!-- ATTIVITÀ 9 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">9. Fanno Rima o No?</div>
+        <div class="act-badge">Giudizio di Rima in Coppie</div>
+      </div>
+      <div class="act-desc">Dì due parole ad alta voce e chiedi se fanno rima. Mescola coppie che rimano con coppie che non c'entrano nulla.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene: GATTO... MATTO. Finiscono con lo stesso suono? Fanno rima o non fanno rima?"
+      </div>
+      <div class="tip-box">💡 Battete le mani quando la rima si incastra. Il gesto aiuta a sentire il ritmo.</div>
+    </div>
+
+    <!-- ATTIVITÀ 10 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">10. Caccia alle Rime</div>
+        <div class="act-badge">Riconoscimento di Rima nell'Ambiente</div>
+      </div>
+      <div class="act-desc">Dì una parola-bersaglio e trasforma la stanza in una caccia al tesoro: il bambino cerca un oggetto vero che faccia rima.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Facciamo la caccia alla rima! Io dico una parola e tu cerchi qualcosa in casa che faccia rima. La parola è: STELLA. Cosa trovi?" (ciotola, padella, gonnella...)
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 11 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">11. Unisci le Rime</div>
+        <div class="act-badge">Appaiamento di Rime</div>
+      </div>
+      <div class="act-desc">Disponi 6–8 oggetti sul tavolo. Il bambino cerca due oggetti i cui nomi fanno rima tra loro e li mette vicini formando una coppia.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questi giochi sul tavolo: ce ne sono due che fanno rima! Riesci a trovare la coppia e metterli insieme?" (fiore/cuore, pane/cane)
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 2 di 9 (Pagina 1/3)</div>
+</div>
+
+<!-- ================= MODULO 2 (PAGINA 2/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 2 — Rime e Allitterazioni (Continua)</div>
+      <div class="mod-title">Missioni 12 a 16</div>
+    </div>
+
+    <!-- ATTIVITÀ 12 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">12. Completa la Filastrocca</div>
+        <div class="act-badge">Previsione di Rima in Verso</div>
+      </div>
+      <div class="act-desc">Recita una filastrocca famosa fermandoti appena prima dell'ultima parola, lasciando che sia il bambino a completare la rima.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ambarabà ciccì coccò, tre civette sul comò, che facevano l'amore con la figlia del... (pausa)? Esatto, dottore!"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 13 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">13. La Mia Rima Buffa</div>
+        <div class="act-badge">Produzione con Parole Inventate</div>
+      </div>
+      <div class="act-desc">Dì una parola e chiedi al bambino di inventare una parola finta che finisca con lo stesso suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Io dico una parola e tu inventi una parola buffa che fa rima. La parola è PALLA. Può essere 'nalla', 'tralla', 'suballa'!"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 14 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">14. Iniziano Uguali?</div>
+        <div class="act-badge">Suono Iniziale</div>
+      </div>
+      <div class="act-desc">Dì due parole e chiedi se iniziano con lo stesso suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "SOLE e SOTTO iniziano con lo stesso suono? E invece: SOLE e LUNA, iniziano uguali?"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 15 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">15. Caccia al Suono Iniziale</div>
+        <div class="act-badge">Riconoscimento di Suono nell'Ambiente</div>
+      </div>
+      <div class="act-desc">Dì un suono iniziale e chiedi al bambino di cercare in casa un oggetto il cui nome inizi con quel suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Cerchiamo qualcosa che inizia con il suono 'ffff'. Cosa trovi?" (forchetta, foglio, fiore...)
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 16 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">16. Scioglilingua Facile</div>
+        <div class="act-badge">Allitterazione</div>
+      </div>
+      <div class="act-desc">Ripeti insieme, piano piano, un breve scioglilingua di allitterazione.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ripetiamo insieme piano piano: 'Sopra la panca la capra campa, sotto la panca la capra crepa'. E ora un po' più veloce!"
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 2 di 9 (Pagina 2/3)</div>
+</div>
+
+<!-- ================= MODULO 2 (PAGINA 3/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 2 — Rime e Allitterazioni (Continua)</div>
+      <div class="mod-title">Missioni 17 a 20</div>
+    </div>
+
+    <!-- ATTIVITÀ 17 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">17. La Famiglia delle Rime</div>
+        <div class="act-badge">Raggruppamento di Rime</div>
+      </div>
+      <div class="act-desc">Disponi 6 oggetti sul tavolo (in 2 gruppi da 3 che fanno rima tra loro) e chiedi al bambino di dividerli in due "famiglie" in base al suono finale.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questi 6 giochi: alcuni fanno rima tra loro. Riesci a dividerli in due famiglie?" (es: pane/cane/rane e fiore/cuore/amore)
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 18 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">18. Finiscono Uguali?</div>
+        <div class="act-badge">Suono Finale</div>
+      </div>
+      <div class="act-desc">Dì due parole e chiedi se terminano con lo stesso suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "MELA e VELA finiscono con lo stesso suono? E LUNA e SOLE?"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 19 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">19. Filastrocca Illustrata</div>
+        <div class="act-badge">Riconoscimento di Rima nel Testo</div>
+      </div>
+      <div class="act-desc">Recitate insieme una filastrocca italiana conosciuta e chiedi al bambino di indicare, ad ogni verso, quali parole fanno rima.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Giro giro tondo, casca il mondo, casca la terra, tutti giù per terra! Quali parole fanno rima qui?"
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 20 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">20. Diploma della Rima</div>
+        <div class="act-badge">Sintesi del Modulo</div>
+      </div>
+      <div class="act-desc">Il bambino sceglie una parola, trova la sua rima e spiega all'adulto perché stanno bene insieme. Disegnate un piccolo attestato su un foglietto per festeggiare!</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 2 di 9 (Pagina 3/3)</div>
+</div>
+<!-- ================= MODULO 3 (PAGINA 1/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 3 — Consapevolezza Sillabica: Discriminazione e Conteggio</div>
+      <div class="mod-meta">14 missioni · qui inizia il collegamento diretto con il gioco digitale</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> da qui in poi lavoriamo sempre con la <strong>SILLABA</strong> — il pezzettino di parola che si sente in un solo battito di voce ("CA-SA", non lettera per lettera). È uno dei passi più importanti di tutto il libro: è esattamente ciò che il bambino ritroverà nel gioco digitale <em>Aventura delle Lettere</em>, nei livelli <strong>Mondo delle Sillabe</strong>, <strong>Sillabe Mimetizzate</strong>, <strong>Cattura delle Sillabe</strong> e <strong>Suono e Sillabe</strong>.<br>
+      Fate 1 o 2 missioni al giorno, sempre a voce alta e con calma: non serve leggere né scrivere, solo ascoltare bene.
+    </div>
+
+    <!-- ATTIVITÀ 21 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">21. Batti le Mani per la Sillaba</div>
+        <div class="act-badge facile">Conteggio Sillabico</div>
+      </div>
+      <div class="act-desc">Pronuncia una parola separando bene le sillabe e chiedi al bambino di battere le mani per ogni pezzettino che sente.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta: 'CA-SA'. Batti le mani per ogni pezzetto che senti. Quanti battiti hai fatto?" (Prova anche con: GAT-TO, PAL-LA, MA-TI-TA, TE-LE-FO-NO).
+      </div>
+      <div class="tip-box">💡 Inizia con parole di 2 sillabe e passa a 3 o 4 solo quando il bambino risponde con sicurezza.</div>
+    </div>
+
+    <!-- ATTIVITÀ 22 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">22. Quante Sillabe Ha?</div>
+        <div class="act-badge facile">Conteggio Sillabico</div>
+      </div>
+      <div class="act-desc">Di' una parola intera, senza separarla, e chiedi al bambino di contare quante sillabe ha, alzando un dito per ognuna.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questa parola tutta intera: 'BANANA'. Quante sillabe ha? Alza un dito per ognuna che conti." (Altre parole: SOLE = 2, LIBRO = 2, CAVALLO = 3, TELEFONO = 4).
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 23 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">23. Sillaba Corta, Sillaba Lunga</div>
+        <div class="act-badge facile">Confronto di Lunghezza</div>
+      </div>
+      <div class="act-desc">Di' due parole ad alta voce e chiedi al bambino di indicare quale delle due ha più sillabe.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta queste due: 'CANE' e 'TELEFONO'. Quale delle due ha più sillabe, cioè più pezzettini?"
+      </div>
+      <div class="tip-box">💡 Se serve, battete le mani insieme su entrambe le parole prima di rispondere.</div>
+    </div>
+
+    <!-- ATTIVITÀ 24 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">24. Ascolta e Trova</div>
+        <div class="act-badge facile">Sillaba Iniziale nell'Ambiente</div>
+      </div>
+      <div class="act-desc">Di' una sillaba e chiedi al bambino di cercare in casa un oggetto il cui nome inizi proprio con quella sillaba.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene questa sillaba: 'TA'. Cerca in casa qualcosa che inizi così." (tavolo, tappeto, tazza...)
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: <strong>Mondo delle Sillabe</strong></div>
+    </div>
+
+    <!-- ATTIVITÀ 25 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">25. Sillaba Nascosta nella Fila</div>
+        <div class="act-badge facile">Discriminazione Sillabica</div>
+      </div>
+      <div class="act-desc">Di' tre sillabe simili di fila e chiedi al bambino di ripetere solo quella che gli chiedi tu, senza farsi confondere dalle altre.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene: 'PA... BA... TA'. Ripeti solo la sillaba 'BA'."
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: <strong>Sillabe Mimetizzate</strong></div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 3 di 9 (Pagina 1/3)</div>
+</div>
+
+<!-- ================= MODULO 3 (PAGINA 2/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 3 — Consapevolezza Sillabica (Continua)</div>
+      <div class="mod-meta">Missioni 26 a 30</div>
+    </div>
+
+    <!-- ATTIVITÀ 26 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">26. Caccia alle Sillabe</div>
+        <div class="act-badge facile">Ricerca nell'Ambiente</div>
+      </div>
+      <div class="act-desc">Di' una sillaba e lascia che il bambino cerchi con calma, senza fretta, un oggetto in casa il cui nome la contenga, in qualsiasi posizione.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "La sillaba di oggi è 'TA'. Puoi trovarla all'inizio, in mezzo o alla fine del nome di un oggetto: tavolo, matita, patatine..."
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: <strong>Cattura delle Sillabe</strong></div>
+    </div>
+
+    <!-- ATTIVITÀ 27 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">27. Quale Sillaba Hai Sentito?</div>
+        <div class="act-badge facile">Discriminazione e Memoria</div>
+      </div>
+      <div class="act-desc">Di' tre sillabe simili una dopo l'altra e chiedi al bambino di ripetere quella che hai detto per prima, non l'ultima.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta con attenzione: 'FA... VA... FA'. Qual era la prima sillaba che ho detto?"
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: <strong>Suono e Sillabe</strong></div>
+    </div>
+
+    <!-- ATTIVITÀ 28 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">28. Sillaba Iniziale della Figura</div>
+        <div class="act-badge medio">Sillaba Iniziale</div>
+      </div>
+      <div class="act-desc">Mostra un disegno o un oggetto vero e chiedi al bambino di dire solo la prima sillaba del suo nome.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questo gatto disegnato. Come inizia la parola 'GATTO'? Dimmi solo la prima sillaba." (Risposta: GA)
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 29 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">29. Sillaba Finale della Figura</div>
+        <div class="act-badge medio">Sillaba Finale</div>
+      </div>
+      <div class="act-desc">Mostra lo stesso tipo di disegno o oggetto e chiedi questa volta l'ultima sillaba del nome.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "E adesso guarda questa banana. Come finisce la parola 'BANANA'? Dimmi solo l'ultima sillaba." (Risposta: NA)
+      </div>
+      <div class="tip-box">💡 L'ultima sillaba è più difficile da isolare della prima: se serve, battete le mani insieme sulla parola intera prima.</div>
+    </div>
+
+    <!-- ATTIVITÀ 30 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">30. Abbina le Sillabe Uguali</div>
+        <div class="act-badge medio">Appaiamento Sillabico</div>
+      </div>
+      <div class="act-desc">Disponi alcuni oggetti sul tavolo e chiedi al bambino di trovarne due il cui nome inizia con la stessa sillaba.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questi oggetti sul tavolo. Ce ne sono due che iniziano con la stessa sillaba! Riesci a trovarli?" (es: PALLA e PANE iniziano con PA; CASA e CAVALLO iniziano con CA)
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 3 di 9 (Pagina 2/3)</div>
+</div>
+
+<!-- ================= MODULO 3 (PAGINA 3/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 3 — Consapevolezza Sillabica (Continua)</div>
+      <div class="mod-meta">Missioni 31 a 34</div>
+    </div>
+
+    <!-- ATTIVITÀ 31 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">31. Il Ritmo della Parola</div>
+        <div class="act-badge medio">Ritmo e Cadenza</div>
+      </div>
+      <div class="act-desc">Di' una piccola sequenza di parole conosciute battendo una mano per ogni sillaba, come una piccola canzoncina, e lascia che il bambino senta il ritmo prima di provare da solo.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta il ritmo: 'CA-SA... PAL-LA... MA-TI-TA'. Batti le mani insieme a me, un battito per ogni pezzetto!"
+      </div>
+      <div class="tip-box">💡 Ripetete la stessa sequenza due o tre volte: sentire il ritmo che si ripete aiuta più che cambiare parola ogni volta.</div>
+    </div>
+
+    <!-- ATTIVITÀ 32 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">32. Sillabario Illustrato (Parte 1)</div>
+        <div class="act-badge medio">Sillabario Illustrato</div>
+      </div>
+      <div class="act-desc">Guarda ogni sillaba e prova a pensare una parola conosciuta che inizi con essa, prima di controllare l'esempio.</div>
+      <div class="syllable-grid">
+        <div class="syllable-row"><span>LU 🌙</span><span>LU-NA</span></div>
+        <div class="syllable-row"><span>NA 👃</span><span>NA-SO</span></div>
+        <div class="syllable-row"><span>DA 🎲</span><span>DA-DO</span></div>
+        <div class="syllable-row"><span>VA 🧴</span><span>VA-SO</span></div>
+        <div class="syllable-row"><span>RA 🐸</span><span>RA-NA</span></div>
+        <div class="syllable-row"><span>TO 🐭</span><span>TO-PO</span></div>
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 33 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">33. Sillabario Illustrato (Parte 2)</div>
+        <div class="act-badge difficile">Sillabario Illustrato Avanzato</div>
+      </div>
+      <div class="act-desc">Queste sillabe sono un po' meno comuni delle precedenti: guarda ogni sillaba e prova a indovinare la parola prima di leggere l'esempio.</div>
+      <div class="syllable-grid">
+        <div class="syllable-row"><span>FI 🌿</span><span>FI-CO</span></div>
+        <div class="syllable-row"><span>GO 💪</span><span>GO-MI-TO</span></div>
+        <div class="syllable-row"><span>PE 🍐</span><span>PE-RA</span></div>
+        <div class="syllable-row"><span>VI 🙂</span><span>VI-SO</span></div>
+        <div class="syllable-row"><span>FE 🎉</span><span>FE-STA</span></div>
+        <div class="syllable-row"><span>NI 🪹</span><span>NI-DO</span></div>
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 34 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">34. Gioco della Memoria Sillabica</div>
+        <div class="act-badge difficile">Memoria Sillabica</div>
+      </div>
+      <div class="act-desc">Di' una coppia di sillabe, aspetta qualche secondo in silenzio e poi chiedi al bambino di ripeterle nello stesso ordine.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene queste due sillabe: 'PA... TA'. Aspetta un momentino... e ora ripetile tu, nello stesso ordine!" (Altre coppie da provare: MA-LU, GO-RA, VI-TO)
+      </div>
+      <div class="tip-box">💡 Se il bambino sbaglia l'ordine, ripeti le due sillabe più lentamente e riprova, senza sottolineare l'errore.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 3 di 9 (Pagina 3/3)</div>
+</div>
+<!-- ================= MODULO 4 (PAGINA 1/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 4 — Sintesi e Segmentazione Sillabica</div>
+      <div class="mod-meta">12 missioni · da qui in poi si scrive: matita, forbici e colla alla mano</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> nei moduli precedenti il bambino ha imparato a <em>sentire</em> le sillabe. Ora impara a <strong>unirle</strong> per formare parole intere e a <strong>dividerle</strong> per scomporle sul foglio. È il passaggio dall'orale allo scritto: da qui in poi servono matita, forbici e colla, oltre alla voce.<br>
+      Non correggete mai la calligrafia: l'obiettivo è il ragionamento sulle sillabe, non la bella scrittura. Sbagliare fa parte del gioco.
+    </div>
+
+    <!-- ATTIVITÀ 35 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">35. Unisci le Sillabe</div>
+        <div class="act-badge facile">Sintesi Uditiva</div>
+      </div>
+      <div class="act-desc">Pronuncia due sillabe staccate, con una piccola pausa tra loro, e chiedi al bambino di unirle a voce alta per formare la parola intera.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questi due pezzetti: 'CA... SA'. Uniscili e dimmi la parola intera!" (Prova anche con: PA-NE, SO-LE, LU-NA, MA-NO).
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: <strong>Costruisci la Parola</strong> — sul tablet il bambino unisce le sillabe trascinandole, proprio come si fa qui a voce.</div>
+    </div>
+
+    <!-- ATTIVITÀ 36 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">36. Quanti Pezzi Forma la Parola?</div>
+        <div class="act-badge facile">Previsione del Numero di Sillabe</div>
+      </div>
+      <div class="act-desc">Prima di dire la parola intera, chiedi al bambino di indovinare quanti "pezzetti" (sillabe) avrà. Poi pronunciatela insieme, piano piano, e controllate battendo le mani.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Prova a indovinare: quanti pezzetti avrà la parola 'FARFALLA'? Adesso la diciamo insieme piano piano e controlliamo battendo le mani: FAR-FAL-LA."
+      </div>
+      <div class="tip-box">💡 Non importa se la previsione è sbagliata: l'obiettivo è iniziare a "sentire" quanto è lunga una parola prima ancora di scomporla.</div>
+    </div>
+
+    <!-- ATTIVITÀ 37 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">37. Componi e Incolla</div>
+        <div class="act-badge medio">Ricomposizione Scritta</div>
+      </div>
+      <div class="act-desc">Scrivi su un foglio 3 sillabe di una parola in ordine sbagliato, ben distanziate tra loro. Il bambino le ritaglia con le forbici e le incolla su un altro foglio nell'ordine giusto, per formare la parola.</div>
+      <div class="cut-box">VO &nbsp; • &nbsp; LO &nbsp; • &nbsp; TA <span style="font-weight:400; font-size:10px; color:#8c959f;">(sillabe di TA-VO-LO)</span></div>
+      <div class="tip-box">✂️ Ti servirà: forbici e colla (o nastro adesivo). Scrivi le sillabe grandi e ben distanziate, così sono più facili da ritagliare.</div>
+    </div>
+
+    <!-- ATTIVITÀ 38 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">38. Dividi in Sillabe</div>
+        <div class="act-badge facile">Segmentazione Scritta</div>
+      </div>
+      <div class="act-desc">Scrivi una parola intera su un foglio e chiedi al bambino di disegnare un trattino tra una sillaba e l'altra.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questa parola: GATTO. Riesci a disegnare un trattino tra un pezzetto e l'altro? (GAT-TO)" Altre parole da provare: CASA (CA-SA), LUNA (LU-NA), SOLE (SO-LE), PALLA (PAL-LA).
+      </div>
+      <div class="tip-box">✂️ Ti servirà solo una matita — nessun taglio, solo un trattino tra le sillabe.</div>
+    </div>
+
+    <!-- ATTIVITÀ 39 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">39. La Parola Storta</div>
+        <div class="act-badge facile">Correzione Scritta</div>
+      </div>
+      <div class="act-desc">Scrivi una parola con le sillabe scambiate di posto, come se fosse "storta". Il bambino scopre la parola vera e la riscrive nell'ordine giusto.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questa parola storta: 'TOGA'. Le sue sillabe sono scambiate! Riesci a scoprire che parola è e a riscriverla giusta? (GATTO)" Altre da provare: <em>LAPA</em> → <em>PALLA</em>, <em>NALU</em> → <em>LUNA</em>, <em>SECA</em> → <em>CASA</em>.
+      </div>
+      <div class="tip-box">💡 Se il bambino non ci arriva subito, dì tu le due sillabe staccate ad alta voce: spesso basta sentirle per capire.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 4 di 9 (Pagina 1/2)</div>
+</div>
+
+<!-- ================= MODULO 4 (PAGINA 2/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 4 — Sintesi e Segmentazione Sillabica (Continua)</div>
+      <div class="mod-title">Missioni 40 a 46</div>
+    </div>
+
+    <!-- ATTIVITÀ 40 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">40. La Sillaba Mancante</div>
+        <div class="act-badge medio">Completamento Scritto</div>
+      </div>
+      <div class="act-desc">Scrivi una parola con una sillaba mancante, sostituita da uno spazio vuoto. Il bambino indovina e scrive la sillaba che manca.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda: CA ___. Manca un pezzetto per formare 'CASA'. Quale sillaba manca? (SA)" Poi prova con: PA ___ (NE → PANE), GAT ___ (TO → GATTO), ___ NA (LU → LUNA).
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 41 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">41. Il Treno delle Sillabe</div>
+        <div class="act-badge facile">Scrittura Guidata</div>
+      </div>
+      <div class="act-desc">Disegnate insieme 3 vagoncini di un trenino collegati tra loro. Scegliete una parola di 3 sillabe e il bambino scrive un pezzetto in ogni vagoncino.</div>
+      <div class="cut-box">🚂 &nbsp; [ &nbsp;&nbsp;&nbsp;&nbsp; ] — [ &nbsp;&nbsp;&nbsp;&nbsp; ] — [ &nbsp;&nbsp;&nbsp;&nbsp; ] &nbsp; 🚃</div>
+      <div class="tip-box">✂️ Non serve materiale speciale: basta disegnare 3 rettangoli collegati su un foglio, come i vagoni di un trenino.</div>
+    </div>
+
+    <!-- ATTIVITÀ 42 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">42. Componi con 3 Pezzi</div>
+        <div class="act-badge medio">Sintesi con Tre Sillabe</div>
+      </div>
+      <div class="act-desc">Come nell'attività 35, ma ora con parole di 3 sillabe: pronunciale staccate e chiedi al bambino di unirle tutte a voce alta.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questi tre pezzetti: 'BA... NA... NA'. Uniscili tutti e dimmi la parola intera!" Altre da provare: MA-TI-TA, FAR-FAL-LA, FI-NE-STRA.
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 43 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">43. Componi con 4 Pezzi</div>
+        <div class="act-badge difficile">Sintesi con Quattro Sillabe</div>
+      </div>
+      <div class="act-desc">Come sopra, ma con parole di 4 sillabe: una sfida in più per la memoria del bambino.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questi quattro pezzetti: 'TAR... TA... RU... GA'. Uniscili tutti e dimmi la parola intera!" Altre da provare: CIOC-CO-LA-TO, PA-NET-TO-NE, AN-GU-RI-A.
+      </div>
+      <div class="tip-box">💡 Se il bambino perde il filo a metà, ripeti dall'inizio più lentamente: non è un fallimento, è normale con 4 pezzetti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 44 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">44. Caccia all'Intruso Sillabico</div>
+        <div class="act-badge difficile">Discriminazione Sillabica</div>
+      </div>
+      <div class="act-desc">Scrivi 3 sillabe: due appartengono alla parola-bersaglio, una è un intruso che non c'entra nulla. Il bambino trova e cerchia l'intruso.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "La parola è GATTO. Guarda questi tre pezzetti: GAT — TO — PA. Uno di loro non c'entra niente con GATTO. Qual è l'intruso?" (PA)
+      </div>
+      <div class="tip-box">💡 Non dire mai quanti tentativi ha fatto: se sbaglia, riprova con un'altra parola senza commentare gli errori.</div>
+    </div>
+
+    <!-- ATTIVITÀ 45 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">45. La Mia Nuova Parola</div>
+        <div class="act-badge difficile">Sostituzione Sillabica</div>
+      </div>
+      <div class="act-desc">Parti da una parola conosciuta e chiedi al bambino di cambiare una sola sillaba con un'altra, scoprendo che nuova parola si forma.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "La parola è 'GATTO'. Ora cambia il pezzetto 'GA' con 'MA'. Che nuova parola viene fuori? (MATTO)!" Altre da provare: <em>CASA</em> → cambia 'CA' con 'ROSA' → 'RO' → (ROSA), <em>PANE</em> → cambia 'NE' con 'PA' → (PAPA).
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 46 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">46. Diploma della Composizione</div>
+        <div class="act-badge difficile">Sintesi del Modulo</div>
+      </div>
+      <div class="act-desc">Senza nessun disegno o supporto scritto, il bambino compone a memoria, un pezzetto alla volta e a voce alta, 3 parole già praticate durante il modulo.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Adesso niente disegni, solo la tua voce e la tua testa! Prova a comporre a voce alta queste tre parole che abbiamo già praticato: CASA, GATTO, BANANA. Dille intere, un pezzetto alla volta!"
+      </div>
+      <div class="tip-box">💡 Festeggiate insieme alla fine, qualunque sia il risultato: aver provato a memoria è già un grande passo.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 4 di 9 (Pagina 2/2)</div>
+</div>
+<!-- ================= MODULO 5 (ALFABETO E CORRISPONDENZA LETTERA-SUONO) — PAGINA 1/3 ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 5 — Alfabeto e Corrispondenza Lettera-Suono</div>
+      <div class="mod-meta">Dalle 21 lettere ai loro suoni: la base per leggere e scrivere</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>⚠️ Regola fondamentale:</strong> fate sempre il <strong>SUONO</strong> della lettera (<em>mmmmm, sssss, fffff</em>), mai il nome alfabetico (<em>emme, esse, effe</em>). È attraverso il suono puro che il bambino impara a leggere e unire le lettere. Questo modulo non ha un'attività corrispondente nel gioco digitale: è pensato per essere svolto qui, con carta e matita.
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">47. Il Mio Alfabeto Illustrato</div>
+        <div class="act-badge">21 Lettere con Suoni</div>
+      </div>
+      <div class="act-desc">
+        <strong>A</strong> di Ape · <strong>B</strong> di Barca · <strong>C</strong> di Cane · <strong>D</strong> di Dado · <strong>E</strong> di Elefante · <strong>F</strong> di Farfalla · <strong>G</strong> di Gatto · <strong>H</strong> di Hotel · <strong>I</strong> di Isola · <strong>L</strong> di Luna · <strong>M</strong> di Mela · <strong>N</strong> di Nuvola · <strong>O</strong> di Orso · <strong>P</strong> di Pane · <strong>Q</strong> di Quadro · <strong>R</strong> di Rana · <strong>S</strong> di Sole · <strong>T</strong> di Tavolo · <strong>U</strong> di Uva · <strong>V</strong> di Vaso · <strong>Z</strong> di Zebra.
+      </div>
+      <div class="tip-box">💡 Le lettere J, K, W, X, Y esistono solo in parole straniere (jeans, whisky...): non serve insegnarle ora. Sfogliate una lettera al giorno, sempre dicendo il suono e mai il nome.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">48. Questa Lettera la Conosco</div>
+        <div class="act-badge facile">Riconoscimento Visivo</div>
+      </div>
+      <div class="act-desc">In questa riga di lettere stampate, il bambino cerchia tutte le volte che trova la lettera bersaglio.</div>
+      <div class="cut-box">
+        M &nbsp; A &nbsp; O &nbsp; M &nbsp; I &nbsp; U &nbsp; M &nbsp; A &nbsp; E &nbsp; M &nbsp; O &nbsp; A &nbsp; M
+      </div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Cerchia tutte le lettere che fanno il suono 'mmmm'. Quante ne hai trovate?"
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">49. Qual è il Suono?</div>
+        <div class="act-badge medio">Suono vs Lettera Scritta</div>
+      </div>
+      <div class="act-desc">L'adulto emette solo il suono della lettera (mai il nome) e il bambino indica quella giusta fra tre opzioni scritte.</div>
+      <div class="cut-box">S &nbsp; F &nbsp; T</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta bene: 'sssssss'... qual è la lettera che fa questo suono?" (indica S, F, T)<br>
+        Altri esempi da provare: "fffff" tra F, V, P · "rrrrr" tra R, L, N.
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">50. Caccia alla Lettera Iniziale</div>
+        <div class="act-badge facile">Ricerca in Casa</div>
+      </div>
+      <div class="act-desc">Scegliete una lettera bersaglio e andate insieme per la casa a cercare oggetti il cui nome inizia con quel suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Oggi cerchiamo cose che iniziano con 'ppppp'. Guarda... PENTOLA inizia con 'ppppp'! Trovane altre tre."
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">51. Vocale o Consonante?</div>
+        <div class="act-badge medio">Classificazione</div>
+      </div>
+      <div class="act-desc">Il bambino guarda le lettere sparse qui sotto e le separa in due gruppi: vocali e consonanti.</div>
+      <div class="cut-box">
+        A &nbsp; M &nbsp; E &nbsp; T &nbsp; I &nbsp; S &nbsp; O &nbsp; L &nbsp; U &nbsp; P
+      </div>
+      <div class="tip-box">💡 Se serve, ricordate insieme le cinque vocali (A, E, I, O, U) prima di iniziare a smistare.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 5 di 9 (Pagina 1/3)</div>
+</div>
+
+<!-- ================= MODULO 5 (ALFABETO E CORRISPONDENZA LETTERA-SUONO) — PAGINA 2/3 ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 5 — Alfabeto e Corrispondenza Lettera-Suono (Continua)</div>
+      <div class="mod-meta">Maiuscolo, minuscolo, ordine e tracciato: costruire familiarità con le lettere</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">52. Collega Lettera e Suono</div>
+        <div class="act-badge medio">Maiuscolo, Minuscolo e Suono</div>
+      </div>
+      <div class="act-desc">Il bambino traccia una linea che collega la lettera maiuscola alla sua minuscola, e poi entrambe al disegno il cui nome inizia con quel suono.</div>
+      <div class="cut-box">
+        M &nbsp;•&nbsp; m &nbsp;•&nbsp; 🍎 (mela)<br>
+        S &nbsp;•&nbsp; s &nbsp;•&nbsp; ☀️ (sole)<br>
+        P &nbsp;•&nbsp; p &nbsp;•&nbsp; 🍞 (pane)
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">53. Alfabeto Disordinato</div>
+        <div class="act-badge medio">Riordino</div>
+      </div>
+      <div class="act-desc">Queste cinque lettere sono fuori ordine. Il bambino le riscrive nella sequenza corretta dell'alfabeto.</div>
+      <div class="cut-box">C &nbsp; A &nbsp; E &nbsp; B &nbsp; D</div>
+      <div class="tip-box">💡 Non serve cantare la canzoncina dell'alfabeto come aiuto: quella canzone usa i nomi delle lettere (emme, esse...), non i loro suoni. Lasciate che il bambino osservi e ricordi l'ordine visivamente.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">54. Traccia la Lettera</div>
+        <div class="act-badge facile">Tracciato Guidato</div>
+      </div>
+      <div class="act-desc">Il bambino ripassa con la matita il contorno punteggiato di ogni lettera, dicendo il suono ad alta voce mentre traccia.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Traccia la lettera seguendo i puntini e, mentre disegni, di' 'mmmm' senza fermarti."
+      </div>
+      <div class="tip-box">💡 Non serve una caligrafia perfetta: l'obiettivo è collegare il movimento della mano al suono, non fare una lettera "bella".</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">55. Lettera Nascosta nella Parola</div>
+        <div class="act-badge facile">Lettera nella Parola</div>
+      </div>
+      <div class="act-desc">Scrivete una parola e il bambino cerchia tutte le volte che compare la lettera bersaglio al suo interno.</div>
+      <div class="cut-box">B A N A N A</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Nella parola BANANA, cerchia tutte le lettere A che trovi. Quante sono?"
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 5 di 9 (Pagina 2/3)</div>
+</div>
+
+<!-- ================= MODULO 5 (ALFABETO E CORRISPONDENZA LETTERA-SUONO) — PAGINA 3/3 ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 5 — Alfabeto e Corrispondenza Lettera-Suono (Continua)</div>
+      <div class="mod-meta">Suoni simili, digrammi italiani e il diploma finale del modulo</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">56. Suoni Simili</div>
+        <div class="act-badge difficile">Discriminazione Uditiva</div>
+      </div>
+      <div class="act-desc">L'adulto pronuncia due suoni molto simili tra loro e il bambino ascolta e ripete, notando la piccola differenza. Non è un errore: sono davvero suoni "vicini" e serve solo allenamento dell'orecchio.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questi due suoni simili: 'ppp' e 'bbb'. Senti la differenza? Ora prova tu."<br>
+        Altre coppie da allenare: <em>T / D</em> · <em>F / V</em>.
+      </div>
+      <div class="tip-box">💡 Se il bambino li confonde, non è un errore da correggere: sono suoni simili anche per molti adulti in fase di allenamento. Ripetete con calma, senza pressioni.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">57. Suoni Speciali (Digrammi Italiani)</div>
+        <div class="act-badge">Due lettere, un solo suono</div>
+      </div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda: <strong>GN</strong> insieme fa un unico suono dolce: 'gn', come in <em>GNOCCHI</em>."<br>
+        "<strong>GLI</strong> insieme fa 'gli', come in <em>BOTTIGLIA</em> o <em>CONIGLIO</em>."<br>
+        "<strong>SC</strong> insieme davanti a I ed E fa 'sci', come in <em>SCIARPA</em> e <em>PESCE</em>."
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">58. Diploma dell'Alfabeto</div>
+        <div class="act-badge">Verifica Finale del Modulo</div>
+      </div>
+      <div class="act-desc">Il bambino sceglie liberamente 5 lettere qualsiasi dell'alfabeto e, per ciascuna, dice il suo suono a un adulto. Nessun voto: è un momento di festa per celebrare il percorso fatto in questo modulo.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Scegli 5 lettere che ti piacciono e dimmi il suono di ognuna. Poi festeggiamo insieme!"
+      </div>
+      <div class="tip-box">🎉 Se qualche suono viene ancora scambiato o una lettera come la 'b' e la 'd' viene confusa, va benissimo: sono normali a questa età. Basta dire "esercitiamoci di nuovo" e riprovare con il sorriso.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 5 di 9 (Pagina 3/3)</div>
+</div>
+<!-- ================= MODULO 6 (PAGINA 1/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 6 — Lettura di Parole e Vocabolario</div>
+      <div class="mod-meta">14 missioni · dalle prime parole lette al proprio dizionario illustrato</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> qui il bambino inizia a leggere parole intere, non solo suoni isolati. Il ritmo giusto è quello del bambino: <strong>mai cronometro, mai correzioni brusche.</strong> Se una parola non esce, dite semplicemente <em>"leggiamo di nuovo insieme"</em> e riprovate con calma.<br>
+      <strong>🔗 Ponte digitale:</strong> queste stesse parole riappaiono nel gioco <strong>Foresta delle Parole</strong>, con audio e animazioni che rinforzano quanto praticato qui su carta.
+    </div>
+
+    <!-- ATTIVITÀ 59 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">59. Leggi e Indica</div>
+        <div class="act-badge facile">Facile</div>
+      </div>
+      <div class="act-desc">Scrivi (o mostra) una parola semplice già conosciuta accanto a 2–3 figure o oggetti veri. Il bambino legge la parola con calma e indica la figura o l'oggetto giusto.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questa parola: SOLE ☀️. Provaci piano piano... adesso indica il disegno che corrisponde!"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti — non c'è nessuna fretta.</div>
+      <div class="tip-box">🔗 Continua nel gioco: Foresta delle Parole.</div>
+    </div>
+
+    <!-- ATTIVITÀ 60 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">60. Questa Parola è Questa Figura?</div>
+        <div class="act-badge facile">Facile</div>
+      </div>
+      <div class="act-desc">Mostra una figura conosciuta insieme a una parola scritta sotto. A volte la parola corrisponde, a volte no. Il bambino legge e dice se è "giusta" o "sbagliata".</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda: 🐱 e sotto c'è scritto GATTO. È giusta? E questa: 🐟 con scritto GATTO — è giusta o sbagliata? (Sbagliata, è PESCE!)"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 61 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">61. Caccia alle Parole Illustrata</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Mostra una figura e, accanto, 3 parole scritte che iniziano in modo simile. Il bambino legge tutte e tre e cerchia quella che combina davvero con la figura.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda questa figura: 🐱. Ora leggi queste tre parole: CANE — GATTO — TOPO. Quale delle tre è proprio questa figura?"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 62 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">62. Collega Parola e Figura</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Disponi 5 parole scritte da un lato e 5 figure dall'altro, in ordine mescolato. Il bambino legge ogni parola e traccia una linea fino alla figura corrispondente.</div>
+      <div class="syllable-grid">
+        <div class="syllable-row"><span>LUNA</span><span>🌙</span></div>
+        <div class="syllable-row"><span>MELA</span><span>🍎</span></div>
+        <div class="syllable-row"><span>FIORE</span><span>🌸</span></div>
+        <div class="syllable-row"><span>LIBRO</span><span>📖</span></div>
+        <div class="syllable-row"><span>RANA</span><span>🐸</span></div>
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 63 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">63. Leggi da Solo</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Il bambino legge ad alta voce, senza fretta, una lista di parole già praticate nei giochi precedenti.</div>
+      <div class="cut-box">
+        SOLE &nbsp; • &nbsp; GATTO &nbsp; • &nbsp; PALLA &nbsp; • &nbsp; CASA &nbsp; • &nbsp; PESCE
+      </div>
+      <div class="tip-box">💡 Nessun limite di tempo. Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti — l'importante è provarci con calma.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 6 di 9 (Pagina 1/3)</div>
+</div>
+
+<!-- ================= MODULO 6 (PAGINA 2/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 6 — Lettura di Parole e Vocabolario (Continua)</div>
+      <div class="mod-title">Missioni 64 a 68</div>
+    </div>
+
+    <!-- ATTIVITÀ 64 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">64. La Parola Nuova del Giorno</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Presenta una parola nuova insieme a una figura e a una frase semplice che la usa nel contesto. Leggete la frase insieme e parlate un po' del suo significato.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Oggi la parola nuova è NUVOLA ☁️. Ascolta la frase: 'La nuvola copre il sole.' Cosa vuol dire, secondo te?"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 65 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">65. Quale Parola è più Lunga?</div>
+        <div class="act-badge facile">Facile</div>
+      </div>
+      <div class="act-desc">Mostra due parole scritte, una accanto all'altra, e chiedi al bambino di indicare quella con più lettere.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda queste due parole: SOLE e FARFALLA. Quale delle due ha più lettere, cioè è più lunga?"
+      </div>
+      <div class="tip-box">💡 Se serve, contate le lettere insieme con il dito, una per una.</div>
+    </div>
+
+    <!-- ATTIVITÀ 66 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">66. Completa con la Parola Giusta</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Mostra una figura con una frase-didascalia incompleta e 2–3 parole tra cui scegliere. Il bambino legge le opzioni e sceglie quella che completa la frase.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "🐟 Il ___ nuota nel mare. Quale parola completa la frase: PESCE, GATTO o CASA?"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 67 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">67. Famiglia di Parole</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Presenta 9 parole mescolate che appartengono a 3 categorie (frutta, animali, oggetti di casa). Il bambino le legge e le raggruppa nella famiglia giusta.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Leggi tutte queste parole: MELA, BANANA, UVA, GATTO, RANA, PESCE, SEDIA, TAVOLO, LETTO. Adesso raggruppale: quali sono frutta? Quali sono animali? Quali sono oggetti di casa?"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti.</div>
+    </div>
+
+    <!-- ATTIVITÀ 68 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">68. Parole Gemelle</div>
+        <div class="act-badge difficile">Difficile</div>
+      </div>
+      <div class="act-desc">Tra diverse parole scritte molto simili tra loro, una sola si ripete due volte. Il bambino legge con attenzione e cerchia la coppia gemella.</div>
+      <div class="cut-box">
+        CASA &nbsp; • &nbsp; CANE &nbsp; • &nbsp; CASA &nbsp; • &nbsp; CARO &nbsp; • &nbsp; CAPRA
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti. Nessuna fretta: si può leggere quante volte serve.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 6 di 9 (Pagina 2/3)</div>
+</div>
+
+<!-- ================= MODULO 6 (PAGINA 3/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 6 — Lettura di Parole e Vocabolario (Continua)</div>
+      <div class="mod-title">Missioni 69 a 72</div>
+    </div>
+
+    <!-- ATTIVITÀ 69 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">69. Leggi e Disegna</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Il bambino legge una parola con calma e disegna nello spazio sotto quello che la parola rappresenta.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Leggi questa parola: RANA 🐸. Adesso disegna qui sotto quello che hai letto!"
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a, chiedi a un adulto di leggere prima e tu ripeti — poi disegna comunque con piacere.</div>
+    </div>
+
+    <!-- ATTIVITÀ 70 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">70. Caccia all'Errore</div>
+        <div class="act-badge difficile">Difficile</div>
+      </div>
+      <div class="act-desc">Mostra la stessa parola scritta in 3 modi, solo uno corretto. Il bambino legge tutte e tre con calma e cerchia quella scritta giusta.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Guarda queste tre parole: GATTO — GATO — GHATTO. Leggile piano piano: qual è quella scritta giusta?"
+      </div>
+      <div class="tip-box">💡 Se sceglie quella sbagliata, non dire "hai sbagliato": dite insieme "leggiamo di nuovo insieme" e riprovate con calma.</div>
+    </div>
+
+    <!-- ATTIVITÀ 71 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">71. Il Mio Dizionario Illustrato</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Il bambino sceglie 5 parole nuove imparate in questo modulo e le disegna (o incolla immagini ritagliate) in uno spazio dedicato, creando il proprio piccolo dizionario illustrato.</div>
+      <div class="tip-box">💡 Non serve scrivere perfettamente: l'importante è che il bambino riconosca e associ la parola al suo significato.</div>
+    </div>
+
+    <!-- ATTIVITÀ 72 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">72. Diploma della Lettura di Parole</div>
+        <div class="act-badge">Sintesi del Modulo</div>
+      </div>
+      <div class="act-desc">Il bambino legge ad alta voce, dall'inizio alla fine e senza correzioni durante la lettura, le parole-bersaglio di questo modulo. L'adulto ascolta in silenzio fino alla fine e festeggia con un applauso, qualunque sia il risultato.</div>
+      <div class="cut-box">
+        SOLE &nbsp; • &nbsp; GATTO &nbsp; • &nbsp; PALLA &nbsp; • &nbsp; CASA &nbsp; • &nbsp; PESCE
+      </div>
+      <div class="tip-box">💡 Se non legge ancora da solo/a alcune parole, non è un problema: annotate quali riesce a leggere con aiuto e festeggiate comunque il percorso fatto finora.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 6 di 9 (Pagina 3/3)</div>
+</div>
+<!-- ================= MODULO 7 (PAGINA 1/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 7 — Lettura di Frasi e Comprensione</div>
+      <div class="mod-meta">12 missioni · dalla prima frase letta alla prima frase scritta</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> qui il bambino smette di leggere solo parole isolate e inizia a leggere <strong>frasi intere</strong> — il passo che apre davvero le porte dei libri. Il ponte digitale di questo modulo è il gioco <strong>Castello delle Frasi</strong>, dove può continuare ad allenarsi in modo interattivo dopo aver fatto le attività su carta.<br>
+      Fate 1 o 2 attività al giorno. Se una frase sembra lunga o difficile da leggere, va benissimo chiedere a un adulto di leggerla per primo ad alta voce — senza cronometro, senza correzioni durante la lettura e senza nessuna pressione.
+    </div>
+
+    <!-- ATTIVITÀ 73 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">73. Leggi la Frase</div>
+        <div class="act-badge facile">Lettura Guidata con Figura</div>
+      </div>
+      <div class="act-desc">Guarda il disegno e leggi la frase ad alta voce, usando l'immagine come aiuto per capire di cosa parla.</div>
+      <div class="speak-box">
+        🐱 Il gatto dorme sul divano.<br>
+        🐶 Il cane beve l'acqua.<br>
+        👧 La bambina disegna un sole.
+      </div>
+      <div class="tip-box">🧡 Va benissimo chiedere a un adulto di leggere la frase per primo, ad alta voce — poi tocca al bambino, con calma e senza fretta.</div>
+      <div class="tip-box">🔗 Continua nel gioco: Castello delle Frasi.</div>
+    </div>
+
+    <!-- ATTIVITÀ 74 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">74. Componi la Frase</div>
+        <div class="act-badge facile">Ricomposizione con Ritaglio</div>
+      </div>
+      <div class="act-desc">Ritaglia le paroline qui sotto lungo le linee tratteggiate e incollale nel quaderno nell'ordine giusto, per formare una frase con senso.</div>
+      <div class="cut-box">dorme &nbsp;✂️&nbsp; gatto &nbsp;✂️&nbsp; Il</div>
+      <div class="cut-box">palla &nbsp;✂️&nbsp; con &nbsp;✂️&nbsp; la &nbsp;✂️&nbsp; gioca &nbsp;✂️&nbsp; bambina &nbsp;✂️&nbsp; La</div>
+      <div class="tip-box">💡 Se il bambino non vuole ritagliare, va bene anche indicare l'ordine con il dito o riscrivere le parole nella sequenza giusta.</div>
+    </div>
+
+    <!-- ATTIVITÀ 75 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">75. Questa Frase Ha Senso?</div>
+        <div class="act-badge facile">Giudizio di Coerenza</div>
+      </div>
+      <div class="act-desc">Leggi le due frasi e cerchia quella che ha davvero senso:</div>
+      <div class="speak-box">
+        ⭕ Il bambino infila la scarpa nel piede.<br>
+        ⭕ La scarpa infila il bambino nel piede.<br><br>
+        ⭕ La pioggia ha bagnato la strada.<br>
+        ⭕ La strada ha bagnato la pioggia.
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 76 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">76. Collega la Frase alla Figura</div>
+        <div class="act-badge facile">Frase e Figura</div>
+      </div>
+      <div class="act-desc">Leggi ogni frase e collega con una linea la figura che le corrisponde meglio.</div>
+      <div class="speak-box">
+        1. Il pesce nuota nell'acqua. &nbsp;→&nbsp; 🐟 &nbsp; 🐦 &nbsp; 🐱<br>
+        2. Il bambino sale sull'altalena. &nbsp;→&nbsp; 🛝 &nbsp; 📚 &nbsp; 🚗<br>
+        3. La mamma taglia la torta. &nbsp;→&nbsp; 🍰 &nbsp; ⚽ &nbsp; 🌧️
+      </div>
+      <div class="tip-box">💡 Ogni frase ha una sola figura giusta: leggere bene aiuta a scartare le altre due.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 7 di 9 (Pagina 1/3)</div>
+</div>
+
+<!-- ================= MODULO 7 (PAGINA 2/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 7 — Lettura di Frasi e Comprensione (Continua)</div>
+      <div class="mod-title">Missioni 77 a 80</div>
+    </div>
+
+    <!-- ATTIVITÀ 77 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">77. Completa la Frase</div>
+        <div class="act-badge medio">Scelta della Parola</div>
+      </div>
+      <div class="act-desc">Leggi la frase e cerchia la parola che la completa meglio.</div>
+      <div class="speak-box">
+        Il bambino gioca con la ___. &nbsp;(palla / sedia / luna)<br>
+        La mamma cucina la ___. &nbsp;(pasta / scarpa / nuvola)<br>
+        Il cane ___ forte. &nbsp;(abbaia / vola / nuota)
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 78 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">78. Vero o Falso?</div>
+        <div class="act-badge facile">Comprensione del Mondo</div>
+      </div>
+      <div class="act-desc">
+        🐟 Il pesce vive dentro l'acqua. &nbsp; <strong>[ Vero ] [ Falso ]</strong><br>
+        🐘 L'elefante è più piccolo di una formica. &nbsp; <strong>[ Vero ] [ Falso ]</strong><br>
+        🐔 La gallina può volare fino alla luna. &nbsp; <strong>[ Vero ] [ Falso ]</strong>
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 79 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">79. La Mia Frase con 4 Parole</div>
+        <div class="act-badge medio">Produzione Scritta Guidata</div>
+      </div>
+      <div class="act-desc">Scegli uno di questi temi e scrivi una frase con esattamente 4 parole.</div>
+      <div class="speak-box">
+        Temi: la famiglia &nbsp;·&nbsp; gli animali &nbsp;·&nbsp; la scuola &nbsp;·&nbsp; i giochi<br>
+        Esempio: "Il mio cane corre veloce."
+      </div>
+      <div class="tip-box">💡 Se serve, aiuta il bambino a contare le parole sulle dita prima di scriverle.</div>
+    </div>
+
+    <!-- ATTIVITÀ 80 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">80. La Mia Frase con 6+ Parole</div>
+        <div class="act-badge difficile">Produzione Scritta Avanzata</div>
+      </div>
+      <div class="act-desc">Scegli un tema e scrivi una frase più lunga, con almeno 6 parole.</div>
+      <div class="speak-box">
+        Temi: un giorno di pioggia &nbsp;·&nbsp; la mia festa di compleanno &nbsp;·&nbsp; un animale che mi piace
+      </div>
+      <div class="tip-box">💡 Non importa se la frase non è perfetta: l'obiettivo è provare a collegare più idee insieme, non fare tutto giusto al primo colpo.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 7 di 9 (Pagina 2/3)</div>
+</div>
+
+<!-- ================= MODULO 7 (PAGINA 3/3) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 7 — Lettura di Frasi e Comprensione (Continua)</div>
+      <div class="mod-title">Missioni 81 a 84</div>
+    </div>
+
+    <!-- ATTIVITÀ 81 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">81. Cosa Viene Dopo?</div>
+        <div class="act-badge medio">Completamento Logico</div>
+      </div>
+      <div class="act-desc">Leggi l'inizio della frase e scegli il finale più logico tra le opzioni.</div>
+      <div class="speak-box">
+        La bambina ha fame e allora... &nbsp;(a) mangia una mela &nbsp; (b) chiude gli occhi &nbsp; (c) canta una canzone<br><br>
+        Il cielo si è fatto scuro e allora... &nbsp;(a) è arrivata la notte &nbsp; (b) è nato un fiore &nbsp; (c) suona il telefono
+      </div>
+    </div>
+
+    <!-- ATTIVITÀ 82 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">82. Domanda Semplice</div>
+        <div class="act-badge medio">Comprensione del Testo</div>
+      </div>
+      <div class="act-desc">Leggi la frase con calma e poi rispondi alla domanda.</div>
+      <div class="speak-box">
+        "Marco ha portato l'ombrello perché fuori pioveva forte."<br>
+        Domanda: perché Marco ha portato l'ombrello?
+      </div>
+      <div class="tip-box">🧡 Se serve, chiedi a un adulto di leggere la frase per primo — poi rispondi con le tue parole, senza fretta.</div>
+    </div>
+
+    <!-- ATTIVITÀ 83 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">83. Scrivi la Tua Frase</div>
+        <div class="act-badge difficile">Produzione Libera</div>
+      </div>
+      <div class="act-desc">Pensa a qualcosa che ti piace fare e scrivi una frase tutta tua su questo. Se preferisci, puoi dirla ad alta voce e chiedere a un adulto di scriverla per te.</div>
+      <div class="tip-box">💡 Qualsiasi frase va bene, anche corta: l'importante è che sia pensata e detta con le proprie parole.</div>
+    </div>
+
+    <!-- ATTIVITÀ 84 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">84. Diploma della Frase</div>
+        <div class="act-badge">Sintesi del Modulo</div>
+      </div>
+      <div class="act-desc">Scegli la tua frase preferita tra tutte quelle di questo modulo e leggila ad alta voce a un adulto, dall'inizio alla fine, senza fermarti per le correzioni.</div>
+      <div class="tip-box">🧡 L'adulto ascolta con un sorriso fino alla fine: le correzioni si fanno dopo, mai durante la lettura. Se il bambino preferisce, può chiedere a un adulto di leggere la frase per primo, come esempio.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 7 di 9 (Pagina 3/3)</div>
+</div>
+<!-- ================= MODULO 8 (PAGINA 1/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 8 — Manipolazione Sillabica Avanzata: La Sillaba Nascosta</div>
+      <div class="mod-meta">8 missioni · togliere, indovinare e scambiare sillabe a voce</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> questo è il modulo più impegnativo di tutto il libro. Togliere una sillaba da una parola "a mente", senza scriverla, richiede molta attenzione — è normalissimo che serva più tempo e più ripetizioni rispetto ai moduli precedenti. Non c'è nessuna fretta.<br>
+      <strong>Consiglio:</strong> allenatevi bene con le attività 85 e 86 (togliere la prima o l'ultima sillaba) per diversi giorni prima di passare alla 88 (togliere una sillaba in mezzo alla parola), che è decisamente più difficile. Se il bambino non ci arriva subito, tornate indietro con il sorriso: non è un errore, è solo il turno di allenarsi ancora un po'.
+    </div>
+
+    <!-- ATTIVITÀ 85 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">85. Dillo Senza la Prima Sillaba</div>
+        <div class="act-badge facile">Facile</div>
+      </div>
+      <div class="act-desc">Dì una parola scandendo bene le sillabe e chiedi al bambino di ripeterla ad alta voce, ma senza dire la prima sillaba.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta: <strong>CAP-POT-TO</strong>. Ora dilla di nuovo, ma senza 'CAP'. Cosa resta? (Risposta: <strong>POTTO</strong>)!"<br>
+        Altri esempi: <em>TA-VO-LO</em> senza "TA" → <strong>VOLO</strong> · <em>BAM-BI-NO</em> senza "BAM" → <strong>BINO</strong>.
+      </div>
+      <div class="tip-box">🔗 Continua nel gioco: Sillaba Nascosta — la stessa attività, ora animata e con la voce di Kapi.</div>
+    </div>
+
+    <!-- ATTIVITÀ 86 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">86. Dillo Senza l'Ultima Sillaba</div>
+        <div class="act-badge facile">Facile</div>
+      </div>
+      <div class="act-desc">Stessa idea dell'attività precedente, ma questa volta si toglie la sillaba finale invece della prima — per molti bambini è un pochino più facile così.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta: <strong>PA-NI-NO</strong>. Ora dilla di nuovo, ma senza 'NO' alla fine. Cosa resta? (Risposta: <strong>PANI</strong>)!"<br>
+        Altri esempi: <em>GE-LA-TO</em> senza "TO" → <strong>GELA</strong> · <em>FI-NE-STRA</em> senza "STRA" → <strong>FINE</strong>.
+      </div>
+      <div class="tip-box">💡 Se il bambino confonde "prima" e "ultima", indicate con la mano l'inizio o la fine della parola mentre la dite.</div>
+    </div>
+
+    <!-- ATTIVITÀ 87 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">87. Scegli la Parola Giusta</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Fai la domanda "senza una sillaba" e leggi ad alta voce tre parole scritte qui sotto: il bambino sceglie quale delle tre è la risposta corretta.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "CANE, senza 'NE', diventa... CA, TANE o CAMPO?" (Risposta: <strong>CA</strong>)<br>
+        "SA-PO-NE, senza 'SA' all'inizio, diventa... PONE, SAPO o CANE?" (Risposta: <strong>PONE</strong>)
+      </div>
+      <div class="tip-box">💡 Coprite con un dito le altre due opzioni scritte se il bambino guarda invece di ascoltare: l'obiettivo è allenare l'orecchio, non la lettura.</div>
+    </div>
+
+    <!-- ATTIVITÀ 88 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">88. Sillaba Nascosta nel Mezzo</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Il livello più difficile finora: togliere non la prima né l'ultima sillaba, ma quella che sta proprio in mezzo alla parola.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta: <strong>PA-NE-TO-NE</strong>. Ora dilla senza il 'NE' in mezzo. Cosa resta? (Risposta: <strong>PATONE</strong>)!"<br>
+        Un altro esempio sorprendente: <em>PA-TA-TI-NA</em> senza "TA" in mezzo → <strong>PATINA</strong> (è una parola vera!).
+      </div>
+      <div class="tip-box">💡 Se il bambino fatica, tornate un giorno o due alle attività 85 e 86: non è tempo perso, è la base che serve per riuscire qui.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 8 di 9 (Pagina 1/2)</div>
+</div>
+
+<!-- ================= MODULO 8 (PAGINA 2/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 8 — Manipolazione Sillabica Avanzata: La Sillaba Nascosta</div>
+      <div class="mod-title">(Continua)</div>
+      <div class="mod-meta">Missioni 89 a 92</div>
+    </div>
+
+    <!-- ATTIVITÀ 89 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">89. Indovina la Parola Nascosta</div>
+        <div class="act-badge medio">Medio</div>
+      </div>
+      <div class="act-desc">Adesso al contrario: dì una parola già "corta", senza una sillaba, e chiedi al bambino di indovinare qual era la parola intera e quale pezzetto è stato tolto.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Io dico solo 'POTTO'. Quale parola aveva un pezzetto in più all'inizio ed è diventata così? (Risposta: <strong>CAPPOTTO</strong>, tolto il 'CAP'!)"<br>
+        "Io dico solo 'VOLO'. Quale parola perde l'ultima sillaba e diventa così? (Risposta: <strong>TAVOLO</strong>, tolto il 'LO'!)"
+      </div>
+      <div class="tip-box">💡 Se non indovina subito, offrite due opzioni a voce invece di lasciare la domanda completamente aperta.</div>
+    </div>
+
+    <!-- ATTIVITÀ 90 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">90. Giochiamo a Scambiare</div>
+        <div class="act-badge difficile">Difficile</div>
+      </div>
+      <div class="act-desc">Invece di togliere una sillaba, questa volta si scambia con un'altra. La nuova parola può essere vera o completamente inventata — l'importante è divertirsi con il suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "La parola è 'PALLA'. Cambia 'PA' con 'STE'. Cosa viene fuori? (Risposta: <strong>STALLA</strong>, una parola vera!)"<br>
+        "La parola è 'CASA'. Cambia 'CA' con 'TA'. Cosa viene fuori? (Risposta: <strong>TASA</strong> — non esiste, ma va benissimo lo stesso, è solo un gioco di suoni!)"
+      </div>
+      <div class="tip-box">💡 Ricordate al bambino che le parole inventate sono benvenute qui: l'obiettivo è manipolare il suono, non indovinare parole vere.</div>
+    </div>
+
+    <!-- ATTIVITÀ 91 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">91. La Mia Parola Divertente</div>
+        <div class="act-badge difficile">Difficile</div>
+      </div>
+      <div class="act-desc">Ora tocca al bambino creare la sfida: sceglie una parola, la dice senza una sillaba a scelta, e mette alla prova un adulto o un fratello/sorella.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Adesso tocca a te! Scegli tu una parola, pensa quale sillaba togliere, e dilla ad alta voce senza quel pezzetto. Io (o il tuo fratellino) proviamo a indovinare qual era la parola intera!"
+      </div>
+      <div class="tip-box">💡 Lasciate che sbagli la scelta della parola qualche volta: inventare la sfida è già di per sé un ottimo allenamento, anche quando la parola scelta è troppo corta o troppo difficile.</div>
+    </div>
+
+    <!-- ATTIVITÀ 92 -->
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">92. Diploma della Sillaba Nascosta</div>
+        <div class="act-badge difficile">Difficile</div>
+      </div>
+      <div class="act-desc">Per festeggiare la fine del modulo, l'adulto legge tre sfide che mettono insieme tutto quello che è stato allenato: togliere la prima sillaba, l'ultima sillaba e quella in mezzo.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        1) "CAPPOTTO, senza 'CAP'. Cosa resta?" (<strong>POTTO</strong>)<br>
+        2) "GELATO, senza 'TO'. Cosa resta?" (<strong>GELA</strong>)<br>
+        3) "PANETONE, senza 'NE' in mezzo. Cosa resta?" (<strong>PATONE</strong>)
+      </div>
+      <div class="tip-box">🏆 Tre risposte giuste su tre meritano un applauso speciale: il bambino ha appena allenato una delle abilità più difficili di tutto il libro!</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 8 di 9 (Pagina 2/2)</div>
+</div>
+<!-- ================= MODULO 9 (PAGINA 1/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">100 Giochi di Suoni, Sillabe e Parole</div>
+      <div class="mod-title">Modulo 9 — Scrittura Guidata e Integrazione Finale</div>
+      <div class="mod-meta">8 missioni · dalla prima sillaba tracciata al diploma finale</div>
+    </div>
+
+    <div class="guide-box">
+      <strong>Prima di iniziare:</strong> siamo arrivati all'ultimo passo del libro — ora tocca alla mano entrare in azione. Le sillabe e le parole che il bambino riconosce già a orecchio trovano spazio per diventare un segno sulla carta. Nessuno valuta la bella calligrafia qui: ciò che conta è il tentativo, non il risultato.<br>
+      Fate 1 attività al giorno, senza fretta. Dopo l'ultima attività scritta, arriva una sorpresa: tre pagine di festa per chiudere questo percorso con tutto l'orgoglio del mondo.
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">93. Traccia le Sillabe</div>
+        <div class="act-badge">Tracciato e Memoria Motoria</div>
+      </div>
+      <div class="act-desc">Queste sono le sillabe che sono comparse più spesso nei giochi del libro. Nessuna pretesa di tratto perfetto: va bene ripassare come vuole il bambino, prima con il dito e poi con la matita.</div>
+      <div class="syllable-grid">
+        <div class="syllable-row"><span>PA</span><span style="letter-spacing:3px; color:#c0c4c8;">PA · PA · PA</span></div>
+        <div class="syllable-row"><span>MA</span><span style="letter-spacing:3px; color:#c0c4c8;">MA · MA · MA</span></div>
+        <div class="syllable-row"><span>TA</span><span style="letter-spacing:3px; color:#c0c4c8;">TA · TA · TA</span></div>
+        <div class="syllable-row"><span>CA</span><span style="letter-spacing:3px; color:#c0c4c8;">CA · CA · CA</span></div>
+      </div>
+      <div class="tip-box">💡 Lascia che il bambino dica ogni sillaba ad alta voce mentre la traccia — la mano e la bocca imparano insieme.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">94. Copia la Parola</div>
+        <div class="act-badge">Copia Libera di Parola</div>
+      </div>
+      <div class="act-desc">Queste parole sono già comparse nei giochi precedenti del libro. Chiedi al bambino di copiarle a modo suo, senza preoccuparsi della bella calligrafia — ciò che conta è il tentativo.</div>
+      <div class="cut-box">PALLA → ______&nbsp;&nbsp;&nbsp;GATTO → ______&nbsp;&nbsp;&nbsp;CASA → ______&nbsp;&nbsp;&nbsp;SOLE → ______</div>
+      <div class="tip-box">💡 Non esiste brutta calligrafia qui — tratto storto, lettera troppo grande, va tutto bene, l'importante è aver copiato.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">95. Scrivi la Sillaba che Senti</div>
+        <div class="act-badge">Dettato di Sillaba con Supporto Visivo</div>
+      </div>
+      <div class="act-desc">Un adulto pronuncia una sillaba ad alta voce e il bambino scrive quello che ha sentito. Le figure aiutano a ricordare il suono.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Ascolta questa sillaba e scrivi quello che senti: 'CA... CA... casa inizia con CA.'"
+      </div>
+      <div class="tip-box">💡 Puoi ripetere la sillaba tutte le volte che serve — non è un test, è un allenamento.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 9 di 9 (Pagina 1/2)</div>
+</div>
+
+<!-- ================= MODULO 9 (PAGINA 2/2) ================= -->
+<div class="page">
+  <div>
+    <div class="mod-header">
+      <div class="mod-badge">Modulo 9 — Scrittura Guidata (Continua)</div>
+      <div class="mod-title">Missioni 96 a 100</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">96. Scrivi la Parola che Senti</div>
+        <div class="act-badge">Dettato di Parola con Supporto Visivo</div>
+      </div>
+      <div class="act-desc">Ora il dettato è di una parola intera. Pronuncia molto lentamente, allungando i suoni, e lascia che il bambino scriva come riesce a sentire.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Dirò una parola pian pianino: 'sooo-le... sole'. Scrivi come la senti."
+      </div>
+      <div class="tip-box">💡 Sbagliare una lettera o saltarne una fa parte del gioco — l'importante è provare a rappresentare il suono sentito.</div>
+    </div>
+
+    <div class="activity-card">
+      <div class="act-header">
+        <div class="act-num-title">97. La Mia Prima Frase Scritta</div>
+        <div class="act-badge">Produzione Scritta Libera</div>
+      </div>
+      <div class="act-desc">È il momento di scrivere (o copiare con aiuto) la prima frase intera! Può essere su qualsiasi cosa: un disegno, un ricordo del libro, un animale preferito.</div>
+      <div class="speak-box">
+        <div class="speak-label">Dì così:</div>
+        "Scrivi una piccola frase su quello che ti è piaciuto di più in questo libro. Se ti serve aiuto, io la scrivo bene chiara su un foglio da copiare."
+      </div>
+      <div class="tip-box">💡 Copiare con l'aiuto di un adulto vale quanto scrivere da soli — sono entrambe conquiste.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Modulo 9 di 9 (Pagina 2/2)</div>
+</div>
+
+<!-- ================= RIVEDIAMO IL PERCORSO (98) ================= -->
+<div class="page celebration-page">
+  <div>
+    <div class="celebration-header">
+      <div class="celebration-kicker">Ora di Festeggiare</div>
+      <div class="celebration-title">Rivediamo il Nostro Percorso</div>
+      <div class="celebration-meta">Attività 98 di 100 · prima del diploma, sfogliamo insieme tutto il libro</div>
+    </div>
+
+    <div class="celebration-card">
+      <p class="celebration-lead"><strong>Prendi il libro</strong> e sfoglialo con calma, dal Modulo 1 fino a qui. Per ogni modulo, scegli l'attività che ti è piaciuta di più e segna la casellina accanto — può essere una X, un disegno, un adesivo, quello che vuoi.</p>
+
+      <div class="journey-row"><div class="journey-num">1</div><div class="journey-info"><div class="journey-title">Modulo 1: Consapevolezza della Parola e Frase Parlata</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">2</div><div class="journey-info"><div class="journey-title">Modulo 2: Rime e Allitterazioni</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">3</div><div class="journey-info"><div class="journey-title">Modulo 3: Consapevolezza Sillabica</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">4</div><div class="journey-info"><div class="journey-title">Modulo 4: Sintesi e Segmentazione Sillabica</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">5</div><div class="journey-info"><div class="journey-title">Modulo 5: Alfabeto e Corrispondenza Lettera-Suono</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">6</div><div class="journey-info"><div class="journey-title">Modulo 6: Lettura di Parole e Vocabolario</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">7</div><div class="journey-info"><div class="journey-title">Modulo 7: Lettura di Frasi e Comprensione</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">8</div><div class="journey-info"><div class="journey-title">Modulo 8: La Sillaba Nascosta</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+      <div class="journey-row"><div class="journey-num">9</div><div class="journey-info"><div class="journey-title">Modulo 9: Scrittura</div><div class="journey-fav">Attività preferita: ___________________</div></div><div class="journey-mark"></div></div>
+
+      <div class="tip-box" style="margin-top:8px;">💡 Non c'è una risposta giusta qui — è solo ripercorrere, con affetto, il cammino che il bambino ha già fatto.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Attività 98 di 100</div>
+</div>
+
+<!-- ================= IL MIO PASSAPORTO DELLA LETTURA (99) ================= -->
+<div class="page celebration-page">
+  <div>
+    <div class="celebration-header">
+      <div class="celebration-kicker">Ora di Festeggiare</div>
+      <div class="celebration-title">Il Mio Passaporto della Lettura</div>
+      <div class="celebration-meta">Attività 99 di 100 · un timbro per ogni modulo conquistato</div>
+    </div>
+
+    <div class="celebration-card">
+      <p class="celebration-lead">Nome del lettore o della lettrice: ___________________________________</p>
+      <p class="celebration-lead">Questo è il tuo passaporto attraverso quest'isola di suoni, sillabe e parole. <strong>Timbra ogni bollino qui sotto</strong> — disegna, colora o incolla un adesivo — man mano che ricordi i moduli che hai vissuto.</p>
+
+      <div class="passport-grid">
+        <div class="passport-stamp"><div class="passport-circle">1</div><div class="passport-label">Parola e Frase Parlata</div></div>
+        <div class="passport-stamp"><div class="passport-circle">2</div><div class="passport-label">Rime e Allitterazioni</div></div>
+        <div class="passport-stamp"><div class="passport-circle">3</div><div class="passport-label">Consapevolezza Sillabica</div></div>
+        <div class="passport-stamp"><div class="passport-circle">4</div><div class="passport-label">Sintesi e Segmentazione</div></div>
+        <div class="passport-stamp"><div class="passport-circle">5</div><div class="passport-label">Alfabeto e Suono</div></div>
+        <div class="passport-stamp"><div class="passport-circle">6</div><div class="passport-label">Parole e Vocabolario</div></div>
+        <div class="passport-stamp"><div class="passport-circle">7</div><div class="passport-label">Frasi e Comprensione</div></div>
+        <div class="passport-stamp"><div class="passport-circle">8</div><div class="passport-label">Sillaba Nascosta</div></div>
+        <div class="passport-stamp"><div class="passport-circle">9</div><div class="passport-label">Scrittura</div></div>
+      </div>
+
+      <div class="tip-box" style="margin-top:10px;">💡 Puoi timbrare quanti bollini vuoi, nell'ordine che vuoi — questo passaporto non ha una scadenza.</div>
+    </div>
+  </div>
+
+  <div class="page-footer">100 Giochi di Suoni, Sillabe e Parole · VisCare Kids · Attività 99 di 100</div>
+</div>
+
+<!-- ================= DIPLOMA FINALE ================= -->
+<div class="page certificate-page">
+  <div>
+    <div style="font-size: 50px; margin-bottom: 10px;">🏆</div>
+    <div class="cert-title">Certificato di Conquista</div>
+    <div class="cert-sub">Con affetto, per tutto questo percorso</div>
+  </div>
+
+  <div>
+    <p style="font-size: 14px; color: #786445; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">Certifichiamo con immenso orgoglio che</p>
+    <div class="cert-name-line"></div>
+    <p style="font-size: 12px; color: #9c825a;">Nome del lettore o della lettrice</p>
+
+    <div class="cert-text">
+      ha completato, al proprio ritmo e con grande entusiasmo, tutti i <strong>100 Giochi di Suoni, Sillabe e Parole</strong>, allenando con costanza l'ascolto, la voce, gli occhi e le mani per iniziare a leggere e scrivere con fiducia e allegria.
+    </div>
+  </div>
+
+  <div class="cert-signatures">
+    <div>
+      <div class="cert-sig-line">Data: _____ / _____ / _________</div>
+    </div>
+    <div>
+      <div class="cert-sig-line">Kapi & il Team VisCare Kids</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

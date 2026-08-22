@@ -1,0 +1,595 @@
+<title>Mini Kit Atenção</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html{ -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); }
+  .k-ear-in{ fill:var(--caramel-tint); }
+  .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; }
+  .k-eye{ fill:var(--ink); }
+  .k-eye-hi{ fill:#fff; }
+  .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; }
+  .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:104px; height:104px; }
+  .mascot-diploma{ width:88px; height:88px; margin:0 auto; display:block; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  /* ---------- cover ---------- */
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(201,161,94,.35), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(63,134,87,.28), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:68px 56px 48px;
+    display:flex; flex-direction:column; gap:22px; min-height:600px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-family:var(--sans); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:50px; line-height:1.06; max-width:11ch; }
+  .cover .sub{ font-size:18.5px; color:#EAE3D2; max-width:34ch; line-height:1.5; }
+  .cover-foliage{ display:flex; gap:10px; font-size:24px; opacity:.85; }
+  .cover-meta{ display:flex; gap:26px; margin-top:4px; padding-top:20px; border-top:1px solid rgba(255,248,237,.18); font-size:13.5px; color:#CFE0D6; }
+  .cover-meta b{ display:block; color:var(--cream); font-family:var(--serif); font-size:15px; font-weight:600; margin-bottom:2px; }
+  .bundle-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:auto; padding-top:6px; }
+  .bundle-row .bit{ display:flex; align-items:center; gap:7px; font-size:12px; color:#EAE3D2; background:rgba(255,248,237,.1); border:1px solid rgba(255,248,237,.16); padding:7px 12px; border-radius:99px; }
+  .bundle-row .bit .ico{ font-size:14px; }
+
+  /* ---------- shared page chrome ---------- */
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:28px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15.5px; max-width:56ch; margin-top:10px; }
+
+  .weekstrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .weekstrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:var(--sans); color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .weekstrip .d.active{ background:var(--caramel); color:#fff; border-color:var(--caramel); }
+  .weekstrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; font-family:var(--sans); letter-spacing:.01em; }
+  .chip.attenzione{ background:var(--caramel-tint); color:var(--caramel-deep); }
+  .chip.memoria{ background:var(--lilac-tint); color:#4A5A7A; }
+  .chip.controllo{ background:var(--berry-tint); color:var(--berry); }
+  .chip.flessibilita{ background:var(--leaf-tint); color:var(--leaf); }
+  .chip.integrazione{ background:var(--sand); color:#4A3A16; }
+
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; letter-spacing:.02em; white-space:nowrap; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:18px 0; }
+  .box h4{ font-family:var(--serif); font-size:15.5px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--caramel); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--lilac); }
+
+  .script p{ font-style:italic; color:var(--ink); font-size:15px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+
+  ol.steps{ margin:0; padding-left:22px; }
+  ol.steps li{ margin-bottom:10px; font-size:15px; }
+  ol.steps li::marker{ font-family:var(--serif); font-weight:700; color:var(--caramel-deep); }
+
+  .bridge{ margin-top:26px; padding:18px 22px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.8px; color:#DCE7DF; margin-top:3px; }
+
+  .foot{ display:flex; justify-content:space-between; margin-top:34px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  /* ---------- meadow search scene (day 1) ---------- */
+  .meadow{ position:relative; width:100%; height:420px; margin:20px 0; border-radius:16px; overflow:hidden; background:radial-gradient(120% 100% at 50% 0%, #EAF3E4, #DCEEDD 55%, #CDE6D2 100%); border:1px solid var(--line); }
+  .meadow .item{ position:absolute; font-size:29px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.10)); }
+  .solution .meadow .item.target{ background:var(--berry-tint); box-shadow:0 0 0 3px var(--berry); border-radius:50%; padding:3px; margin:-3px; display:inline-block; }
+  .find-tally{ text-align:center; margin-top:14px; font-size:13.5px; color:var(--ink-soft); }
+
+  /* ---------- memory (day 2) ---------- */
+  .mem-row{ display:flex; justify-content:center; gap:18px; font-size:34px; margin:22px 0; flex-wrap:wrap; }
+  .mem-row.trova{ font-size:28px; gap:16px; }
+  .mem-row .item{ width:56px; height:56px; display:flex; align-items:center; justify-content:center; border:2px dashed var(--line-strong); border-radius:12px; }
+  .mem-row.trova .item{ width:52px; height:52px; border-style:solid; border-color:var(--line); background:var(--cream); }
+  .solution .mem-row.trova .item.target{ border-color:var(--berry); background:var(--berry-tint); box-shadow:0 0 0 2px var(--berry); }
+
+  /* ---------- go/no-go cards (day 3) ---------- */
+  .cardstrip{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:20px 0; }
+  .cardstrip .card{ width:64px; height:88px; border:1.5px solid var(--line-strong); border-radius:10px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:28px; box-shadow:0 2px 5px rgba(20,24,27,.06); }
+  .cardstrip .card.target{ border-color:var(--berry); }
+  .cut{ text-align:center; font-size:12px; color:var(--ink-faint); letter-spacing:.08em; text-transform:uppercase; margin-top:8px; }
+
+  /* ---------- rule cards (day 4) ---------- */
+  .rule-block{ display:flex; gap:34px; margin:20px 0; flex-wrap:wrap; }
+  .rule-block .half{ flex:1; min-width:220px; }
+  .rule-block h5{ font-family:var(--serif); font-size:14.5px; margin:0 0 10px; color:var(--caramel-deep); }
+  .symrow{ display:flex; gap:9px; flex-wrap:wrap; font-size:26px; }
+  .symrow span{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; background:var(--cream); border:1px solid var(--line); border-radius:9px; }
+
+  /* ---------- sequence (day 5) ---------- */
+  .seqcard{ background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:12px 0; display:flex; align-items:center; gap:16px; }
+  .seqcard .label{ font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); font-weight:700; width:88px; flex-shrink:0; }
+  .seqcard .glyphs{ font-size:26px; display:flex; gap:10px; }
+
+  /* ---------- passport ---------- */
+  .passport-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px 16px; margin-top:26px; }
+  .stamp-slot{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .stamp-circle{ width:80px; height:80px; border-radius:50%; border:2.5px dashed var(--line-strong); display:flex; align-items:center; justify-content:center; font-size:27px; background:var(--cream); }
+  .stamp-label{ font-size:11px; text-align:center; color:var(--ink-soft); font-weight:600; line-height:1.3; }
+
+  /* ---------- diario ---------- */
+  table.diario{ width:100%; border-collapse:collapse; margin-top:18px; font-size:13.5px; }
+  table.diario th{ font-family:var(--serif); font-weight:600; text-align:left; padding:10px 12px; background:var(--teal-deep); color:var(--cream); font-size:13px; }
+  table.diario th:first-child{ border-radius:8px 0 0 0; }
+  table.diario th:last-child{ border-radius:0 8px 0 0; }
+  table.diario td{ padding:13px 12px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+  table.diario td.act{ color:var(--ink); font-weight:600; }
+  table.diario td.stars{ text-align:center; font-size:16px; letter-spacing:2px; color:var(--line-strong); }
+  .fields{ display:flex; gap:30px; margin-bottom:6px; font-size:14px; }
+  .fields span{ border-bottom:1.5px solid var(--line-strong); padding-bottom:4px; min-width:160px; display:inline-block; }
+
+  /* ---------- diploma ---------- */
+  .page.diploma{ text-align:center; border:3px double var(--sand); padding:56px 56px 44px; }
+  .diploma-name{ font-family:var(--serif); font-size:23px; margin:12px 0; border-bottom:2px solid var(--line-strong); display:inline-block; padding:0 46px 8px; min-width:280px; }
+  .seal{ width:70px; margin:22px auto 0; position:relative; }
+  .seal .circle{ width:70px; height:70px; border-radius:50%; margin:0 auto; background:radial-gradient(circle at 35% 30%, var(--sand), var(--caramel-deep)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:24px; box-shadow:0 3px 8px rgba(0,0,0,.16); }
+  .seal .ribbon{ display:flex; width:50px; margin:-2px auto 0; }
+  .seal .ribbon span{ flex:1; height:20px; }
+  .seal .ribbon span:first-child{ background:var(--berry); clip-path:polygon(0 0,100% 0,100% 100%,50% 70%,0 100%); transform:rotate(-4deg); margin-right:-3px; }
+  .seal .ribbon span:last-child{ background:var(--caramel-deep); clip-path:polygon(0 0,100% 0,100% 100%,50% 70%,0 100%); transform:rotate(4deg); }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:46ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .closing .cta{ display:inline-block; margin-top:24px; padding:13px 30px; border-radius:99px; background:var(--caramel); color:#fff; font-weight:700; font-family:var(--sans); font-size:14.5px; text-decoration:none; }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    .box, .bridge, .cardstrip, .grid7, .meadow, .mem-row, .seqcard, .rule-block,
+    .fields, table.diario, .passport-grid, .stamp-slot, .cover-meta, .bundle-row{
+      break-inside: avoid; page-break-inside: avoid;
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- COVER -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Mini Kit &middot; Atenção</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>7 dias de jogos pra treinar atenção, memória e autocontrole</h1>
+    <p class="sub">Uma jornada pra fazer em casa, uma atividade por dia &mdash; pensado pra crianças de 8 a 10 anos.</p>
+    <div class="cover-foliage">🍀 🌿 🍃 🌱 🌾</div>
+    <div class="cover-meta">
+      <div><b>7 dias</b>1 atividade por dia, 10&ndash;15 minutos</div>
+      <div><b>8&ndash;10 anos</b>faixa etária recomendada</div>
+      <div><b>Com os pais</b>nenhum preparo necessário</div>
+    </div>
+    <div class="bundle-row">
+      <div class="bit"><span class="ico">📄</span>7 páginas de atividades</div>
+      <div class="bit"><span class="ico">🛂</span>Passaporte das Missões</div>
+      <div class="bit"><span class="ico">🏅</span>Diploma final</div>
+      <div class="bit"><span class="ico">🔗</span>Referências aos jogos digitais</div>
+    </div>
+  </section>
+
+  <!-- GUIA PARA OS PAIS -->
+  <section class="page">
+    <div class="kicker">Antes de começar</div>
+    <h2>Como usar este kit</h2>
+    <p class="lede">Essas atividades foram pensadas para oferecer ocasiões de jogo e treino de algumas habilidades cognitivas. Não são um instrumento diagnóstico nem substituem uma avaliação profissional.</p>
+
+    <div class="box"><h4>🕐 Quanto tempo dura</h4><p>Cada atividade leva de 10 a 15 minutos. Não precisa fazer tudo de uma vez: um dia, uma atividade.</p></div>
+    <div class="box"><h4>🌤️ Quando fazer</h4><p>Escolha um momento tranquilo, quando seu filho não estiver cansado ou com fome &mdash; de preferência não logo antes de dormir. Desligue a TV, guarde o celular, escolha uma mesa livre.</p></div>
+    <div class="box"><h4>🎈 Como transformar em brincadeira</h4><p>Use um tom leve, de parceiro de jogo, não de prova. Sempre faça um exemplo junto, sem estrelinhas, antes de começar valendo &mdash; a indicação está em cada página.</p></div>
+    <div class="box"><h4>💬 Como dar um retorno</h4><p>Em vez de "certo" ou "errado", diga o que foi bem: <i>"Você esperou o sinal certinho!"</i> ou <i>"Quase &mdash; vamos olhar bem o que mudou?"</i></p></div>
+    <div class="box note"><h4>🛑 Quando parar</h4><p>No máximo 1&ndash;2 tentativas por dia. Se seu filho cansar ou ficar irritado, pare &mdash; se tenta de novo amanhã, sem pressa.</p></div>
+    <div class="box note"><h4>📈 A partir do dia 4</h4><p>As atividades pedem um pouco mais. É normal errar mais ou cansar mais rápido &mdash; não é um passo pra trás, é só o desafio crescendo.</p></div>
+    <p class="lede" style="margin-top:22px;"><b style="color:var(--ink);">Um conselho:</b> siga a ordem de 1 a 7 &mdash; cada dia se apoia um pouco no anterior.</p>
+  </section>
+
+  <!-- PASSAPORTE -->
+  <section class="page">
+    <div class="kicker">Pra manter sempre à mão</div>
+    <h2>Passaporte das Missões</h2>
+    <p class="lede">Depois de cada atividade, desenhe uma estrelinha ou um visto no selo do dia. Não precisa ser perfeito &mdash; toda missão tentada conta.</p>
+    <div class="passport-grid">
+      <div class="stamp-slot"><div class="stamp-circle">🍀</div><div class="stamp-label">1 &middot; Olho de Falcão</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">🍃</div><div class="stamp-label">2 &middot; Lembra e Acha</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">⭐</div><div class="stamp-label">3 &middot; Espera o Sinal</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">🔄</div><div class="stamp-label">4 &middot; Muda a Regra</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">🔢</div><div class="stamp-label">5 &middot; A Sequência</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">🤫</div><div class="stamp-label">6 &middot; Missão Silenciosa</div></div>
+      <div class="stamp-slot"><div class="stamp-circle">🏆</div><div class="stamp-label">7 &middot; Super Missão</div></div>
+    </div>
+    <div class="bridge" style="margin-top:30px;">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><b>Um conselho da Kapi</b><p>Guarde esta página perto do kit &mdash; quando você juntar os 7 selos, tem um diploma só seu esperando!</p></div>
+    </div>
+  </section>
+
+  <!-- DIA 1 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 1</div></div>
+    <h2>Olho de Falcão</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Atenção sustentada</span><span class="chip attenzione">Discriminação visual</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+
+    <div class="box example"><h4>👀 Exemplo juntos (sem estrelinhas)</h4><p>Aponte um 🍀 no gramado junto com seu filho, assim ele entende o que precisa procurar, antes de começar valendo o tempo.</p></div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ O que dizer</h4><p>"Olha esse gramado: tem trevos 🍀 escondidos entre as outras folhinhas. Você tem 90 segundos pra achar todos &mdash; pronto? Vai!"</p></div>
+    </div>
+
+    <div class="meadow">
+      <span class="item" style="left:6%;top:8%;transform:rotate(-8deg);">🌿</span>
+      <span class="item" style="left:20%;top:5%;transform:rotate(10deg);">🍃</span>
+      <span class="item target" style="left:35%;top:9%;transform:rotate(-5deg);">🍀</span>
+      <span class="item" style="left:50%;top:4%;transform:rotate(6deg);">🌱</span>
+      <span class="item" style="left:65%;top:8%;transform:rotate(-9deg);">🌾</span>
+      <span class="item" style="left:80%;top:5%;transform:rotate(4deg);">🍃</span>
+      <span class="item" style="left:92%;top:10%;transform:rotate(-6deg);">🌱</span>
+      <span class="item target" style="left:10%;top:22%;transform:rotate(7deg);">🍀</span>
+      <span class="item" style="left:25%;top:20%;transform:rotate(-4deg);">🌿</span>
+      <span class="item" style="left:40%;top:25%;transform:rotate(8deg);">🍃</span>
+      <span class="item target" style="left:55%;top:21%;transform:rotate(-7deg);">🍀</span>
+      <span class="item" style="left:70%;top:24%;transform:rotate(5deg);">🌾</span>
+      <span class="item" style="left:85%;top:20%;transform:rotate(-3deg);">🌱</span>
+      <span class="item target" style="left:15%;top:37%;transform:rotate(-8deg);">🍀</span>
+      <span class="item" style="left:30%;top:40%;transform:rotate(6deg);">🌿</span>
+      <span class="item" style="left:45%;top:35%;transform:rotate(-5deg);">🍃</span>
+      <span class="item target" style="left:60%;top:39%;transform:rotate(9deg);">🍀</span>
+      <span class="item" style="left:75%;top:36%;transform:rotate(-4deg);">🌾</span>
+      <span class="item" style="left:90%;top:40%;transform:rotate(3deg);">🌱</span>
+      <span class="item" style="left:8%;top:52%;transform:rotate(-6deg);">🍃</span>
+      <span class="item target" style="left:23%;top:55%;transform:rotate(7deg);">🍀</span>
+      <span class="item" style="left:38%;top:50%;transform:rotate(-9deg);">🌿</span>
+      <span class="item target" style="left:53%;top:54%;transform:rotate(4deg);">🍀</span>
+      <span class="item" style="left:68%;top:51%;transform:rotate(-3deg);">🌾</span>
+      <span class="item" style="left:83%;top:55%;transform:rotate(8deg);">🍃</span>
+      <span class="item target" style="left:12%;top:67%;transform:rotate(-5deg);">🍀</span>
+      <span class="item" style="left:28%;top:70%;transform:rotate(6deg);">🌱</span>
+      <span class="item" style="left:43%;top:66%;transform:rotate(-8deg);">🌿</span>
+      <span class="item target" style="left:58%;top:69%;transform:rotate(5deg);">🍀</span>
+      <span class="item" style="left:73%;top:66%;transform:rotate(-4deg);">🍃</span>
+      <span class="item" style="left:88%;top:70%;transform:rotate(7deg);">🌱</span>
+      <span class="item target" style="left:20%;top:82%;transform:rotate(-6deg);">🍀</span>
+      <span class="item" style="left:50%;top:84%;transform:rotate(4deg);">🌿</span>
+      <span class="item" style="left:75%;top:82%;transform:rotate(-5deg);">🍃</span>
+    </div>
+    <p class="find-tally">Tem <b>10 trevos 🍀</b> escondidos no gramado. Quantos seu filho encontra?</p>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>No VisCare Kids tem "Caça ao Alvo" &mdash; a mesma missão dos trevos, só que cronometrada e com níveis que se ajustam.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 1 de 7</span></div>
+  </section>
+
+  <!-- DIA 1 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Dia 1</div>
+    <h2>Olho de Falcão &mdash; resposta</h2>
+    <p class="lede">Guarde esta página até terminarem &mdash; é a solução pra conferir juntos.</p>
+    <div class="meadow">
+      <span class="item" style="left:6%;top:8%;transform:rotate(-8deg);">🌿</span>
+      <span class="item" style="left:20%;top:5%;transform:rotate(10deg);">🍃</span>
+      <span class="item target" style="left:35%;top:9%;transform:rotate(-5deg);">🍀</span>
+      <span class="item" style="left:50%;top:4%;transform:rotate(6deg);">🌱</span>
+      <span class="item" style="left:65%;top:8%;transform:rotate(-9deg);">🌾</span>
+      <span class="item" style="left:80%;top:5%;transform:rotate(4deg);">🍃</span>
+      <span class="item" style="left:92%;top:10%;transform:rotate(-6deg);">🌱</span>
+      <span class="item target" style="left:10%;top:22%;transform:rotate(7deg);">🍀</span>
+      <span class="item" style="left:25%;top:20%;transform:rotate(-4deg);">🌿</span>
+      <span class="item" style="left:40%;top:25%;transform:rotate(8deg);">🍃</span>
+      <span class="item target" style="left:55%;top:21%;transform:rotate(-7deg);">🍀</span>
+      <span class="item" style="left:70%;top:24%;transform:rotate(5deg);">🌾</span>
+      <span class="item" style="left:85%;top:20%;transform:rotate(-3deg);">🌱</span>
+      <span class="item target" style="left:15%;top:37%;transform:rotate(-8deg);">🍀</span>
+      <span class="item" style="left:30%;top:40%;transform:rotate(6deg);">🌿</span>
+      <span class="item" style="left:45%;top:35%;transform:rotate(-5deg);">🍃</span>
+      <span class="item target" style="left:60%;top:39%;transform:rotate(9deg);">🍀</span>
+      <span class="item" style="left:75%;top:36%;transform:rotate(-4deg);">🌾</span>
+      <span class="item" style="left:90%;top:40%;transform:rotate(3deg);">🌱</span>
+      <span class="item" style="left:8%;top:52%;transform:rotate(-6deg);">🍃</span>
+      <span class="item target" style="left:23%;top:55%;transform:rotate(7deg);">🍀</span>
+      <span class="item" style="left:38%;top:50%;transform:rotate(-9deg);">🌿</span>
+      <span class="item target" style="left:53%;top:54%;transform:rotate(4deg);">🍀</span>
+      <span class="item" style="left:68%;top:51%;transform:rotate(-3deg);">🌾</span>
+      <span class="item" style="left:83%;top:55%;transform:rotate(8deg);">🍃</span>
+      <span class="item target" style="left:12%;top:67%;transform:rotate(-5deg);">🍀</span>
+      <span class="item" style="left:28%;top:70%;transform:rotate(6deg);">🌱</span>
+      <span class="item" style="left:43%;top:66%;transform:rotate(-8deg);">🌿</span>
+      <span class="item target" style="left:58%;top:69%;transform:rotate(5deg);">🍀</span>
+      <span class="item" style="left:73%;top:66%;transform:rotate(-4deg);">🍃</span>
+      <span class="item" style="left:88%;top:70%;transform:rotate(7deg);">🌱</span>
+      <span class="item target" style="left:20%;top:82%;transform:rotate(-6deg);">🍀</span>
+      <span class="item" style="left:50%;top:84%;transform:rotate(4deg);">🌿</span>
+      <span class="item" style="left:75%;top:82%;transform:rotate(-5deg);">🍃</span>
+    </div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Solução &middot; Dia 1</span></div>
+  </section>
+
+  <!-- DIA 2 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 2</div></div>
+    <h2>Lembra e Acha</h2>
+    <div class="skill-row">
+      <span class="chip memoria">Memória visual</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Mostre um objeto só por alguns segundos, cubra e pergunte "o que você viu?" &mdash; assim ele entende o jogo antes da rodada de verdade.</p></div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ O que dizer</h4><p>"Olha bem essas imagens, você tem 8 segundos." (Conte devagar até 8, depois cubra a página com uma folha.)</p><p>"Agora vira a página: quais desses você viu antes? Circule só esses."</p></div>
+    </div>
+
+    <p class="kicker" style="margin-top:26px;">Pra olhar por 8 segundos</p>
+    <div class="mem-row"><div class="item">🍎</div><div class="item">🐶</div><div class="item">🚗</div><div class="item">⭐</div><div class="item">🎈</div><div class="item">🐝</div></div>
+
+    <p class="kicker">Ache os que você viu (circule)</p>
+    <div class="mem-row trova">
+      <div class="item">🍎</div><div class="item">🐱</div><div class="item">🚗</div><div class="item">🌟</div>
+      <div class="item">🐶</div><div class="item">🎁</div><div class="item">🚌</div><div class="item">⭐</div>
+      <div class="item">🦋</div><div class="item">🎈</div><div class="item">🐝</div><div class="item">🍏</div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🍃</span><div><b>Continue no jogo</b><p>"Memória da Kapi" treina a mesma habilidade, com sequências que crescem conforme seu filho melhora.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 2 de 7</span></div>
+  </section>
+
+  <!-- DIA 2 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Dia 2</div>
+    <h2>Lembra e Acha &mdash; resposta</h2>
+    <p class="lede">Os seis objetos certos eram: 🍎 🐶 🚗 ⭐ 🎈 🐝. Veja onde estão na página "Ache":</p>
+    <div class="mem-row trova">
+      <div class="item target">🍎</div><div class="item">🐱</div><div class="item">🚗</div><div class="item">🌟</div>
+      <div class="item target">🐶</div><div class="item">🎁</div><div class="item">🚌</div><div class="item target">⭐</div>
+      <div class="item">🦋</div><div class="item target">🎈</div><div class="item target">🐝</div><div class="item">🍏</div>
+    </div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Solução &middot; Dia 2</span></div>
+  </section>
+
+  <!-- DIA 3 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 3</div></div>
+    <h2>Espera o Sinal</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Controle inibitório</span><span class="chip controllo">Espera</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Mostre você as primeiras 2 cartas devagar, explicando em voz alta o que faz ("essa não é a estrela, fico parado... essa é a estrela, bato palma!").</p></div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ O que dizer (e como fazer)</h4><p>"Recorte as 8 cartas aqui embaixo e embaralhe. Vou mostrar as cartas uma de cada vez &mdash; bata palma SÓ quando ver a estrela ⭐. Pras outras, fique parado."</p><p>Mostre uma carta a cada 2&ndash;3 segundos mais ou menos, sem ritmo fixo &mdash; é justamente a espera imprevisível que treina o controle.</p></div>
+    </div>
+
+    <div class="cardstrip">
+      <div class="card">🔺</div><div class="card">🔵</div><div class="card target">⭐</div><div class="card">🟩</div>
+      <div class="card target">⭐</div><div class="card">🟣</div><div class="card">🔺</div><div class="card target">⭐</div>
+    </div>
+    <p class="cut">✂️ Recorte ao longo das bordas das cartas</p>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" é quase o mesmo jogo &mdash; com um cronômetro que treina ficar parado ainda melhor.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 3 de 7</span></div>
+  </section>
+
+  <!-- DIA 4 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 4</div></div>
+    <h2>Muda a Regra</h2>
+    <div class="skill-row">
+      <span class="chip flessibilita">Flexibilidade cognitiva</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+
+    <div class="box note"><h4>💡 Antes de começar</h4><p>É super normal se confundir quando a regra muda &mdash; é justamente isso que estamos treinando. Se errar, lembre a regra com calma, sem dizer que errou.</p></div>
+
+    <div class="rule-block">
+      <div class="half"><h5>Fase 1 &mdash; Regra A</h5><p style="font-size:14px; margin-bottom:10px;">🔴 = bate palma &nbsp;&middot;&nbsp; 🟦 = fica parado</p><div class="symrow"><span>🔴</span><span>🟦</span><span>🟦</span><span>🔴</span><span>🟦</span><span>🔴</span><span>🔴</span><span>🟦</span></div></div>
+      <div class="half"><h5>Fase 2 &mdash; Regra B (o contrário!)</h5><p style="font-size:14px; margin-bottom:10px;">🔴 = fica parado &nbsp;&middot;&nbsp; 🟦 = bate palma</p><div class="symrow"><span>🟦</span><span>🔴</span><span>🔴</span><span>🟦</span><span>🔴</span><span>🟦</span><span>🟦</span><span>🔴</span></div></div>
+    </div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ O que dizer</h4><p>Fase 1: "Olha os símbolos um de cada vez: vermelho, bate palma; azul, fica parado." Façam 6&ndash;8 símbolos assim.</p><p>Depois, em voz alta: "Atenção, mudou a regra! Agora é o contrário &mdash; vermelho fica parado, azul bate palma!" Passem pra Fase 2.</p></div>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>"Caça ao Alvo" tem um nível em que o alvo muda no meio da partida &mdash; o mesmo desafio de hoje.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 4 de 7</span></div>
+  </section>
+
+  <!-- DIA 5 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 5</div></div>
+    <h2>A Sequência</h2>
+    <div class="skill-row">
+      <span class="chip memoria">Memória de trabalho</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Façam uma sequência de 2 imagens juntos antes de começar, assim o jogo fica claro.</p></div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ O que dizer</h4><p>"Olha bem essa sequência por 5 segundos." (conte devagar) "Agora cubra e repita em voz alta, na mesma ordem."</p></div>
+    </div>
+
+    <div class="seqcard"><span class="label">Sequência A</span><span class="glyphs">🍎 🐶 🚗 ⭐</span></div>
+    <div class="seqcard"><span class="label">Sequência B</span><span class="glyphs">🎈 🐝 🌙 🍇</span></div>
+    <div class="seqcard"><span class="label">Sequência C</span><span class="glyphs">🚀 🐟 🍉 🎨</span></div>
+    <div class="seqcard" style="border-style:dashed;"><span class="label">Bônus (5)</span><span class="glyphs">🦄 🍕 🎧 🌵 🐳</span></div>
+    <p class="find-tally">Se as três primeiras forem bem, tentem o bônus com 5 imagens!</p>
+
+    <div class="bridge"><span style="font-size:22px;">🍃</span><div><b>Continue no jogo</b><p>"Memória da Kapi" funciona do mesmo jeito, com sequências que crescem aos poucos.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 5 de 7</span></div>
+  </section>
+
+  <!-- DIA 6 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 6</div></div>
+    <h2>Missão Silenciosa</h2>
+    <div class="skill-row">
+      <span class="chip memoria">Memória de trabalho</span><span class="chip attenzione">Escuta atenta</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+
+    <div class="box note"><h4>💡 A regra mais importante de hoje</h4><p>Dê a instrução <b>uma única vez</b>, sem repetir &mdash; mesmo que hesite. Espere terminar antes de dar a próxima missão.</p></div>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ As 3 missões (uma de cada vez)</h4>
+        <ol class="steps">
+          <li>"Pegue um lápis. Desenhe um círculo."</li>
+          <li>"Pegue o lápis. Desenhe um quadrado. Coloque um pontinho no centro."</li>
+          <li>"Toque o nariz. Bata palma duas vezes. Desenhe uma estrelinha aqui embaixo."</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="box example"><h4>✏️ Espaço pra desenhar</h4><p style="height:70px;"></p></div>
+
+    <div class="bridge"><span style="font-size:22px;">💬</span><div><b>Continue no jogo</b><p>"Minha Vez, Sua Vez" treina uma habilidade parecida: escutar bem e esperar a hora certa.</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 6 de 7</span></div>
+  </section>
+
+  <!-- DIA 7 -->
+  <section class="page">
+    <div class="weekstrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Dia 7</div></div>
+    <h2>Super Missão</h2>
+    <div class="skill-row">
+      <span class="chip integrazione">Atenção</span><span class="chip integrazione">Memória</span><span class="chip integrazione">Autocontrole</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <p class="lede">Hoje vamos juntar três jogos da semana numa única missão.</p>
+
+    <div class="box script">
+      <svg class="mascot-avatar"><use href="#kapi"></use></svg>
+      <div><h4>🗣️ A missão</h4>
+        <ol class="steps">
+          <li><b>Espere o sinal</b> &mdash; embaralhe de novo as cartas do Dia 3 e bata palma só quando ver a estrela ⭐.</li>
+          <li><b>Lembre a sequência</b> &mdash; olhe por 5 segundos, depois repita: 🐼 🎸 🍩</li>
+          <li><b>Mude a regra na hora</b> &mdash; se disser "para", para na hora; se disser "vai", pula uma vez.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="box note"><h4>🎉 Parabéns!</h4><p>Não importa como foi essa semana, seu filho jogou com atenção, memória e autocontrole sete vezes &mdash; isso já é uma conquista.</p></div>
+
+    <div class="bridge"><span style="font-size:22px;">🌟</span><div><b>Continue no jogo</b><p>Agora experimente todos os jogos do VisCare Kids em sequência &mdash; você já treinou cada uma dessas missões essa semana!</p></div></div>
+    <div class="foot"><span>Mini Kit Atenção</span><span>Dia 7 de 7</span></div>
+  </section>
+
+  <!-- DIÁRIO -->
+  <section class="page">
+    <div class="kicker">Diário de bordo</div>
+    <h2>Como foi essa semana</h2>
+    <p class="lede">Não é uma nota: serve só pra contar a experiência, não pra medir.</p>
+
+    <div class="fields" style="margin-top:22px;"><div>Nome: <span>&nbsp;</span></div><div>Idade: <span style="min-width:60px;">&nbsp;</span></div></div>
+
+    <table class="diario">
+      <thead><tr><th>Dia &middot; atividade</th><th>Consegui sozinho ⭐</th><th>Precisei de ajuda 🤝</th><th>Faria de novo 💛</th></tr></thead>
+      <tbody>
+        <tr><td class="act">1 &middot; Olho de Falcão</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">2 &middot; Lembra e Acha</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">3 &middot; Espera o Sinal</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">4 &middot; Muda a Regra</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">5 &middot; A Sequência</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">6 &middot; Missão Silenciosa</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+        <tr><td class="act">7 &middot; Super Missão</td><td class="stars">☐</td><td class="stars">☐</td><td class="stars">☐</td></tr>
+      </tbody>
+    </table>
+
+    <div class="box note" style="margin-top:24px;"><h4>🤝 Precisar de ajuda é normal</h4><p>Não é um problema, faz parte de aprender &mdash; não é uma nota sobre o dia.</p></div>
+    <div class="box"><h4>👨‍👩‍👧 Um lembrete</h4><p>Cada criança tem seu ritmo. Este diário não serve pra comparar com irmãos ou colegas: conta só a experiência do seu filho.</p></div>
+    <div class="box"><h4>🩺 Se algo te preocupar</h4><p>Se perceber que seu filho tem dificuldade intensa ou frequente nesse tipo de atividade, conversar com uma psicóloga ou neuropsicomotricista pode ser um bom passo &mdash; nunca é um problema pedir ajuda.</p></div>
+    <p style="font-size:12px; color:var(--ink-faint); margin-top:18px;">Este diário não é um instrumento diagnóstico. Serve apenas para registrar a experiência do seu filho durante as atividades.</p>
+  </section>
+
+  <!-- DIPLOMA -->
+  <section class="page diploma">
+    <svg class="mascot-diploma"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:16px;">VisCare Kids</div>
+    <h2 style="font-size:25px; margin-top:6px;">Diploma de Pequeno Explorador da Atenção</h2>
+    <p style="margin-top:20px; font-size:15px; color:var(--ink-soft);">Com empenho e curiosidade,</p>
+    <div class="diploma-name">&nbsp;</div>
+    <p style="font-size:15px; color:var(--ink-soft);">completou todas as 7 missões do Mini Kit Atenção.</p>
+    <div class="seal"><div class="circle">🏅</div><div class="ribbon"><span></span><span></span></div></div>
+    <p style="margin-top:20px; font-size:12.5px; color:var(--ink-faint);">Data: ______________ &nbsp;&middot;&nbsp; Kapi &amp; a equipe VisCare Kids</p>
+  </section>
+
+  <!-- FECHAMENTO -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:14px;">Fim do Mini Kit</div>
+    <h2>A jornada continua no VisCare Kids</h2>
+    <p>Cada atividade dessa semana tem uma versão pra jogar online, com a Kapi, que se adapta conforme seu filho melhora e mostra como está indo.</p>
+    <a class="cta" href="https://www.viscarekids.com">Conheça o VisCare Kids</a>
+  </section>
+
+</div>

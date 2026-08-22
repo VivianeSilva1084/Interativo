@@ -2,3 +2,7 @@ dist-vendas/
 dist-vendas-it/
 dist/
 node_modules/
+
+# Infoproduto: PDFs finais ficam de fora do git (grandes, regeneráveis a partir do HTML-fonte)
+infoproduto/*.pdf
+infoproduto/**/*.pdf

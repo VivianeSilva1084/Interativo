@@ -1,0 +1,523 @@
+<title>Kit Completo — Módulo Atenção</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); } .k-ear-in{ fill:var(--caramel-tint); } .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; } .k-eye{ fill:var(--ink); } .k-eye-hi{ fill:#fff; } .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; } .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:100px; height:100px; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(201,161,94,.35), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(63,134,87,.28), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:64px 56px 44px; display:flex; flex-direction:column; gap:20px; min-height:520px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:44px; line-height:1.08; max-width:13ch; }
+  .cover .sub{ font-size:17px; color:#EAE3D2; max-width:38ch; line-height:1.5; }
+  .modstrip{ display:flex; gap:7px; margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,248,237,.18); }
+  .modstrip .m{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:rgba(255,248,237,.12); color:#CFE0D6; }
+  .modstrip .m.active{ background:var(--caramel); color:#fff; }
+
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:27px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15px; max-width:58ch; margin-top:10px; }
+
+  .modulestrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .modulestrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .modulestrip .d.active{ background:var(--caramel); color:#fff; border-color:var(--caramel); }
+  .modulestrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; letter-spacing:.01em; }
+  .chip.attenzione{ background:var(--caramel-tint); color:var(--caramel-deep); }
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; white-space:nowrap; }
+  .adv-tag{ font-size:11px; font-weight:700; color:var(--berry); background:var(--berry-tint); padding:4px 10px; border-radius:99px; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:16px 0; }
+  .box h4{ font-family:var(--serif); font-size:15px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--caramel); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--lilac); }
+  .script p{ font-style:italic; color:var(--ink); font-size:14.5px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+
+  .bridge{ margin-top:24px; padding:16px 20px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.5px; color:#DCE7DF; margin-top:3px; }
+  .foot{ display:flex; justify-content:space-between; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  .meadow{ position:relative; width:100%; height:380px; margin:18px 0; border-radius:16px; overflow:hidden; border:1px solid var(--line); }
+  .meadow.woods{ background:radial-gradient(120% 100% at 50% 0%, #F3ECDD, #EAE0C6 55%, #E0D3AE 100%); }
+  .meadow.sea{ background:radial-gradient(120% 100% at 50% 0%, #E4F1F4, #CFE8EE 55%, #BEDEE8 100%); }
+  .meadow .item{ position:absolute; font-size:27px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.10)); }
+  .solution .meadow .item.target{ background:var(--berry-tint); box-shadow:0 0 0 3px var(--berry); border-radius:50%; padding:3px; margin:-3px; display:inline-block; }
+  .find-tally{ text-align:center; margin-top:14px; font-size:13px; color:var(--ink-soft); }
+
+  .diff-pair{ display:flex; gap:14px; margin:18px 0; flex-wrap:wrap; }
+  .diff-panel{ flex:1; min-width:260px; }
+  .diff-panel .label{ font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); font-weight:700; margin-bottom:6px; text-align:center; }
+  .diff-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; background:var(--cream); border:1px solid var(--line); border-radius:12px; padding:12px; }
+  .diff-grid .cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:22px; border-radius:8px; background:var(--paper); }
+  .solution .diff-grid .cell.diff{ background:var(--berry-tint); box-shadow:0 0 0 2px var(--berry) inset; }
+
+  .letter-grid{ display:grid; grid-template-columns:repeat(8,1fr); gap:6px; background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:18px; max-width:440px; margin:18px auto; }
+  .letter-grid .cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:24px; font-weight:600; border-radius:7px; color:var(--ink); }
+  .solution .letter-grid .cell.target{ background:var(--berry-tint); box-shadow:0 0 0 2px var(--berry) inset; color:var(--berry); }
+
+  .pathwrap{ margin:18px 0; }
+  .pathwrap svg{ width:100%; height:auto; display:block; }
+  .path-line{ fill:none; stroke:var(--line-strong); stroke-width:4; stroke-linecap:round; }
+  .solution .path-line.correct{ stroke:var(--berry); stroke-width:5; }
+  .path-label{ font-family:var(--sans); font-weight:700; font-size:15px; fill:var(--caramel-deep); }
+
+  .pairs-field{ position:relative; width:100%; height:340px; margin:18px 0; border-radius:16px; overflow:hidden; background:var(--cream); border:1px solid var(--line); }
+  .pairs-field .item{ position:absolute; font-size:30px; }
+  .solution .pairs-field .item{ background:var(--leaf-tint); box-shadow:0 0 0 2px var(--leaf); border-radius:50%; padding:4px; margin:-4px; display:inline-block; }
+
+  .wordlist{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:18px 22px; margin:16px 0; }
+  .wordlist .w{ display:inline-block; padding:5px 12px; margin:3px; border-radius:99px; background:var(--paper); border:1px solid var(--line); font-size:13.5px; }
+  .solution .wordlist .w.animal{ background:var(--leaf-tint); border-color:var(--leaf); color:var(--leaf); font-weight:700; }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:48ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .modgrid{ display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modgrid .mtag{ font-size:12.5px; padding:8px 14px; border-radius:99px; background:var(--cream); border:1px solid var(--line); color:var(--ink-faint); }
+  .modgrid .mtag.now{ background:var(--caramel); color:#fff; border-color:var(--caramel); font-weight:700; }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    .box, .bridge, .meadow, .diff-pair, .diff-grid, .letter-grid, .pathwrap,
+    .mem-row, .pairs-field{
+      break-inside: avoid; page-break-inside: avoid;
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- CAPA -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Kit Completo &middot; Módulo 1 de 6</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>Atenção</h1>
+    <p class="sub">Sete novas missões pra treinar a busca visual, a escuta atenta e a capacidade de ignorar distrações. Continue de onde você parou no Mini Kit.</p>
+    <div class="modstrip">
+      <div class="m active">1</div><div class="m">2</div><div class="m">3</div><div class="m">4</div><div class="m">5</div><div class="m">6</div>
+    </div>
+  </section>
+
+  <!-- INTRODUÇÃO -->
+  <section class="page">
+    <div class="kicker">Antes de começar</div>
+    <h2>Como usar este módulo</h2>
+    <p class="lede">Mesmas regras do Mini Kit: um momento tranquilo, um exemplo junto antes de cada atividade, retorno que descreve o que foi bem, no máximo 1&ndash;2 tentativas por dia. Essas atividades são ocasiões de jogo e treino de algumas habilidades cognitivas, não um instrumento diagnóstico.</p>
+    <div class="box"><h4>🔁 Algumas atividades lembram o Mini Kit</h4><p>Estão marcadas com a etiqueta <span class="adv-tag">Versão avançada</span> &mdash; mesmo tipo de desafio, um degrau acima, porque seu filho já treinou essa habilidade.</p></div>
+    <div class="box note"><h4>📈 Dificuldade crescente</h4><p>As 7 missões deste módulo estão em ordem, da mais simples pra mais desafiadora. Siga a ordem se possível.</p></div>
+  </section>
+
+  <!-- 1 ACHE AS DIFERENÇAS -->
+  <section class="page">
+    <div class="modulestrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 1</div></div>
+    <h2>Ache as Diferenças</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Atenção aos detalhes</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Olhem juntos as duas cenas por um minuto e achem a primeira diferença em voz alta, assim o jogo fica claro.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Essas duas cenas parecem iguais, mas tem 5 diferenças escondidas. Você tem 3 minutos &mdash; circule cada diferença que achar!"</p></div></div>
+
+    <div class="diff-pair">
+      <div class="diff-panel"><div class="label">Cena A</div>
+        <div class="diff-grid">
+          <span class="cell">🌻</span><span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌼</span>
+          <span class="cell">🐞</span><span class="cell">☀️</span><span class="cell">🌺</span><span class="cell">🐝</span>
+          <span class="cell">🍂</span><span class="cell">🐌</span><span class="cell">🌈</span><span class="cell">🌸</span>
+          <span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌻</span><span class="cell">🐞</span>
+        </div>
+      </div>
+      <div class="diff-panel"><div class="label">Cena B</div>
+        <div class="diff-grid">
+          <span class="cell diff">🐛</span><span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌼</span>
+          <span class="cell">🐞</span><span class="cell diff">&nbsp;</span><span class="cell">🌺</span><span class="cell">🐝</span>
+          <span class="cell diff">🍁</span><span class="cell">🐌</span><span class="cell">🌈</span><span class="cell">🌸</span>
+          <span class="cell diff">🦋🦋</span><span class="cell">🍄</span><span class="cell diff">🌷</span><span class="cell">🐞</span>
+        </div>
+      </div>
+    </div>
+    <p class="find-tally">Tem <b>5 diferenças</b> entre as duas cenas.</p>
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>"Caça ao Alvo" treina o mesmo olhar atento aos detalhes, com um cronômetro que se ajusta.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 1 de 7</span></div>
+  </section>
+
+  <!-- 1 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 1</div>
+    <h2>Ache as Diferenças &mdash; resposta</h2>
+    <div class="diff-pair">
+      <div class="diff-panel"><div class="label">Cena A</div>
+        <div class="diff-grid">
+          <span class="cell">🌻</span><span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌼</span>
+          <span class="cell">🐞</span><span class="cell">☀️</span><span class="cell">🌺</span><span class="cell">🐝</span>
+          <span class="cell">🍂</span><span class="cell">🐌</span><span class="cell">🌈</span><span class="cell">🌸</span>
+          <span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌻</span><span class="cell">🐞</span>
+        </div>
+      </div>
+      <div class="diff-panel"><div class="label">Cena B</div>
+        <div class="diff-grid">
+          <span class="cell diff">🐛</span><span class="cell">🦋</span><span class="cell">🍄</span><span class="cell">🌼</span>
+          <span class="cell">🐞</span><span class="cell diff">&nbsp;</span><span class="cell">🌺</span><span class="cell">🐝</span>
+          <span class="cell diff">🍁</span><span class="cell">🐌</span><span class="cell">🌈</span><span class="cell">🌸</span>
+          <span class="cell diff">🦋🦋</span><span class="cell">🍄</span><span class="cell diff">🌷</span><span class="cell">🐞</span>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 1</span></div>
+  </section>
+
+  <!-- 2 SIGA O CAMINHO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 2</div></div>
+    <h2>Siga o Caminho</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Rastreamento visual</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Siga com o dedo o fio 1 junto com seu filho até o final, sem pular &mdash; assim ele entende que precisa seguir com calma, não chutar.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Quatro fios saem lá de cima. Só um chega na estrela. Siga cada fio com o dedo, sem pular de um fio pro outro &mdash; qual número chega na estrela?"</p></div></div>
+
+    <div class="pathwrap">
+      <svg viewBox="0 0 400 300" role="img" aria-label="Quatro fios entrelaçados que partem de quatro pontos numerados em cima; só um chega numa estrela embaixo.">
+        <path class="path-line" d="M60,40 C200,100 300,200 360,260"></path>
+        <path class="path-line" d="M160,40 C40,120 20,200 60,260"></path>
+        <path class="path-line correct" d="M260,40 C380,110 140,190 260,260"></path>
+        <path class="path-line" d="M360,40 C260,130 60,170 160,260"></path>
+        <text class="path-label" x="60" y="30" text-anchor="middle">1</text>
+        <text class="path-label" x="160" y="30" text-anchor="middle">2</text>
+        <text class="path-label" x="260" y="30" text-anchor="middle">3</text>
+        <text class="path-label" x="360" y="30" text-anchor="middle">4</text>
+        <text x="60" y="288" text-anchor="middle" font-size="26">🍂</text>
+        <text x="160" y="288" text-anchor="middle" font-size="26">🍂</text>
+        <text x="260" y="288" text-anchor="middle" font-size="26">⭐</text>
+        <text x="360" y="288" text-anchor="middle" font-size="26">🍂</text>
+      </svg>
+    </div>
+    <p class="find-tally">Qual fio leva até a estrela?</p>
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>Em "Caça ao Alvo" também dá pra escanear a tela com calma antes de agir &mdash; o mesmo olhar atento de hoje.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 2 de 7</span></div>
+  </section>
+
+  <!-- 2 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 2</div>
+    <h2>Siga o Caminho &mdash; resposta</h2>
+    <p class="lede">O fio número <b>3</b> leva até a estrela &mdash; destacado aqui embaixo.</p>
+    <div class="pathwrap">
+      <svg viewBox="0 0 400 300" role="img" aria-label="O fio número 3 destacado como o correto.">
+        <path class="path-line" d="M60,40 C200,100 300,200 360,260"></path>
+        <path class="path-line" d="M160,40 C40,120 20,200 60,260"></path>
+        <path class="path-line correct" d="M260,40 C380,110 140,190 260,260"></path>
+        <path class="path-line" d="M360,40 C260,130 60,170 160,260"></path>
+        <text class="path-label" x="60" y="30" text-anchor="middle">1</text>
+        <text class="path-label" x="160" y="30" text-anchor="middle">2</text>
+        <text class="path-label" x="260" y="30" text-anchor="middle">3</text>
+        <text class="path-label" x="360" y="30" text-anchor="middle">4</text>
+        <text x="260" y="288" text-anchor="middle" font-size="26">⭐</text>
+      </svg>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 2</span></div>
+  </section>
+
+  <!-- 3 CAÇA AO SÍMBOLO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 3</div></div>
+    <h2>Caça ao Símbolo</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Atenção sustentada</span>
+      <span class="adv-tag">Versão avançada de Olho de Falcão</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Aponte uma 🦉 na floresta junto com seu filho antes de começar valendo o tempo.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Dessa vez a floresta é maior e o tempo é mais curto: ache todas as corujas 🦉 escondidas em 75 segundos &mdash; pronto? Vai!"</p></div></div>
+
+    <div class="meadow woods">
+      <span class="item" style="left:5%;top:6%;">🍁</span><span class="item" style="left:18%;top:4%;">🌰</span><span class="item target" style="left:32%;top:8%;">🦉</span>
+      <span class="item" style="left:46%;top:3%;">🍄</span><span class="item" style="left:60%;top:7%;">🍁</span><span class="item" style="left:74%;top:4%;">🌰</span>
+      <span class="item" style="left:88%;top:9%;">🍄</span><span class="item" style="left:8%;top:20%;">🌰</span><span class="item target" style="left:22%;top:22%;">🦉</span>
+      <span class="item" style="left:36%;top:18%;">🍁</span><span class="item" style="left:50%;top:24%;">🍄</span><span class="item target" style="left:64%;top:20%;">🦉</span>
+      <span class="item" style="left:78%;top:23%;">🌰</span><span class="item" style="left:92%;top:19%;">🍁</span><span class="item" style="left:4%;top:36%;">🍄</span>
+      <span class="item target" style="left:16%;top:38%;">🦉</span><span class="item" style="left:30%;top:34%;">🌰</span><span class="item" style="left:44%;top:39%;">🍁</span>
+      <span class="item target" style="left:58%;top:36%;">🦉</span><span class="item" style="left:72%;top:40%;">🍄</span><span class="item" style="left:86%;top:35%;">🌰</span>
+      <span class="item" style="left:10%;top:52%;">🍁</span><span class="item target" style="left:24%;top:55%;">🦉</span><span class="item" style="left:38%;top:50%;">🍄</span>
+      <span class="item" style="left:52%;top:54%;">🌰</span><span class="item target" style="left:66%;top:51%;">🦉</span><span class="item" style="left:80%;top:55%;">🍁</span>
+      <span class="item" style="left:5%;top:67%;">🌰</span><span class="item" style="left:19%;top:70%;">🍄</span><span class="item target" style="left:33%;top:66%;">🦉</span>
+      <span class="item" style="left:47%;top:69%;">🍁</span><span class="item" style="left:61%;top:66%;">🌰</span><span class="item target" style="left:75%;top:70%;">🦉</span>
+      <span class="item" style="left:89%;top:67%;">🍄</span><span class="item" style="left:14%;top:82%;">🍁</span><span class="item" style="left:40%;top:84%;">🌰</span>
+      <span class="item" style="left:66%;top:82%;">🍄</span><span class="item" style="left:82%;top:85%;">🍁</span>
+    </div>
+    <p class="find-tally">Tem <b>8 corujas 🦉</b> escondidas na floresta.</p>
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>"Caça ao Alvo" tem níveis com mais símbolos e menos tempo &mdash; o mesmo desafio de hoje, digital.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 3 de 7</span></div>
+  </section>
+
+  <!-- 3 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 3</div>
+    <h2>Caça ao Símbolo &mdash; resposta</h2>
+    <div class="meadow woods">
+      <span class="item" style="left:5%;top:6%;">🍁</span><span class="item" style="left:18%;top:4%;">🌰</span><span class="item target" style="left:32%;top:8%;">🦉</span>
+      <span class="item" style="left:46%;top:3%;">🍄</span><span class="item" style="left:60%;top:7%;">🍁</span><span class="item" style="left:74%;top:4%;">🌰</span>
+      <span class="item" style="left:88%;top:9%;">🍄</span><span class="item" style="left:8%;top:20%;">🌰</span><span class="item target" style="left:22%;top:22%;">🦉</span>
+      <span class="item" style="left:36%;top:18%;">🍁</span><span class="item" style="left:50%;top:24%;">🍄</span><span class="item target" style="left:64%;top:20%;">🦉</span>
+      <span class="item" style="left:78%;top:23%;">🌰</span><span class="item" style="left:92%;top:19%;">🍁</span><span class="item" style="left:4%;top:36%;">🍄</span>
+      <span class="item target" style="left:16%;top:38%;">🦉</span><span class="item" style="left:30%;top:34%;">🌰</span><span class="item" style="left:44%;top:39%;">🍁</span>
+      <span class="item target" style="left:58%;top:36%;">🦉</span><span class="item" style="left:72%;top:40%;">🍄</span><span class="item" style="left:86%;top:35%;">🌰</span>
+      <span class="item" style="left:10%;top:52%;">🍁</span><span class="item target" style="left:24%;top:55%;">🦉</span><span class="item" style="left:38%;top:50%;">🍄</span>
+      <span class="item" style="left:52%;top:54%;">🌰</span><span class="item target" style="left:66%;top:51%;">🦉</span><span class="item" style="left:80%;top:55%;">🍁</span>
+      <span class="item" style="left:5%;top:67%;">🌰</span><span class="item" style="left:19%;top:70%;">🍄</span><span class="item target" style="left:33%;top:66%;">🦉</span>
+      <span class="item" style="left:47%;top:69%;">🍁</span><span class="item" style="left:61%;top:66%;">🌰</span><span class="item target" style="left:75%;top:70%;">🦉</span>
+      <span class="item" style="left:89%;top:67%;">🍄</span><span class="item" style="left:14%;top:82%;">🍁</span><span class="item" style="left:40%;top:84%;">🌰</span>
+      <span class="item" style="left:66%;top:82%;">🍄</span><span class="item" style="left:82%;top:85%;">🍁</span>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 3</span></div>
+  </section>
+
+  <!-- 4 IGNORE O RUÍDO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 4</div></div>
+    <h2>Ignore o Ruído</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Discriminação fina</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>As letras d, p, q são quase idênticas à b, só viradas. Circule um "b" junto com seu filho antes de começar.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"No meio de todas essas letras tem uns 'b' escondidos. Estão cercados de letras bem parecidas &mdash; olhe bem antes de circular!"</p></div></div>
+
+    <div class="letter-grid">
+      <span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span><span class="cell">d</span><span class="cell">q</span><span class="cell">p</span><span class="cell target">b</span>
+      <span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span><span class="cell">d</span><span class="cell">p</span>
+      <span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span>
+      <span class="cell target">b</span><span class="cell">q</span><span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span>
+      <span class="cell">d</span><span class="cell">p</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span>
+    </div>
+    <p class="find-tally">Tem <b>10 letras "b"</b> escondidas.</p>
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>Nos níveis difíceis de "Caça ao Alvo" os símbolos se parecem de propósito &mdash; a mesma discriminação fina de hoje.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 4 de 7</span></div>
+  </section>
+
+  <!-- 4 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 4</div>
+    <h2>Ignore o Ruído &mdash; resposta</h2>
+    <div class="letter-grid">
+      <span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span><span class="cell">d</span><span class="cell">q</span><span class="cell">p</span><span class="cell target">b</span>
+      <span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span><span class="cell">d</span><span class="cell">p</span>
+      <span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span><span class="cell target">b</span><span class="cell">q</span>
+      <span class="cell target">b</span><span class="cell">q</span><span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">d</span><span class="cell">p</span>
+      <span class="cell">d</span><span class="cell">p</span><span class="cell">q</span><span class="cell target">b</span><span class="cell">p</span><span class="cell">d</span><span class="cell">q</span><span class="cell target">b</span>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 4</span></div>
+  </section>
+
+  <!-- 5 O BARULHO DE FUNDO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 5</div></div>
+    <h2>O Barulho de Fundo</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Atenção auditiva</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Hoje é pra escutar, não pra olhar</h4><p>Leia a lista aqui embaixo <b>exatamente como está escrita</b>, uma palavra a cada 2 segundos mais ou menos &mdash; não adicione nem troque palavras, senão o jogo muda de dificuldade sem querer.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Vou ler uma lista de palavras, uma de cada vez. Bata palma SÓ quando ouvir o nome de um animal."</p></div></div>
+
+    <div class="wordlist">
+      <span class="w animal">gato</span><span class="w">cadeira</span><span class="w">lápis</span><span class="w animal">cachorro</span>
+      <span class="w">sol</span><span class="w animal">borboleta</span><span class="w">mesa</span><span class="w animal">elefante</span>
+      <span class="w">caneta</span><span class="w animal">cavalo</span><span class="w">lua</span><span class="w animal">golfinho</span>
+      <span class="w">mochila</span><span class="w animal">coruja</span><span class="w">bola</span><span class="w animal">tartaruga</span>
+    </div>
+    <p class="find-tally">8 das 16 palavras são animais.</p>
+    <div class="bridge"><span style="font-size:22px;">💬</span><div><b>Continue no jogo</b><p>"Minha Vez, Sua Vez" treina a mesma escuta atenta, em versão digital.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 5 de 7</span></div>
+  </section>
+
+  <!-- 5 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 5</div>
+    <h2>O Barulho de Fundo &mdash; resposta</h2>
+    <p class="lede">As palavras destacadas são as que precisavam de palma:</p>
+    <div class="wordlist">
+      <span class="w animal">gato</span><span class="w">cadeira</span><span class="w">lápis</span><span class="w animal">cachorro</span>
+      <span class="w">sol</span><span class="w animal">borboleta</span><span class="w">mesa</span><span class="w animal">elefante</span>
+      <span class="w">caneta</span><span class="w animal">cavalo</span><span class="w">lua</span><span class="w animal">golfinho</span>
+      <span class="w">mochila</span><span class="w animal">coruja</span><span class="w">bola</span><span class="w animal">tartaruga</span>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 5</span></div>
+  </section>
+
+  <!-- 6 OBSERVE E CONTE -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 6</div></div>
+    <h2>Observe e Conte</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Atenção sustentada</span><span class="chip attenzione">Contagem</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Dessa vez não é pra circular: é só contar. Apontem juntos o primeiro 🐙 antes de começar a contar valendo.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Não precisa circular nada dessa vez &mdash; só conte quantos polvos 🐙 você vê no mar, e escreva o número aqui embaixo."</p></div></div>
+
+    <div class="meadow sea">
+      <span class="item" style="left:6%;top:6%;">🐠</span><span class="item" style="left:20%;top:4%;">🦀</span><span class="item target" style="left:34%;top:8%;">🐙</span>
+      <span class="item" style="left:48%;top:5%;">🐚</span><span class="item" style="left:62%;top:8%;">🐠</span><span class="item" style="left:76%;top:4%;">🦀</span>
+      <span class="item" style="left:90%;top:9%;">🐚</span><span class="item target" style="left:10%;top:20%;">🐙</span><span class="item" style="left:24%;top:22%;">🐠</span>
+      <span class="item" style="left:38%;top:18%;">🦀</span><span class="item" style="left:52%;top:24%;">🐚</span><span class="item" style="left:66%;top:20%;">🐠</span>
+      <span class="item target" style="left:80%;top:23%;">🐙</span><span class="item" style="left:4%;top:36%;">🦀</span><span class="item" style="left:18%;top:38%;">🐚</span>
+      <span class="item" style="left:32%;top:34%;">🐠</span><span class="item target" style="left:46%;top:39%;">🐙</span><span class="item" style="left:60%;top:36%;">🦀</span>
+      <span class="item" style="left:74%;top:40%;">🐚</span><span class="item" style="left:88%;top:35%;">🐠</span><span class="item" style="left:10%;top:52%;">🦀</span>
+      <span class="item target" style="left:24%;top:55%;">🐙</span><span class="item" style="left:38%;top:50%;">🐚</span><span class="item" style="left:52%;top:54%;">🐠</span>
+      <span class="item" style="left:66%;top:51%;">🦀</span><span class="item target" style="left:80%;top:55%;">🐙</span><span class="item" style="left:5%;top:67%;">🐚</span>
+      <span class="item" style="left:19%;top:70%;">🐠</span><span class="item target" style="left:33%;top:66%;">🐙</span><span class="item" style="left:47%;top:69%;">🦀</span>
+      <span class="item" style="left:61%;top:66%;">🐚</span><span class="item" style="left:75%;top:70%;">🐠</span>
+    </div>
+    <div class="fields" style="margin-top:8px; font-size:14px; display:flex; gap:8px; align-items:center;">Eu contei <span style="border-bottom:1.5px solid var(--line-strong); min-width:50px; display:inline-block; text-align:center;">&nbsp;</span> polvos.</div>
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>"Caça ao Alvo" mostra quantos alvos você achou entre quantos no total &mdash; o mesmo princípio de contar com atenção.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 6 de 7</span></div>
+  </section>
+
+  <!-- 6 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 6</div>
+    <h2>Observe e Conte &mdash; resposta</h2>
+    <p class="lede">A resposta certa é <b>8 polvos 🐙</b>. Veja onde estão:</p>
+    <div class="meadow sea">
+      <span class="item" style="left:6%;top:6%;">🐠</span><span class="item" style="left:20%;top:4%;">🦀</span><span class="item target" style="left:34%;top:8%;">🐙</span>
+      <span class="item" style="left:48%;top:5%;">🐚</span><span class="item" style="left:62%;top:8%;">🐠</span><span class="item" style="left:76%;top:4%;">🦀</span>
+      <span class="item" style="left:90%;top:9%;">🐚</span><span class="item target" style="left:10%;top:20%;">🐙</span><span class="item" style="left:24%;top:22%;">🐠</span>
+      <span class="item" style="left:38%;top:18%;">🦀</span><span class="item" style="left:52%;top:24%;">🐚</span><span class="item" style="left:66%;top:20%;">🐠</span>
+      <span class="item target" style="left:80%;top:23%;">🐙</span><span class="item" style="left:4%;top:36%;">🦀</span><span class="item" style="left:18%;top:38%;">🐚</span>
+      <span class="item" style="left:32%;top:34%;">🐠</span><span class="item target" style="left:46%;top:39%;">🐙</span><span class="item" style="left:60%;top:36%;">🦀</span>
+      <span class="item" style="left:74%;top:40%;">🐚</span><span class="item" style="left:88%;top:35%;">🐠</span><span class="item" style="left:10%;top:52%;">🦀</span>
+      <span class="item target" style="left:24%;top:55%;">🐙</span><span class="item" style="left:38%;top:50%;">🐚</span><span class="item" style="left:52%;top:54%;">🐠</span>
+      <span class="item" style="left:66%;top:51%;">🦀</span><span class="item target" style="left:80%;top:55%;">🐙</span><span class="item" style="left:5%;top:67%;">🐚</span>
+      <span class="item" style="left:19%;top:70%;">🐠</span><span class="item target" style="left:33%;top:66%;">🐙</span><span class="item" style="left:47%;top:69%;">🦀</span>
+      <span class="item" style="left:61%;top:66%;">🐚</span><span class="item" style="left:75%;top:70%;">🐠</span>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 6</span></div>
+  </section>
+
+  <!-- 7 OLHAR DUPLO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 7</div></div>
+    <h2>Olhar Duplo</h2>
+    <div class="skill-row">
+      <span class="chip attenzione">Busca visual</span><span class="chip attenzione">Memória de trabalho</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Achem juntos o primeiro par (os dois 🎨) antes de começar valendo &mdash; assim ele entende que precisa procurar dois símbolos idênticos, não só um.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Neste campo, cada símbolo tem um gêmeo idêntico escondido em outro lugar. Ache os 8 pares e ligue cada um com uma linha."</p></div></div>
+
+    <div class="pairs-field">
+      <span class="item" style="left:6%;top:8%;">🎨</span><span class="item" style="left:30%;top:6%;">🎯</span><span class="item" style="left:52%;top:10%;">🎪</span><span class="item" style="left:76%;top:8%;">🎭</span>
+      <span class="item" style="left:14%;top:28%;">🎡</span><span class="item" style="left:38%;top:26%;">🎢</span><span class="item" style="left:60%;top:30%;">🎳</span><span class="item" style="left:82%;top:26%;">🎵</span>
+      <span class="item" style="left:8%;top:50%;">🎪</span><span class="item" style="left:30%;top:48%;">🎡</span><span class="item" style="left:54%;top:52%;">🎨</span><span class="item" style="left:78%;top:50%;">🎵</span>
+      <span class="item" style="left:18%;top:70%;">🎢</span><span class="item" style="left:42%;top:68%;">🎯</span><span class="item" style="left:66%;top:66%;">🎳</span><span class="item" style="left:86%;top:70%;">🎭</span>
+    </div>
+    <p class="find-tally">Tem <b>8 pares</b> no campo &mdash; cada símbolo tem exatamente um gêmeo.</p>
+    <div class="bridge"><span style="font-size:22px;">🍃</span><div><b>Continue no jogo</b><p>"Memória da Kapi" exercita a mesma dupla habilidade: procurar e lembrar ao mesmo tempo.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Missão 7 de 7</span></div>
+  </section>
+
+  <!-- 7 SOLUÇÃO -->
+  <section class="page solution">
+    <div class="kicker">Solução &middot; Missão 7</div>
+    <h2>Olhar Duplo &mdash; resposta</h2>
+    <p class="lede">Cada símbolo destacado tem seu gêmeo em algum outro lugar do campo &mdash; ligue-os com uma linha.</p>
+    <div class="pairs-field">
+      <span class="item" style="left:6%;top:8%;">🎨</span><span class="item" style="left:30%;top:6%;">🎯</span><span class="item" style="left:52%;top:10%;">🎪</span><span class="item" style="left:76%;top:8%;">🎭</span>
+      <span class="item" style="left:14%;top:28%;">🎡</span><span class="item" style="left:38%;top:26%;">🎢</span><span class="item" style="left:60%;top:30%;">🎳</span><span class="item" style="left:82%;top:26%;">🎵</span>
+      <span class="item" style="left:8%;top:50%;">🎪</span><span class="item" style="left:30%;top:48%;">🎡</span><span class="item" style="left:54%;top:52%;">🎨</span><span class="item" style="left:78%;top:50%;">🎵</span>
+      <span class="item" style="left:18%;top:70%;">🎢</span><span class="item" style="left:42%;top:68%;">🎯</span><span class="item" style="left:66%;top:66%;">🎳</span><span class="item" style="left:86%;top:70%;">🎭</span>
+    </div>
+    <div class="foot"><span>Kit Completo &middot; Atenção</span><span>Solução &middot; Missão 7</span></div>
+  </section>
+
+  <!-- FECHAMENTO -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:14px;">Fim do Módulo 1</div>
+    <h2>Atenção completa!</h2>
+    <p>Cinco módulos ainda te esperam: Memória, Controle da Resposta, Flexibilidade, Planejamento e Emoções &mdash; cada um com 7 novas missões.</p>
+    <div class="modgrid">
+      <span class="mtag now">1 Atenção ✓</span><span class="mtag">2 Memória</span><span class="mtag">3 Controle</span>
+      <span class="mtag">4 Flexibilidade</span><span class="mtag">5 Planejamento</span><span class="mtag">6 Emoções</span>
+    </div>
+  </section>
+
+</div>

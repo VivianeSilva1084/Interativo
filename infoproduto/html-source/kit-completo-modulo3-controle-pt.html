@@ -1,0 +1,383 @@
+<title>Kit Completo — Módulo Controle</title>
+<style>
+  :root{
+    --teal-deep:#0A2C2D; --teal-mid:#0F3D3E; --teal-mid2:#14514F;
+    --cream:#FFF8ED; --paper:#FFFCF6; --sand:#C9A15E;
+    --caramel:#A6642F; --caramel-deep:#8A5226; --caramel-tint:#F3E3D1;
+    --leaf:#3F8657; --leaf-tint:#E3EEE3; --berry:#B23A55; --berry-tint:#F5E0E3;
+    --lilac:#8496B5; --lilac-tint:#E7EAF1;
+    --ink:#1C231F; --ink-soft:#54594F; --ink-faint:#8B9186;
+    --line:#E4DCC8; --line-strong:#D8CBA8;
+    --shadow: 0 1px 2px rgba(20,24,27,.06), 0 18px 40px rgba(20,24,27,.10);
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3{ font-family:var(--serif); font-weight:600; letter-spacing:-.01em; color:var(--ink); text-wrap:balance; margin:0; }
+  p{ margin:0; }
+
+  .defs{ position:absolute; width:0; height:0; overflow:hidden; }
+  .k-ear{ fill:var(--caramel-deep); } .k-ear-in{ fill:var(--caramel-tint); } .k-head{ fill:var(--sand); }
+  .k-snout{ fill:#F1DFC0; } .k-eye{ fill:var(--ink); } .k-eye-hi{ fill:#fff; } .k-nose{ fill:var(--caramel-deep); }
+  .k-mouth{ fill:none; stroke:var(--caramel-deep); stroke-width:2.5; stroke-linecap:round; } .k-cheek{ fill:var(--berry); opacity:.28; }
+  .mascot-avatar{ width:44px; height:44px; flex-shrink:0; }
+  .mascot-cover{ width:100px; height:100px; }
+
+  .kit{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+  .page{ background:var(--paper); border-radius:18px; box-shadow:var(--shadow); padding:52px 56px; margin-bottom:28px; position:relative; border:1px solid var(--line); }
+
+  .cover{
+    background:
+      radial-gradient(120% 90% at 15% -10%, rgba(178,58,85,.28), transparent 55%),
+      radial-gradient(90% 70% at 100% 110%, rgba(63,134,87,.24), transparent 55%),
+      linear-gradient(165deg, var(--teal-deep), var(--teal-mid) 70%);
+    color:var(--cream); border:none; padding:64px 56px 44px; display:flex; flex-direction:column; gap:20px; min-height:520px; overflow:hidden;
+  }
+  .cover-eyebrow{ font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--sand); font-weight:600; }
+  .cover-brand{ display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:16px; color:var(--cream); opacity:.9; }
+  .cover-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--sand); }
+  .cover-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; }
+  .cover h1{ color:var(--cream); font-size:44px; line-height:1.08; max-width:13ch; }
+  .cover .sub{ font-size:17px; color:#EAE3D2; max-width:38ch; line-height:1.5; }
+  .modstrip{ display:flex; gap:7px; margin-top:auto; padding-top:16px; border-top:1px solid rgba(255,248,237,.18); }
+  .modstrip .m{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; background:rgba(255,248,237,.12); color:#CFE0D6; }
+  .modstrip .m.active{ background:var(--berry); color:#fff; }
+  .modstrip .m.done{ background:var(--leaf); color:#fff; }
+
+  .kicker{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--caramel-deep); font-weight:700; }
+  .header-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .page h2{ font-size:27px; margin-bottom:6px; }
+  .lede{ color:var(--ink-soft); font-size:15px; max-width:58ch; margin-top:10px; }
+
+  .modulestrip{ display:flex; gap:7px; margin-bottom:22px; }
+  .modulestrip .d{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-faint); background:var(--line); border:1px solid var(--line-strong); }
+  .modulestrip .d.active{ background:var(--berry); color:#fff; border-color:var(--berry); }
+  .modulestrip .d.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  .skill-row{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; align-items:center; }
+  .chip{ font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; letter-spacing:.01em; }
+  .chip.controllo{ background:var(--berry-tint); color:var(--berry); }
+  .level{ display:flex; align-items:center; gap:4px; margin-left:auto; }
+  .leaf-ico{ width:12px; height:12px; background:var(--line-strong); border-radius:0 60% 60% 60%; transform:rotate(45deg); }
+  .leaf-ico.on{ background:var(--leaf); }
+  .level-label{ font-size:11px; color:var(--ink-faint); margin-left:5px; white-space:nowrap; }
+  .adv-tag{ font-size:11px; font-weight:700; color:var(--berry); background:var(--berry-tint); padding:4px 10px; border-radius:99px; }
+
+  .box{ background:var(--cream); border:1px solid var(--line); border-radius:14px; padding:20px 24px; margin:16px 0; }
+  .box h4{ font-family:var(--serif); font-size:15px; font-weight:600; margin:0 0 8px; color:var(--ink); }
+  .box.script{ border-left:4px solid var(--berry); display:flex; gap:16px; align-items:flex-start; }
+  .box.script > div{ flex:1; min-width:0; }
+  .box.note{ border-left:4px solid var(--leaf); background:var(--leaf-tint); }
+  .box.example{ border-left:4px solid var(--caramel); }
+  .box.caution{ border-left:4px solid var(--berry); background:var(--berry-tint); }
+  .box.caution h4{ color:var(--berry); }
+  .script p{ font-style:italic; color:var(--ink); font-size:14.5px; line-height:1.6; }
+  .script p + p{ margin-top:8px; }
+  ol.steps{ margin:0; padding-left:22px; } ol.steps li{ margin-bottom:8px; font-size:14.5px; }
+  ol.steps li::marker{ font-family:var(--serif); font-weight:700; color:var(--caramel-deep); }
+
+  .bridge{ margin-top:24px; padding:16px 20px; border-radius:14px; background:linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color:var(--cream); display:flex; gap:14px; align-items:flex-start; }
+  .bridge b{ font-family:var(--serif); font-weight:600; }
+  .bridge p{ font-size:13.5px; color:#DCE7DF; margin-top:3px; }
+  .foot{ display:flex; justify-content:space-between; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase; }
+
+  .trackrow{ display:flex; gap:6px; margin:18px 0; }
+  .trackrow .cell{ flex:1; aspect-ratio:1; border:1.5px solid var(--line-strong); border-radius:8px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:var(--ink-faint); }
+  .trackrow .cell.goal{ background:var(--sand); color:#4A3A16; border-color:var(--sand); font-size:20px; }
+  .cardstrip{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0; }
+  .cardstrip .card{ width:58px; height:80px; border:1.5px solid var(--line-strong); border-radius:9px; background:var(--cream); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-weight:700; font-size:22px; box-shadow:0 2px 5px rgba(20,24,27,.06); }
+  .cardstrip .card.target{ border-color:var(--berry); }
+  .cut{ text-align:center; font-size:12px; color:var(--ink-faint); letter-spacing:.08em; text-transform:uppercase; margin-top:8px; }
+
+  table.calltable{ width:100%; border-collapse:collapse; margin:16px 0; font-size:13.5px; }
+  table.calltable th{ font-family:var(--serif); font-weight:600; text-align:left; padding:9px 12px; background:var(--teal-deep); color:var(--cream); font-size:12.5px; }
+  table.calltable th:first-child{ border-radius:8px 0 0 0; } table.calltable th:last-child{ border-radius:0 8px 0 0; }
+  table.calltable td{ padding:10px 12px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+  table.calltable td.n{ font-weight:700; color:var(--ink); width:34px; }
+  table.calltable td.call{ font-weight:600; color:var(--ink); }
+
+  .touchbox{ text-align:center; margin:22px 0; }
+  .touchbox .obj{ width:90px; height:90px; margin:0 auto; border:2.5px dashed var(--berry); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:40px; background:var(--berry-tint); }
+
+  .closing{ text-align:center; }
+  .closing p{ max-width:48ch; margin:14px auto 0; color:var(--ink-soft); font-size:15px; }
+  .modgrid{ display:flex; justify-content:center; gap:10px; margin-top:24px; flex-wrap:wrap; }
+  .modgrid .mtag{ font-size:12.5px; padding:8px 14px; border-radius:99px; background:var(--cream); border:1px solid var(--line); color:var(--ink-faint); }
+  .modgrid .mtag.now{ background:var(--berry); color:#fff; border-color:var(--berry); font-weight:700; }
+  .modgrid .mtag.done{ background:var(--leaf-tint); color:var(--leaf); border-color:var(--leaf); }
+
+  @media print{
+    body{ background:#fff; }
+    .kit{ padding:0; max-width:none; }
+    .page{ box-shadow:none; border:none; border-radius:0; page-break-after:always; margin:0; padding:20mm 18mm; }
+    .cover{ page-break-after:always; }
+    @page{ size:A4; margin:0; }
+
+    .box, .bridge, .trackrow, .cardstrip, table.calltable, .touchbox{
+      break-inside: avoid; page-break-inside: avoid;
+      border-radius: 0; box-shadow: none;
+    }
+  }
+</style>
+
+<svg class="defs" aria-hidden="true">
+  <symbol id="kapi" viewBox="0 0 120 120">
+    <ellipse class="k-ear" cx="26" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear" cx="94" cy="28" rx="15" ry="15"></ellipse>
+    <ellipse class="k-ear-in" cx="26" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-ear-in" cx="94" cy="30" rx="7" ry="7"></ellipse>
+    <ellipse class="k-head" cx="60" cy="66" rx="48" ry="42"></ellipse>
+    <ellipse class="k-snout" cx="60" cy="86" rx="28" ry="20"></ellipse>
+    <circle class="k-eye" cx="42" cy="60" r="5.5"></circle>
+    <circle class="k-eye" cx="78" cy="60" r="5.5"></circle>
+    <circle class="k-eye-hi" cx="44" cy="58" r="1.6"></circle>
+    <circle class="k-eye-hi" cx="80" cy="58" r="1.6"></circle>
+    <ellipse class="k-nose" cx="60" cy="80" rx="6" ry="4"></ellipse>
+    <path class="k-mouth" d="M50 92 Q60 100 70 92"></path>
+    <ellipse class="k-cheek" cx="32" cy="82" rx="8" ry="5"></ellipse>
+    <ellipse class="k-cheek" cx="88" cy="82" rx="8" ry="5"></ellipse>
+  </symbol>
+</svg>
+
+<div class="kit">
+
+  <!-- CAPA -->
+  <section class="page cover">
+    <div class="cover-top">
+      <div>
+        <div class="cover-brand"><span class="dot"></span>VisCare Kids</div>
+        <div class="cover-eyebrow" style="margin-top:10px;">Kit Completo &middot; Módulo 3 de 6</div>
+      </div>
+      <svg class="mascot-cover"><use href="#kapi"></use></svg>
+    </div>
+    <h1>Controle da Resposta</h1>
+    <p class="sub">Sete missões pra treinar a espera e o autocontrole &mdash; sempre com tempos curtos, um sinal claro, e nunca como punição.</p>
+    <div class="modstrip"><div class="m done">1</div><div class="m done">2</div><div class="m active">3</div><div class="m">4</div><div class="m">5</div><div class="m">6</div></div>
+  </section>
+
+  <!-- INTRODUÇÃO -->
+  <section class="page">
+    <div class="kicker">Antes de começar &mdash; leia esta página</div>
+    <h2>Como usar este módulo</h2>
+    <p class="lede">Este módulo treina a espera, que por definição é a coisa mais difícil de pedir pra uma criança com dificuldade de atenção. Por isso as regras são ainda mais importantes que o normal.</p>
+    <div class="box caution"><h4>🛑 Regra de ouro: nunca como punição</h4><p>Se seu filho "errar" &mdash; tocar antes do sinal, se mexer no vermelho, responder cedo demais &mdash; nunca é um erro pra corrigir com severidade. É exatamente a dificuldade que estamos treinando, aos poucos.</p></div>
+    <div class="box"><h4>⏱️ Tempos sempre fixos e curtos</h4><p>Toda missão com espera tem um tempo exato escrito na página. Não estique "pra treinar mais" &mdash; uma espera mais longa do que a escrita só arrisca transformar o jogo em frustração.</p></div>
+    <div class="box note"><h4>🎯 O sucesso está no esforço</h4><p>"Você esperou!" vale mesmo que a espera tenha durado menos que o previsto. Não é uma nota de certo/errado.</p></div>
+    <div class="box"><h4>🔁 Algumas atividades lembram o Mini Kit</h4><p>Estão marcadas com <span class="adv-tag">Versão avançada</span>.</p></div>
+  </section>
+
+  <!-- 1 ESPERE SUA VEZ -->
+  <section class="page">
+    <div class="modulestrip"><div class="d active">1</div><div class="d">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 1 &middot; Aquecimento</div></div>
+    <h2>Espere Sua Vez</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Espera social</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Tirem uma carta cada um juntos, sem competir, só pra ver como o jogo funciona.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Você só tira uma carta quando for sua vez, mesmo que já esteja com vontade de tirar antes. Quem tira fora de hora volta pra casa 1."</p></div></div>
+
+    <div class="trackrow">
+      <span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">4</span><span class="cell">5</span><span class="cell">6</span><span class="cell">7</span><span class="cell">8</span><span class="cell">9</span><span class="cell goal">🏆</span>
+    </div>
+    <div class="cardstrip">
+      <div class="card">1</div><div class="card">2</div><div class="card">3</div><div class="card">4</div><div class="card">5</div><div class="card">6</div>
+    </div>
+    <p class="cut">✂️ Recorte as 6 cartas número, embaralhe e tirem uma por vez pra avançar na pista</p>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" treina o mesmo músculo da espera, em versão digital.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 1 de 7</span></div>
+  </section>
+
+  <!-- 2 PARE NO VERMELHO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d active">2</div><div class="d">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 2</div></div>
+    <h2>Pare no Vermelho</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Inibição motora</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="leaf-ico"></span><span class="level-label">Nível 1 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Façam uma rodada de teste com só 2 comandos antes de começar valendo.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Ande ou dance quando eu disser 'Verde', pare na hora quando eu disser 'Vermelho'." Leia os comandos aqui embaixo exatamente na ordem escrita, sem inventar.</p></div></div>
+
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Comando</th><th>Pausa antes do próximo</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="call">Verde!</td><td>~5 segundos</td></tr>
+        <tr><td class="n">2</td><td class="call">Vermelho!</td><td>~3 segundos</td></tr>
+        <tr><td class="n">3</td><td class="call">Verde!</td><td>~2 segundos</td></tr>
+        <tr><td class="n">4</td><td class="call">Vermelho!</td><td>~4 segundos</td></tr>
+        <tr><td class="n">5</td><td class="call">Verde!</td><td>~6 segundos</td></tr>
+        <tr><td class="n">6</td><td class="call">Vermelho!</td><td>~2 segundos</td></tr>
+        <tr><td class="n">7</td><td class="call">Verde!</td><td>~3 segundos</td></tr>
+        <tr><td class="n">8</td><td class="call">Vermelho!</td><td>fim do jogo</td></tr>
+      </tbody>
+    </table>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" é a mesma ideia, com um cronômetro que decide o ritmo no seu lugar.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 2 de 7</span></div>
+  </section>
+
+  <!-- 3 O JOGO DO CONTRÁRIO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d active">3</div><div class="d">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 3</div></div>
+    <h2>O Jogo do Contrário</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Inibição de resposta</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 A regra não muda hoje</h4><p>Diferente do Módulo 4: aqui a regra é sempre a mesma do início ao fim &mdash; sempre faça o contrário do que eu disser.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer (leia em ordem)</h4>
+      <ol class="steps">
+        <li>"Levante as mãos" &rarr; abaixa</li>
+        <li>"Abra a boca" &rarr; fecha</li>
+        <li>"Pule" &rarr; fica parado</li>
+        <li>"Feche os olhos" &rarr; mantém abertos</li>
+        <li>"Fique quieto" &rarr; fala uma palavra alto</li>
+        <li>"Sente" &rarr; fica em pé</li>
+        <li>"Sorria" &rarr; faz cara feia</li>
+        <li>"Ande rápido" &rarr; anda devagar</li>
+      </ol>
+    </div></div>
+
+    <div class="bridge"><span style="font-size:22px;">💬</span><div><b>Continue no jogo</b><p>"Minha Vez, Sua Vez" treina o mesmo freio antes de responder.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 3 de 7</span></div>
+  </section>
+
+  <!-- 4 SEMÁFORO DUPLO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d active">4</div><div class="d">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 4</div></div>
+    <h2>Semáforo Duplo</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Controle com conflito</span>
+      <span class="adv-tag">Versão avançada de Espera o Sinal</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+    <div class="box example"><h4>👀 Exemplo juntos</h4><p>Mostre ⭐ e 🌟 lado a lado e aponte a diferença antes de começar &mdash; elas se parecem de propósito.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Bata palma SÓ quando ver essa estrela amarela ⭐. Essa aqui, que parece igual mas brilha 🌟, não conta &mdash; fique parado."</p></div></div>
+
+    <div class="cardstrip">
+      <div class="card">🔺</div><div class="card target">⭐</div><div class="card">🌟</div><div class="card">🔵</div>
+      <div class="card target">⭐</div><div class="card">🌟</div><div class="card">🟩</div><div class="card target">⭐</div>
+      <div class="card">🌟</div><div class="card">🟣</div>
+    </div>
+    <p class="cut">✂️ Recorte as 10 cartas, mantenha essa ordem, mostre uma de cada vez a cada 2&ndash;3 segundos</p>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" nos níveis avançados adiciona o mesmo tipo de sinal parecido mas errado.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 4 de 7</span></div>
+  </section>
+
+  <!-- 5 NÃO TOQUE -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d active">5</div><div class="d">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 5</div></div>
+    <h2>Não Toque!</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Tolerância à espera</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico"></span><span class="level-label">Nível 2 de 3</span></span>
+    </div>
+
+    <div class="box caution"><h4>🛑 Leia isso antes de começar</h4><p>Essa é a missão mais desafiadora do módulo &mdash; resistir à tentação é difícil pra qualquer criança, ainda mais pra quem tem dificuldade de atenção. O tempo é curto de propósito. Se seu filho tocar antes do sinal, não é um erro: é normal, e tudo bem. <b>Essa missão não entra no Diário de bordo.</b></p></div>
+
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4>
+      <p><b>Antes:</b> "Vou colocar um brinquedinho aqui. Por 10 segundos, olhe pra ele mas não toque &mdash; é normal ter vontade, é justamente isso que estamos treinando."</p>
+      <p><b>Durante:</b> conte em silêncio na sua cabeça, sem pressionar ou cronometrar em voz alta.</p>
+      <p><b>Depois (de qualquer jeito):</b> se esperou &mdash; "Você esperou, muito bem!" Se tocou antes &mdash; "Tudo bem, vamos tentar de novo com um tempo mais curtinho."</p>
+    </div></div>
+
+    <div class="touchbox"><div class="obj">🧸</div><p class="find-tally">Coloque aqui um brinquedinho ou adesivo de verdade &mdash; o desenho é só um espaço reservado.</p></div>
+
+    <div class="box note"><h4>🚪 Quando parar</h4><p>No máximo 1&ndash;2 tentativas, de 10 segundos cada. Se seu filho ficar agitado, parem por aqui &mdash; se tenta de novo outro dia com um tempo ainda mais curto.</p></div>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" treina a mesma espera, mas sem nenhum objeto de verdade pra resistir a tocar.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 5 de 7</span></div>
+  </section>
+
+  <!-- 6 O DETETIVE SILENCIOSO -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d active">6</div><div class="d">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 6</div></div>
+    <h2>O Detetive Silencioso</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Controle em ritmo variável</span>
+      <span class="adv-tag">Versão avançada de Espera o Sinal</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Hoje o ritmo é irregular de propósito</h4><p>É normal errar mais &mdash; o ponto é continuar concentrado, não ser perfeito. Elogie o esforço, não só o resultado.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Bata palma SÓ quando ver a lupa 🔎. Dessa vez as cartas aparecem em ritmos diferentes &mdash; às vezes rápido, às vezes com uma pausa longa."</p></div></div>
+
+    <table class="calltable">
+      <thead><tr><th>#</th><th>Carta</th><th>Pausa antes de mostrar</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td class="call">🔺</td><td>2 segundos</td></tr>
+        <tr><td class="n">2</td><td class="call">🔎</td><td>4 segundos</td></tr>
+        <tr><td class="n">3</td><td class="call">🔵</td><td>1 segundo</td></tr>
+        <tr><td class="n">4</td><td class="call">🔎</td><td>3 segundos</td></tr>
+        <tr><td class="n">5</td><td class="call">🟩</td><td>1 segundo</td></tr>
+        <tr><td class="n">6</td><td class="call">🟣</td><td>5 segundos</td></tr>
+        <tr><td class="n">7</td><td class="call">🔎</td><td>2 segundos</td></tr>
+        <tr><td class="n">8</td><td class="call">🔺</td><td>1 segundo</td></tr>
+        <tr><td class="n">9</td><td class="call">🔎</td><td>3 segundos</td></tr>
+        <tr><td class="n">10</td><td class="call">🔵</td><td>fim do jogo</td></tr>
+      </tbody>
+    </table>
+
+    <div class="bridge"><span style="font-size:22px;">🚦</span><div><b>Continue no jogo</b><p>"Luz da Espera" tem níveis com tempos de espera que mudam toda vez, exatamente como hoje.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 6 de 7</span></div>
+  </section>
+
+  <!-- 7 A REGRA ESCONDIDA -->
+  <section class="page">
+    <div class="modulestrip"><div class="d done">1</div><div class="d done">2</div><div class="d done">3</div><div class="d done">4</div><div class="d done">5</div><div class="d done">6</div><div class="d active">7</div></div>
+    <div class="header-row"><div class="kicker">Missão 7</div></div>
+    <h2>A Regra Escondida</h2>
+    <div class="skill-row">
+      <span class="chip controllo">Formação de regras</span>
+      <span class="level"><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="leaf-ico on"></span><span class="level-label">Nível 3 de 3</span></span>
+    </div>
+    <div class="box note"><h4>💡 Errar faz parte do jogo</h4><p>O jeito de descobrir a regra é justamente tentando e recebendo um "sim" ou um "não" &mdash; não é uma prova, é um jogo de adivinhação.</p></div>
+    <div class="box script"><svg class="mascot-avatar"><use href="#kapi"></use></svg><div><h4>🗣️ O que dizer</h4><p>"Eu escolhi uma regra secreta sobre esses símbolos. Adivinha quais seguem a regra &mdash; eu só vou dizer 'sim' ou 'não', sem explicar por quê."</p></div></div>
+
+    <div class="box"><h4>🔑 Escolha UMA regra desta lista (não conte pro seu filho)</h4>
+      <ol class="steps">
+        <li>Só as formas <b>vermelhas</b></li>
+        <li>Só as formas <b>redondas</b></li>
+        <li>Só as formas <b>grandes</b></li>
+      </ol>
+    </div>
+
+    <div class="cardstrip">
+      <div class="card">🔴</div><div class="card">🟦</div><div class="card">🟢</div><div class="card">🔺</div><div class="card">🟥</div><div class="card">🟡</div>
+    </div>
+    <p class="cut">Símbolos pra mostrar um de cada vez &mdash; pergunte "segue a regra?" e responda só sim/não</p>
+
+    <div class="box"><h4>🪜 Escada de ajudas (use só se precisar)</h4>
+      <ol class="steps">
+        <li>Depois de 3 tentativas erradas: "Olhe bem a cor de cada um."</li>
+        <li>Depois de 5 tentativas erradas: "Tente comparar só os vermelhos entre si."</li>
+        <li>Depois de 7 tentativas: revele a regra juntos, sem fazer drama.</li>
+      </ol>
+    </div>
+
+    <div class="bridge"><span style="font-size:22px;">🔎</span><div><b>Continue no jogo</b><p>Nos níveis avançados de "Caça ao Alvo" a regra muda e precisa ser descoberta de novo &mdash; o mesmo espírito investigativo de hoje.</p></div></div>
+    <div class="foot"><span>Kit Completo &middot; Controle</span><span>Missão 7 de 7</span></div>
+  </section>
+
+  <!-- FECHAMENTO -->
+  <section class="page closing">
+    <svg class="mascot-cover" style="margin:0 auto;"><use href="#kapi"></use></svg>
+    <div class="kicker" style="margin-top:14px;">Fim do Módulo 3</div>
+    <h2>Controle da Resposta completo!</h2>
+    <p>Três módulos ainda te esperam: Flexibilidade, Planejamento e Emoções.</p>
+    <div class="modgrid">
+      <span class="mtag done">1 Atenção ✓</span><span class="mtag done">2 Memória ✓</span><span class="mtag now">3 Controle ✓</span>
+      <span class="mtag">4 Flexibilidade</span><span class="mtag">5 Planejamento</span><span class="mtag">6 Emoções</span>
+    </div>
+  </section>
+
+</div>

@@ -63,12 +63,12 @@ Deno.serve(async (req) => {
     }
     const isKit = KIT_PLANS.includes(plan);
     // Order-bump add-ons (2026-08-22, metodo.html single-product test) -
-    // only jogos_silabas offers these, and only these two skus are ever
+    // only jogos_silabas offers these, and only these three skus are ever
     // honored, regardless of what the client sends - server stays the
     // source of truth for price so a crafted request can't attach a
     // discounted addon to an unrelated plan. Fixed order (not click order)
     // keeps the combined sku string / description deterministic.
-    const ADDON_ORDER = ['baralho_foco', 'kit_completo'];
+    const ADDON_ORDER = ['baralho_foco', 'kit_completo', 'kit_mini'];
     const requestedAddons: string[] = Array.isArray(addons) ? addons : [];
     const validAddons = plan === 'jogos_silabas'
       ? ADDON_ORDER.filter((sku) => requestedAddons.includes(sku))
@@ -133,6 +133,10 @@ Deno.serve(async (req) => {
         if (validAddons.includes('kit_completo')) {
           value += Number(Deno.env.get('ASAAS_BUMP_KIT_COMPLETO_BRL') ?? '10.00');
           description += ' + Kit Completo VisCare Kids';
+        }
+        if (validAddons.includes('kit_mini')) {
+          value += Number(Deno.env.get('ASAAS_BUMP_KIT_MINI_BRL') ?? '7.00');
+          description += ' + Mini Kit Atenção';
         }
       } else if (plan === 'baralho_foco') {
         value = Number(Deno.env.get('ASAAS_BARALHO_FOCO_VALUE_BRL') ?? '27.00');

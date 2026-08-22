@@ -45,6 +45,7 @@ const JOGOS_SILABAS_BASE_VALUE = 27.00;
 const JOGOS_SILABAS_ADDONS = {
   baralho_foco: { value: 20.00, name: 'Baralho do Foco' },
   kit_completo: { value: 10.00, name: 'Kit Completo VisCare Kids' },
+  kit_mini: { value: 7.00, name: 'Mini Kit Atenção' },
 };
 
 const CHECKOUT_COPY = {
@@ -262,11 +263,18 @@ function openCheckoutModal(lang, plan){
         <div class="checkout-bump-badge">🎁 Aproveite e leve junto</div>
         <label class="checkout-bump-label">
           <input type="checkbox" id="checkoutAddonBaralho" data-addon="baralho_foco">
+          <img class="checkout-bump-thumb" src="assets/mockup-baralho-foco.png" alt="">
           <span>Baralho do Foco <strong>+ R$ 20</strong></span>
         </label>
         <label class="checkout-bump-label">
           <input type="checkbox" id="checkoutAddonKitCompleto" data-addon="kit_completo">
+          <img class="checkout-bump-thumb" src="assets/mockup-kit-completo.png" alt="">
           <span>Kit Completo VisCare Kids <strong>+ R$ 10</strong></span>
+        </label>
+        <label class="checkout-bump-label">
+          <input type="checkbox" id="checkoutAddonKitMini" data-addon="kit_mini">
+          <img class="checkout-bump-thumb" src="assets/mockup-mini-kit.png" alt="">
+          <span>Mini Kit Atenção <strong>+ R$ 7</strong></span>
         </label>
       </div>` : ''}
 
@@ -357,10 +365,12 @@ function openCheckoutModal(lang, plan){
   // create-public-pix-payment, which is the actual source of truth for price.
   const addonBaralhoCheck = overlay.querySelector('#checkoutAddonBaralho');
   const addonKitCompletoCheck = overlay.querySelector('#checkoutAddonKitCompleto');
+  const addonKitMiniCheck = overlay.querySelector('#checkoutAddonKitMini');
   const getSelectedAddons = () => {
     const selected = [];
     if(addonBaralhoCheck && addonBaralhoCheck.checked) selected.push('baralho_foco');
     if(addonKitCompletoCheck && addonKitCompletoCheck.checked) selected.push('kit_completo');
+    if(addonKitMiniCheck && addonKitMiniCheck.checked) selected.push('kit_mini');
     return selected;
   };
   const updateAddonsSummary = () => {
@@ -371,7 +381,7 @@ function openCheckoutModal(lang, plan){
     summaryNoteEl.textContent = selected.length ? `Inclui: ${names.join(' + ')}` : t[plan].note;
   };
   if(showAddons){
-    [addonBaralhoCheck, addonKitCompletoCheck].forEach(check => {
+    [addonBaralhoCheck, addonKitCompletoCheck, addonKitMiniCheck].forEach(check => {
       if(check) check.addEventListener('change', updateAddonsSummary);
     });
   }

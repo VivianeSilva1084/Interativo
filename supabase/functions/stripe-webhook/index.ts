@@ -445,7 +445,7 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
     },
     pt: {
       name: '100 Jogos de Sons, Sílabas e Palavras',
-      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' }],
     },
   },
   baralho_foco_pro: {
@@ -455,7 +455,7 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
     },
     pt: {
       name: 'Baralho do Foco',
-      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' }],
     },
   },
   combo_jogos_baralho_pro: {
@@ -469,8 +469,8 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
     pt: {
       name: 'Combo: Livro + Baralho do Foco',
       files: [
-        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
-        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' },
       ],
     },
   },

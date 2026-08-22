@@ -30,6 +30,10 @@ const localAssetRefs = [
   'assets/mockup-100-jogos.png',
   'assets/mockup-baralho-foco.png',
   'assets/mockup-combo.png',
+  'assets/mockup-mini-kit-it.png',
+  'assets/mockup-kit-completo-it.png',
+  'assets/mockup-100-jogos-it.png',
+  'assets/mockup-baralho-foco-it.png',
   'supabase-config.js',
 ];
 
@@ -50,6 +54,10 @@ const pages = [
   ['contato.html', 'contato.html'],
   ['termos-de-uso.html', 'termos-de-uso.html'],
   ['politica-privacidade.html', 'politica-privacidade.html'],
+  // Isolated funnel page (not linked from nav, per its own comment) - output
+  // as a directory index (same trick as vendas.html -> index.html above) so
+  // it resolves at /metodo instead of /metodo.html.
+  ['metodo.html', 'metodo/index.html'],
 ];
 
 for (const [src, dest] of pages) {

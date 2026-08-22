@@ -279,13 +279,13 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
   jogos_silabas: {
     pt: {
       name: '100 Jogos de Sons, Sílabas e Palavras',
-      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' }],
     },
   },
   baralho_foco: {
     pt: {
       name: 'Baralho do Foco',
-      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' }],
     },
   },
   combo_jogos_baralho: {
@@ -296,8 +296,8 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       // handleContentKitPayment below), not listed here.
       name: 'Combo: Livro + Baralho do Foco + Kit Completo',
       files: [
-        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
-        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' },
         { label: 'Kit Completo — 6 módulos', path: 'kit-completo-6-modulos-pt.pdf' },
       ],
     },
@@ -309,21 +309,21 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
   jogos_silabas_pro: {
     pt: {
       name: '100 Jogos de Sons, Sílabas e Palavras',
-      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' }],
+      files: [{ label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' }],
     },
   },
   baralho_foco_pro: {
     pt: {
       name: 'Baralho do Foco',
-      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' }],
+      files: [{ label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' }],
     },
   },
   combo_jogos_baralho_pro: {
     pt: {
       name: 'Combo: Livro + Baralho do Foco',
       files: [
-        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt.pdf' },
-        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt.pdf' },
+        { label: '100 Jogos de Sons, Sílabas e Palavras', path: '100-jogos-sons-silabas-palavras-pt-v2.pdf' },
+        { label: 'Baralho do Foco', path: 'baralho-do-foco-pt-v2.pdf' },
       ],
     },
   },

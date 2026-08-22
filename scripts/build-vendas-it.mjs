@@ -28,6 +28,10 @@ const localAssetRefs = [
   'assets/mockup-100-jogos.png',
   'assets/mockup-baralho-foco.png',
   'assets/mockup-combo.png',
+  'assets/mockup-mini-kit-it.png',
+  'assets/mockup-kit-completo-it.png',
+  'assets/mockup-100-jogos-it.png',
+  'assets/mockup-baralho-foco-it.png',
   'supabase-config.js',
 ];
 

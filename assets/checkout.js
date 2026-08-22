@@ -34,6 +34,19 @@ function isValidCpfCnpj(digits){
 // Stripe, same as kit_mini/kit_completo.
 const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
 
+// Order-bump add-ons offered only at jogos_silabas checkout (2026-08-22,
+// metodo.html single-product test) - discounted well below their standalone
+// price since they're an impulse add-on to an already-committed buyer, not
+// a replacement for the standalone baralho_foco/kit_completo cards on
+// familias.html/profissionais.html. pt/Asaas-only, same scope as jogos_silabas
+// itself - numeric here (unlike CHECKOUT_COPY's display-string prices)
+// because the modal needs to sum a running total, not just show a label.
+const JOGOS_SILABAS_BASE_VALUE = 27.00;
+const JOGOS_SILABAS_ADDONS = {
+  baralho_foco: { value: 20.00, name: 'Baralho do Foco' },
+  kit_completo: { value: 10.00, name: 'Kit Completo VisCare Kids' },
+};
+
 const CHECKOUT_COPY = {
   pt: {
     '30days': { price: 'R$ 34,90', note: 'pagamento único · acesso por 30 dias' },
@@ -197,6 +210,10 @@ function openCheckoutModal(lang, plan){
   // a cheaper non-recurring option in front of them would just talk them
   // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
   const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
+  // Order-bump checkboxes (2026-08-22) - separate from showBump above, which
+  // swaps the whole plan (30days<->bump30) rather than adding to it. Only
+  // jogos_silabas offers these for now (metodo.html single-product test).
+  const showAddons = lang === 'pt' && plan === 'jogos_silabas';
   const isKitPlan = KIT_PLANS.includes(plan);
   // Brazil decision (2026-08-20): Stripe leaves every one-time BR plan (kits +
   // 30-day pass/bump) - create-public-pix-payment now creates a single Asaas
@@ -237,6 +254,19 @@ function openCheckoutModal(lang, plan){
         <label class="checkout-bump-label">
           <input type="checkbox" id="checkoutBumpCheck">
           <span>${t.bumpOfferLabel}</span>
+        </label>
+      </div>` : ''}
+
+      ${showAddons ? `
+      <div class="checkout-bump">
+        <div class="checkout-bump-badge">🎁 Aproveite e leve junto</div>
+        <label class="checkout-bump-label">
+          <input type="checkbox" id="checkoutAddonBaralho" data-addon="baralho_foco">
+          <span>Baralho do Foco <strong>+ R$ 20</strong></span>
+        </label>
+        <label class="checkout-bump-label">
+          <input type="checkbox" id="checkoutAddonKitCompleto" data-addon="kit_completo">
+          <span>Kit Completo VisCare Kids <strong>+ R$ 10</strong></span>
         </label>
       </div>` : ''}
 
@@ -321,6 +351,31 @@ function openCheckoutModal(lang, plan){
     });
   }
 
+  // Order-bump add-ons (showAddons only) - additive, unlike the plan-swap
+  // bump above: sums the base price + whichever add-ons are checked, and
+  // sends their skus alongside the unchanged base `plan` to
+  // create-public-pix-payment, which is the actual source of truth for price.
+  const addonBaralhoCheck = overlay.querySelector('#checkoutAddonBaralho');
+  const addonKitCompletoCheck = overlay.querySelector('#checkoutAddonKitCompleto');
+  const getSelectedAddons = () => {
+    const selected = [];
+    if(addonBaralhoCheck && addonBaralhoCheck.checked) selected.push('baralho_foco');
+    if(addonKitCompletoCheck && addonKitCompletoCheck.checked) selected.push('kit_completo');
+    return selected;
+  };
+  const updateAddonsSummary = () => {
+    const selected = getSelectedAddons();
+    const total = JOGOS_SILABAS_BASE_VALUE + selected.reduce((sum, sku) => sum + JOGOS_SILABAS_ADDONS[sku].value, 0);
+    summaryPriceEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    const names = [t[plan].productName, ...selected.map(sku => JOGOS_SILABAS_ADDONS[sku].name)];
+    summaryNoteEl.textContent = selected.length ? `Inclui: ${names.join(' + ')}` : t[plan].note;
+  };
+  if(showAddons){
+    [addonBaralhoCheck, addonKitCompletoCheck].forEach(check => {
+      if(check) check.addEventListener('change', updateAddonsSummary);
+    });
+  }
+
   // Single unified Asaas flow (Pix + Credit Card on Asaas's own hosted
   // invoice page) - no method choice, straight to CPF + finalize.
   if(isAsaasOnlyOneTime){
@@ -347,10 +402,11 @@ function openCheckoutModal(lang, plan){
       finalizeBtn.disabled = true;
       finalizeBtn.textContent = t.redirecting;
       try{
+        const addons = showAddons ? getSelectedAddons() : [];
         const response = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/create-public-pix-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, phone, cpfCnpj: digits, plan: effectivePlan, leadId: leadId || undefined, fbc, fbp }),
+          body: JSON.stringify({ email, phone, cpfCnpj: digits, plan: effectivePlan, addons, leadId: leadId || undefined, fbc, fbp }),
         });
         const result = await response.json();
         if(!response.ok || !result.invoiceUrl) throw new Error(result.error || 'checkout_failed');

@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
   try {
-    const { email, phone, cpfCnpj, plan, leadId, fbc, fbp } = await req.json();
+    const { email, phone, cpfCnpj, plan, addons, leadId, fbc, fbp } = await req.json();
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return new Response(JSON.stringify({ error: 'invalid_email' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -62,6 +62,18 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'missing_cpf' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const isKit = KIT_PLANS.includes(plan);
+    // Order-bump add-ons (2026-08-22, metodo.html single-product test) -
+    // only jogos_silabas offers these, and only these two skus are ever
+    // honored, regardless of what the client sends - server stays the
+    // source of truth for price so a crafted request can't attach a
+    // discounted addon to an unrelated plan. Fixed order (not click order)
+    // keeps the combined sku string / description deterministic.
+    const ADDON_ORDER = ['baralho_foco', 'kit_completo'];
+    const requestedAddons: string[] = Array.isArray(addons) ? addons : [];
+    const validAddons = plan === 'jogos_silabas'
+      ? ADDON_ORDER.filter((sku) => requestedAddons.includes(sku))
+      : [];
+    const combinedSku = [plan, ...validAddons].join('+');
     // bump30 is the same one-time 30-day access as 30days, just offered at a
     // discounted price as an in-checkout upsell (see the checkout bump
     // checkbox) instead of the regular avulso price - no recurrence either
@@ -76,7 +88,7 @@ Deno.serve(async (req) => {
     // specific payment confirms - carries fbc/fbp so the Purchase CAPI call
     // can match the sale back to the ad that drove it, not just a hashed e-mail.
     const externalReference = isKit
-      ? `content_kit:${plan}:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`
+      ? `content_kit:${combinedSku}:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`
       : `pending:${email}|${leadId || ''}|${fbc || ''}|${fbp || ''}`;
 
     // phone is optional and only kept on the Asaas customer record for
@@ -110,6 +122,18 @@ Deno.serve(async (req) => {
       } else if (plan === 'jogos_silabas') {
         value = Number(Deno.env.get('ASAAS_JOGOS_SILABAS_VALUE_BRL') ?? '27.00');
         description = '100 Jogos de Sons, Sílabas e Palavras';
+        // Order-bump add-ons - see validAddons/combinedSku above. Bump prices
+        // are their own env vars, deliberately separate from each product's
+        // own standalone ASAAS_*_VALUE_BRL (a bump is meant to be a steep
+        // discount off buying the same item separately).
+        if (validAddons.includes('baralho_foco')) {
+          value += Number(Deno.env.get('ASAAS_BUMP_BARALHO_FOCO_BRL') ?? '20.00');
+          description += ' + Baralho do Foco';
+        }
+        if (validAddons.includes('kit_completo')) {
+          value += Number(Deno.env.get('ASAAS_BUMP_KIT_COMPLETO_BRL') ?? '10.00');
+          description += ' + Kit Completo VisCare Kids';
+        }
       } else if (plan === 'baralho_foco') {
         value = Number(Deno.env.get('ASAAS_BARALHO_FOCO_VALUE_BRL') ?? '27.00');
         description = 'Baralho do Foco — 60 Missões de Atenção';

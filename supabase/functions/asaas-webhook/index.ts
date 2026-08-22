@@ -337,20 +337,30 @@ const KIT_EMAIL_COPY = {
 // be redistributed by URL. 30 days is generous enough for the buyer to get
 // to it without leaving the link usable indefinitely if it ever leaks.
 //
-// `bonusSku`, when given, appends a second kit's files to the same email as
-// a free gift (the kit_completo -> kit_mini "brinde", same as stripe-webhook).
-// Fetched best-effort: a missing/not-yet-uploaded bonus file must never
-// block delivery of what was actually paid for.
-async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, sku: string, bonusSku?: string) {
-  const kit = KIT_DELIVERY[sku]?.pt;
-  if (!kit) throw new Error(`sendKitDeliveryEmail: unknown product_sku "${sku}"`);
+// `skus` is every sku actually paid for in this one payment - a single
+// standalone purchase (all existing plans) just passes a 1-element array,
+// an order-bump purchase (jogos_silabas + baralho_foco/kit_completo) passes
+// 2-3. `bonusSku`, when given, appends a second kit's files to the same
+// email as a FREE gift (the kit_completo -> kit_mini "brinde", same as
+// stripe-webhook) - kept separate from `skus` because a bonus is framed
+// differently in the email (see copy.bonusLabel below) than a paid add-on,
+// which is just another purchased item in the list. Fetched best-effort: a
+// missing/not-yet-uploaded bonus file must never block delivery of what was
+// actually paid for.
+async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, to: string, skus: string[], bonusSku?: string) {
+  const kits = skus.map((s) => KIT_DELIVERY[s]?.pt).filter((k): k is NonNullable<typeof k> => Boolean(k));
+  if (!kits.length) throw new Error(`sendKitDeliveryEmail: no known product_sku among "${skus.join('+')}"`);
   const copy = KIT_EMAIL_COPY.pt;
 
-  const links = await Promise.all(kit.files.map(async (f) => {
-    const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
-    if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
-    return { label: f.label, url: data.signedUrl };
-  }));
+  const links: { label: string; url: string }[] = [];
+  for (const kit of kits) {
+    const kitLinks = await Promise.all(kit.files.map(async (f) => {
+      const { data, error } = await supabase.storage.from(KIT_PDF_BUCKET).createSignedUrl(f.path, 60 * 60 * 24 * 30);
+      if (error) throw new Error(`createSignedUrl failed for ${f.path}: ${error.message}`);
+      return { label: f.label, url: data.signedUrl };
+    }));
+    links.push(...kitLinks);
+  }
 
   if (bonusSku) {
     const bonusKit = KIT_DELIVERY[bonusSku]?.pt;
@@ -368,6 +378,11 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
     }
   }
 
+  // A standalone purchase has one kit, so this reads exactly as before; an
+  // order-bump purchase joins all purchased names (e.g. "100 Jogos de Sons,
+  // Sílabas e Palavras + Baralho do Foco") for the subject/greeting.
+  const combinedName = kits.map((k) => k.name).join(' + ');
+
   const listHtml = links.map((l) =>
     `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
   ).join('');
@@ -375,7 +390,7 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
     <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
       <p>${copy.greeting}</p>
-      <p>${copy.thanks(kit.name)}</p>
+      <p>${copy.thanks(combinedName)}</p>
       ${listHtml}
       <p style="font-size:12px; color:#8A8067; margin-top:20px;">${copy.expiry}</p>
     </div>
@@ -384,7 +399,7 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: copy.subject(kit.name), html }),
+    body: JSON.stringify({ from: FROM_ADDRESS, to: [to], subject: copy.subject(combinedName), html }),
   });
   if (!res.ok) throw new Error(`Resend error ${res.status}: ${await res.text()}`);
 }
@@ -497,6 +512,11 @@ async function handleContentKitPayment(supabase: ReturnType<typeof createClient>
   const withoutPrefix = ref.slice('content_kit:'.length);
   const colonIdx = withoutPrefix.indexOf(':');
   const sku = withoutPrefix.slice(0, colonIdx);
+  // sku may be a single plan (unchanged path) or a '+'-joined list from an
+  // order-bump purchase (jogos_silabas+baralho_foco, see
+  // create-public-pix-payment's combinedSku) - a plain single sku just
+  // yields a 1-element array here, so every existing plan is unaffected.
+  const skus = sku.split('+');
   const [email, leadId, fbc, fbp] = withoutPrefix.slice(colonIdx + 1).split('|');
   const value = typeof payment.value === 'number' ? payment.value : 0;
 
@@ -524,8 +544,8 @@ async function handleContentKitPayment(supabase: ReturnType<typeof createClient>
   // "brinde" instead (2026-08-22 decision), same price, no PDF change beyond
   // the added bonus file.
   if (email) {
-    const bonusSku = sku === 'combo_jogos_baralho' ? 'kit_mini' : undefined;
-    await sendKitDeliveryEmail(supabase, email, sku, bonusSku);
+    const bonusSku = skus.length === 1 && skus[0] === 'combo_jogos_baralho' ? 'kit_mini' : undefined;
+    await sendKitDeliveryEmail(supabase, email, skus, bonusSku);
   }
 
   if (email && value) {

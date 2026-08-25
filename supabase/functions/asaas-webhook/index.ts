@@ -327,6 +327,27 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       ],
     },
   },
+  pare_de_repetir: {
+    pt: {
+      name: 'Pare de Repetir — 100 Comandos Visuais',
+      files: [{ label: 'Pare de Repetir — 100 Comandos Visuais', path: 'pare-de-repetir-pt.pdf' }],
+    },
+  },
+  pare_de_repetir_pro: {
+    pt: {
+      name: 'Pare de Repetir — 100 Comandos Visuais',
+      files: [{ label: 'Pare de Repetir — 100 Comandos Visuais', path: 'pare-de-repetir-pt.pdf' }],
+    },
+  },
+  // digital_pack is never sold on its own - only as a paid order-bump addon
+  // on pare_de_repetir (see checkout.js's ADDON_CONFIG) - the 'dp' short
+  // code below is what actually shows up in a purchased sku list.
+  digital_pack: {
+    pt: {
+      name: 'Pacote Digital de Comandos (100 imagens)',
+      files: [{ label: 'Pacote Digital (100 imagens)', path: 'pare-de-repetir-comandos-digitais.zip' }],
+    },
+  },
 };
 
 // Order-bump add-ons (2026-08-22) are packed into externalReference under
@@ -339,6 +360,7 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
 KIT_DELIVERY.bf = KIT_DELIVERY.baralho_foco;
 KIT_DELIVERY.kc = KIT_DELIVERY.kit_completo;
 KIT_DELIVERY.km = KIT_DELIVERY.kit_mini;
+KIT_DELIVERY.dp = KIT_DELIVERY.digital_pack;
 
 const KIT_EMAIL_COPY = {
   pt: { greeting: 'Oi!', thanks: (name: string) => `Obrigada por comprar <b>${name}</b> 🎉 Aqui estão seus arquivos, prontos pra baixar e imprimir:`, expiry: 'Cada link fica válido por 30 dias. Se expirar, é só escrever pra gente que mandamos um novo.', subject: (name: string) => `${name} está pronto pra você!`, bonusLabel: '🎁 De brinde' },

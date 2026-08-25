@@ -43,7 +43,7 @@ async function asaasFetch(path: string, init: RequestInit = {}) {
 // PDF, no game login, must never grant premium access.
 // _pro variants (2026-08-22): same PDFs, repositioned + priced higher for
 // profissionais.html - see checkout.js's KIT_PLANS comment for why.
-const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro', 'pare_de_repetir', 'pare_de_repetir_pro'];
 // familias.html is the only page that includes checkout.js/handles
 // ?checkout=success (vendas.html is Home-only since the 2026-08-13 split).
 const RETURN_BASE_URL = 'https://www.viscarekids.com/familias.html';
@@ -62,23 +62,27 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'missing_cpf' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const isKit = KIT_PLANS.includes(plan);
-    // Order-bump add-ons (2026-08-22, metodo.html single-product test) -
-    // only jogos_silabas offers these, and only these three skus are ever
+    // Order-bump add-ons (2026-08-22, metodo.html single-product test;
+    // generalized 2026-08-25 for pare_de_repetir's own bump) - only plans
+    // listed here offer add-ons, and only their own listed skus are ever
     // honored, regardless of what the client sends - server stays the
     // source of truth for price so a crafted request can't attach a
     // discounted addon to an unrelated plan. Fixed order (not click order)
-    // keeps the combined sku string / description deterministic.
-    const ADDON_ORDER = ['baralho_foco', 'kit_completo', 'kit_mini'];
-    const requestedAddons: string[] = Array.isArray(addons) ? addons : [];
-    const validAddons = plan === 'jogos_silabas'
-      ? ADDON_ORDER.filter((sku) => requestedAddons.includes(sku))
-      : [];
-    // Short codes for the sku segment of externalReference only (Asaas caps
+    // keeps the combined sku string / description deterministic. Short
+    // codes are for the sku segment of externalReference only (Asaas caps
     // that field at 100 chars total - see buildExternalReference below; the
-    // full names still appear in the customer-facing `description`).
+    // full names still appear in the customer-facing `description`) -
     // asaas-webhook aliases these same codes back onto KIT_DELIVERY.
-    const ADDON_SHORT_CODE: Record<string, string> = { baralho_foco: 'bf', kit_completo: 'kc', kit_mini: 'km' };
-    const combinedSku = [plan, ...validAddons.map((sku) => ADDON_SHORT_CODE[sku])].join('+');
+    const ADDON_CONFIG: Record<string, { order: string[]; shortCodes: Record<string, string> }> = {
+      jogos_silabas: { order: ['baralho_foco', 'kit_completo', 'kit_mini'], shortCodes: { baralho_foco: 'bf', kit_completo: 'kc', kit_mini: 'km' } },
+      pare_de_repetir: { order: ['digital_pack'], shortCodes: { digital_pack: 'dp' } },
+    };
+    const requestedAddons: string[] = Array.isArray(addons) ? addons : [];
+    const planAddonConfig = ADDON_CONFIG[plan];
+    const validAddons = planAddonConfig
+      ? planAddonConfig.order.filter((sku) => requestedAddons.includes(sku))
+      : [];
+    const combinedSku = [plan, ...validAddons.map((sku) => planAddonConfig!.shortCodes[sku])].join('+');
     // bump30 is the same one-time 30-day access as 30days, just offered at a
     // discounted price as an in-checkout upsell (see the checkout bump
     // checkbox) instead of the regular avulso price - no recurrence either
@@ -178,6 +182,16 @@ Deno.serve(async (req) => {
       } else if (plan === 'combo_jogos_baralho_pro') {
         value = Number(Deno.env.get('ASAAS_COMBO_JOGOS_BARALHO_PRO_VALUE_BRL') ?? '77.00');
         description = 'Combo: 100 Jogos de Sons, Sílabas e Palavras + Baralho do Foco — Uso Profissional';
+      } else if (plan === 'pare_de_repetir') {
+        value = Number(Deno.env.get('ASAAS_PARE_DE_REPETIR_VALUE_BRL') ?? '27.00');
+        description = 'Pare de Repetir — 100 Comandos Visuais';
+        if (validAddons.includes('digital_pack')) {
+          value += Number(Deno.env.get('ASAAS_BUMP_DIGITAL_PACK_BRL') ?? '10.00');
+          description += ' + Pacote Digital';
+        }
+      } else if (plan === 'pare_de_repetir_pro') {
+        value = Number(Deno.env.get('ASAAS_PARE_DE_REPETIR_PRO_VALUE_BRL') ?? '47.00');
+        description = 'Pare de Repetir — 100 Comandos Visuais — Uso Profissional';
       } else if (plan === 'bump30') {
         value = Number(Deno.env.get('ASAAS_BUMP_VALUE_BRL') ?? '24.90');
         description = 'Ilha do Foco + Aventura das Letras — Premium (30 dias, oferta especial)';

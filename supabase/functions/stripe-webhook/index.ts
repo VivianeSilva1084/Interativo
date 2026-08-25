@@ -474,6 +474,16 @@ const KIT_DELIVERY: Record<string, Record<string, KitInfo>> = {
       ],
     },
   },
+  pare_de_repetir_pro: {
+    it: {
+      name: 'Smetti di Ripetere — 100 Comandi Visivi',
+      files: [{ label: 'Smetti di Ripetere — 100 Comandi Visivi', path: 'pare-de-repetir-it-v2.pdf' }],
+    },
+    pt: {
+      name: 'Pare de Repetir — 100 Comandos Visuais',
+      files: [{ label: 'Pare de Repetir — 100 Comandos Visuais', path: 'pare-de-repetir-pt.pdf' }],
+    },
+  },
 };
 
 const KIT_EMAIL_COPY = {

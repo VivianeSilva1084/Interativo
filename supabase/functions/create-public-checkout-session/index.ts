@@ -32,8 +32,8 @@ Deno.serve(async (req) => {
     // repositioned + priced for profissionais.html - it/Stripe only, since pt
     // kit plans always route through Asaas instead (checkout.js's
     // isAsaasOnlyOneTime), so no BRL price lookup is needed for these.
-    const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
-    const PRO_KIT_PLANS = ['jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
+    const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro', 'pare_de_repetir_pro'];
+    const PRO_KIT_PLANS = ['jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro', 'pare_de_repetir_pro'];
     const isOneTime = plan === '30days' || plan === 'bump30' || KIT_PLANS.includes(plan);
 
     // product_type drives stripe-webhook's branching, not session.mode: a
@@ -76,6 +76,7 @@ Deno.serve(async (req) => {
         jogos_silabas_pro: 'STRIPE_PRICE_ID_JOGOS_SILABAS_PRO',
         baralho_foco_pro: 'STRIPE_PRICE_ID_BARALHO_FOCO_PRO',
         combo_jogos_baralho_pro: 'STRIPE_PRICE_ID_COMBO_JOGOS_BARALHO_PRO',
+        pare_de_repetir_pro: 'STRIPE_PRICE_ID_PARE_DE_REPETIR_PRO',
       }[plan as string];
       const priceId = Deno.env.get(`${envPrefix}_EUR`);
       if (!priceId) return new Response(JSON.stringify({ error: 'price_not_configured' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

@@ -32,20 +32,36 @@ function isValidCpfCnpj(digits){
 // per the user's explicit pivot decision. Unlike the parent SKUs these ARE
 // sold in both languages - pt via Asaas (isAsaasOnlyOneTime below), it via
 // Stripe, same as kit_mini/kit_completo.
-const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro'];
+const KIT_PLANS = ['kit_mini', 'kit_completo', 'jogos_silabas', 'baralho_foco', 'combo_jogos_baralho', 'jogos_silabas_pro', 'baralho_foco_pro', 'combo_jogos_baralho_pro', 'pare_de_repetir', 'pare_de_repetir_pro'];
 
-// Order-bump add-ons offered only at jogos_silabas checkout (2026-08-22,
-// metodo.html single-product test) - discounted well below their standalone
-// price since they're an impulse add-on to an already-committed buyer, not
-// a replacement for the standalone baralho_foco/kit_completo cards on
-// familias.html/profissionais.html. pt/Asaas-only, same scope as jogos_silabas
-// itself - numeric here (unlike CHECKOUT_COPY's display-string prices)
-// because the modal needs to sum a running total, not just show a label.
-const JOGOS_SILABAS_BASE_VALUE = 27.00;
-const JOGOS_SILABAS_ADDONS = {
-  baralho_foco: { value: 20.00, name: 'Baralho do Foco' },
-  kit_completo: { value: 10.00, name: 'Kit Completo VisCare Kids' },
-  kit_mini: { value: 7.00, name: 'Mini Kit Atenção' },
+// Order-bump add-ons, keyed by base plan (2026-08-22, metodo.html
+// single-product test; generalized 2026-08-25 when pare_de_repetir got its
+// own bump) - discounted well below standalone price since they're an
+// impulse add-on to an already-committed buyer, not a replacement for the
+// standalone cards on familias.html/profissionais.html. pt/Asaas-only.
+// Numeric here (unlike CHECKOUT_COPY's display-string prices) because the
+// modal needs to sum a running total, not just show a label.
+const ADDON_CONFIG = {
+  jogos_silabas: {
+    base: 27.00,
+    addons: {
+      baralho_foco: { value: 20.00, name: 'Baralho do Foco' },
+      kit_completo: { value: 10.00, name: 'Kit Completo VisCare Kids' },
+      kit_mini: { value: 7.00, name: 'Mini Kit Atenção' },
+    },
+  },
+  pare_de_repetir: {
+    base: 27.00,
+    addons: {
+      digital_pack: { value: 10.00, name: 'Pacote Digital (100 imagens pro celular)' },
+    },
+  },
+};
+const ADDON_THUMBS = {
+  baralho_foco: 'assets/mockup-baralho-foco.png',
+  kit_completo: 'assets/mockup-kit-completo.png',
+  kit_mini: 'assets/mockup-mini-kit.png',
+  digital_pack: 'assets/mockup-pare-de-repetir.png',
 };
 
 const CHECKOUT_COPY = {
@@ -61,6 +77,8 @@ const CHECKOUT_COPY = {
     jogos_silabas_pro: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: '100 Jogos de Sons, Sílabas e Palavras — Uso Profissional' },
     baralho_foco_pro: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: 'Baralho do Foco — Uso Profissional' },
     combo_jogos_baralho_pro: { price: 'R$ 77,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: 'Combo: Livro + Baralho do Foco — Uso Profissional' },
+    pare_de_repetir: { price: 'R$ 27,00', note: 'pagamento único · PDF por e-mail', productName: 'Pare de Repetir — 100 Comandos Visuais' },
+    pare_de_repetir_pro: { price: 'R$ 47,00', note: 'pagamento único · PDF por e-mail · uso profissional', productName: 'Pare de Repetir — 100 Comandos Visuais — Uso Profissional' },
     kitSuccessTitle: 'Pagamento confirmado! 🎉',
     kitSuccessBody: 'Enviamos os arquivos do seu kit pro seu e-mail. Não encontrou? Confira a caixa de spam.',
     invalidEmail: 'Digite um e-mail válido.',
@@ -100,6 +118,7 @@ const CHECKOUT_COPY = {
     jogos_silabas_pro: { price: '€ 27,90', note: 'pagamento unico · PDF via email · uso professionale', productName: '100 Giochi di Suoni, Sillabe e Parole — Uso Professionale' },
     baralho_foco_pro: { price: '€ 27,90', note: 'pagamento unico · PDF via email · uso professionale', productName: 'Il Mazzo del Focus — Uso Professionale' },
     combo_jogos_baralho_pro: { price: '€ 47,90', note: 'pagamento unico · PDF via email · uso professionale', productName: 'Combo: Libro + Mazzo del Focus — Uso Professionale' },
+    pare_de_repetir_pro: { price: '€ 27,90', note: 'pagamento unico · PDF via email · uso professionale', productName: 'Smetti di Ripetere — 100 Comandi Visivi — Uso Professionale' },
     kitSuccessTitle: 'Pagamento confermato! 🎉',
     kitSuccessBody: 'Ti abbiamo inviato i file del tuo kit via email. Non li trovi? Controlla lo spam.',
     invalidEmail: 'Inserisci un\'email valida.',
@@ -211,10 +230,11 @@ function openCheckoutModal(lang, plan){
   // a cheaper non-recurring option in front of them would just talk them
   // out of the recurring revenue instead of rescuing a hesitant one-time buyer.
   const showBump = lang === 'pt' && plan === '30days'; // bump30 only has BRL pricing - no EUR equivalent defined
-  // Order-bump checkboxes (2026-08-22) - separate from showBump above, which
-  // swaps the whole plan (30days<->bump30) rather than adding to it. Only
-  // jogos_silabas offers these for now (metodo.html single-product test).
-  const showAddons = lang === 'pt' && plan === 'jogos_silabas';
+  // Order-bump checkboxes (2026-08-22, generalized 2026-08-25) - separate
+  // from showBump above, which swaps the whole plan (30days<->bump30)
+  // rather than adding to it. Any plan listed in ADDON_CONFIG gets these.
+  const addonConfig = ADDON_CONFIG[plan];
+  const showAddons = lang === 'pt' && !!addonConfig;
   const isKitPlan = KIT_PLANS.includes(plan);
   // Brazil decision (2026-08-20): Stripe leaves every one-time BR plan (kits +
   // 30-day pass/bump) - create-public-pix-payment now creates a single Asaas
@@ -261,21 +281,12 @@ function openCheckoutModal(lang, plan){
       ${showAddons ? `
       <div class="checkout-bump">
         <div class="checkout-bump-badge">🎁 Aproveite e leve junto</div>
+        ${Object.entries(addonConfig.addons).map(([sku, cfg]) => `
         <label class="checkout-bump-label">
-          <input type="checkbox" id="checkoutAddonBaralho" data-addon="baralho_foco">
-          <img class="checkout-bump-thumb" src="assets/mockup-baralho-foco.png" alt="">
-          <span>Baralho do Foco <strong>+ R$ 20</strong></span>
-        </label>
-        <label class="checkout-bump-label">
-          <input type="checkbox" id="checkoutAddonKitCompleto" data-addon="kit_completo">
-          <img class="checkout-bump-thumb" src="assets/mockup-kit-completo.png" alt="">
-          <span>Kit Completo VisCare Kids <strong>+ R$ 10</strong></span>
-        </label>
-        <label class="checkout-bump-label">
-          <input type="checkbox" id="checkoutAddonKitMini" data-addon="kit_mini">
-          <img class="checkout-bump-thumb" src="assets/mockup-mini-kit.png" alt="">
-          <span>Mini Kit Atenção <strong>+ R$ 7</strong></span>
-        </label>
+          <input type="checkbox" id="checkoutAddon_${sku}" data-addon="${sku}">
+          <img class="checkout-bump-thumb" src="${ADDON_THUMBS[sku] || ''}" alt="">
+          <span>${cfg.name} <strong>+ R$ ${cfg.value.toFixed(0)}</strong></span>
+        </label>`).join('')}
       </div>` : ''}
 
       <div class="checkout-section">
@@ -364,27 +375,17 @@ function openCheckoutModal(lang, plan){
   // bump above: sums the base price + whichever add-ons are checked, and
   // sends their skus alongside the unchanged base `plan` to
   // create-public-pix-payment, which is the actual source of truth for price.
-  const addonBaralhoCheck = overlay.querySelector('#checkoutAddonBaralho');
-  const addonKitCompletoCheck = overlay.querySelector('#checkoutAddonKitCompleto');
-  const addonKitMiniCheck = overlay.querySelector('#checkoutAddonKitMini');
-  const getSelectedAddons = () => {
-    const selected = [];
-    if(addonBaralhoCheck && addonBaralhoCheck.checked) selected.push('baralho_foco');
-    if(addonKitCompletoCheck && addonKitCompletoCheck.checked) selected.push('kit_completo');
-    if(addonKitMiniCheck && addonKitMiniCheck.checked) selected.push('kit_mini');
-    return selected;
-  };
+  const addonChecks = showAddons ? Array.from(overlay.querySelectorAll('[data-addon]')) : [];
+  const getSelectedAddons = () => addonChecks.filter(c => c.checked).map(c => c.dataset.addon);
   const updateAddonsSummary = () => {
     const selected = getSelectedAddons();
-    const total = JOGOS_SILABAS_BASE_VALUE + selected.reduce((sum, sku) => sum + JOGOS_SILABAS_ADDONS[sku].value, 0);
+    const total = addonConfig.base + selected.reduce((sum, sku) => sum + addonConfig.addons[sku].value, 0);
     summaryPriceEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
-    const names = [t[plan].productName, ...selected.map(sku => JOGOS_SILABAS_ADDONS[sku].name)];
+    const names = [t[plan].productName, ...selected.map(sku => addonConfig.addons[sku].name)];
     summaryNoteEl.textContent = selected.length ? `Inclui: ${names.join(' + ')}` : t[plan].note;
   };
   if(showAddons){
-    [addonBaralhoCheck, addonKitCompletoCheck, addonKitMiniCheck].forEach(check => {
-      if(check) check.addEventListener('change', updateAddonsSummary);
-    });
+    addonChecks.forEach(check => check.addEventListener('change', updateAddonsSummary));
   }
 
   // Single unified Asaas flow (Pix + Credit Card on Asaas's own hosted

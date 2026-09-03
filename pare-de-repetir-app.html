@@ -430,19 +430,28 @@ function openSequence(routine){
 }
 
 // Access gate - paid content, not meant to be publicly browsable at this
-// URL. The code itself never appears in this file, only its SHA-256 hash,
-// so reading the page source doesn't reveal it - the code is sent to
-// buyers in their purchase confirmation e-mail (like the PDF signed links).
-// Client-side only (no backend for this static page), so this is a soft
-// gate - fine for low-stakes paid content, not meant to stop a determined
-// attacker with the file open in devtools.
-const GATE_HASH = '7335dae27ee60353cbfc1b2e13fb5e361bcfc06ceb5640dbf4da06acff95a7c1';
+// URL. Each buyer gets their own code (generated at delivery time, stored
+// in content_access_codes) checked against the server via check-access-code
+// - never a single shared secret, so one leaked/shared code can be revoked
+// without affecting any other buyer.
 const GATE_STORAGE_KEY = 'pdrUnlocked_v1';
 
-async function sha256Hex(text){
-  const data = new TextEncoder().encode(text.trim().toUpperCase());
-  const digest = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+async function checkCode(code){
+  try{
+    const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/check-access-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q',
+      },
+      body: JSON.stringify({ code }),
+    });
+    const result = await res.json();
+    return !!result.valid;
+  }catch{
+    return false;
+  }
 }
 
 function unlockApp(){
@@ -462,8 +471,8 @@ async function tryUnlock(){
   if(!code.trim()){ gateError.textContent = 'Digite o código.'; return; }
   gateSubmit.disabled = true;
   gateSubmit.textContent = 'Verificando...';
-  const hash = await sha256Hex(code);
-  if(hash === GATE_HASH){
+  const valid = await checkCode(code);
+  if(valid){
     try{ localStorage.setItem(GATE_STORAGE_KEY, '1'); }catch{}
     unlockApp();
   } else {

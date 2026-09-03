@@ -420,11 +420,33 @@ async function sendKitDeliveryEmail(supabase: ReturnType<typeof createClient>, t
     `<p style="text-align:center; margin-top:14px;"><a href="${l.url}" style="background:#B5713B; color:#fff; text-decoration:none; padding:12px 24px; border-radius:99px; font-weight:700; display:inline-block;">${l.label}</a></p>`
   ).join('');
 
+  // digital_pack ('dp' short code) is the Pare de Repetir order-bump that
+  // unlocks the searchable phone app (pare-de-repetir-app.html, deployed at
+  // /pare-de-repetir) instead of/alongside the zip file - the app is gated
+  // behind a per-purchase code (content_access_codes + check-access-code),
+  // never a shared secret, so one leaked code is revocable on its own.
+  let appAccessHtml = '';
+  if (skus.includes('dp') || skus.includes('digital_pack')) {
+    const code = crypto.randomUUID().slice(0, 8).toUpperCase();
+    const { error: codeError } = await supabase.from('content_access_codes').insert({ code, sku: 'pare_de_repetir', email: to });
+    if (codeError) {
+      console.error('Failed to create app access code (app link omitted from e-mail):', codeError.message);
+    } else {
+      appAccessHtml = `
+      <div style="margin-top:20px; padding:18px; background:#F0E6D6; border-radius:14px; text-align:center;">
+        <p style="margin:0 0 10px; font-weight:700;">📱 Prefere ver no celular?</p>
+        <p style="margin:0 0 12px; font-size:13.5px;">Acesse <a href="https://www.viscarekids.com/pare-de-repetir" style="color:#B5713B; font-weight:700;">viscarekids.com/pare-de-repetir</a> e use o código de acesso:</p>
+        <p style="margin:0; font-size:20px; font-weight:800; letter-spacing:2px; font-family:monospace;">${code}</p>
+      </div>`;
+    }
+  }
+
   const html = `<!DOCTYPE html><html><body style="font-family:'Plus Jakarta Sans',Arial,sans-serif; background:#F6EFDF; color:#1B2621; margin:0; padding:24px;">
     <div style="max-width:520px; margin:0 auto; background:#FFFDF7; border-radius:18px; padding:28px 26px;">
       <p>${copy.greeting}</p>
       <p>${copy.thanks(combinedName)}</p>
       ${listHtml}
+      ${appAccessHtml}
       <p style="font-size:12px; color:#8A8067; margin-top:20px;">${copy.expiry}</p>
     </div>
   </body></html>`;

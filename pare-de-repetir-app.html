@@ -168,6 +168,7 @@
     font-weight:800; font-size:15px; cursor:pointer; font-family:inherit;
   }
   .gate-error{ color:#B23A55; font-size:13px; margin-top:10px; min-height:16px; }
+  .gate-link-btn{ background:none; border:none; color:var(--ink-faint); font-size:13px; text-decoration:underline; cursor:pointer; font-family:inherit; margin-top:16px; padding:4px; }
 </style>
 
 <div class="gate" id="gate">
@@ -178,6 +179,15 @@
     <input type="text" id="gateInput" placeholder="Código de acesso" autocomplete="off" autocapitalize="characters">
     <button type="button" id="gateSubmit">Entrar</button>
     <p class="gate-error" id="gateError"></p>
+    <button type="button" id="forgotLink" class="gate-link-btn">Esqueci meu código</button>
+
+    <div id="forgotForm" hidden>
+      <p class="gate-sub" style="margin-top:18px;">Digite o e-mail que você usou na compra. Se encontrarmos, mandamos o código de novo.</p>
+      <input type="email" id="forgotEmail" placeholder="Seu e-mail" autocomplete="email">
+      <button type="button" id="forgotSubmit">Reenviar código</button>
+      <p class="gate-sub" id="forgotMsg" style="margin-top:10px; margin-bottom:0;"></p>
+      <button type="button" id="backToCode" class="gate-link-btn">← Voltar</button>
+    </div>
   </div>
 </div>
 
@@ -483,6 +493,44 @@ async function tryUnlock(){
 }
 gateSubmit.addEventListener('click', tryUnlock);
 gateInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tryUnlock(); });
+
+// "Esqueci meu código" - looks up the buyer by e-mail server-side
+// (resend-access-code) and re-sends it; always shows the same message
+// regardless of whether an account was found, so this can't be used to
+// check if a given e-mail made a purchase.
+const forgotLink = document.getElementById('forgotLink');
+const forgotForm = document.getElementById('forgotForm');
+const forgotEmail = document.getElementById('forgotEmail');
+const forgotSubmit = document.getElementById('forgotSubmit');
+const forgotMsg = document.getElementById('forgotMsg');
+const backToCode = document.getElementById('backToCode');
+
+forgotLink.addEventListener('click', () => { forgotLink.hidden = true; forgotForm.hidden = false; });
+backToCode.addEventListener('click', () => { forgotForm.hidden = true; forgotLink.hidden = false; forgotMsg.textContent = ''; });
+
+forgotSubmit.addEventListener('click', async () => {
+  const email = forgotEmail.value.trim();
+  if(!email || !email.includes('@')){ forgotMsg.textContent = 'Digite um e-mail válido.'; return; }
+  forgotSubmit.disabled = true;
+  forgotSubmit.textContent = 'Enviando...';
+  try{
+    const res = await fetch('https://pswmbqlafywaxphsrloe.supabase.co/functions/v1/resend-access-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzd21icWxhZnl3YXhwaHNybG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY2NDIsImV4cCI6MjA5OTUwMjY0Mn0.I1HYF8paNwyP8YE3z496marQW-3y2y1aomFjSZDuh4Q',
+      },
+      body: JSON.stringify({ email }),
+    });
+    const result = await res.json();
+    forgotMsg.textContent = result.message || 'Se encontrarmos uma compra com esse e-mail, enviamos o código.';
+  }catch{
+    forgotMsg.textContent = 'Não foi possível enviar agora. Tenta de novo em instantes.';
+  }
+  forgotSubmit.disabled = false;
+  forgotSubmit.textContent = 'Reenviar código';
+});
 
 (function checkExistingUnlock(){
   let already = false;

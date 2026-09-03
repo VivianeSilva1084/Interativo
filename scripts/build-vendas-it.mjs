@@ -100,6 +100,17 @@ const pages = [
     dest: 'politica-privacidade.html',
     title: 'Informativa sulla Privacy — VisCare Kids',
   },
+  // Standalone Italian app (search + rotinas) for the Pare de Repetir digital
+  // pack - already lang="it-IT" and self-contained, so title/description
+  // are omitted (forceItalianDefault/toAbsoluteAssetUrls are still safe
+  // no-ops on this file - it has no pt/it toggle to force and no local
+  // asset refs to rewrite, everything is inline base64). Same clean-URL
+  // path as the PT build's own /pare-de-repetir, since a visitor geo-
+  // redirected to it.viscarekids.com uses the identical link.
+  {
+    src: 'pare-de-repetir-app-it.html',
+    dest: 'pare-de-repetir/index.html',
+  },
 ];
 
 for (const { src, dest, title, description } of pages) {

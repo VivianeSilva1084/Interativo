@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+<meta name="robots" content="noindex, nofollow">
 <title>Pare de Repetir — App</title>
 <style>
   @font-face{ font-family:'Fraunces'; src: local('Fraunces'); }
@@ -150,9 +151,37 @@
   .seq-btn.next{ background:var(--ink); color:var(--bg); }
   .seq-done{ text-align:center; padding:40px 24px; }
   .seq-done .big{ font-size:64px; margin-bottom:12px; }
+
+  .gate{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .gate-card{ width:100%; max-width:360px; text-align:center; }
+  .gate-icon{ font-size:40px; margin-bottom:14px; }
+  .gate-title{ font-size:19px; font-weight:800; margin-bottom:6px; }
+  .gate-sub{ font-size:13.5px; color:var(--ink-soft); margin-bottom:22px; line-height:1.5; }
+  .gate-card input{
+    width:100%; padding:13px 16px; border-radius:12px; border:1.5px solid var(--line);
+    background:var(--surface); color:var(--ink); font-size:15px; font-family:inherit; text-align:center;
+    letter-spacing:.5px; text-transform:uppercase; margin-bottom:12px;
+  }
+  .gate-card input:focus{ outline:none; border-color:var(--caramel); }
+  .gate-card button{
+    width:100%; padding:14px; border-radius:12px; border:none; background:var(--ink); color:var(--bg);
+    font-weight:800; font-size:15px; cursor:pointer; font-family:inherit;
+  }
+  .gate-error{ color:#B23A55; font-size:13px; margin-top:10px; min-height:16px; }
 </style>
 
-<div class="phone">
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">Conteúdo pra quem comprou</div>
+    <p class="gate-sub">Digite o código de acesso que veio no seu e-mail de confirmação de compra.</p>
+    <input type="text" id="gateInput" placeholder="Código de acesso" autocomplete="off" autocapitalize="characters">
+    <button type="button" id="gateSubmit">Entrar</button>
+    <p class="gate-error" id="gateError"></p>
+  </div>
+</div>
+
+<div class="phone" id="phoneApp" hidden>
   <div class="app-header">
     <div class="app-title">✋ Pare de Repetir</div>
     <div class="app-sub" id="appSub">Toque numa carta pra mostrar em tela cheia</div>
@@ -400,8 +429,57 @@ function openSequence(routine){
   render();
 }
 
-renderChips();
-renderGrid();
+// Access gate - paid content, not meant to be publicly browsable at this
+// URL. The code itself never appears in this file, only its SHA-256 hash,
+// so reading the page source doesn't reveal it - the code is sent to
+// buyers in their purchase confirmation e-mail (like the PDF signed links).
+// Client-side only (no backend for this static page), so this is a soft
+// gate - fine for low-stakes paid content, not meant to stop a determined
+// attacker with the file open in devtools.
+const GATE_HASH = '7335dae27ee60353cbfc1b2e13fb5e361bcfc06ceb5640dbf4da06acff95a7c1';
+const GATE_STORAGE_KEY = 'pdrUnlocked_v1';
+
+async function sha256Hex(text){
+  const data = new TextEncoder().encode(text.trim().toUpperCase());
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function unlockApp(){
+  document.getElementById('gate').remove();
+  const phone = document.getElementById('phoneApp');
+  phone.hidden = false;
+  renderChips();
+  renderGrid();
+}
+
+const gateInput = document.getElementById('gateInput');
+const gateSubmit = document.getElementById('gateSubmit');
+const gateError = document.getElementById('gateError');
+
+async function tryUnlock(){
+  const code = gateInput.value;
+  if(!code.trim()){ gateError.textContent = 'Digite o código.'; return; }
+  gateSubmit.disabled = true;
+  gateSubmit.textContent = 'Verificando...';
+  const hash = await sha256Hex(code);
+  if(hash === GATE_HASH){
+    try{ localStorage.setItem(GATE_STORAGE_KEY, '1'); }catch{}
+    unlockApp();
+  } else {
+    gateError.textContent = 'Código inválido. Confira o e-mail de confirmação da compra.';
+    gateSubmit.disabled = false;
+    gateSubmit.textContent = 'Entrar';
+  }
+}
+gateSubmit.addEventListener('click', tryUnlock);
+gateInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') tryUnlock(); });
+
+(function checkExistingUnlock(){
+  let already = false;
+  try{ already = localStorage.getItem(GATE_STORAGE_KEY) === '1'; }catch{}
+  if(already) unlockApp();
+})();
 </script>
 
 </body>

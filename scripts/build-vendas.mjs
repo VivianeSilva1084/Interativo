@@ -60,6 +60,10 @@ const pages = [
   // as a directory index (same trick as vendas.html -> index.html above) so
   // it resolves at /metodo instead of /metodo.html.
   ['metodo.html', 'metodo/index.html'],
+  // Standalone mobile app (search + rotinas) for the Pare de Repetir digital
+  // pack - fully self-contained (all 100 illustrations inline as base64), no
+  // localAssetRefs needed. Clean URL via the same directory-index trick.
+  ['pare-de-repetir-app.html', 'pare-de-repetir/index.html'],
 ];
 
 for (const [src, dest] of pages) {
